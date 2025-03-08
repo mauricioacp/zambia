@@ -21,10 +21,12 @@
             "input": "apps/zambia/public"
           }
         ],
-        "styles": ["apps/zambia/src/styles.css"],
+        "styles": [
+          "apps/zambia/src/styles.css",
+          "apps/zambia/src/custom-theme.scss"
+        ],
         "scripts": [],
         "server": "apps/zambia/src/main.server.ts",
-        "_comment_": "to disable: ssr:false prerender:false ",
         "ssr": {
           "entry": "apps/zambia/src/server.ts"
         },
