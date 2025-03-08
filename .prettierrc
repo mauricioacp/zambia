@@ -5,15 +5,12 @@
   "htmlWhitespaceSensitivity": "ignore",
   "overrides": [
     {
-      "files": ["*.html", "*.ts"],
+      "files": [
+        "*.html",
+        "*.ts"
+      ],
       "options": {
         "printWidth": 120
-      }
-    },
-    {
-      "files": "*.html",
-      "options": {
-        "parser": "html"
       }
     }
   ]
