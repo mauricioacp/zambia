@@ -24,6 +24,7 @@
         "styles": ["apps/zambia/src/styles.css"],
         "scripts": [],
         "server": "apps/zambia/src/main.server.ts",
+        "_comment_":"to disable: ssr:false prerender:false ",
         "ssr": {
           "entry": "apps/zambia/src/server.ts"
         },
@@ -48,9 +49,7 @@
         "development": {
           "optimization": false,
           "extractLicenses": false,
-          "sourceMap": true,
-          "ssr": false,
-          "prerender": false
+          "sourceMap": true
         }
       },
       "defaultConfiguration": "production"
