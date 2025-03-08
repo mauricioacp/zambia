@@ -79,7 +79,6 @@ export default [
       '@angular-eslint/use-lifecycle-interface': 'error',
       '@angular-eslint/no-input-rename': 'off',
       '@angular-eslint/no-empty-lifecycle-method': ['error'],
-
     },
   },
 ];

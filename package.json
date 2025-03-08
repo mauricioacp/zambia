@@ -46,6 +46,7 @@
     "@nx/workspace": "20.5.0",
     "@playwright/test": "^1.36.0",
     "@schematics/angular": "19.2.1",
+    "@smarttools/eslint-plugin-rxjs": "^1.0.18",
     "@storybook/addon-essentials": "^8.4.6",
     "@storybook/addon-interactions": "^8.4.6",
     "@storybook/angular": "^8.4.6",
