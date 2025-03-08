@@ -1,13 +1,12 @@
 import { Route } from '@angular/router';
 import { ShellSmartComponent } from './components/smart/shell/shell.smart-component';
 
-
 const childRoutes: Route[] = [
   {
     path: '',
     redirectTo: 'dashboard',
-    pathMatch: 'full'
-  }
+    pathMatch: 'full',
+  },
   // {
   //   path: 'dashboard',
   //   loadChildren: () =>
@@ -21,6 +20,6 @@ export const zambiaFeatShellRoutes: Route[] = [
   {
     path: '',
     component: ShellSmartComponent,
-    children: childRoutes
-  }
+    children: childRoute,
+  },
 ];

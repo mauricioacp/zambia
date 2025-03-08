@@ -7,7 +7,7 @@ describe('AuthSmartComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AuthSmartComponent]
+      imports: [AuthSmartComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AuthSmartComponent);

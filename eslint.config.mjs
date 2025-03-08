@@ -5,7 +5,7 @@ export default [
   ...nx.configs['flat/typescript'],
   ...nx.configs['flat/javascript'],
   {
-    ignores: ['**/dist']
+    ignores: ['**/dist'],
   },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
@@ -18,23 +18,23 @@ export default [
           depConstraints: [
             {
               sourceTag: 'type:app',
-              onlyDependOnLibsWithTags: ['*']
+              onlyDependOnLibsWithTags: ['*'],
             },
             {
               sourceTag: 'type:api',
-              onlyDependOnLibsWithTags: ['type:api', 'type:util']
+              onlyDependOnLibsWithTags: ['type:api', 'type:util'],
             },
             {
               sourceTag: 'type:components',
               onlyDependOnLibsWithTags: [
                 'type:components',
                 'type:util',
-                'type:api'
-              ]
+                'type:api',
+              ],
             },
             {
               sourceTag: 'type:util',
-              onlyDependOnLibsWithTags: ['type:util']
+              onlyDependOnLibsWithTags: ['type:util'],
             },
             {
               sourceTag: 'type:feat',
@@ -43,21 +43,21 @@ export default [
                 'type:api',
                 'type:feat',
                 'type:components',
-                'type:data-access'
-              ]
+                'type:data-access',
+              ],
             },
             {
               sourceTag: 'scope:shared',
-              onlyDependOnLibsWithTags: ['scope:shared']
+              onlyDependOnLibsWithTags: ['scope:shared'],
             },
             {
               sourceTag: 'scope:zambia',
-              onlyDependOnLibsWithTags: ['scope:zambia', 'scope:shared']
-            }
-          ]
-        }
-      ]
-    }
+              onlyDependOnLibsWithTags: ['scope:zambia', 'scope:shared'],
+            },
+          ],
+        },
+      ],
+    },
   },
   {
     files: [
@@ -68,9 +68,9 @@ export default [
       '**/*.js',
       '**/*.jsx',
       '**/*.cjs',
-      '**/*.mjs'
+      '**/*.mjs',
     ],
     // Override or add rules here
-    rules: {}
-  }
+    rules: {},
+  },
 ];
