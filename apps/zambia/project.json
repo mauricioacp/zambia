@@ -4,23 +4,16 @@
   "projectType": "application",
   "prefix": "app",
   "sourceRoot": "apps/zambia/src",
-  "tags": [
-    "scope:zambia",
-    "type:app"
-  ],
+  "tags": ["scope:zambia", "type:app"],
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:application",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/zambia",
         "index": "apps/zambia/src/index.html",
         "browser": "apps/zambia/src/main.ts",
-        "polyfills": [
-          "zone.js"
-        ],
+        "polyfills": [],
         "tsConfig": "apps/zambia/tsconfig.app.json",
         "assets": [
           {
@@ -85,9 +78,7 @@
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": [
-        "{workspaceRoot}/coverage/{projectRoot}"
-      ],
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "jestConfig": "apps/zambia/jest.config.ts"
       }
@@ -117,9 +108,7 @@
     },
     "build-storybook": {
       "executor": "@storybook/angular:build-storybook",
-      "outputs": [
-        "{options.outputDir}"
-      ],
+      "outputs": ["{options.outputDir}"],
       "options": {
         "outputDir": "dist/storybook/zambia",
         "configDir": "apps/zambia/.storybook",
@@ -140,9 +129,7 @@
     },
     "static-storybook": {
       "executor": "@nx/web:file-server",
-      "dependsOn": [
-        "build-storybook"
-      ],
+      "dependsOn": ["build-storybook"],
       "options": {
         "buildTarget": "zambia:build-storybook",
         "staticFilePath": "dist/storybook/zambia",
