@@ -1,14 +1,16 @@
 import { ApplicationConfig, provideExperimentalZonelessChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { appRoutes } from './app.routes';
 import { provideClientHydration, withIncrementalHydration } from '@angular/platform-browser';
 import { provideTranslateService } from '@ngx-translate/core';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideRouter(appRoutes, withComponentInputBinding()),
     provideClientHydration(withIncrementalHydration()),
+    provideHttpClient(withFetch()),
     provideExperimentalZonelessChangeDetection(),
-    provideRouter(appRoutes),
     provideTranslateService({
       defaultLanguage: 'es',
     }),

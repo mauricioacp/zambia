@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { environment } from '../environments/environment';
 import { TranslateService } from '@ngx-translate/core';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
@@ -26,5 +27,7 @@ export class AppComponent {
       ...translationsEs,
       ...translationsEn,
     });
+
+    console.log('API URL:', environment.API_URL);
   }
 }

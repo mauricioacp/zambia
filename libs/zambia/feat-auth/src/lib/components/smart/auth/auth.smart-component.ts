@@ -117,7 +117,6 @@ interface AuthFormData {
               </div>
             </div>
             <!-- END Sign In Form -->
-
             <!-- Footer -->
             <div class="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
               Powered by

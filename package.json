@@ -4,7 +4,8 @@
   "license": "MIT",
   "scripts": {
     "start": "npx nx run zambia:storybook:ci",
-    "serve": "npx nx run zambia:serve:development",
+    "config": "ts-node ./apps/zambia/set-env.ts",
+    "serve": "npm run config && npx nx run zambia:serve:development",
     "test": "npx nx test zambia",
     "e2e": "npx nx e2e zambia",
     "cm": "cz",
@@ -27,6 +28,7 @@
     "@angular/router": "19.2.1",
     "@angular/ssr": "19.2.1",
     "@ngx-translate/core": "^16.0.4",
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "rxjs": "~7.8.0"
   },
