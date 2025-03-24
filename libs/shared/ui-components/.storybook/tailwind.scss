@@ -1,0 +1,8 @@
+@import 'tailwindcss';
+
+.dark {
+  @apply bg-gray-900;
+}
+.light {
+  @apply bg-white;
+}

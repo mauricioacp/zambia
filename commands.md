@@ -4,3 +4,4 @@ npx nx g @nx/angular:library --name=feat-auth --tags=scope:zambia,type:feat --di
 npx nx g @nx/angular:library --name=feat-shell --tags=scope:zambia,type:feat --directory=libs/zambia/feat-shell
 nx g @nx/angular:component --path=components/shell --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=shell --type=smart-component --dry-run
 nx g @nx/angular:component --path=libs/zambia/feat-auth/src/lib/components/smart/auth/auth --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=auth --type=smart-component --dry-run
+nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/navbar --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=navbar --type=ui-component --dry-run
