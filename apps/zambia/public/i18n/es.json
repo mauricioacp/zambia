@@ -1,0 +1,15 @@
+{
+  "the.akademy": "La Akademia",
+  "welcome-log-in": "Bienvenido, ingresa tus credenciales para acceder al sistema",
+  "email": "Email",
+  "enter-your-email": "Ingresa tu email",
+  "invalid-email": "Email no válido",
+  "password": "Contraseña",
+  "enter-your-password": "Ingresa tu contraseña",
+  "password-min-length-error": "La contraseña debe tener al menos 6 caracteres",
+  "remember-me": "Recuérdame",
+  "forgot-password": "¿Olvidaste la contraseña?",
+  "log-in": "Ingresar",
+  "no-account": "¿No tienes una cuenta?",
+  "sign-up": "Quiero registrarme"
+}
