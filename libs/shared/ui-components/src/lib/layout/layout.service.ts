@@ -7,10 +7,10 @@ export class LayoutService {
   readonly userDropdownOpen = signal(false);
 
   toggleSidebar() {
-    this.sidebarOpen.update(v => !v);
+    this.sidebarOpen.update((v) => !v);
   }
 
   toggleUserDropdown() {
-    this.userDropdownOpen.update(v => !v);
+    this.userDropdownOpen.update((v) => !v);
   }
 }

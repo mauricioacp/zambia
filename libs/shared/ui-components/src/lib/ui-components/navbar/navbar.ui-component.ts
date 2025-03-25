@@ -14,8 +14,6 @@ import { CommonModule } from '@angular/common';
     <div
       id="page-container"
       class="mx-auto flex min-h-dvh w-full min-w-80 flex-col bg-gray-100 lg:pl-72 dark:bg-gray-900 dark:text-gray-100">
-
-
       <!-- Page Header -->
       <!--
         Sidebar on Desktop
