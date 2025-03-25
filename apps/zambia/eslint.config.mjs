@@ -1,11 +1,28 @@
 import nx from '@nx/eslint-plugin';
 import baseConfig from '../../eslint.config.mjs';
+import rxjsPlugin from '@smarttools/eslint-plugin-rxjs';
+import angularTemplateParser from '@angular-eslint/template-parser';
+import tsParser from '@typescript-eslint/parser';
 
 export default [
   ...baseConfig,
   ...nx.configs['flat/angular'],
   ...nx.configs['flat/angular-template'],
   {
+    plugins: {
+      rxjs: rxjsPlugin,
+    },
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        project: [
+          './tsconfig.app.json',
+          './tsconfig.spec.json',
+          './.storybook/tsconfig.json',
+        ],
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
     files: ['**/*.ts'],
     rules: {
       '@angular-eslint/directive-selector': [
@@ -24,12 +41,6 @@ export default [
           style: 'kebab-case',
         },
       ],
-    },
-  },
-  {
-    files: ['**/*.html'],
-    // Override or add rules here
-    rules: {
       'no-extra-boolean-cast': 'error',
       'no-case-declarations': 'error',
       '@typescript-eslint/consistent-type-exports': 'error',
@@ -43,15 +54,6 @@ export default [
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
           caughtErrorsIgnorePattern: '^_',
-        },
-      ],
-      'rxjs-angular-x/prefer-takeuntil': [
-        'error',
-        {
-          checkComplete: false,
-          checkDecorators: ['Component', 'Directive', 'Injectable'],
-          alias: ['takeUntilDestroyed'],
-          checkDestroy: false,
         },
       ],
       'rxjs/ban-observables': ['error'],
@@ -79,6 +81,21 @@ export default [
       '@angular-eslint/use-lifecycle-interface': 'error',
       '@angular-eslint/no-input-rename': 'off',
       '@angular-eslint/no-empty-lifecycle-method': ['error'],
+    },
+  },
+  {
+    files: ['**/*.html'],
+    languageOptions: {
+      parser: angularTemplateParser,
+      parserOptions: {
+        project: [
+          './tsconfig.app.json',
+          './tsconfig.spec.json',
+          './.storybook/tsconfig.json',
+        ],
+        tsconfigRootDir: import.meta.dirname,
+        parser: tsParser,
+      },
     },
   },
 ];

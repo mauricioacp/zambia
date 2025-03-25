@@ -2,10 +2,8 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { environment } from '../environments/environment';
 import { TranslateService } from '@ngx-translate/core';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 import translationsEs from '../../public/i18n/es.json';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 import translationsEn from '../../public/i18n/en.json';
 
@@ -22,6 +20,7 @@ export class AppComponent {
   constructor() {
     this.#translate.addLangs(['es', 'en']);
     this.#translate.setDefaultLang('es');
+    // eslint-disable-next-line rxjs/no-ignored-observable
     this.#translate.use('es');
     this.#translate.setTranslation('es', {
       ...translationsEs,

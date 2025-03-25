@@ -1,4 +1,5 @@
-import { ApplicationConfig, provideExperimentalZonelessChangeDetection } from '@angular/core';
+import type { ApplicationConfig } from '@angular/core';
+import { provideExperimentalZonelessChangeDetection } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { appRoutes } from './app.routes';
 import { provideClientHydration, withIncrementalHydration } from '@angular/platform-browser';
