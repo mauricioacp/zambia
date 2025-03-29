@@ -1,16 +1,32 @@
 import { Injectable, signal } from '@angular/core';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root',
+})
 export class LayoutService {
-  readonly sidebarOpen = signal(false);
+  sidebarOpen = signal(true);
 
-  readonly userDropdownOpen = signal(false);
+  userDropdownOpen = signal(false);
 
-  toggleSidebar() {
-    this.sidebarOpen.update((v) => !v);
+  toggleSidebar(): void {
+    this.sidebarOpen.update((value) => !value);
   }
 
-  toggleUserDropdown() {
-    this.userDropdownOpen.update((v) => !v);
+  openSidebar(): void {
+    this.sidebarOpen.set(true);
+  }
+
+  closeSidebar(): void {
+    if (window.innerWidth < 1024) {
+      this.sidebarOpen.set(false);
+    }
+  }
+
+  toggleUserDropdown(): void {
+    this.userDropdownOpen.update((value) => !value);
+  }
+
+  closeUserDropdown(): void {
+    this.userDropdownOpen.set(false);
   }
 }
