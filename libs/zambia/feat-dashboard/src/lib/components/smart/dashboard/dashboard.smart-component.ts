@@ -170,7 +170,7 @@ import { MatIcon } from '@angular/material/icon';
                   href="javascript:void(0)"
                   class="group flex items-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-2.5 text-sm font-medium text-gray-900 dark:border-transparent dark:bg-gray-700/75 dark:text-white">
                   <span class="flex flex-none items-center text-blue-500 dark:text-gray-300">
-                     <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="home"></mat-icon>
+                    <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="home"></mat-icon>
                   </span>
                   <span class="grow py-2">Dashboard</span>
                   <span
