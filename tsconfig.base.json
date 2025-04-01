@@ -17,6 +17,7 @@
     "paths": {
       "@zambia/data-access-auth": ["libs/shared/data-access-auth/src/index.ts"],
       "@zambia/feat-auth": ["libs/zambia/feat-auth/src/index.ts"],
+      "@zambia/feat-dashboard": ["libs/zambia/feat-dashboard/src/index.ts"],
       "@zambia/feat-shell": ["libs/zambia/feat-shell/src/index.ts"],
       "@zambia/ui-components": ["libs/shared/ui-components/src/index.ts"]
     }

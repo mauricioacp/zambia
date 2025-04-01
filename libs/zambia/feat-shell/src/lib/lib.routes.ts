@@ -10,8 +10,8 @@ import { ShellSmartComponent } from './components/smart/shell/shell.smart-compon
 //   // {
 //   //   path: 'dashboard',
 //   //   loadChildren: () =>
-//   //     import('@simplified/influencer-feat-dashboard').then(
-//   //       (mod) => mod.influencerFeatDashboardRoutes
+//   //     import('@zambia/feat-dashboard').then(
+//   //       (mod) => mod.DashboardSmartComponent
 //   //     ),
 //   // },
 // ];
