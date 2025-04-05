@@ -1,4 +1,5 @@
+
 export const environment = {
   production: false,
-  API_URL: 'not loaded',
+  API_URL: 'http://localhost:3333',
 };
