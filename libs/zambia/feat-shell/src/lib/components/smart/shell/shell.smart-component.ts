@@ -26,5 +26,5 @@ import { DashboardSmartComponent } from '@zambia/feat-dashboard';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShellSmartComponent {
-  session = signal(true);
+  session = signal(false);
 }

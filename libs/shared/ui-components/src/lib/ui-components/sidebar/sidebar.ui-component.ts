@@ -77,11 +77,6 @@ import { MatIcon } from '@angular/material/icon';
                   ></mat-icon>
                 </span>
                 <span class="grow py-2">Mi sede</span>
-                <span
-                  class="inline-flex rounded-full border border-blue-200 bg-blue-100 px-1.5 py-0.5 text-xs leading-4 font-semibold text-blue-700 dark:border-blue-700 dark:bg-blue-700 dark:text-blue-50"
-                >
-                  3
-                </span>
               </a>
               <div
                 class="px-3 pt-5 pb-2 text-xs font-semibold tracking-wider text-gray-500 uppercase"

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { logoSvg } from '@zambia/ui-components';
+import { logoSvg, ThemeService } from '@zambia/ui-components';
 import { DomSanitizer } from '@angular/platform-browser';
 import {
   FormControl,
@@ -184,6 +184,7 @@ interface AuthFormData {
 })
 export class AuthSmartComponent {
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly themeService = inject(ThemeService);
 
   protected readonly safeSvg = this.sanitizer.bypassSecurityTrustHtml(logoSvg);
 
