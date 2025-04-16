@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@custom-variant dark (&:where(.dark, .dark *));
 
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
@@ -460,33 +461,7 @@ body {
   text-transform: uppercase;
 }
 
-/* Quotes styling */
-blockquote {
-  font-family: 'Source Sans Pro', sans-serif;
-  font-style: italic;
-  border-left: 4px solid var(--primary-blue);
-  padding-left: 1rem;
-  margin-left: 0;
-}
-
-/* Link styling */
-a {
-  font-family: 'Source Sans Pro', sans-serif;
-  font-weight: 700;
-  color: var(--primary-blue);
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
 html,
 body {
   height: 100%;
-}
-
-body {
-  margin: 0;
-  font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
