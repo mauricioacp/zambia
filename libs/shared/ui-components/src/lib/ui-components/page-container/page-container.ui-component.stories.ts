@@ -11,7 +11,13 @@ const meta: Meta<PageContainerUiComponent> = {
   subcomponents: { NavbarUiComponent, SidebarUiComponent },
   decorators: [
     moduleMetadata({
-      imports: [CommonModule, PageContainerUiComponent, NavbarUiComponent, SidebarUiComponent, SidebarMiniUiComponent],
+      imports: [
+        CommonModule,
+        PageContainerUiComponent,
+        NavbarUiComponent,
+        SidebarUiComponent,
+        SidebarMiniUiComponent,
+      ],
     }),
   ],
 };

@@ -1,18 +1,23 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatIcon } from '@angular/material/icon';
+import { MatIcon, MatIconRegistry } from '@angular/material/icon';
+import { logoSvg } from '../../assets/logo-svg';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'z-sidebar-mini',
   imports: [CommonModule, MatIcon],
   template: `
     <!-- Sidebar Mini -->
-    <div class="absolute top-0 bottom-0 left-0 z-10 flex w-14 flex-col border-r border-transparent bg-gray-900/50">
+    <div
+      class="absolute top-0 bottom-0 left-0 z-10 flex w-14 flex-col border-r border-transparent bg-gray-900/50"
+    >
       <!-- Brand -->
       <div class="flex-none">
         <a
           href="javascript:void(0)"
-          class="flex h-16 w-full items-center justify-center text-lg font-bold tracking-wide text-blue-400 hover:bg-gray-900 hover:text-blue-300 active:bg-gray-900/50">
+          class="flex h-16 w-full items-center justify-center text-lg font-bold tracking-wide text-blue-400 hover:bg-gray-900 hover:text-blue-300 active:bg-gray-900/50"
+        >
           <mat-icon class="logo-icon inline-block" svgIcon="logo"></mat-icon>
         </a>
       </div>
@@ -22,7 +27,8 @@ import { MatIcon } from '@angular/material/icon';
       <nav class="grow space-y-2 px-2 py-4">
         <a
           href="javascript:void(0)"
-          class="flex h-10 w-full items-center justify-center rounded-sm text-gray-300 hover:bg-gray-700 hover:text-gray-100 active:bg-gray-700/5">
+          class="flex h-10 w-full items-center justify-center rounded-sm text-gray-300 hover:bg-gray-700 hover:text-gray-100 active:bg-gray-700/5"
+        >
           <mat-icon>dashboard</mat-icon>
         </a>
       </nav>
@@ -32,12 +38,14 @@ import { MatIcon } from '@angular/material/icon';
       <nav class="flex-none space-y-2 px-2 py-4">
         <a
           href="javascript:void(0)"
-          class="flex h-10 w-full items-center justify-center rounded-sm text-gray-300 hover:bg-gray-700 hover:text-gray-100 active:bg-gray-700/5">
+          class="flex h-10 w-full items-center justify-center rounded-sm text-gray-300 hover:bg-gray-700 hover:text-gray-100 active:bg-gray-700/5"
+        >
           <mat-icon>settings</mat-icon>
         </a>
         <a
           href="javascript:void(0)"
-          class="flex h-10 w-full items-center justify-center rounded-sm text-gray-300 hover:bg-gray-700 hover:text-gray-100 active:bg-gray-700/5">
+          class="flex h-10 w-full items-center justify-center rounded-sm text-gray-300 hover:bg-gray-700 hover:text-gray-100 active:bg-gray-700/5"
+        >
           <mat-icon>logout</mat-icon>
         </a>
       </nav>
@@ -45,7 +53,22 @@ import { MatIcon } from '@angular/material/icon';
     </div>
     <!-- END Sidebar Mini -->
   `,
-  styles: ``,
+  styles: `
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SidebarMiniUiComponent {}
+export class SidebarMiniUiComponent {
+  private readonly iconRegistry = inject(MatIconRegistry);
+  private readonly domSanitizer = inject(DomSanitizer);
+
+  constructor() {
+    this.iconRegistry.addSvgIconLiteral(
+      'logo',
+      this.domSanitizer.bypassSecurityTrustHtml(logoSvg)
+    );
+  }
+}

@@ -12,3 +12,4 @@ npx nx g @nx/angular:library --name=feat-dashboard --tags=scope:zambia,type:feat
 nx g @nx/angular:component --path=libs/zambia/feat-dashboard/src/lib/components/smart/dashboard/dashboard --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=dashboard --type=smart-component --dry-run
 nx g @nx/angular:service --path=libs/shared/ui-components/src/lib/layout --name=Theme --project=ui-components --dry-run
 nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/footer/footer --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=page-footer --type=ui-component --dry-run
+nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/page-header/page-header --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=page-header --type=ui-component

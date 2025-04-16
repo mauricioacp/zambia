@@ -1,17 +1,12 @@
 {
+  "printWidth": 80,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
   "singleQuote": true,
-  "bracketSameLine": true,
-  "endOfLine": "auto",
-  "htmlWhitespaceSensitivity": "ignore",
-  "overrides": [
-    {
-      "files": [
-        "*.html",
-        "*.ts"
-      ],
-      "options": {
-        "printWidth": 120
-      }
-    }
-  ]
+  "trailingComma": "es5",
+  "bracketSpacing": true,
+  "arrowParens": "always",
+  "plugins": ["prettier-plugin-tailwindcss"]
 }
+

@@ -8,7 +8,8 @@ import { DashboardSmartComponent } from '@zambia/feat-dashboard';
   imports: [CommonModule, AuthSmartComponent, DashboardSmartComponent],
   template: `
     <main
-      class="bg-linear-to-r from-red-500 via-orange-400 to-yellow-400 dark:via-none dark:from-blue-500 dark:to-teal-400">
+      class="bg-linear-to-r from-red-500 via-orange-400 to-yellow-400 dark:via-none dark:from-blue-500 dark:to-teal-400"
+    >
       @if (session()) {
         <z-dashboard />
       } @else {

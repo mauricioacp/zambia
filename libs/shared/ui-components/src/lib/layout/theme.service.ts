@@ -15,6 +15,7 @@ let selectedTheme: AppTheme | undefined = undefined;
 if (CLIENT_RENDER) {
   selectedTheme = (localStorage.getItem(APP_THEME) as AppTheme) || undefined;
 }
+
 @Injectable({
   providedIn: 'root',
 })
@@ -22,6 +23,42 @@ export class ThemeService {
   private document = inject(DOCUMENT);
   currentTheme = signal<AppTheme | undefined>(selectedTheme);
   isDarkTheme = computed(() => this.currentTheme() === AppTheme.DARK);
+  private mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+  constructor() {
+    this.initializeTheme();
+    this.setupSystemThemeListener();
+  }
+
+  private initializeTheme() {
+    if (this.currentTheme() === undefined) {
+      if (this.mediaQuery.matches) {
+        this.addClassToHtml('dark');
+      } else {
+        this.removeClassFromHtml('dark');
+      }
+    } else {
+      if (this.currentTheme() === AppTheme.DARK) {
+        this.addClassToHtml('dark');
+      } else {
+        this.removeClassFromHtml('dark');
+      }
+    }
+  }
+
+  private setupSystemThemeListener() {
+    if (CLIENT_RENDER) {
+      this.mediaQuery.addEventListener('change', (e) => {
+        if (this.currentTheme() === undefined) {
+          if (e.matches) {
+            this.addClassToHtml('dark');
+          } else {
+            this.removeClassFromHtml('dark');
+          }
+        }
+      });
+    }
+  }
 
   setLightTheme() {
     this.currentTheme.set(AppTheme.LIGHT);
@@ -43,41 +80,22 @@ export class ThemeService {
     }
   }
 
-  setSystemTheme() {
-    this.currentTheme.set(undefined);
-    this.removeFromLocalStorage();
-    if (isSystemDark()) {
-      this.addClassToHtml('dark');
-    } else {
-      this.removeClassFromHtml('dark');
-    }
-  }
   private addClassToHtml(className: string) {
     if (CLIENT_RENDER) {
       this.removeClassFromHtml(className);
       this.document.documentElement.classList.add(className);
     }
   }
+
   private removeClassFromHtml(className: string) {
     if (CLIENT_RENDER) {
       this.document.documentElement.classList.remove(className);
     }
   }
+
   private setToLocalStorage(theme: AppTheme) {
     if (CLIENT_RENDER) {
       localStorage.setItem(APP_THEME, theme);
     }
-  }
-  private removeFromLocalStorage() {
-    if (CLIENT_RENDER) {
-      localStorage.removeItem(APP_THEME);
-    }
-  }
-}
-function isSystemDark() {
-  if (typeof window !== 'undefined') {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  } else {
-    return false;
   }
 }
