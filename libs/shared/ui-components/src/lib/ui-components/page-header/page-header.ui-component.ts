@@ -19,11 +19,7 @@ import { ThemeService } from '../../layout/theme.service';
         <div class="flex items-center gap-2">
           <!-- Toggle Sidebar on Desktop -->
           <div class="hidden lg:block">
-            <button
-              (click)="layoutService.toggleSidebar()"
-              mat-mini-fab
-              aria-label="Abrir/Cerrar menu"
-            >
+            <button (click)="layoutService.toggleSidebar()" mat-mini-fab aria-label="Abrir/Cerrar menu">
               <mat-icon>menu</mat-icon>
             </button>
           </div>
@@ -31,11 +27,7 @@ import { ThemeService } from '../../layout/theme.service';
 
           <!-- Toggle Sidebar on Mobile -->
           <div class="lg:hidden">
-            <button
-              (click)="layoutService.openSidebar()"
-              mat-mini-fab
-              aria-label="Abrir/Cerrar menu"
-            >
+            <button (click)="layoutService.openSidebar()" mat-mini-fab aria-label="Abrir/Cerrar menu">
               <mat-icon>menu</mat-icon>
             </button>
           </div>
@@ -73,9 +65,7 @@ import { ThemeService } from '../../layout/theme.service';
           <button
             mat-icon-button
             (click)="toggleTheme()"
-            [attr.aria-label]="
-              isDark() ? 'Switch to Light Mode' : 'Switch to Dark Mode'
-            "
+            [attr.aria-label]="isDark() ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
           >
             <mat-icon>{{ isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
           </button>

@@ -6,10 +6,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     <!-- Page Content -->
-    <main
-      id="page-content"
-      class="flex min-h-full max-w-full flex-auto grow flex-col pt-16"
-    >
+    <main id="page-content" class="flex min-h-full max-w-full flex-auto grow flex-col pt-16">
       <!-- Page Section -->
       <div class="max-w-10xl mx-auto w-full p-4 lg:p-8">
         <div

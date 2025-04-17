@@ -1,18 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FormFieldComponent,
-  logoSvg,
-  ThemeService,
-} from '@zambia/ui-components';
+import { FormFieldComponent, logoSvg, ThemeService } from '@zambia/ui-components';
 import { DomSanitizer } from '@angular/platform-browser';
-import {
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 
 interface AuthFormData {
@@ -23,13 +13,7 @@ interface AuthFormData {
 @Component({
   selector: 'z-auth',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule,
-    TranslatePipe,
-    FormFieldComponent,
-  ],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, TranslatePipe, FormFieldComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
     `
@@ -40,29 +24,16 @@ interface AuthFormData {
     `,
   ],
   template: `
-    <div
-      class="auth-container min-h-dvh bg-gray-100 dark:bg-gray-900 dark:text-gray-100"
-    >
+    <div class="auth-container min-h-dvh bg-gray-100 dark:bg-gray-900 dark:text-gray-100">
       <main class="flex max-w-full flex-auto flex-col">
-        <div
-          class="mx-auto flex min-h-dvh w-full items-center justify-center p-4 lg:p-8"
-        >
+        <div class="mx-auto flex min-h-dvh w-full items-center justify-center p-4 lg:p-8">
           <div class="w-full max-w-md lg:py-16">
-            <div
-              class="bg-primary flex flex-col overflow-hidden rounded-lg shadow-lg md:flex-row"
-            >
+            <div class="bg-primary flex flex-col overflow-hidden rounded-lg shadow-lg md:flex-row">
               <!-- Form Section -->
-              <section
-                class="bg-gray-100 px-6 py-10 md:px-10 lg:p-16 dark:bg-gray-800"
-              >
+              <section class="bg-gray-100 px-6 py-10 md:px-10 lg:p-16 dark:bg-gray-800">
                 <header class="mb-8 text-center">
-                  <h1
-                    class="text-primary mb-2 inline-flex items-center gap-2 text-2xl font-bold"
-                  >
-                    <div
-                      [innerHTML]="safeSvg"
-                      [class.dark-logo]="isDarkMode"
-                    ></div>
+                  <h1 class="text-primary mb-2 inline-flex items-center gap-2 text-2xl font-bold">
+                    <div [innerHTML]="safeSvg" [class.dark-logo]="isDarkMode"></div>
                     <span>{{ 'the.akademy' | translate }}</span>
                   </h1>
                   <h2 class="text-secondary text-sm font-medium">
@@ -70,11 +41,7 @@ interface AuthFormData {
                   </h2>
                 </header>
 
-                <form
-                  [formGroup]="authForm"
-                  class="space-y-6"
-                  (ngSubmit)="onSubmit()"
-                >
+                <form [formGroup]="authForm" class="space-y-6" (ngSubmit)="onSubmit()">
                   <z-form-field
                     [control]="emailControl"
                     label="email"
@@ -92,9 +59,7 @@ interface AuthFormData {
                   />
 
                   <div class="flex items-center justify-between pt-2">
-                    <a
-                      class="text-sm font-medium text-blue-600 hover:text-blue-500"
-                    >
+                    <a class="text-sm font-medium text-blue-600 hover:text-blue-500">
                       {{ 'forgot-password' | translate }}
                     </a>
                   </div>
@@ -131,10 +96,7 @@ export class AuthSmartComponent {
 
   readonly authForm = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
-    password: new FormControl('', [
-      Validators.required,
-      Validators.minLength(8),
-    ]),
+    password: new FormControl('', [Validators.required, Validators.minLength(8)]),
   });
 
   get emailControl() {

@@ -15,3 +15,7 @@ export * from './lib/ui-components/footer/footer.ui-component';
 export * from './lib/ui-components/page-header/page-header.ui-component';
 
 export * from './lib/ui-components/form-field/form-field.ui-component';
+
+export * from './lib/ui-components/brand/brand.ui-component';
+
+export * from './lib/ui-components/sidebar-nav-item/sidebar-nav-item.ui-component';

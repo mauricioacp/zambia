@@ -29,11 +29,7 @@ export class WindowService {
 
     // Use BreakpointObserver to track screen size changes
     this.breakpointObserver
-      .observe([
-        customBreakpoints.mobile,
-        customBreakpoints.tablet,
-        customBreakpoints.desktop,
-      ])
+      .observe([customBreakpoints.mobile, customBreakpoints.tablet, customBreakpoints.desktop])
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((result) => {
         if (result.breakpoints[customBreakpoints.mobile]) {

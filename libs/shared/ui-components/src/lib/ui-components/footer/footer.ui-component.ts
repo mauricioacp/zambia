@@ -7,16 +7,11 @@ import { RouterLink } from '@angular/router';
   imports: [CommonModule, RouterLink],
   template: `
     <!-- Page Footer -->
-    <footer
-      id="page-footer"
-      class="flex flex-none items-center bg-white dark:bg-gray-800/50"
-    >
+    <footer id="page-footer" class="flex flex-none items-center bg-white dark:bg-gray-800/50">
       <div
         class="max-w-10xl mx-auto flex w-full flex-col px-2 text-center text-sm md:flex-row md:justify-between md:px-4 md:text-left lg:px-8"
       >
-        <div
-          class="inline-flex items-center justify-center py-2 md:pt-4 md:pb-4"
-        >
+        <div class="inline-flex items-center justify-center py-2 md:pt-4 md:pb-4">
           <a
             routerLink="/help"
             class="cursor-pointer font-medium text-blue-600 hover:text-blue-400 dark:text-blue-400 dark:hover:text-blue-300"
