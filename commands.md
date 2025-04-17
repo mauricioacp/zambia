@@ -15,3 +15,10 @@ nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-component
 nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/page-header/page-header --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=page-header --type=ui-component
 nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/brand/brand --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=brand --type=ui-component
 nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/sidebar-nav-item/sidebar-nav-item --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=sidebar-nav-item --type=ui-component
+nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/sidebar-header/sidebar-header --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=sidebar-header --type=ui-component
+nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/sidebar-nav/sidebar-nav --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=sidebar-nav --type=ui-component
+nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/sidebar-item/main-sidebar-nav-item --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=main-sidebar-nav-item --type=ui-component
+nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/sidebar-nav-section-header/sidebar-nav-section-header --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=sidebar-nav-section-header --type=ui-component
+
+
+

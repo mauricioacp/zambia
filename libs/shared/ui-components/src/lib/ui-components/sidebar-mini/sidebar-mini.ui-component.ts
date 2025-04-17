@@ -9,7 +9,6 @@ import { BrandUiComponent } from '../brand/brand.ui-component';
   selector: 'z-sidebar-mini',
   imports: [CommonModule, BrandUiComponent],
   template: `
-    <!-- Sidebar Mini -->
     <div class="absolute top-0 bottom-0 left-0 z-10 flex w-14 flex-col border-r border-transparent bg-gray-900/50">
       <div class="flex-none">
         <z-brand></z-brand>
@@ -21,7 +20,6 @@ import { BrandUiComponent } from '../brand/brand.ui-component';
         <ng-content select="[user-nav]"></ng-content>
       </nav>
     </div>
-    <!-- END Sidebar Mini -->
   `,
   styles: `
     .logo-icon {

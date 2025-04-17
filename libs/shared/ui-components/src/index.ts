@@ -19,3 +19,11 @@ export * from './lib/ui-components/form-field/form-field.ui-component';
 export * from './lib/ui-components/brand/brand.ui-component';
 
 export * from './lib/ui-components/sidebar-nav-item/sidebar-nav-item.ui-component';
+
+export * from './lib/ui-components/sidebar-header/sidebar-header.ui-component';
+
+export * from './lib/ui-components/sidebar-nav/sidebar-nav.ui-component';
+
+export * from './lib/ui-components/sidebar-item/main-sidebar-nav-item.ui-component';
+
+export * from './lib/ui-components/sidebar-nav-section-header/sidebar-nav-section-header.ui-component';
