@@ -13,3 +13,5 @@ export * from './lib/ui-components/page-container/page-container.ui-component';
 export * from './lib/ui-components/footer/footer.ui-component';
 
 export * from './lib/ui-components/page-header/page-header.ui-component';
+
+export * from './lib/ui-components/form-field/form-field.ui-component';
