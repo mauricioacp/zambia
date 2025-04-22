@@ -13,6 +13,11 @@ export * from './lib/ui-components/page-container/page-container.ui-component';
 export * from './lib/ui-components/footer/footer.ui-component';
 
 export * from './lib/ui-components/page-header/page-header.ui-component';
+export * from './lib/ui-components/page-header/brand-logo.component';
+export * from './lib/ui-components/page-header/mobile-sidebar-toggle.component';
+export * from './lib/ui-components/page-header/notifications-button.component';
+export * from './lib/ui-components/page-header/sidebar-toggle.component';
+export * from './lib/ui-components/page-header/theme-toggle.component';
 
 export * from './lib/ui-components/form-field/form-field.ui-component';
 

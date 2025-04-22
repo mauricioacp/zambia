@@ -13,7 +13,7 @@ import { DashboardSmartComponent } from '@zambia/feat-dashboard';
       @if (session()) {
         <z-dashboard />
       } @else {
-        <z-auth></z-auth>
+        <z-auth />
       }
     </main>
   `,
@@ -26,5 +26,5 @@ import { DashboardSmartComponent } from '@zambia/feat-dashboard';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShellSmartComponent {
-  session = signal(true);
+  session = signal(false);
 }

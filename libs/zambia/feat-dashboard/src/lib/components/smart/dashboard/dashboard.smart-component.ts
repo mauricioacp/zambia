@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
+  BrandLogoComponent,
   LayoutService,
   MainSidebarNavItemUiComponent,
   PageContainerUiComponent,
@@ -30,6 +31,7 @@ import { RouterOutlet } from '@angular/router';
     SidebarNavUiComponent,
     MainSidebarNavItemUiComponent,
     SidebarNavSectionHeaderUiComponent,
+    BrandLogoComponent,
   ],
   template: `
     <div
@@ -68,7 +70,10 @@ import { RouterOutlet } from '@angular/router';
           <z-sidebar-nav-item user-nav icon="logout" [route]="'/'"></z-sidebar-nav-item>
         </z-sidebar-mini>
       </z-sidebar>
-      <z-page-header />
+
+      <z-page-header>
+        <z-brand-logo brand-logo-mobile />
+      </z-page-header>
       <z-page-container>
         <router-outlet></router-outlet>
       </z-page-container>

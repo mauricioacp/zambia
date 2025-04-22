@@ -3,7 +3,7 @@ export const logoSvg = `<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
  preserveAspectRatio="xMidYMid meet">
 
 <g transform="translate(0.000000,378.000000) scale(0.100000,-0.100000)"
-fill="white" stroke="none">
+fill="currentColor" stroke="none">
 <path d="M3205 3243 c-33 -60 -69 -126 -81 -148 -12 -22 -94 -170 -184 -330
 -89 -159 -225 -406 -303 -547 -78 -142 -145 -258 -149 -258 -5 0 -8 182 -8
 405 l0 405 -160 0 -160 0 0 -805 0 -805 129 0 128 0 98 178 c54 97 106 191

@@ -20,10 +20,9 @@ const xMarkSvg = `<svg
   imports: [CommonModule, MatIcon],
   template: `
     <div
-      class="flex h-16 w-full flex-none items-center justify-between px-4 shadow-sm lg:justify-center dark:bg-gray-700/50"
+      class="flex h-16 w-full flex-none items-center justify-between px-4 shadow-xs lg:justify-center dark:bg-gray-600/25"
     >
-      <h2 class="grow text-sm font-semibold text-gray-100 dark:text-gray-200">{{ title() }}</h2>
-
+      <h2 class="grow text-sm font-semibold">{{ title() }}</h2>
       <div class="flex-none lg:hidden">
         <button
           (click)="closeClicked.emit()"
