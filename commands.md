@@ -26,4 +26,3 @@ npx nx g @nx/angular:service --name=roles --project=data-access-auth --path=libs
 npx nx g @nx/angular:library --name=util-roles-permissions --tags=scope:shared,type:util --directory=libs/shared/util-guards --dry-run
 npx nx g @nx/angular:library --name=util-config --tags=scope:shared,type:util --directory=libs/shared/util-config --dry-run
 nx g @nx/angular:component --path=libs/zambia/feat-headquarter/src/lib/components/smart/headquarter-dashboard/ --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=headquarter-dashboard --type=smart-component --dry-run
-
