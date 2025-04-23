@@ -32,3 +32,5 @@ export * from './lib/ui-components/sidebar-nav/sidebar-nav.ui-component';
 export * from './lib/ui-components/sidebar-item/main-sidebar-nav-item.ui-component';
 
 export * from './lib/ui-components/sidebar-nav-section-header/sidebar-nav-section-header.ui-component';
+
+export * from './lib/ui-components/access-denied-page.ui-component';

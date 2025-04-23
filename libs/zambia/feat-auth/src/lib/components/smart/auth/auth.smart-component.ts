@@ -4,6 +4,7 @@ import { FormFieldComponent, logoSvg, ThemeService } from '@zambia/ui-components
 import { DomSanitizer } from '@angular/platform-browser';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
+import { AuthService } from '@zambia/data-access-auth';
 
 interface AuthFormData {
   email: string;
@@ -67,10 +68,20 @@ interface AuthFormData {
                   <button
                     type="submit"
                     class="w-full rounded-lg bg-blue-600 px-5 py-3 text-white transition hover:bg-blue-700 focus:ring-3 focus:ring-blue-500/50 disabled:opacity-50"
-                    [disabled]="authForm.invalid"
+                    [disabled]="authForm.invalid || isLoading()"
                   >
-                    {{ 'log-in' | translate }}
+                    @if (isLoading()) {
+                      <span>{{ 'loading' | translate }}...</span>
+                    } @else {
+                      <span>{{ 'log-in' | translate }}</span>
+                    }
                   </button>
+
+                  @if (errorMessage) {
+                    <div class="mt-4 text-sm text-red-600">
+                      {{ errorMessage }}
+                    </div>
+                  }
                 </form>
 
                 <div class="text-secondary mt-6 text-center text-sm">
@@ -90,9 +101,14 @@ interface AuthFormData {
 export class AuthSmartComponent {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly themeService = inject(ThemeService);
+  private readonly authService = inject(AuthService);
 
   readonly safeSvg = this.sanitizer.bypassSecurityTrustHtml(logoSvg);
   readonly isDarkMode = this.themeService.isDarkTheme;
+  readonly isLoading = this.authService.acting;
+  readonly isAuthenticated = this.authService.session;
+
+  errorMessage = '';
 
   readonly authForm = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -109,8 +125,24 @@ export class AuthSmartComponent {
 
   onSubmit(): void {
     if (this.authForm.valid) {
-      const formData: AuthFormData = this.authForm.value as AuthFormData;
-      console.log(formData);
+      this.errorMessage = '';
+
+      const { email, password } = this.authForm.value as AuthFormData;
+
+      this.authService
+        .signIn(email, password)
+        .then((response) => {
+          if (response.error) {
+            console.error('Authentication error:', response.error);
+            this.errorMessage = response.error.message || 'Authentication failed. Please try again.';
+          } else {
+            this.authForm.reset();
+          }
+        })
+        .catch((error) => {
+          console.error('Unexpected error:', error);
+          this.errorMessage = 'An unexpected error occurred. Please try again.';
+        });
     }
   }
 }

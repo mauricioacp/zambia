@@ -1,4 +1,3 @@
-// Export all types from the types directory
 export * from './supabase.type';
 export * from './agreement.type';
 export * from './auth.type';

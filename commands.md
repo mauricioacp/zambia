@@ -28,3 +28,4 @@ npx nx g @nx/angular:library --name=util-config --tags=scope:shared,type:util --
 nx g @nx/angular:component --path=libs/zambia/feat-headquarter/src/lib/components/smart/headquarter-dashboard/ --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=headquarter-dashboard --type=smart-component --dry-run
 npx nx g @nx/angular:library --name=types-supabase --tags=scope:shared,type:util --directory=libs/shared/types-supabase --dry-run
 npx nx g @nx/angular:library --name=data-access-supabase --tags=scope:shared,type:api --directory=libs/shared/data-access-supabase --dry-run
+nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/access-denied-page --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=access-denied-page --type=ui-component --dry-run
