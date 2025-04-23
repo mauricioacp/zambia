@@ -1,1 +1,3 @@
-export * from './lib/feat-headquarter/feat-headquarter.component';
+export * from './lib/lib.routes';
+
+export * from './lib/components/smart/headquarter-dashboard.smart-component';

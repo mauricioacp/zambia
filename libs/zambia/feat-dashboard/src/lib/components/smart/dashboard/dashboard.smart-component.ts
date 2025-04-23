@@ -24,7 +24,6 @@ import { RouterOutlet } from '@angular/router';
     PageContainerUiComponent,
     PageFooterUiComponent,
     PageHeaderUiComponent,
-    RouterOutlet,
     SidebarMiniUiComponent,
     SidebarNavItemUiComponent,
     SidebarHeaderUiComponent,
@@ -32,6 +31,7 @@ import { RouterOutlet } from '@angular/router';
     MainSidebarNavItemUiComponent,
     SidebarNavSectionHeaderUiComponent,
     BrandLogoComponent,
+    RouterOutlet,
   ],
   template: `
     <div

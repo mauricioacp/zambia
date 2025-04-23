@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
@@ -18,17 +19,12 @@
   }
 }
 
-:root {
-  /* Primary Colors */
-  --primary-black: #000000; /* Black C */
-  --primary-blue: #0077ad; /* 7468 C */
-  --primary-white: #ffffff; /* White */
-
-  /* Secondary Colors */
-  --secondary-dark-blue: #005782; /* 3025 C */
-  --secondary-light-blue: #9cd5df; /* 3105 C */
-  --secondary-yellow: #ffdd00; /* 109 C */
+@layer components {
+  .dark {
+    @apply bg-gray-900 text-white;
+  }
 }
+
 
 html,
 body {
@@ -42,8 +38,7 @@ body {
 }
 
 @theme {
-  --font-sans:
-    'Source Sans Pro', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-sans: 'Source Sans Pro', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   --font-serif: 'Source Serif Pro', 'serif';
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 
@@ -428,6 +423,9 @@ body {
       animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
     }
   }
+
+
+
 }
 
 .text-base {

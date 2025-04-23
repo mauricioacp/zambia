@@ -45,3 +45,4 @@ Thumbs.db
 
 #env
 apps/zambia/.env
+apps/zambia/src/environments/environment.ts

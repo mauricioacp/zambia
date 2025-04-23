@@ -1,17 +1,17 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthSmartComponent } from '@zambia/feat-auth';
-import { DashboardSmartComponent } from '@zambia/feat-dashboard';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'z-shell',
-  imports: [CommonModule, AuthSmartComponent, DashboardSmartComponent],
+  imports: [CommonModule, AuthSmartComponent, RouterOutlet],
   template: `
     <main
       class="bg-linear-to-r from-red-500 via-orange-400 to-yellow-400 dark:via-none dark:from-blue-500 dark:to-teal-400"
     >
       @if (session()) {
-        <z-dashboard />
+        <router-outlet />
       } @else {
         <z-auth />
       }
@@ -26,5 +26,5 @@ import { DashboardSmartComponent } from '@zambia/feat-dashboard';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShellSmartComponent {
-  session = signal(false);
+  session = signal(true);
 }

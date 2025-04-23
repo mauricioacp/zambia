@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { environment } from '../environments/environment';
 import { TranslateService } from '@ngx-translate/core';
 // @ts-expect-error
 import translationsEs from '../../public/i18n/es.json';
@@ -26,7 +25,5 @@ export class AppComponent {
       ...translationsEs,
       ...translationsEn,
     });
-
-    console.log('API URL:', environment.API_URL);
   }
 }

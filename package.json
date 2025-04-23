@@ -6,6 +6,7 @@
     "start": "npx nx run zambia:storybook:ci",
     "config": "ts-node ./apps/zambia/set-env.ts",
     "serve": "npm run config && npx nx run zambia:serve:development",
+    "dev": "npx nx run zambia:serve:development",
     "test": "npx nx test zambia",
     "e2e": "npx nx e2e zambia",
     "cm": "cz",
