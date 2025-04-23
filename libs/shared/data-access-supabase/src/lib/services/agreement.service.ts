@@ -11,7 +11,7 @@ import {
   AgreementStatus,
   AgreementUpdate,
   AgreementViewModel,
-  AgreementWithRoles
+  AgreementWithRoles,
 } from '@zambia/shared/types-supabase';
 
 /**
@@ -32,7 +32,7 @@ export class AgreementService {
   public selectedAgreement = computed(() => {
     const id = this.selectedAgreementIdSignal();
     if (!id) return null;
-    return this.agreementsSignal().find(agreement => agreement.id === id) || null;
+    return this.agreementsSignal().find((agreement) => agreement.id === id) || null;
   });
 
   // Observable for agreements signal
@@ -50,16 +50,10 @@ export class AgreementService {
    * @param seasonId Optional season filter
    * @returns Observable of agreements
    */
-  public getAgreements(
-    status?: AgreementStatus,
-    headquarterId?: string,
-    seasonId?: string
-  ): Observable<Agreement[]> {
+  public getAgreements(status?: AgreementStatus, headquarterId?: string, seasonId?: string): Observable<Agreement[]> {
     this.supabaseService.loading.set(true);
 
-    let query = this.supabaseService.getClient()
-      .from('agreements')
-      .select('*');
+    let query = this.supabaseService.getClient().from('agreements').select('*');
 
     if (status) {
       query = query.eq('status', status);
@@ -81,7 +75,7 @@ export class AgreementService {
         }
         return data as Agreement[];
       }),
-      tap(agreements => {
+      tap((agreements) => {
         this.agreementsSignal.set(agreements);
         this.supabaseService.loading.set(false);
       })
@@ -96,13 +90,7 @@ export class AgreementService {
   public getAgreementById(id: string): Observable<Agreement | null> {
     this.supabaseService.loading.set(true);
 
-    return from(
-      this.supabaseService.getClient()
-        .from('agreements')
-        .select('*')
-        .eq('id', id)
-        .single()
-    ).pipe(
+    return from(this.supabaseService.getClient().from('agreements').select('*').eq('id', id).single()).pipe(
       map(({ data, error }) => {
         if (error) {
           this.handleError(error);
@@ -126,10 +114,7 @@ export class AgreementService {
 
     this.supabaseService.loading.set(true);
 
-    this.agreementsWithRolesCache$ = from(
-      this.supabaseService.getClient()
-        .rpc('get_agreements_with_roles')
-    ).pipe(
+    this.agreementsWithRolesCache$ = from(this.supabaseService.getClient().rpc('get_agreements_with_roles')).pipe(
       map(({ data, error }) => {
         if (error) {
           this.handleError(error);
@@ -153,10 +138,7 @@ export class AgreementService {
   public getAgreementsByRole(roleId: string): Observable<AgreementWithRoles[]> {
     this.supabaseService.loading.set(true);
 
-    return from(
-      this.supabaseService.getClient()
-        .rpc('get_agreements_by_role_id', { role_id: roleId })
-    ).pipe(
+    return from(this.supabaseService.getClient().rpc('get_agreements_by_role_id', { role_id: roleId })).pipe(
       map(({ data, error }) => {
         if (error) {
           this.handleError(error);
@@ -176,13 +158,7 @@ export class AgreementService {
   public createAgreement(agreement: AgreementInsert): Observable<Agreement | null> {
     this.supabaseService.loading.set(true);
 
-    return from(
-      this.supabaseService.getClient()
-        .from('agreements')
-        .insert(agreement)
-        .select()
-        .single()
-    ).pipe(
+    return from(this.supabaseService.getClient().from('agreements').insert(agreement).select().single()).pipe(
       map(({ data, error }) => {
         if (error) {
           this.handleError(error);
@@ -191,7 +167,7 @@ export class AgreementService {
 
         // Update the agreements signal with the new agreement
         const newAgreement = data as Agreement;
-        this.agreementsSignal.update(agreements => [...agreements, newAgreement]);
+        this.agreementsSignal.update((agreements) => [...agreements, newAgreement]);
 
         return newAgreement;
       }),
@@ -209,12 +185,7 @@ export class AgreementService {
     this.supabaseService.loading.set(true);
 
     return from(
-      this.supabaseService.getClient()
-        .from('agreements')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single()
+      this.supabaseService.getClient().from('agreements').update(updates).eq('id', id).select().single()
     ).pipe(
       map(({ data, error }) => {
         if (error) {
@@ -224,9 +195,7 @@ export class AgreementService {
 
         // Update the agreements signal with the updated agreement
         const updatedAgreement = data as Agreement;
-        this.agreementsSignal.update(agreements =>
-          agreements.map(a => a.id === id ? updatedAgreement : a)
-        );
+        this.agreementsSignal.update((agreements) => agreements.map((a) => (a.id === id ? updatedAgreement : a)));
 
         return updatedAgreement;
       }),
@@ -242,12 +211,7 @@ export class AgreementService {
   public deleteAgreement(id: string): Observable<boolean> {
     this.supabaseService.loading.set(true);
 
-    return from(
-      this.supabaseService.getClient()
-        .from('agreements')
-        .delete()
-        .eq('id', id)
-    ).pipe(
+    return from(this.supabaseService.getClient().from('agreements').delete().eq('id', id)).pipe(
       map(({ error }) => {
         if (error) {
           this.handleError(error);
@@ -255,9 +219,7 @@ export class AgreementService {
         }
 
         // Update the agreements signal by removing the deleted agreement
-        this.agreementsSignal.update(agreements =>
-          agreements.filter(a => a.id !== id)
-        );
+        this.agreementsSignal.update((agreements) => agreements.filter((a) => a.id !== id));
 
         // Reset selected agreement if it was the deleted one
         if (this.selectedAgreementIdSignal() === id) {
@@ -287,11 +249,7 @@ export class AgreementService {
       role_id: roleId,
     };
 
-    return from(
-      this.supabaseService.getClient()
-        .from('agreement_roles')
-        .insert(agreementRole)
-    ).pipe(
+    return from(this.supabaseService.getClient().from('agreement_roles').insert(agreementRole)).pipe(
       map(({ error }) => {
         if (error) {
           this.handleError(error);
@@ -317,7 +275,8 @@ export class AgreementService {
     this.supabaseService.loading.set(true);
 
     return from(
-      this.supabaseService.getClient()
+      this.supabaseService
+        .getClient()
         .from('agreement_roles')
         .delete()
         .eq('agreement_id', agreementId)
@@ -352,7 +311,7 @@ export class AgreementService {
    * @returns Agreement view models
    */
   public toViewModel(agreements: Agreement[]): AgreementViewModel[] {
-    return agreements.map(agreement => ({
+    return agreements.map((agreement) => ({
       ...agreement,
       displayName: `${agreement.name || ''} ${agreement.last_name || ''}`.trim() || agreement.email,
     }));

@@ -1,4 +1,4 @@
-import { Json, Tables, TablesInsert, TablesUpdate } from './supabase.type';
+import { Tables, TablesInsert, TablesUpdate } from './supabase.type';
 
 /**
  * Type representing an Event entity from the database
@@ -62,33 +62,4 @@ export interface EventWithRelations extends Event {
     id: string;
     name: string;
   } | null;
-}
-
-/**
- * Helper function to parse the JSON location field into a typed EventLocation
- * @param locationJson The JSON location field from the database
- * @returns A typed EventLocation object
- */
-export function parseEventLocation(locationJson: Json | null): EventLocation | null {
-  if (!locationJson) return null;
-
-  try {
-    const location = locationJson as Record<string, any>;
-    return {
-      address: location.address || '',
-      city: location.city || '',
-      state: location.state,
-      country: location.country,
-      postalCode: location.postalCode,
-      coordinates: location.coordinates ? {
-        latitude: location.coordinates.latitude,
-        longitude: location.coordinates.longitude
-      } : undefined,
-      isVirtual: !!location.isVirtual,
-      virtualMeetingUrl: location.virtualMeetingUrl
-    };
-  } catch (error) {
-    console.error('Error parsing event location:', error);
-    return null;
-  }
 }

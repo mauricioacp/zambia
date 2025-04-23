@@ -1,8 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { createClient, PostgrestError, SupabaseClient } from '@supabase/supabase-js';
-import { signal } from '@angular/core';
-import { Database } from '@zambia/shared/types-supabase';
-import { Observable, catchError, tap, throwError } from 'rxjs';
+import { Database } from '@zambia/types-supabase';
+import { catchError, Observable, tap, throwError } from 'rxjs';
 
 /**
  * Base service for Supabase client initialization and common operations
@@ -67,9 +66,9 @@ export class SupabaseService {
    * @param error The error to handle
    * @param context Optional context for the error
    */
-  protected handleError(error: Error | PostgrestError, context: string = 'Operation'): void {
+  protected handleError(error: Error | PostgrestError, context = 'Operation'): void {
     console.error(`Supabase ${context} failed:`, error);
-    this.error.set(error instanceof Error ? error : new Error(error.message));
+    this.error.set(error instanceof Error ? error : new Error(error['message'] || 'Unknown error'));
     this.loading.set(false);
   }
 
@@ -80,15 +79,15 @@ export class SupabaseService {
    * @param {string} [context='Operation'] - Context for error handling.
    * @returns {Observable<T>} Observable with integrated state handling.
    */
-  protected wrapObservableOperation<T>(operation$: Observable<T>, context: string = 'Operation'): Observable<T> {
-      this.startOperation();
-      return operation$.pipe(
-          tap(data => this.handleSuccess(data)),
-          catchError(err => {
-              this.handleError(err, context);
-              return throwError(() => err); // Rethrow after handling state
-          })
-      );
+  protected wrapObservableOperation<T>(operation$: Observable<T>, context = 'Operation'): Observable<T> {
+    this.startOperation();
+    return operation$.pipe(
+      tap((data) => this.handleSuccess(data)),
+      catchError((err) => {
+        this.handleError(err, context);
+        return throwError(() => err); // Rethrow after handling state
+      })
+    );
   }
 
   /**
@@ -98,7 +97,7 @@ export class SupabaseService {
    * @param {string} [context='Operation'] - Context for error handling.
    * @returns {Promise<T | null>} Promise resolving with data or null on error.
    */
-  protected async wrapAsyncOperation<T>(operationPromise: Promise<T>, context: string = 'Operation'): Promise<T | null> {
+  protected async wrapAsyncOperation<T>(operationPromise: Promise<T>, context = 'Operation'): Promise<T | null> {
     this.startOperation();
     try {
       const result = await operationPromise;
@@ -119,10 +118,7 @@ export class SupabaseService {
    * @returns {T} The data from the response.
    * @throws {PostgrestError} If the Supabase response contains an error.
    */
-  protected handleResponse<T>(
-    response: { data: T | null; error: PostgrestError | null },
-    context: string = 'Fetch'
-  ): T {
+  protected handleResponse<T>(response: { data: T | null; error: PostgrestError | null }, context = 'Fetch'): T {
     if (response.error) {
       console.error(`[Supabase Error - ${context}]:`, response.error);
       throw response.error; // Let the main handler catch this

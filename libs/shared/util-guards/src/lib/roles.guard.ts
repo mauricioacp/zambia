@@ -1,9 +1,10 @@
 import { inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { AuthService } from '@zambia/shared/data-access-auth';
+
 import { REQUIRED_ROLES } from './GUARDS_CONSTANTS';
-import { Observable, combineLatest, filter, map, of, switchMap, take, tap } from 'rxjs';
+import { combineLatest, filter, Observable, of, switchMap, take } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
+import { AuthService } from '@zambia/data-access-auth';
 
 /**
  * Guard that checks if the user has the required roles to access a route
@@ -36,8 +37,11 @@ export const rolesGuard: CanActivateFn = (
 
   // Combine waiting for auth loading and getting the current user
   return combineLatest([
-    toObservable(authService.isLoading).pipe(filter(loading => !loading), take(1)), // Wait until not loading
-    toObservable(authService.user).pipe(take(1)) // Get the user once loading is done
+    toObservable(authService.isLoading).pipe(
+      filter((loading) => !loading),
+      take(1)
+    ), // Wait until not loading
+    toObservable(authService.user).pipe(take(1)), // Get the user once loading is done
   ]).pipe(
     switchMap(([_, user]) => {
       if (!user) {
@@ -52,8 +56,8 @@ export const rolesGuard: CanActivateFn = (
       console.log(`[RolesGuard] User roles: ${userRoles.join(', ')}`);
 
       // Check if the user has any of the required roles
-      const hasRequiredRole = requiredRoles.some(requiredRole =>
-        userRoles.some(userRole => userRole.toUpperCase() === requiredRole.toUpperCase())
+      const hasRequiredRole = requiredRoles.some((requiredRole) =>
+        userRoles.some((userRole) => userRole.toUpperCase() === requiredRole.toUpperCase())
       );
 
       if (hasRequiredRole) {

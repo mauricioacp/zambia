@@ -10,7 +10,7 @@ import {
   CountryStatus,
   CountryUpdate,
   CountryViewModel,
-  CountryWithHeadquartersCount
+  CountryWithHeadquartersCount,
 } from '@zambia/shared/types-supabase';
 
 /**
@@ -32,7 +32,7 @@ export class CountryService {
   public selectedCountry = computed(() => {
     const id = this.selectedCountryIdSignal();
     if (!id) return null;
-    return this.countriesSignal().find(country => country.id === id) || null;
+    return this.countriesSignal().find((country) => country.id === id) || null;
   });
 
   // Observable for countries signal
@@ -54,10 +54,7 @@ export class CountryService {
     if (status || !this.countriesCache$) {
       this.supabaseService.loading.set(true);
 
-      let query = this.supabaseService.getClient()
-        .from('countries')
-        .select('*')
-        .order('name');
+      let query = this.supabaseService.getClient().from('countries').select('*').order('name');
 
       if (status) {
         query = query.eq('status', status);
@@ -71,7 +68,7 @@ export class CountryService {
           }
           return data as Country[];
         }),
-        tap(countries => {
+        tap((countries) => {
           this.countriesSignal.set(countries);
           this.supabaseService.loading.set(false);
         })
@@ -99,10 +96,10 @@ export class CountryService {
   public getCountryById(id: string): Observable<Country | null> {
     // First check if we have it in the signal
     const countries = this.countriesSignal();
-    const country = countries.find(c => c.id === id);
+    const country = countries.find((c) => c.id === id);
 
     if (country) {
-      return new Observable<Country>(observer => {
+      return new Observable<Country>((observer) => {
         observer.next(country);
         observer.complete();
       });
@@ -110,13 +107,7 @@ export class CountryService {
 
     this.supabaseService.loading.set(true);
 
-    return from(
-      this.supabaseService.getClient()
-        .from('countries')
-        .select('*')
-        .eq('id', id)
-        .single()
-    ).pipe(
+    return from(this.supabaseService.getClient().from('countries').select('*').eq('id', id).single()).pipe(
       map(({ data, error }) => {
         if (error) {
           this.handleError(error);
@@ -136,9 +127,7 @@ export class CountryService {
     this.supabaseService.loading.set(true);
 
     return from(
-      this.supabaseService.getClient()
-        .from('countries')
-        .select(`
+      this.supabaseService.getClient().from('countries').select(`
           *,
           headquarters:headquarters(id)
         `)
@@ -150,7 +139,7 @@ export class CountryService {
         }
 
         // Transform the data to include headquarters count
-        return (data as any[]).map(item => ({
+        return (data as any[]).map((item) => ({
           ...item,
           headquartersCount: item.headquarters ? item.headquarters.length : 0,
         })) as CountryWithHeadquartersCount[];
@@ -167,13 +156,7 @@ export class CountryService {
   public createCountry(country: CountryInsert): Observable<Country | null> {
     this.supabaseService.loading.set(true);
 
-    return from(
-      this.supabaseService.getClient()
-        .from('countries')
-        .insert(country)
-        .select()
-        .single()
-    ).pipe(
+    return from(this.supabaseService.getClient().from('countries').insert(country).select().single()).pipe(
       map(({ data, error }) => {
         if (error) {
           this.handleError(error);
@@ -182,7 +165,7 @@ export class CountryService {
 
         // Update the countries signal with the new country
         const newCountry = data as Country;
-        this.countriesSignal.update(countries => [...countries, newCountry]);
+        this.countriesSignal.update((countries) => [...countries, newCountry]);
 
         // Invalidate cache
         this.countriesCache$ = null;
@@ -202,14 +185,7 @@ export class CountryService {
   public updateCountry(id: string, updates: CountryUpdate): Observable<Country | null> {
     this.supabaseService.loading.set(true);
 
-    return from(
-      this.supabaseService.getClient()
-        .from('countries')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single()
-    ).pipe(
+    return from(this.supabaseService.getClient().from('countries').update(updates).eq('id', id).select().single()).pipe(
       map(({ data, error }) => {
         if (error) {
           this.handleError(error);
@@ -218,9 +194,7 @@ export class CountryService {
 
         // Update the countries signal with the updated country
         const updatedCountry = data as Country;
-        this.countriesSignal.update(countries =>
-          countries.map(c => c.id === id ? updatedCountry : c)
-        );
+        this.countriesSignal.update((countries) => countries.map((c) => (c.id === id ? updatedCountry : c)));
 
         // Invalidate cache
         this.countriesCache$ = null;
@@ -239,12 +213,7 @@ export class CountryService {
   public deleteCountry(id: string): Observable<boolean> {
     this.supabaseService.loading.set(true);
 
-    return from(
-      this.supabaseService.getClient()
-        .from('countries')
-        .delete()
-        .eq('id', id)
-    ).pipe(
+    return from(this.supabaseService.getClient().from('countries').delete().eq('id', id)).pipe(
       map(({ error }) => {
         if (error) {
           this.handleError(error);
@@ -252,9 +221,7 @@ export class CountryService {
         }
 
         // Update the countries signal by removing the deleted country
-        this.countriesSignal.update(countries =>
-          countries.filter(c => c.id !== id)
-        );
+        this.countriesSignal.update((countries) => countries.filter((c) => c.id !== id));
 
         // Reset selected country if it was the deleted one
         if (this.selectedCountryIdSignal() === id) {
@@ -284,7 +251,7 @@ export class CountryService {
    * @returns Country view models
    */
   public toViewModel(countries: Country[]): CountryViewModel[] {
-    return countries.map(country => ({
+    return countries.map((country) => ({
       ...country,
       flagUrl: `https://flagcdn.com/w80/${country.code.toLowerCase()}.png`,
     }));

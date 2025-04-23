@@ -1,16 +1,16 @@
-import { Injectable, computed, effect, inject, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
+  AuthCredentials,
   AuthError,
   AuthState,
-  AuthCredentials,
   PasswordResetRequest,
   PasswordUpdate,
   Session,
   SignUpData,
-  User
-} from '@zambia/shared/types-supabase';
-import { Observable, from, map, of, switchMap, tap } from 'rxjs';
+  User,
+} from '@zambia/types-supabase';
+import { from, map, Observable, switchMap, tap } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 
 /**
@@ -81,26 +81,30 @@ export class AuthService {
       const supabase = createClient(supabaseUrl, supabaseKey);
 
       // Get initial session
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
       // Get user if session exists
       let user: User | null = null;
       if (session) {
-        const { data: { user: supabaseUser } } = await supabase.auth.getUser();
+        const {
+          data: { user: supabaseUser },
+        } = await supabase.auth.getUser();
         if (supabaseUser) {
           // Transform to our User type with additional properties
           user = {
             ...supabaseUser,
             // You would typically fetch these from your database
-            role: supabaseUser.user_metadata?.role,
-            roleId: supabaseUser.user_metadata?.roleId,
-            permissions: supabaseUser.user_metadata?.permissions || [],
+            role: supabaseUser.user_metadata?.['role'],
+            roleId: supabaseUser.user_metadata?.['roleId'],
+            permissions: supabaseUser.user_metadata?.['permissions'] || [],
           };
         }
       }
 
       // Update auth state
-      this.authStateSignal.update(state => ({
+      this.authStateSignal.update((state) => ({
         ...state,
         user,
         session: session as Session,
@@ -114,21 +118,23 @@ export class AuthService {
 
         let user: User | null = null;
         if (session) {
-          const { data: { user: supabaseUser } } = await supabase.auth.getUser();
+          const {
+            data: { user: supabaseUser },
+          } = await supabase.auth.getUser();
           if (supabaseUser) {
             // Transform to our User type with additional properties
             user = {
               ...supabaseUser,
               // You would typically fetch these from your database
-              role: supabaseUser.user_metadata?.role,
-              roleId: supabaseUser.user_metadata?.roleId,
-              permissions: supabaseUser.user_metadata?.permissions || [],
+              role: supabaseUser.user_metadata?.['role'],
+              roleId: supabaseUser.user_metadata?.['roleId'],
+              permissions: supabaseUser.user_metadata?.['permissions'] || [],
             };
           }
         }
 
         // Update auth state
-        this.authStateSignal.update(state => ({
+        this.authStateSignal.update((state) => ({
           ...state,
           user,
           session: session as Session,
@@ -137,7 +143,7 @@ export class AuthService {
       });
     } catch (error) {
       console.error('Error initializing auth:', error);
-      this.authStateSignal.update(state => ({
+      this.authStateSignal.update((state) => ({
         ...state,
         loading: false,
         initialized: true,
@@ -154,18 +160,20 @@ export class AuthService {
    * @returns Observable of user
    */
   public signIn(credentials: AuthCredentials): Observable<User | null> {
-    this.authStateSignal.update(state => ({
+    this.authStateSignal.update((state) => ({
       ...state,
       loading: true,
       error: null,
     }));
 
     return from(this.getSupabaseClient()).pipe(
-      switchMap(supabase =>
-        from(supabase.auth.signInWithPassword({
-          email: credentials.email,
-          password: credentials.password,
-        }))
+      switchMap((supabase) =>
+        from(
+          supabase.auth.signInWithPassword({
+            email: credentials.email,
+            password: credentials.password,
+          })
+        )
       ),
       map(({ data, error }) => {
         if (error) {
@@ -184,13 +192,13 @@ export class AuthService {
         const user: User = {
           ...supabaseUser,
           // You would typically fetch these from your database
-          role: supabaseUser.user_metadata?.role,
-          roleId: supabaseUser.user_metadata?.roleId,
-          permissions: supabaseUser.user_metadata?.permissions || [],
+          role: supabaseUser.user_metadata?.['role'],
+          roleId: supabaseUser.user_metadata?.['roleId'],
+          permissions: supabaseUser.user_metadata?.['permissions'] || [],
         };
 
         // Update auth state
-        this.authStateSignal.update(state => ({
+        this.authStateSignal.update((state) => ({
           ...state,
           user,
           session: session as Session,
@@ -199,7 +207,7 @@ export class AuthService {
 
         return user;
       }),
-      tap(() => this.authStateSignal.update(state => ({ ...state, loading: false })))
+      tap(() => this.authStateSignal.update((state) => ({ ...state, loading: false })))
     );
   }
 
@@ -209,24 +217,26 @@ export class AuthService {
    * @returns Observable of user
    */
   public signUp(signUpData: SignUpData): Observable<User | null> {
-    this.authStateSignal.update(state => ({
+    this.authStateSignal.update((state) => ({
       ...state,
       loading: true,
       error: null,
     }));
 
     return from(this.getSupabaseClient()).pipe(
-      switchMap(supabase =>
-        from(supabase.auth.signUp({
-          email: signUpData.email,
-          password: signUpData.password,
-          options: {
-            data: {
-              first_name: signUpData.firstName,
-              last_name: signUpData.lastName,
+      switchMap((supabase) =>
+        from(
+          supabase.auth.signUp({
+            email: signUpData.email,
+            password: signUpData.password,
+            options: {
+              data: {
+                first_name: signUpData.firstName,
+                last_name: signUpData.lastName,
+              },
             },
-          },
-        }))
+          })
+        )
       ),
       map(({ data, error }) => {
         if (error) {
@@ -245,13 +255,13 @@ export class AuthService {
         const user: User = {
           ...supabaseUser,
           // You would typically fetch these from your database
-          role: supabaseUser.user_metadata?.role,
-          roleId: supabaseUser.user_metadata?.roleId,
-          permissions: supabaseUser.user_metadata?.permissions || [],
+          role: supabaseUser.user_metadata?.['role'],
+          roleId: supabaseUser.user_metadata?.['roleId'],
+          permissions: supabaseUser.user_metadata?.['permissions'] || [],
         };
 
         // Update auth state
-        this.authStateSignal.update(state => ({
+        this.authStateSignal.update((state) => ({
           ...state,
           user,
           session: session as Session,
@@ -260,7 +270,7 @@ export class AuthService {
 
         return user;
       }),
-      tap(() => this.authStateSignal.update(state => ({ ...state, loading: false })))
+      tap(() => this.authStateSignal.update((state) => ({ ...state, loading: false })))
     );
   }
 
@@ -269,14 +279,14 @@ export class AuthService {
    * @returns Observable of success status
    */
   public signOut(): Observable<boolean> {
-    this.authStateSignal.update(state => ({
+    this.authStateSignal.update((state) => ({
       ...state,
       loading: true,
       error: null,
     }));
 
     return from(this.getSupabaseClient()).pipe(
-      switchMap(supabase => from(supabase.auth.signOut())),
+      switchMap((supabase) => from(supabase.auth.signOut())),
       map(({ error }) => {
         if (error) {
           this.handleAuthError(error);
@@ -284,7 +294,7 @@ export class AuthService {
         }
 
         // Update auth state
-        this.authStateSignal.update(state => ({
+        this.authStateSignal.update((state) => ({
           ...state,
           user: null,
           session: null,
@@ -296,7 +306,7 @@ export class AuthService {
 
         return true;
       }),
-      tap(() => this.authStateSignal.update(state => ({ ...state, loading: false })))
+      tap(() => this.authStateSignal.update((state) => ({ ...state, loading: false })))
     );
   }
 
@@ -306,16 +316,14 @@ export class AuthService {
    * @returns Observable of success status
    */
   public requestPasswordReset(request: PasswordResetRequest): Observable<boolean> {
-    this.authStateSignal.update(state => ({
+    this.authStateSignal.update((state) => ({
       ...state,
       loading: true,
       error: null,
     }));
 
     return from(this.getSupabaseClient()).pipe(
-      switchMap(supabase =>
-        from(supabase.auth.resetPasswordForEmail(request.email))
-      ),
+      switchMap((supabase) => from(supabase.auth.resetPasswordForEmail(request.email))),
       map(({ error }) => {
         if (error) {
           this.handleAuthError(error);
@@ -324,7 +332,7 @@ export class AuthService {
 
         return true;
       }),
-      tap(() => this.authStateSignal.update(state => ({ ...state, loading: false })))
+      tap(() => this.authStateSignal.update((state) => ({ ...state, loading: false })))
     );
   }
 
@@ -334,16 +342,14 @@ export class AuthService {
    * @returns Observable of success status
    */
   public updatePassword(update: PasswordUpdate): Observable<boolean> {
-    this.authStateSignal.update(state => ({
+    this.authStateSignal.update((state) => ({
       ...state,
       loading: true,
       error: null,
     }));
 
     return from(this.getSupabaseClient()).pipe(
-      switchMap(supabase =>
-        from(supabase.auth.updateUser({ password: update.password }))
-      ),
+      switchMap((supabase) => from(supabase.auth.updateUser({ password: update.password }))),
       map(({ error }) => {
         if (error) {
           this.handleAuthError(error);
@@ -352,7 +358,7 @@ export class AuthService {
 
         return true;
       }),
-      tap(() => this.authStateSignal.update(state => ({ ...state, loading: false })))
+      tap(() => this.authStateSignal.update((state) => ({ ...state, loading: false })))
     );
   }
 
@@ -373,7 +379,7 @@ export class AuthService {
    */
   public hasAnyRole(roles: string[]): boolean {
     const userRoles = this.userRoles();
-    return roles.some(role => userRoles.includes(role));
+    return roles.some((role) => userRoles.includes(role));
   }
 
   /**
@@ -411,7 +417,7 @@ export class AuthService {
       code: error.code,
     };
 
-    this.authStateSignal.update(state => ({
+    this.authStateSignal.update((state) => ({
       ...state,
       error: authError,
       loading: false,

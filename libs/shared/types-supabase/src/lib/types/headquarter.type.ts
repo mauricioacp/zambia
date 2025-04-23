@@ -1,4 +1,4 @@
-import { Json, Tables, TablesInsert, TablesUpdate } from './supabase.type';
+import { Tables, TablesInsert, TablesUpdate } from './supabase.type';
 
 /**
  * Type representing a Headquarter entity from the database
@@ -66,37 +66,4 @@ export interface HeadquarterWithRelations extends Headquarter {
     id: string;
     name: string;
   }[];
-}
-
-/**
- * Helper function to parse the JSON contact_info field into a typed HeadquarterContactInfo
- * @param contactInfoJson The JSON contact_info field from the database
- * @returns A typed HeadquarterContactInfo object
- */
-export function parseHeadquarterContactInfo(contactInfoJson: Json | null): HeadquarterContactInfo | null {
-  if (!contactInfoJson) return null;
-
-  try {
-    const contactInfo = contactInfoJson as Record<string, any>;
-    return {
-      email: contactInfo.email,
-      phone: contactInfo.phone,
-      website: contactInfo.website,
-      socialMedia: contactInfo.socialMedia ? {
-        facebook: contactInfo.socialMedia.facebook,
-        twitter: contactInfo.socialMedia.twitter,
-        instagram: contactInfo.socialMedia.instagram,
-        linkedin: contactInfo.socialMedia.linkedin
-      } : undefined,
-      contactPerson: contactInfo.contactPerson ? {
-        name: contactInfo.contactPerson.name || '',
-        position: contactInfo.contactPerson.position,
-        email: contactInfo.contactPerson.email,
-        phone: contactInfo.contactPerson.phone
-      } : undefined
-    };
-  } catch (error) {
-    console.error('Error parsing headquarter contact info:', error);
-    return null;
-  }
 }

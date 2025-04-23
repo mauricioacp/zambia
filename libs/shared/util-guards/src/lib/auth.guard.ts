@@ -24,12 +24,12 @@ export const authGuard: CanActivateFn = (
   // Use toObservable to react to signal changes, including the initial loading state
   return toObservable(authService.isLoading).pipe(
     take(1), // Check loading state once initially
-    switchMap(isLoading => {
+    switchMap((isLoading) => {
       if (isLoading) {
         // If still loading, wait for the loading state to become false
         console.log('[AuthGuard] Auth state loading, waiting...');
         return toObservable(authService.isLoading).pipe(
-          filter(loading => !loading), // Wait until loading is false
+          filter((loading) => !loading), // Wait until loading is false
           take(1), // Take the first emission where loading is false
           map(() => authService.isAuthenticated()) // Check auth status *after* loading completes
         );
@@ -38,7 +38,7 @@ export const authGuard: CanActivateFn = (
         return of(authService.isAuthenticated());
       }
     }),
-    tap(isAuthenticated => {
+    tap((isAuthenticated) => {
       console.log(`[AuthGuard] Check complete. Authenticated: ${isAuthenticated}`);
       if (!isAuthenticated) {
         console.log('[AuthGuard] User not authenticated. Redirecting to login.');
