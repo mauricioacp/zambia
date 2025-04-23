@@ -23,6 +23,7 @@ A comprehensive Angular application built with Nx monorepo architecture for mana
 Zambia is a data management system designed for Akademia, an international educational organization. The system manages organizational structure across multiple countries, including headquarters, seasons (academic periods), participants (students and collaborators), and activities (workshops and events).
 
 The application provides a comprehensive interface for:
+
 - Managing organizational hierarchy (countries, headquarters, seasons)
 - Handling participant registration and management
 - Scheduling and tracking educational activities
@@ -36,7 +37,7 @@ This project leverages the following technologies:
 - **Monorepo Management**: [Nx](https://nx.dev/) (v20)
 - **Backend/Database**: [Supabase](https://supabase.io/)
 - **State Management**: [RxJS](https://rxjs.dev/)
-- **UI Components**: 
+- **UI Components**:
   - [Angular Material](https://material.angular.io/)
   - Custom UI components
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
@@ -89,12 +90,14 @@ Before you begin, ensure you have the following installed:
 To get started with the project, follow these steps:
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/your-organization/zambia.git
    cd zambia
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
@@ -114,6 +117,7 @@ npm run serve
 ```
 
 This will:
+
 1. Generate the environment configuration
 2. Start the Angular development server
 
@@ -234,6 +238,7 @@ npx nx affected:lint
 The application can be deployed to various hosting platforms. For production deployment:
 
 1. Build the application:
+
    ```bash
    npx nx build zambia --configuration=production
    ```
