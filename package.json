@@ -30,10 +30,10 @@
     "@angular/router": "19.2.1",
     "@angular/ssr": "19.2.1",
     "@ngx-translate/core": "^16.0.4",
+    "@supabase/supabase-js": "^2.49.4",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "rxjs": "~7.8.0",
-    "supabase": "^2.22.4"
+    "rxjs": "~7.8.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "19.2.1",

@@ -1,0 +1,13 @@
+// Export all types from the types directory
+export * from './supabase.type';
+export * from './agreement.type';
+export * from './auth.type';
+export * from './collaborator.type';
+export * from './country.type';
+export * from './event.type';
+export * from './headquarter.type';
+export * from './process.type';
+export * from './role.type';
+export * from './season.type';
+export * from './student.type';
+export * from './workshop.type';

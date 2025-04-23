@@ -1,1 +1,2 @@
-export * from './lib/data-access-supabase/data-access-supabase.component';
+export * from './lib/supabase.service';
+export * from './lib/services';

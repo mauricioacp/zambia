@@ -1,473 +1,2339 @@
-/*
- * Agreement with Roles View and Functions
- *
- * This schema creates a view that joins agreements with their associated roles,
- * and provides several functions to query this view efficiently.
- *
- * The view:
- * - agreement_with_roles: Joins agreements with their roles as a JSONB array
- *
- * Functions:
- * - get_agreements_with_roles(): Returns all agreements with their roles
- * - get_agreements_by_role(role_name TEXT): Returns agreements filtered by role name
- * - get_agreements_by_role_id(role_id UUID): Returns agreements filtered by role ID
- * - get_agreements_by_role_string(role_string TEXT): Returns agreements filtered by a string that matches role name or code
- * - get_agreements_with_roles_paginated(...): Returns paginated and filtered agreements with pagination metadata
- * - get_agreement_with_roles_by_id(p_agreement_id UUID): Returns a single agreement by ID
- *
- * Usage examples:
- * - SELECT * FROM get_agreements_with_roles();
- * - SELECT * FROM get_agreements_by_role('Student');
- * - SELECT * FROM get_agreements_by_role_id('123e4567-e89b-12d3-a456-426614174000');
- * - SELECT * FROM get_agreements_by_role_string('admin');
- * - SELECT get_agreements_with_roles_paginated(10, 0, 'active', NULL, NULL, 'john', NULL);
- * - SELECT get_agreement_with_roles_by_id('123e4567-e89b-12d3-a456-426614174000');
- */
+TITLE: User Authentication Actions - JavaScript
+DESCRIPTION: This JavaScript snippet defines login and signup actions for Supabase authentication through form submissions. It extracts email and password from the form data, handles user sign-up, and manages redirects using Supabase client. Includes error handling for server-side operations.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/auth/auth-helpers/sveltekit.mdx#2025-04-21_snippet_12
 
--- Create view that joins agreements with their roles
-CREATE OR REPLACE VIEW agreement_with_roles AS
-WITH roles_array AS (
-    SELECT
-        ar.agreement_id,
-        jsonb_agg(
-            jsonb_build_object(
-                'role_id', r.id,
-                'role_name', r.name,
-                'role_description', r.description
-            )
-        ) as roles
-    FROM
-        agreement_roles ar
-    JOIN
-        roles r ON ar.role_id = r.id
-    GROUP BY
-        ar.agreement_id
-)
-SELECT
-    a.id,
-    a.user_id,
-    a.headquarter_id,
-    a.season_id,
-    a.status,
-    a.email,
-    a.document_number,
-    a.phone,
-    a.name,
-    a.last_name,
-    a.address,
-    a.signature_data,
-    a.volunteering_agreement,
-    a.ethical_document_agreement,
-    a.mailing_agreement,
-    a.age_verification,
-    a.created_at,
-    a.updated_at,
-    COALESCE(ra.roles, '[]'::jsonb) as roles
-FROM
-    agreements a
-LEFT JOIN
-    roles_array ra ON a.id = ra.agreement_id;
+LANGUAGE: javascript
+CODE:
+```
+// src/routes/login/+page.server.js
+import { fail } from '@sveltejs/kit'
 
--- Set security for the view to be the same as the invoker
--- This ensures the view respects the RLS policies of the underlying tables
-ALTER VIEW agreement_with_roles SET (security_invoker = true);
+export const actions = {
+  default: async ({ request, url, locals: { supabase } }) => {
+    const formData = await request.formData()
+    const email = formData.get('email')
+    const password = formData.get('password')
 
-CREATE OR REPLACE FUNCTION get_agreements_with_roles()
-RETURNS SETOF agreement_with_roles
-LANGUAGE sql
-SECURITY INVOKER
-SET search_path = ''
-AS $$
-  SELECT * FROM public.agreement_with_roles;
-$$;
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${url.origin}/auth/callback`,
+      },
+    })
 
-CREATE OR REPLACE FUNCTION get_agreements_by_role(role_name TEXT)
-RETURNS SETOF agreement_with_roles
-LANGUAGE sql
-SECURITY INVOKER
-SET search_path = ''
-AS $$
-  SELECT awr.*
-  FROM public.agreement_with_roles awr
-  WHERE EXISTS (
-    SELECT 1
-    FROM jsonb_array_elements(awr.roles) as role_obj
-    WHERE role_obj->>'role_name' = role_name
-  );
-$$;
+    if (error) {
+      return fail(500, { message: 'Server error. Try again later.', success: false, email })
+    }
 
-CREATE OR REPLACE FUNCTION get_agreements_by_role_id(role_id UUID)
-RETURNS SETOF agreement_with_roles
-LANGUAGE sql
-SECURITY INVOKER
-SET search_path = ''
-AS $$
-  SELECT awr.*
-  FROM public.agreement_with_roles awr
-  WHERE EXISTS (
-    SELECT 1
-    FROM jsonb_array_elements(awr.roles) as role_obj
-    WHERE role_obj->>'role_id' = role_id::text
-  );
-$$;
+    return {
+      message: 'Please check your email for a magic link to log into the website.',
+      success: true,
+    }
+  },
+}
+```
 
-CREATE OR REPLACE FUNCTION get_agreements_by_role_string(role_string TEXT)
-RETURNS SETOF agreement_with_roles
-LANGUAGE sql
-SECURITY INVOKER
-SET search_path = ''
-AS $$
-  SELECT awr.*
-  FROM public.agreement_with_roles awr
-  WHERE EXISTS (
-    SELECT 1
-    FROM jsonb_array_elements(awr.roles) as role_obj
-    WHERE role_obj->>'role_name' ILIKE '%' || role_string || '%'
-  )
-  OR EXISTS (
-    SELECT 1
-    FROM jsonb_array_elements(awr.roles) as role_obj, public.roles r
-    WHERE role_obj->>'role_id' = r.id::text
-    AND r.code ILIKE '%' || role_string || '%'
-  );
-$$;
+----------------------------------------
 
-CREATE OR REPLACE FUNCTION get_agreements_with_roles_paginated(
-  p_limit INTEGER DEFAULT 10,
-  p_offset INTEGER DEFAULT 0,
-  p_status TEXT DEFAULT NULL,
-  p_headquarter_id UUID DEFAULT NULL,
-  p_season_id UUID DEFAULT NULL,
-  p_search TEXT DEFAULT NULL,
-  p_role_id UUID DEFAULT NULL
-)
-RETURNS JSONB
-LANGUAGE plpgsql
-SECURITY INVOKER
-SET search_path = ''
-AS $$
-DECLARE
-  v_total BIGINT;
-  v_results JSONB;
-  v_data JSONB;
-BEGIN
-  SELECT COUNT(*) INTO v_total
-  FROM public.agreement_with_roles awr
-  WHERE
-    (p_status IS NULL OR awr.status = p_status)
-    AND (p_headquarter_id IS NULL OR awr.headquarter_id = p_headquarter_id)
-    AND (p_season_id IS NULL OR awr.season_id = p_season_id)
-    AND (p_search IS NULL OR
-         awr.name ILIKE '%' || p_search || '%' OR
-         awr.last_name ILIKE '%' || p_search || '%' OR
-         awr.email ILIKE '%' || p_search || '%' OR
-         awr.document_number ILIKE '%' || p_search || '%')
-    AND (p_role_id IS NULL OR EXISTS (
-      SELECT 1
-      FROM jsonb_array_elements(awr.roles) as role_obj
-      WHERE role_obj->>'role_id' = p_role_id::text
-    ));
+TITLE: Importing JSON Data into Supabase Using JavaScript
+DESCRIPTION: A script that reads exported JSON data from Fauna and inserts it into a Supabase table. The script uses the Supabase JavaScript client to handle the data insertion process.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/www/_blog/2025-03-21-migrating-from-fauna-to-supabase.mdx#2025-04-21_snippet_2
 
-  SELECT jsonb_agg(to_jsonb(awr)) INTO v_data
-  FROM (
-    SELECT *
-    FROM public.agreement_with_roles awr
-    WHERE
-      (p_status IS NULL OR awr.status = p_status)
-      AND (p_headquarter_id IS NULL OR awr.headquarter_id = p_headquarter_id)
-      AND (p_season_id IS NULL OR awr.season_id = p_season_id)
-      AND (p_search IS NULL OR
-           awr.name ILIKE '%' || p_search || '%' OR
-           awr.last_name ILIKE '%' || p_search || '%' OR
-           awr.email ILIKE '%' || p_search || '%' OR
-           awr.document_number ILIKE '%' || p_search || '%')
-      AND (p_role_id IS NULL OR EXISTS (
-        SELECT 1
-        FROM jsonb_array_elements(awr.roles) as role_obj
-        WHERE role_obj->>'role_id' = p_role_id::text
-      ))
-    ORDER BY awr.created_at DESC
-    LIMIT p_limit
-    OFFSET p_offset
-  ) awr;
+LANGUAGE: jsx
+CODE:
+```
+import { createClient } from '@supabase/supabase-js'
+import fs from 'fs'
 
-  -- Handle case when no results are found
-  IF v_data IS NULL THEN
-    v_data := '[]'::jsonb;
-  END IF;
+const supabaseUrl = 'YOUR_SUPABASE_URL'
+const supabaseKey = 'YOUR_SUPABASE_API_KEY'
+const tableName = 'YOUR_TABLE_NAME'
+const jsonFilePath = './filename.json'
 
-  -- Construct the final result object
-  v_results := jsonb_build_object(
-    'data', v_data,
-    'pagination', jsonb_build_object(
-      'total', v_total,
-      'limit', p_limit,
-      'offset', p_offset,
-      'page', CASE WHEN p_limit > 0 THEN (p_offset / p_limit) + 1 ELSE 1 END,
-      'pages', CASE WHEN p_limit > 0 THEN CEIL(v_total::numeric / p_limit::numeric) ELSE 1 END
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+async function loadDocumentsToSupabase() {
+  try {
+    // Read JSON file
+    const rawData = fs.readFileSync(jsonFilePath)
+    const dataArray = JSON.parse(rawData).map((data) => ({ data }))
+
+    // Insert data into Supabase
+    const { error } = await supabase.from(tableName).insert(dataArray)
+
+    if (error) {
+      console.error('Error inserting data:', error)
+      return
+    }
+
+    console.log(`Successfully inserted ${dataArray.length} records into ${tableName}`)
+  } catch (error) {
+    console.error('Error in process:', error)
+  }
+}
+
+loadDocumentsToSupabase()
+```
+
+----------------------------------------
+
+TITLE: Signing Out a User JavaScript
+DESCRIPTION: The JavaScript snippet demonstrates how to sign out a user using the Supabase client library. It shows the basic sign-out method and how to invoke it from the client-side, effectively ending the active session. Requires '@supabase/supabase-js' package.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/auth/signout.mdx#2025-04-21_snippet_0
+
+LANGUAGE: JavaScript
+CODE:
+```
+import { createClient } from '@supabase/supabase-js'\nconst supabase = createClient('https://your-project-id.supabase.co', 'your-anon-key')\n\n// ---cut---\nasync function signOut() {\n  const { error } = await supabase.auth.signOut()\n}
+```
+
+----------------------------------------
+
+TITLE: Signing Out - JavaScript
+DESCRIPTION: This JavaScript snippet demonstrates how to sign a user out using the Supabase client. It calls the signOut() method on the auth object, which removes the user's session from the browser and clears any stored objects from localStorage. This function returns a data and error object.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/auth/social-login/auth-twitter.mdx#2025-04-21_snippet_3
+
+LANGUAGE: js
+CODE:
+```
+import { createClient } from '@supabase/supabase-js'
+const supabase = createClient('https://your-project-id.supabase.co', 'your-anon-key')
+
+// ---cut---
+async function signOut() {
+  const { error } = await supabase.auth.signOut()
+}
+```
+
+----------------------------------------
+
+TITLE: Sign Out - JavaScript
+DESCRIPTION: This JavaScript snippet shows how to sign out a user using the Supabase client library. It initializes the Supabase client and calls the signOut method to remove the user's session and clear local storage. The function returns a promise that resolves when the sign-out is complete or rejects with an error.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/auth/social-login/auth-figma.mdx#2025-04-21_snippet_3
+
+LANGUAGE: js
+CODE:
+```
+import { createClient } from '@supabase/supabase-js'
+const supabase = createClient('<your-project-url>', '<your-anon-key>')
+
+// ---cut---
+async function signOut() {
+  const { error } = await supabase.auth.signOut()
+}
+```
+
+----------------------------------------
+
+TITLE: Restricting Access for SSO Users in JavaScript
+DESCRIPTION: This JavaScript function is a webhook that restricts access to employees logging in through SSO. It verifies the authentication method and checks against an allowlist of emails to determine if access should be granted or denied. It also uses the Deno runtime and requires a secret for payload verification.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/auth/auth-hooks/custom-access-token-hook.mdx#2025-04-21_snippet_6
+
+LANGUAGE: javascript
+CODE:
+```
+import { Webhook } from 'https://esm.sh/standardwebhooks@1.0.0'
+import { readAll } from 'https://deno.land/std/io/read_all.ts'
+import * as base64 from 'https://denopkg.com/chiefbiiko/base64/mod.ts'
+
+Deno.serve(async (req) => {
+  const payload = await req.text()
+  const base64_secret = Deno.env.get('CUSTOM_ACCESS_TOKEN_SECRET').replace('v1,whsec_', '')
+  const headers = Object.fromEntries(req.headers)
+  const wh = new Webhook(base64_secret)
+  try {
+    const { user_id, claims, authentication_method } = wh.verify(payload, headers)
+
+    // Check the condition
+    const allowedEmails = ['myemail@company.com', 'example@company.com']
+    if (authentication_method === 'sso/saml' || allowedEmails.includes(claims.email)) {
+      return new Response(
+        JSON.stringify({
+          claims,
+        }),
+        {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    } else {
+      return new Response(
+        JSON.stringify({
+          error: 'Unauthorized',
+        }),
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    }
+  } catch (error) {
+    return new Response(
+      JSON.stringify({
+        error: `Failed to process the request: ${error}`,
+      }),
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
     )
-  );
+  }
+})
+```
 
-  RETURN v_results;
-END;
-$$;
+----------------------------------------
 
-CREATE OR REPLACE FUNCTION get_agreement_with_roles_by_id(p_agreement_id UUID)
-RETURNS JSONB
-LANGUAGE plpgsql
-SECURITY INVOKER
-SET search_path = ''
-AS $$
-DECLARE
-  v_result JSONB;
-BEGIN
-  SELECT to_jsonb(awr) INTO v_result
-  FROM public.agreement_with_roles awr
-  WHERE awr.id = p_agreement_id;
+TITLE: Using Sign-Out Scopes JavaScript
+DESCRIPTION: Shows how to use different session termination scopes such as 'global' and 'local' in JavaScript using Supabase's client library. This involves both ending all sessions and selectively maintaining some active. Requires '@supabase/supabase-js' package.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/auth/signout.mdx#2025-04-21_snippet_5
 
-  IF v_result IS NULL THEN
-    RETURN jsonb_build_object('error', 'Agreement not found');
-  END IF;
+LANGUAGE: JavaScript
+CODE:
+```
+import { createClient } from '@supabase/supabase-js'\nconst supabase = createClient('https://your-project-id.supabase.co', 'your-anon-key')\n\n// ---cut---\n// defaults to the global scope\nawait supabase.auth.signOut()\n\n// sign out from the current session only\nawait supabase.auth.signOut({ scope: 'local' })
+```
 
-  RETURN v_result;
-END;
-$$;
+----------------------------------------
 
+TITLE: Sending Session to Client in JavaScript
+DESCRIPTION: This JavaScript snippet modifies the SvelteKit server load function to pass the user's session and user data to the client, aiding in making session data available across the UI.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/auth/auth-helpers/sveltekit.mdx#2025-04-21_snippet_7
 
--- This file contains seed data for the Akademia database
--- It depends on the schema being already created
--- Execute schema.sql before running this file
+LANGUAGE: JavaScript
+CODE:
+```
+// src/routes/+layout.server.js
+export const load = async ({ locals: { safeGetSession } }) => {
+  const { session, user } = await safeGetSession()
 
-BEGIN;
+  return {
+    session,
+    user,
+  }
+}
+```
 
--- ==========================================
--- 1. Location Entities - Seed Data
--- ==========================================
+----------------------------------------
 
--- Seed Countries
-INSERT INTO countries (id, name, code)
-VALUES (uuid_generate_v4(), 'Argentina', 'AR'),
-       (uuid_generate_v4(), 'Bolivia', 'BO'),
-       (uuid_generate_v4(), 'Brasil', 'BR'),
-       (uuid_generate_v4(), 'Colombia', 'CO'),
-       (uuid_generate_v4(), 'Chile', 'CL'),
-       (uuid_generate_v4(), 'Costa Rica', 'CR'),
-       (uuid_generate_v4(), 'Ecuador', 'EC'),
-       (uuid_generate_v4(), 'España', 'ES'),
-       (uuid_generate_v4(), 'México', 'MX'),
-       (uuid_generate_v4(), 'Perú', 'PE'),
-       (uuid_generate_v4(), 'Internacional-Webinar', 'I_WB'),
-       (uuid_generate_v4(), 'Uruguay', 'UY');
+TITLE: Signing Out - JavaScript
+DESCRIPTION: This code snippet is for signing out a user from the Supabase session in a JavaScript application. The `signOut` function removes the user from the browser session and clears any relevant local storage objects.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/auth/social-login/auth-spotify.mdx#2025-04-21_snippet_3
 
--- Seed Headquarters
--- Argentina (AR)
-INSERT INTO headquarters (name, country_id)
-VALUES ('Mendoza', (SELECT id FROM countries WHERE code = 'AR')),
-       ('San Rafael', (SELECT id FROM countries WHERE code = 'AR')),
-       ('Buenos Aires', (SELECT id FROM countries WHERE code = 'AR')),
-       ('Santa Fe', (SELECT id FROM countries WHERE code = 'AR')),
-       ('Santiago del Estero', (SELECT id FROM countries WHERE code = 'AR')),
-       ('Río Cuarto', (SELECT id FROM countries WHERE code = 'AR')),
-       ('Catamarca', (SELECT id FROM countries WHERE code = 'AR')),
-       ('Mar de Plata', (SELECT id FROM countries WHERE code = 'AR')),
-       ('Córdoba', (SELECT id FROM countries WHERE code = 'AR')),
-       ('General Pico, La Pampa', (SELECT id FROM countries WHERE code = 'AR')),
-       ('San Fernando, Bs As', (SELECT id FROM countries WHERE code = 'AR')),
-       ('La Plata', (SELECT id FROM countries WHERE code = 'AR')),
-       ('Villa María', (SELECT id FROM countries WHERE code = 'AR')),
-       ('Resistencia', (SELECT id FROM countries WHERE code = 'AR')),
-       ('San Juan', (SELECT id FROM countries WHERE code = 'AR')),
-       ('Konsejo Akademíko', (SELECT id FROM countries WHERE code = 'AR'));
+LANGUAGE: javascript
+CODE:
+```
+import { createClient } from '@supabase/supabase-js'\nconst supabase = createClient('<your-project-url>', '<your-anon-key>')\n\n// ---cut---\nasync function signOut() {\n  const { error } = await supabase.auth.signOut()\n}
+```
 
--- España (ES)
-INSERT INTO headquarters (name, country_id)
-VALUES ('Barcelona', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Cambrils', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Girona', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Granollers', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Mataró', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Sabadell', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Lleida', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Tarragona', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Sant Boi de Llobregat', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Vic', (SELECT id FROM countries WHERE code = 'ES')),
-       ('La Senia', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Reus', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Elche', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Ibiza', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Mallorca', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Murcia', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Valencia Nómada Upv', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Valencia Catarroja', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Tenerife', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Cartagena', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Alicante', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Cáceres', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Bilbao', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Burgos', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Córdoba', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Donostia/San Sebastián', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Granada', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Jaén', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Madrid', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Málaga', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Valladolid', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Zaragoza', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Sevilla', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Coruña', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Almería', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Linares', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Pisuerga', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Logroño', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Gijón', (SELECT id FROM countries WHERE code = 'ES')),
-       ('Konsejo Akademíko', (SELECT id FROM countries WHERE code = 'ES'));
+----------------------------------------
 
--- Ecuador (EC)
-INSERT INTO headquarters (name, country_id)
-VALUES ('Quito', (SELECT id FROM countries WHERE code = 'EC')),
-       ('Ambato', (SELECT id FROM countries WHERE code = 'EC')),
-       ('Konsejo Akademíko', (SELECT id FROM countries WHERE code = 'EC'));
+TITLE: Signing Out - JavaScript
+DESCRIPTION: This JavaScript snippet shows how to sign out users from the Instagram account using the Supabase client. The `signOut()` method is called to remove the user from the session.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/auth/social-login/auth-discord.mdx#2025-04-21_snippet_3
 
--- México (MX)
-INSERT INTO headquarters (name, country_id)
-VALUES ('Ciudad de México', (SELECT id FROM countries WHERE code = 'MX')),
-       ('Monterrey', (SELECT id FROM countries WHERE code = 'MX')),
-       ('Tepatitlan de Morelos', (SELECT id FROM countries WHERE code = 'MX')),
-       ('Konsejo Akademíko', (SELECT id FROM countries WHERE code = 'MX'));
+LANGUAGE: javascript
+CODE:
+```
+import { createClient } from '@supabase/supabase-js'\nconst supabase = createClient('https://your-project-id.supabase.co', 'your-anon-key')\n// ---cut---\nasync function signOut() {\n  const { error } = await supabase.auth.signOut()\n}
+```
 
--- Perú (PE)
-INSERT INTO headquarters (name, country_id)
-VALUES ('Lima', (SELECT id FROM countries WHERE code = 'PE'));
+----------------------------------------
 
--- Colombia (CO)
-INSERT INTO headquarters (name, country_id)
-VALUES ('Medellín', (SELECT id FROM countries WHERE code = 'CO')),
-       ('Cali', (SELECT id FROM countries WHERE code = 'CO')),
-       ('Bogotá', (SELECT id FROM countries WHERE code = 'CO')),
-       ('Bucaramanga', (SELECT id FROM countries WHERE code = 'CO')),
-       ('Aburra Sur', (SELECT id FROM countries WHERE code = 'CO')),
-       ('ISA', (SELECT id FROM countries WHERE code = 'CO')),
-       ('Konsejo Akademíko', (SELECT id FROM countries WHERE code = 'CO'));
+TITLE: Getting User Metadata - JavaScript
+DESCRIPTION: Fetches the current user's metadata from Supabase using JavaScript.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/auth/managing-user-data.mdx#2025-04-21_snippet_6
 
--- Bolivia (BO)
-INSERT INTO headquarters (name, country_id)
-VALUES ('Santa Cruz', (SELECT id FROM countries WHERE code = 'BO')),
-       ('Konsejo Akademíko', (SELECT id FROM countries WHERE code = 'BO'));
+LANGUAGE: javascript
+CODE:
+```
+import { createClient } from '@supabase/supabase-js'
+const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_KEY!)
 
--- Uruguay (UY)
-INSERT INTO headquarters (name, country_id)
-VALUES ('Montevideo', (SELECT id FROM countries WHERE code = 'UY')),
-       ('Konsejo Akademíko', (SELECT id FROM countries WHERE code = 'UY'));
+// ---cut---
+const {
+  data: { user },
+} = await supabase.auth.getUser()
+let metadata = user?.user_metadata
+```
 
--- Chile (CL)
-INSERT INTO headquarters (name, country_id)
-VALUES ('Santiago', (SELECT id FROM countries WHERE code = 'CL')),
-       ('Konsejo Akademíko', (SELECT id FROM countries WHERE code = 'CL'));
+----------------------------------------
 
--- Webinar (país Internacional-Webinar, I_WB)
-INSERT INTO headquarters (name, country_id)
-VALUES ('Webinar Septiembre', (SELECT id FROM countries WHERE code = 'I_WB')),
-       ('Webinar Marzo', (SELECT id FROM countries WHERE code = 'I_WB'));
+TITLE: Signing Out with Supabase JavaScript
+DESCRIPTION: This JavaScript code provides a method for signing out users from a Supabase project using the `signOut` function. It clears the user session from the browser and localStorage. Ensure the `@supabase/supabase-js` library is installed and configured.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/auth/social-login/auth-linkedin.mdx#2025-04-21_snippet_3
 
+LANGUAGE: JavaScript
+CODE:
+```
+import { createClient } from '@supabase/supabase-js'
+const supabase = createClient('<your-project-url>', '<your-anon-key>')
 
--- ==========================================
--- 2. People and Roles - Seed Data
--- ==========================================
+// ---cut---
+async function signOut() {
+  const { error } = await supabase.auth.signOut()
+}
+```
 
--- Seed Roles
-INSERT INTO roles (id, code, name, description, status)
-VALUES (uuid_generate_v4(), 'general_director', 'Director General',
-        'Coordinador General de la Akademia a nivel internacional, gestiona el Konsejo y se mantiene en contacto con el Fundador',
-        'active'),
-       (uuid_generate_v4(), 'pedagogical_leader', 'Líder Pedagógico',
-        'Lidera el equipo pedagógico, asesora a las Akademias en temas pedagógicos y vela por el cumplimiento del programa',
-        'active'),
-       (uuid_generate_v4(), 'innovation_leader', 'Líder de Innovación',
-        'Lidera el equipo de innovación, impulsa nuevos proyectos y metodologías para mejorar el programa',
-        'active'),
-       (uuid_generate_v4(), 'communication_leader', 'Líder de Comunicación',
-        'Lidera el equipo de comunicación, gestiona la estrategia de comunicación y la imagen corporativa', 'active'),
-       (uuid_generate_v4(), 'executive_leader', 'Líder Ejecutivo',
-        'Lidera el equipo ejecutivo, analiza necesidades de gestión y optimiza procesos internos', 'active'),
-       (uuid_generate_v4(), 'community_leader', 'Líder de Komunidad',
-        'Lidera el equipo de Komunidad, genera vínculos entre miembros actuales y antiguos de La Akademia', 'active'),
-       (uuid_generate_v4(), 'coordination_leader', 'Líder de Koordinación',
-        'Coordinador de todos los Koordinadores y su representante en el Konsejo', 'active'),
-       (uuid_generate_v4(), 'coordinator', 'Koordinador',
-        'Nexo entre el Konsejo y las Akademias locales asignadas. Apoyo y supervisión de sedes', 'active'),
-       (uuid_generate_v4(), 'legal_advisor', 'Asesor Legal',
-        'Lidera el Comité ético y asesora al Konsejo en temas legales', 'active'),
-       (uuid_generate_v4(), 'konsejo_member', 'Miembro del Konsejo de Dirección',
-        'Miembro del consejo de dirección con capacidad de toma de decisiones estratégicas', 'active'),
-       (uuid_generate_v4(), 'headquarter_manager', 'Director/a Local',
-        'Responsable de la dirección general de una sede',
-        'active'),
-       (uuid_generate_v4(), 'pedagogical_manager', 'Director/a Pedagógico Local',
-        'Responsable del área pedagógica de una sede',
-        'active'),
-       (uuid_generate_v4(), 'communication_manager', 'Director/a de Comunicación Local',
-        'Responsable del área de comunicación de una sede',
-        'active'),
-       (uuid_generate_v4(), 'companion_director', 'Director/a de Acompañantes Local',
-        'Responsable del área de acompañamiento de una sede',
-        'active'),
-       (uuid_generate_v4(), 'manager_assistant', 'Asistente a la dirección',
-        'Colaborador Asistente en la dirección de una sede', 'active'),
-       (uuid_generate_v4(), 'superadmin', 'Super administrador', 'Administrador super usuario', 'active'),
-       (uuid_generate_v4(), 'companion', 'Acompañante',
-        'Persona que acompaña a los alumnos en su proceso de aprendizaje', 'active'),
-       (uuid_generate_v4(), 'facilitator', 'Facilitador', 'Facilitador de actividades y talleres', 'active'),
-       (uuid_generate_v4(), 'student', 'Alumno', 'Estudiante registrado en el programa', 'active');
+----------------------------------------
 
+TITLE: Streaming Inserts using Postgres Changes in JavaScript
+DESCRIPTION: This JavaScript code shows how to stream new rows inserted into a table using Postgres Changes and the Supabase client. It initializes the Supabase client, creates a channel, and subscribes to 'postgres_changes' events with the 'INSERT' event type and a specified schema. When a new row is inserted, the payload is logged to the console.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/realtime/subscribing-to-database-changes.mdx#2025-04-21_snippet_5
 
--- ==========================================
--- 3. Seasons - Seed Data
--- ==========================================
+LANGUAGE: javascript
+CODE:
+```
+// @noImplicitAny: false
+import { createClient } from '@supabase/supabase-js'
+const supabase = createClient('your_project_url', 'your_supabase_api_key')
 
--- Add one season for each headquarter
-INSERT INTO seasons (id, name, headquarter_id, start_date, end_date, status)
-SELECT
-    uuid_generate_v4(),
-    headquarters.name || ' - Edición 2024-2025',
-    headquarters.id,
-    '2024-09-10',
-    '2025-05-15',
-    'active'
-FROM headquarters;
+// ---cut---
+const channel = supabase
+  .channel('schema-db-changes')
+  .on(
+    'postgres_changes',
+    {
+      event: 'INSERT',
+      schema: 'public',
+    },
+    (payload) => console.log(payload)
+  )
+  .subscribe()
+```
+
+----------------------------------------
+
+TITLE: Listening to Broadcast Events on Client Side in JavaScript
+DESCRIPTION: This JavaScript code demonstrates how to listen to broadcast events on the client side using the Supabase client. It initializes the Supabase client, sets the authentication token, and subscribes to a channel with a specific topic. The code listens for 'INSERT', 'UPDATE', and 'DELETE' events on the channel and logs the payload to the console.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/realtime/subscribing-to-database-changes.mdx#2025-04-21_snippet_3
+
+LANGUAGE: javascript
+CODE:
+```
+import { createClient } from '@supabase/supabase-js'
+const supabase = createClient('your_project_url', 'your_supabase_api_key')
+
+// ---cut---
+const gameId = 'id'
+await supabase.realtime.setAuth() // Needed for Realtime Authorization
+const changes = supabase
+  .channel(`topic:${gameId}`, {
+    config: { private: true },
+  })
+  .on('broadcast', { event: 'INSERT' }, (payload) => console.log(payload))
+  .on('broadcast', { event: 'UPDATE' }, (payload) => console.log(payload))
+  .on('broadcast', { event: 'DELETE' }, (payload) => console.log(payload))
+  .subscribe()
+```
+
+----------------------------------------
+
+TITLE: Default Tailwind Configuration - JavaScript
+DESCRIPTION: This JavaScript snippet illustrates a default Tailwind CSS configuration file structure. It includes essential properties like 'purge', 'theme', 'variants', and 'plugins', which determine how Tailwind processes and generates the CSS styles based on the project's requirements.
+SOURCE: https://github.com/supabase/supabase/blob/master/packages/ui/src/lib/MarkdownSample.md#2025-04-21_snippet_1
+
+LANGUAGE: javascript
+CODE:
+```
+module.exports = {
+  purge: [],
+  theme: {
+    extend: {},
+  },
+  variants: {},
+  plugins: [],
+}
+```
+
+----------------------------------------
+
+TITLE: Querying One-to-Many Relationships in JavaScript
+DESCRIPTION: JavaScript example showing how to query orchestral sections with their related instruments using Supabase's automatic relationship detection.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/docs/content/guides/database/joins-and-nesting.mdx#2025-04-21_snippet_1
+
+LANGUAGE: javascript
+CODE:
+```
+const { data, error } = await supabase.from('orchestral_sections').select(`
+  id,
+  name,
+  instruments ( id, name )
+`)
+```
+
+----------------------------------------
+
+TITLE: User Generation Script
+DESCRIPTION: JavaScript function to generate synthetic user data for testing, writing results to a file rather than keeping in memory to handle large volumes.
+SOURCE: https://github.com/supabase/supabase/blob/master/apps/www/_blog/2022-07-18-seen-by-in-postgresql.mdx#2025-04-21_snippet_2
+
+LANGUAGE: javascript
+CODE:
+```
+/**
+ * Generate a list of synthetic users to be loaded into Postgres
+ *
+ * @param {object} args
+ * @param {number} [args.count] number of users to generate
+ * @param {number} [args.aboutHTMLWordCount] number of words to generate (lorem ipsum) for about_html (serves to add heft to tuples)
+ * @param {string} [args.outputFilePath] output file path, if present this functoin returns void
+ * @returns {any[][]} List of generated synthetic users
+ */
+export async function generateUsers(args) {
+  const count = args.count || DEFAULT_USER_COUNT
+  const aboutHTMLWordCount = args.aboutHTMLWordCount || DEFAULT_ABOUT_HTML_WORD_COUNT
+
+  const outputFilePath = args.outputFilePath
+  if (!outputFilePath) {
+    throw new Error('output file path must be specified')
+  }
+
+  for (var id = 0; id < count; id++) {
+    const user = {
+      id,
+      email: `user${id}@example.com`,
+      name: `user ${id}`,
+      about_html: fastLoremIpsum(aboutHTMLWordCount, 'w'),
+    }
+
+    // Write the entries to disk (returning nothing)
+    if (args.outputFilePath) {
+      await appendFile(outputFilePath, `${JSON.stringify(user)}\n`)
+    }
+  }
+}
+```
 
 
 
+TITLE: Using Signals in Angular Components
+DESCRIPTION: This snippet demonstrates how to use signals and computed signals within an Angular component. It shows the creation of multiple signals and a computed signal that depends on them, as well as a method to update a signal's value.
+SOURCE: https://github.com/angular/angular/blob/main/adev/src/content/introduction/essentials/signals.md#2025-04-22_snippet_2
 
--- Test Users: Only for development
--- Uncomment this section for local development if needed
-/*
--- Create test users in auth schema if in development mode
-DO $$
-BEGIN
-  IF current_setting('app.environment', TRUE)::text = 'development' THEN
-    -- This function only works in local development with Supabase
-    PERFORM supabase_auth.create_user(
-      email := 'admin@example.com',
-      password := 'password123',
-      email_confirmed := true,
-      data := '{"name": "Admin User", "role": "admin"}'::jsonb
+LANGUAGE: typescript
+CODE:
+```
+@Component({/* ... */})
+export class UserProfile {
+  isTrial = signal(false);
+  isTrialExpired = signal(false);
+  showTrialDuration = computed(() => this.isTrial() && !this.isTrialExpired());
+
+  activateTrial() {
+    this.isTrial.set(true);
+  }
+}
+```
+
+----------------------------------------
+
+TITLE: Creating and Manipulating Signals in TypeScript
+DESCRIPTION: This snippet demonstrates how to create a signal, read its value, and update it using both 'set' and 'update' methods. It showcases the basic operations possible with signals in Angular.
+SOURCE: https://github.com/angular/angular/blob/main/adev/src/content/introduction/essentials/signals.md#2025-04-22_snippet_0
+
+LANGUAGE: typescript
+CODE:
+```
+import {signal} from '@angular/core';
+
+// Create a signal with the `signal` function.
+const firstName = signal('Morgan');
+
+// Read a signal value by calling it— signals are functions.
+console.log(firstName());
+
+// Change the value of this signal by calling its `set` method with a new value.
+firstName.set('Jaime');
+
+// You can also use the `update` method to change the value
+// based on the previous value.
+firstName.update(name => name.toUpperCase());
+```
+
+----------------------------------------
+
+TITLE: Creating and Updating Writable Signals - Angular TypeScript
+DESCRIPTION: Demonstrates how to create a writable signal using `signal()` and update its value with `.set` and `.update` functions. The snippet shows a counter signal being incremented. Angular signals require no specific dependencies but are used within reactive contexts, updating automatically as their dependencies change. Inputs include the initial counter value, and outputs are the updated values. Limitations include synchronous execution constraints.
+SOURCE: https://github.com/angular/angular/blob/main/packages/core/primitives/signals/README.md#2025-04-22_snippet_0
+
+LANGUAGE: TypeScript
+CODE:
+```
+const counter = signal(0);
+
+counter.set(2);
+counter.update(count => count + 1);
+```
+
+----------------------------------------
+
+TITLE: Creating Computed Signals in TypeScript
+DESCRIPTION: This snippet shows how to create a computed signal that depends on another signal. It demonstrates the read-only nature of computed signals and how they automatically update when their dependencies change.
+SOURCE: https://github.com/angular/angular/blob/main/adev/src/content/introduction/essentials/signals.md#2025-04-22_snippet_1
+
+LANGUAGE: typescript
+CODE:
+```
+import {signal, computed} from '@angular/core';
+
+const firstName = signal('Morgan');
+const firstNameCapitalized = computed(() => firstName().toUpperCase());
+
+console.log(firstNameCapitalized()); // MORGAN
+```
+
+LANGUAGE: typescript
+CODE:
+```
+import {signal, computed} from '@angular/core';
+
+const firstName = signal('Morgan');
+const firstNameCapitalized = computed(() => firstName().toUpperCase());
+console.log(firstNameCapitalized()); // MORGAN
+
+firstName.set('Jaime');
+console.log(firstNameCapitalized()); // JAIME
+```
+
+----------------------------------------
+
+TITLE: Using a Custom Equality Function with Signals in TypeScript
+DESCRIPTION: Shows how to provide a custom equality function when creating a signal for deep equality comparisons.
+SOURCE: https://github.com/angular/angular/blob/main/adev/src/content/guide/signals/overview.md#2025-04-22_snippet_9
+
+LANGUAGE: typescript
+CODE:
+```
+import _ from 'lodash';
+
+const data = signal(['test'], {equal: _.isEqual});
+
+// Even though this is a different array instance, the deep equality
+// function will consider the values to be equal, and the signal won't
+// trigger any updates.
+data.set(['test']);
+```
+
+----------------------------------------
+
+TITLE: Creating and Reading a Writable Signal in TypeScript
+DESCRIPTION: Demonstrates how to create a writable signal using the 'signal' function and read its value by calling the getter function.
+SOURCE: https://github.com/angular/angular/blob/main/adev/src/content/guide/signals/overview.md#2025-04-22_snippet_0
+
+LANGUAGE: typescript
+CODE:
+```
+const count = signal(0);
+
+// Signals are getter functions - calling them reads their value.
+console.log('The count is: ' + count());
+```
+
+----------------------------------------
+
+TITLE: Implementing Equality Checks with Computed Signals and Effects in TypeScript
+DESCRIPTION: Sets up an Angular `signal` named `counter`, a `computed` signal `isEven` derived from `counter`, and an `effect` that logs the parity of `isEven`. This example highlights equality semantics: the effect should only re-run when the boolean value of `isEven` actually changes (from true to false or vice-versa), even if underlying `counter` updates might result in the same computed `isEven` value (e.g., changing `counter` from 1 to 3, where `isEven` remains false). This necessitates value versioning.
+SOURCE: https://github.com/angular/angular/blob/main/packages/core/primitives/signals/README.md#2025-04-22_snippet_7
+
+LANGUAGE: typescript
+CODE:
+```
+```typescript
+const counter = signal(0);
+const isEven = computed(() => counter() % 2 === 0);
+effect(() => console.log(isEven() ? 'even!' : 'odd!'));
+```
+```
+
+----------------------------------------
+
+TITLE: Running Angular Signal Migration Command
+DESCRIPTION: Command to execute the combined signals migration that converts traditional Angular decorators to their signal-based equivalents. This single command handles the migration of @Input, @Output, ViewChild/ViewChildren, and ContentChild/ContentChildren.
+SOURCE: https://github.com/angular/angular/blob/main/packages/core/schematics/ng-generate/signals/README.md#2025-04-22_snippet_0
+
+LANGUAGE: bash
+CODE:
+```
+ng generate @angular/core:signals
+```
+
+----------------------------------------
+
+TITLE: Declaring Angular Core Primitives Signal Functions
+DESCRIPTION: This code snippet declares various functions related to signals, computations, and reactive programming in Angular. It includes functions for creating signals, computations, and managing reactive nodes.
+SOURCE: https://github.com/angular/angular/blob/main/goldens/public-api/core/primitives/signals/index.api.md#2025-04-22_snippet_1
+
+LANGUAGE: typescript
+CODE:
+```
+export function consumerAfterComputation(node: ReactiveNode | null, prevConsumer: ReactiveNode | null): void;
+
+export function consumerBeforeComputation(node: ReactiveNode | null): ReactiveNode | null;
+
+export function consumerDestroy(node: ReactiveNode): void;
+
+export function consumerMarkDirty(node: ReactiveNode): void;
+
+export function consumerPollProducersForChange(node: ReactiveNode): boolean;
+
+export function createComputed<T>(computation: () => T, equal?: ValueEqualityFn<T>): ComputedGetter<T>;
+
+export function createLinkedSignal<S, D>(sourceFn: () => S, computationFn: ComputationFn<S, D>, equalityFn?: ValueEqualityFn<D>): LinkedSignalGetter<S, D>;
+
+export function createSignal<T>(initialValue: T, equal?: ValueEqualityFn<T>): SignalGetter<T>;
+
+export function createWatch(fn: (onCleanup: WatchCleanupRegisterFn) => void, schedule: (watch: Watch) => void, allowSignalWrites: boolean): Watch;
+```
+
+----------------------------------------
+
+TITLE: Creating a Signal from RxJS Observable using toSignal in Angular TypeScript
+DESCRIPTION: This snippet demonstrates how to use the toSignal function to create a signal from an RxJS Observable. It creates a counter signal that updates every second based on an interval Observable.
+SOURCE: https://github.com/angular/angular/blob/main/adev/src/content/ecosystem/rxjs-interop/signals-interop.md#2025-04-22_snippet_0
+
+LANGUAGE: typescript
+CODE:
+```
+import { Component } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { interval } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+
+@Component({
+  template: `{{ counter() }}`,
+})
+export class Ticker {
+  counterObservable = interval(1000);
+
+  // Get a `Signal` representing the `counterObservable`'s value.
+  counter = toSignal(this.counterObservable, {initialValue: 0});
+}
+```
+
+----------------------------------------
+
+TITLE: Defining the computed Signal function in Angular
+DESCRIPTION: Declaration for the computed function that creates a derived Signal based on a computation function. Accepts an optional options object to configure the Signal behavior.
+SOURCE: https://github.com/angular/angular/blob/main/goldens/public-api/core/index.api.md#2025-04-22_snippet_1
+
+LANGUAGE: typescript
+CODE:
+```
+export function computed<T>(computation: () => T, options?: CreateComputedOptions<T>): Signal<T>;
+```
+
+----------------------------------------
+
+TITLE: Creating a Dynamic Computed Signal in TypeScript
+DESCRIPTION: Defines an Angular `computed` signal named `dynamic`. Its value conditionally depends on either the `dataA` signal or the `dataB` signal, based on the current boolean value of the `useA` signal. This illustrates dynamic dependency tracking where the set of dependencies (`[useA, dataA]` or `[useA, dataB]`) can change between executions.
+SOURCE: https://github.com/angular/angular/blob/main/packages/core/primitives/signals/README.md#2025-04-22_snippet_6
+
+LANGUAGE: typescript
+CODE:
+```
+```typescript
+const dynamic = computed(() => useA() ? dataA() : dataB());
+```
+```
+
+----------------------------------------
+
+TITLE: Creating a Conditional Computed Signal in TypeScript
+DESCRIPTION: Shows how to create a computed signal with dynamic dependencies based on conditions.
+SOURCE: https://github.com/angular/angular/blob/main/adev/src/content/guide/signals/overview.md#2025-04-22_snippet_4
+
+LANGUAGE: typescript
+CODE:
+```
+const showCount = signal(false);
+const count = signal(0);
+const conditionalCount = computed(() => {
+  if (showCount()) {
+    return `The count is ${count()}.`;
+  } else {
+    return 'Nothing to see here!';
+  }
+});
+```
+
+----------------------------------------
+
+TITLE: Creating a Computed Signal in TypeScript
+DESCRIPTION: Demonstrates how to create a computed signal that derives its value from another signal using the 'computed' function.
+SOURCE: https://github.com/angular/angular/blob/main/adev/src/content/guide/signals/overview.md#2025-04-22_snippet_3
+
+LANGUAGE: typescript
+CODE:
+```
+const count: WritableSignal<number> = signal(0);
+const doubleCount: Signal<number> = computed(() => count() * 2);
+```
+
+----------------------------------------
+
+TITLE: Liveness and Memory Management in Signals - Angular TypeScript
+DESCRIPTION: Describes the impact of consumer liveness on memory management and dependency tracking. Demonstrates setting a `computed` signal and how they can be dropped without leaks. Angular relies on understanding reactive and live consumer context. Inputs change signal states; outputs include signal value updates or drops.
+SOURCE: https://github.com/angular/angular/blob/main/packages/core/primitives/signals/README.md#2025-04-22_snippet_4
+
+LANGUAGE: TypeScript
+CODE:
+```
+const counter = signal(1);
+
+let double = computed(() => counter() * 2);
+console.log(double()); // 2
+double = null;
+
+counter.set(2);
+```
+
+----------------------------------------
+
+TITLE: Creating Declarative Derived Values - Angular TypeScript
+DESCRIPTION: Creates a computed signal `isEven` that derives its value from another signal `counter`. This shows how computed properties depend on input signals and ensure that the output updates when any input changes. Requires Angular framework and inputs include the initial signal; outputs are computed values. It has dependency tracking constraints to ensure up-to-date values.
+SOURCE: https://github.com/angular/angular/blob/main/packages/core/primitives/signals/README.md#2025-04-22_snippet_1
+
+LANGUAGE: TypeScript
+CODE:
+```
+const counter = signal(0);
+
+// Automatically updates when `counter` changes:
+const isEven = computed(() => counter() % 2 === 0);
+```
+
+----------------------------------------
+
+TITLE: Using Untracked to Read Signals Without Creating Dependencies in TypeScript
+DESCRIPTION: Demonstrates how to use the 'untracked' function to read signals within an effect without creating dependencies.
+SOURCE: https://github.com/angular/angular/blob/main/adev/src/content/guide/signals/overview.md#2025-04-22_snippet_10
+
+LANGUAGE: typescript
+CODE:
+```
+effect(() => {
+  console.log(`User set to ${currentUser()} and the counter is ${untracked(counter)}`);
+});
+```
+
+----------------------------------------
+
+TITLE: Setting a Writable Signal's Value in TypeScript
+DESCRIPTION: Shows how to directly set the value of a writable signal using the '.set()' method.
+SOURCE: https://github.com/angular/angular/blob/main/adev/src/content/guide/signals/overview.md#2025-04-22_snippet_1
+
+LANGUAGE: typescript
+CODE:
+```
+count.set(3);
+```
+
+
+/**
+ * @fileoverview Roles guard to protect routes based on user roles/permissions.
+ * Assumes roles are available, potentially fetched via AuthService or another service.
+ */
+import { inject } from '@angular/core';
+import { CanActivateFn, Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { AuthService } from './auth.service'; // Adjust path as needed
+// Import your RoleService or CollaboratorService if roles are fetched there
+import { RoleService } from '@app/libs/data-access-supabase/role.service'; // Example path
+import { map, take, tap, switchMap, filter, firstValueFrom, combineLatest, of } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { User } from '@supabase/supabase-js';
+
+/**
+ * Functional route guard that checks if the authenticated user has at least one of the required roles.
+ * Reads required roles from the route's data property.
+ *
+ * @param route The activated route snapshot, expecting `data: { roles: string[] }`.
+ * @param state The router state snapshot.
+ * @returns An Observable, Promise, or boolean indicating if activation is allowed.
+ */
+export const rolesGuard: CanActivateFn = (
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+): Observable<boolean> | Promise<boolean> | boolean => {
+    const authService = inject(AuthService);
+    const router = inject(Router);
+    // Inject the service responsible for providing user roles
+    // const roleService = inject(RoleService); // Or CollaboratorService etc.
+    const requiredRoles = route.data?.['roles'] as string[] | undefined;
+    const forbiddenPath = '/forbidden'; // Or your unauthorized access route
+
+    if (!requiredRoles || requiredRoles.length === 0) {
+        console.warn('[RolesGuard] No required roles specified for this route. Allowing access.');
+        return true; // No roles required, allow access
+    }
+
+    console.log(`[RolesGuard] Required roles: ${requiredRoles.join(', ')}`);
+
+    // Combine waiting for auth loading and getting the current user
+    return combineLatest([
+        toObservable(authService.isLoading).pipe(filter(loading => !loading), take(1)), // Wait until not loading
+        toObservable(authService.currentUser).pipe(take(1)) // Get the user once loading is done
+    ]).pipe(
+        switchMap(([_, user]) => {
+            if (!user) {
+                console.log('[RolesGuard] User not authenticated. Denying access.');
+                // Redirect handled by authGuard, just deny here or redirect to login again
+                // router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+                return of(false); // Not authenticated, definitely no roles
+            }
+
+            console.log(`[RolesGuard] User ${user.email} authenticated. Checking roles...`);
+
+            // --- Role Checking Logic ---
+            // Choose ONE of the following strategies based on where roles are stored/fetched:
+
+            // Strategy 1: Roles stored directly in user_metadata (simplest if applicable)
+            // const userMetadata = user.user_metadata;
+            // const userRoles = userMetadata?.['roles'] as string[] | undefined; // Adjust key 'roles' as needed
+
+            // Strategy 2: Roles fetched and stored within AuthService state (e.g., authState().userRoles)
+            // return toObservable(authService.userRoles).pipe(take(1), map(userRoles => ...));
+
+            // Strategy 3: Roles fetched via a dedicated service (e.g., RoleService, CollaboratorService)
+            // This requires an async call here. Example using a hypothetical getRolesForUser method.
+            // Replace with your actual service and method.
+            // IMPORTANT: Ensure the service method returns roles reliably (e.g., from cache or fetch).
+            // return from(roleService.getRolesForUser(user.id)).pipe( // Assuming async method
+            //     map(userRoles => { ... check logic ... })
+            // );
+
+            // --- Placeholder Logic (Replace with your chosen strategy) ---
+            // Simulating roles fetched from metadata for demonstration
+            const userMetadata = user.user_metadata;
+            const userRoles = userMetadata?.['roles'] as string[] | undefined ?? []; // Default to empty array
+            console.log(`[RolesGuard] User roles found: ${userRoles.join(', ')}`);
+            // --- End Placeholder ---
+
+
+            // --- Check if user has any of the required roles ---
+            const hasRequiredRole = requiredRoles.some(requiredRole =>
+                userRoles.some(userRole => userRole.toUpperCase() === requiredRole.toUpperCase())
+            );
+
+            return of(hasRequiredRole); // Return observable boolean
+        }),
+        tap(hasAccess => {
+            if (!hasAccess) {
+                console.log('[RolesGuard] User does not have required roles. Redirecting to forbidden page.');
+                router.navigate([forbiddenPath]); // Redirect to forbidden page
+            } else {
+                console.log('[RolesGuard] User has required role(s). Allowing access.');
+            }
+        }),
+        map(hasAccess => hasAccess) // Return the final boolean result
     );
+};
 
-    -- Insert agreements with test user
-    INSERT INTO agreements (role_id, user_id, headquarter_id, status, email, name, last_name)
-    SELECT
-      (SELECT id FROM roles WHERE code = 'superadmin'),
-      (SELECT id FROM auth.users WHERE email = 'admin@example.com'),
-      (SELECT id FROM headquarters LIMIT 1),
-      'active',
-      'admin@example.com',
-      'Admin',
-      'User';
-  END IF;
-END
-$$;
+// --- Helper function example (if using Strategy 3) ---
+/*
+async function getUserRolesFromService(userId: string): Promise<string[]> {
+    const roleService = inject(RoleService); // Or your specific service
+    try {
+        // Replace with your actual method call
+        // e.g., const collaboratorProfile = await roleService.getCollaboratorProfile(userId);
+        // return collaboratorProfile?.roles ?? [];
+        console.log(`[RolesGuard] Simulating fetching roles for user ${userId}`);
+        await new Promise(resolve => setTimeout(resolve, 50)); // Simulate async call
+        // Dummy roles based on user ID for testing
+        if (userId.includes('admin')) return ['ADMIN'];
+        if (userId.includes('student')) return ['STUDENT'];
+        return ['VIEWER'];
+    } catch (error) {
+        console.error('[RolesGuard] Error fetching user roles:', error);
+        return []; // Return empty array on error
+    }
+}
 */
 
-COMMIT;
+/**
+ * @fileoverview Authentication guard to protect routes that require a logged-in user.
+ * Uses the signal-based authentication state from AuthService.
+ */
+import { inject } from '@angular/core';
+import { CanActivateFn, Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { AuthService } from './auth.service'; // Adjust path as needed
+import { map, take, tap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
+
+/**
+ * Functional route guard that checks if the user is authenticated.
+ * Redirects to the login page if the user is not authenticated.
+ * Handles the initial loading state of the AuthService.
+ *
+ * @param route The activated route snapshot.
+ * @param state The router state snapshot.
+ * @returns An Observable, Promise, or boolean indicating if activation is allowed.
+ */
+export const authGuard: CanActivateFn = (
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+): Observable<boolean> | Promise<boolean> | boolean => {
+    const authService = inject(AuthService);
+    const router = inject(Router);
+    const loginPath = '/login'; // Or your actual login route
+
+    // Use toObservable to react to signal changes, including the initial loading state.
+    return toObservable(authService.isLoading).pipe(
+        take(1), // Check loading state once initially
+        switchMap(isLoading => {
+            if (isLoading) {
+                // If still loading, wait for the loading state to become false
+                console.log('[AuthGuard] Auth state loading, waiting...');
+                return toObservable(authService.isLoading).pipe(
+                    filter(loading => !loading), // Wait until loading is false
+                    take(1), // Take the first emission where loading is false
+                    map(() => authService.isAuthenticated()) // Check auth status *after* loading completes
+                );
+            } else {
+                // If not loading, check authentication status directly
+                return of(authService.isAuthenticated());
+            }
+        }),
+        tap(isAuthenticated => {
+            console.log(`[AuthGuard] Check complete. Authenticated: ${isAuthenticated}`);
+            if (!isAuthenticated) {
+                console.log('[AuthGuard] User not authenticated. Redirecting to login.');
+                // Store the attempted URL for redirection after login
+                const returnUrl = state.url;
+                router.navigate([loginPath], { queryParams: { returnUrl } });
+            }
+        }),
+        map(isAuthenticated => isAuthenticated) // Ensure the final emission is the boolean result
+    );
+};
+
+// --- Alternative Implementation (Simpler, might have edge cases during initial load) ---
+/*
+export const authGuard: CanActivateFn = (route, state) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+  const loginPath = '/login';
+
+  const isAuthenticated = authService.isAuthenticated(); // Read signal directly
+
+  if (isAuthenticated) {
+    console.log('[AuthGuard] User is authenticated.');
+    return true;
+  } else {
+    // This might run too early if the initial session check is still pending.
+    // The Observable-based approach above is generally safer.
+    console.log('[AuthGuard] User not authenticated. Redirecting to login.');
+    const returnUrl = state.url;
+    router.navigate([loginPath], { queryParams: { returnUrl } });
+    return false;
+  }
+};
+*/
+
+/**
+ * @fileoverview Service for managing Supabase authentication state and operations.
+ * Uses Angular Signals for reactive state management.
+ */
+import { Injectable, signal, WritableSignal, computed, Signal, OnDestroy, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { SupabaseClient, Session, User, AuthChangeEvent, Subscription } from '@supabase/supabase-js';
+import { Observable, from, throwError } from 'rxjs';
+import { map, catchError, tap } from 'rxjs/operators';
+
+import {
+    AuthState,
+    SignUpCredentials,
+    SignInCredentials,
+    PasswordResetCredentials,
+    UpdatePasswordCredentials,
+    SetNewPasswordCredentials
+} from '@app/libs/types-supabase/auth.types'; // Adjust path as needed
+
+@Injectable({
+  providedIn: 'root',
+})
+export class AuthService implements OnDestroy {
+  private supabase: SupabaseClient = inject(SupabaseClient);
+  private router: Router = inject(Router);
+
+  // --- Private Writable Signals ---
+  private _authState: WritableSignal<AuthState> = signal<AuthState>({
+    session: null,
+    user: null,
+    isAuthenticated: false,
+    loading: true, // Start loading until initial state is determined
+    error: null,
+    // userRoles: null, // Initialize if fetching roles
+  });
+
+  // --- Public Read-only Signals ---
+  /** Signal emitting the current authentication state */
+  readonly authState: Signal<AuthState> = this._authState.asReadonly();
+  /** Computed signal for the current user */
+  readonly currentUser: Signal<User | null> = computed(() => this._authState().user);
+  /** Computed signal for the current session */
+  readonly currentSession: Signal<Session | null> = computed(() => this._authState().session);
+  /** Computed signal indicating if the user is authenticated */
+  readonly isAuthenticated: Signal<boolean> = computed(() => this._authState().isAuthenticated);
+  /** Computed signal indicating if auth state is currently being loaded/checked */
+  readonly isLoading: Signal<boolean> = computed(() => this._authState().loading);
+  /** Computed signal for any authentication error message */
+  readonly error: Signal<string | null> = computed(() => this._authState().error);
+  // readonly userRoles: Signal<string[] | null> = computed(() => this._authState().userRoles); // Expose roles if managed here
+
+
+  private authSubscription: Subscription | null = null;
+
+  constructor() {
+    console.log('[AuthService] Initializing...');
+    this.initializeAuthStateListener();
+    this.loadInitialSession(); // Attempt to load session immediately
+  }
+
+  /**
+   * Sets up the listener for Supabase auth state changes.
+   * Updates the internal signal whenever the auth state changes.
+   */
+  private initializeAuthStateListener(): void {
+    console.log('[AuthService] Setting up onAuthStateChange listener.');
+    this.authSubscription = this.supabase.auth.onAuthStateChange(
+        (event: AuthChangeEvent, session: Session | null) => {
+            console.log('[AuthService] onAuthStateChange event:', event, 'Session:', session);
+            const user = session?.user ?? null;
+            const isAuthenticated = !!user && !!session;
+
+            this._authState.update(current => ({
+                ...current,
+                session: session,
+                user: user,
+                isAuthenticated: isAuthenticated,
+                loading: false, // No longer loading after first event
+                error: null, // Clear previous errors on successful change
+            }));
+
+            // Optional: Fetch user roles/profile when authenticated
+            // if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+            //    this.fetchUserRoles(user?.id);
+            // } else if (event === 'SIGNED_OUT') {
+            //    this._authState.update(current => ({ ...current, userRoles: null }));
+            // }
+
+            // Optional: Redirect based on auth state change
+            // Be careful with redirects here, might conflict with guards
+            // if (event === 'SIGNED_IN') this.router.navigate(['/dashboard']);
+            // if (event === 'SIGNED_OUT') this.router.navigate(['/login']);
+        }
+    ).data.subscription;
+  }
+
+  /**
+   * Tries to load the initial session synchronously if possible,
+   * otherwise relies on onAuthStateChange.
+   */
+  private async loadInitialSession(): Promise<void> {
+      console.log('[AuthService] Attempting to load initial session.');
+      this._authState.update(s => ({ ...s, loading: true }));
+      try {
+          // getSession is async, but often resolves quickly from storage
+          const { data: { session }, error } = await this.supabase.auth.getSession();
+          if (error) {
+              console.error('[AuthService] Error getting initial session:', error.message);
+              // Don't set auth error yet, let onAuthStateChange handle it or confirm no session
+          }
+
+          console.log('[AuthService] Initial getSession result:', session);
+
+          // Update state only if onAuthStateChange hasn't already run
+          // This check might be tricky due to timing, onAuthStateChange is generally preferred
+          if (this._authState().loading) {
+              const user = session?.user ?? null;
+              const isAuthenticated = !!user && !!session;
+              this._authState.update(current => ({
+                  ...current,
+                  session: session,
+                  user: user,
+                  isAuthenticated: isAuthenticated,
+                  loading: false, // Definitively not loading now
+                  error: error ? error.message : null
+              }));
+          }
+
+      } catch (err: any) {
+           console.error('[AuthService] Unexpected error in loadInitialSession:', err);
+           this._authState.update(s => ({ ...s, loading: false, error: 'Failed to check initial session' }));
+      }
+       // Ensure loading is false even if everything fails
+       if (this._authState().loading) {
+           this._authState.update(s => ({ ...s, loading: false }));
+       }
+  }
+
+
+  /**
+   * Signs up a new user.
+   * @param {SignUpCredentials} credentials - Email, password, and options.
+   * @returns {Promise<{ user: User | null; error: string | null }>} Result object.
+   */
+  async signUp(credentials: SignUpCredentials): Promise<{ user: User | null; error: string | null }> {
+    this._authState.update(s => ({ ...s, loading: true, error: null }));
+    try {
+      const { data, error } = await this.supabase.auth.signUp({
+          email: credentials.email,
+          password: credentials.password, // Supabase handles password requirement based on settings
+          options: credentials.options,
+      });
+
+      if (error) {
+        console.error('[AuthService] SignUp Error:', error.message);
+        this._authState.update(s => ({ ...s, loading: false, error: error.message }));
+        return { user: null, error: error.message };
+      }
+
+      // SignUp might return a user/session immediately OR require email confirmation.
+      // onAuthStateChange will handle the actual state update.
+      this._authState.update(s => ({ ...s, loading: false })); // Loading false, state updated by listener
+      // The user object might be non-null here even if confirmation is needed
+      return { user: data.user, error: null };
+
+    } catch (err: any) {
+      console.error('[AuthService] Unexpected SignUp Error:', err);
+      const message = err.message || 'An unexpected error occurred during sign up.';
+      this._authState.update(s => ({ ...s, loading: false, error: message }));
+      return { user: null, error: message };
+    }
+  }
+
+  /**
+   * Signs in a user using various methods (password, OTP, OAuth).
+   * @param {SignInCredentials} credentials - Credentials for the chosen sign-in method.
+   * @returns {Promise<{ user: User | null; error: string | null }>} Result object.
+   */
+  async signIn(credentials: SignInCredentials): Promise<{ user: User | null; error: string | null }> {
+    this._authState.update(s => ({ ...s, loading: true, error: null }));
+    try {
+        let response;
+        if (credentials.provider) {
+            // --- OAuth Sign In ---
+            const { data, error } = await this.supabase.auth.signInWithOAuth({
+                provider: credentials.provider as any, // Cast needed if using string type
+                options: credentials.options,
+            });
+            if (error) throw error;
+            // For OAuth, Supabase handles the redirect. No immediate user/session here usually.
+            // The promise resolves after initiating the redirect flow.
+             this._authState.update(s => ({ ...s, loading: false })); // Stop loading state
+             return { user: null, error: null }; // Or handle data if skipBrowserRedirect=true
+
+        } else if (credentials.email && credentials.password) {
+            // --- Email/Password Sign In ---
+            response = await this.supabase.auth.signInWithPassword({
+                email: credentials.email,
+                password: credentials.password,
+            });
+        } else if (credentials.email) {
+             // --- Magic Link (Passwordless) Sign In ---
+             response = await this.supabase.auth.signInWithOtp({
+                 email: credentials.email,
+                 options: {
+                     emailRedirectTo: credentials.options?.redirectTo,
+                     shouldCreateUser: true, // Or false, depending on desired behavior
+                 },
+             });
+        } else if (credentials.phone) {
+            // --- Phone OTP Sign In ---
+             response = await this.supabase.auth.signInWithOtp({
+                 phone: credentials.phone,
+                 options: {
+                    // channel: 'sms', // Optional: specify channel if needed
+                    shouldCreateUser: true,
+                 }
+             });
+             // Need to handle OTP verification separately using verifyOtp
+             // This initial call just sends the OTP
+             this._authState.update(s => ({ ...s, loading: false }));
+             console.log('[AuthService] OTP Sent (Verification Required):', response.data);
+             // You might return a specific indicator that OTP verification is needed
+             if (response.error) throw response.error;
+             return { user: null, error: null }; // User not signed in yet
+
+        } else {
+            throw new Error('Invalid sign-in credentials provided.');
+        }
+
+      // --- Handle Response for Password/Magic Link ---
+      const { data, error } = response;
+      if (error) {
+        console.error('[AuthService] SignIn Error:', error.message);
+        this._authState.update(s => ({ ...s, loading: false, error: error.message }));
+        return { user: null, error: error.message };
+      }
+
+      // Successful sign-in (Password), state updated by onAuthStateChange
+      // For Magic Link, user needs to click link, state updated later by listener
+      this._authState.update(s => ({ ...s, loading: false }));
+      return { user: data.user, error: null };
+
+    } catch (err: any) {
+      console.error('[AuthService] Unexpected SignIn Error:', err);
+      const message = err.message || 'An unexpected error occurred during sign in.';
+      this._authState.update(s => ({ ...s, loading: false, error: message }));
+      return { user: null, error: message };
+    }
+  }
+
+  /**
+   * Verifies a phone OTP.
+   * @param {string} phone - The phone number.
+   * @param {string} token - The OTP token entered by the user.
+   * @returns {Promise<{ session: Session | null; error: string | null }>} Result object.
+   */
+  async verifyPhoneOtp(phone: string, token: string): Promise<{ session: Session | null; error: string | null }> {
+      this._authState.update(s => ({ ...s, loading: true, error: null }));
+      try {
+          const { data, error } = await this.supabase.auth.verifyOtp({
+              phone: phone,
+              token: token,
+              type: 'sms', // Or 'phone_change' etc. if applicable
+          });
+
+          if (error) {
+              console.error('[AuthService] Verify OTP Error:', error.message);
+              this._authState.update(s => ({ ...s, loading: false, error: error.message }));
+              return { session: null, error: error.message };
+          }
+
+          // Success, onAuthStateChange will update the main state
+          this._authState.update(s => ({ ...s, loading: false }));
+          return { session: data.session, error: null };
+
+      } catch (err: any) {
+          console.error('[AuthService] Unexpected Verify OTP Error:', err);
+          const message = err.message || 'An unexpected error occurred during OTP verification.';
+          this._authState.update(s => ({ ...s, loading: false, error: message }));
+          return { session: null, error: message };
+      }
+  }
+
+
+  /**
+   * Signs out the current user.
+   * @param { 'global' | 'local' | 'others' } [scope='global'] - Scope of sign-out.
+   * @returns {Promise<{ error: string | null }>} Result object.
+   */
+  async signOut(scope: 'global' | 'local' | 'others' = 'global'): Promise<{ error: string | null }> {
+    this._authState.update(s => ({ ...s, loading: true, error: null }));
+    try {
+      const { error } = await this.supabase.auth.signOut({ scope });
+
+      if (error) {
+        console.error('[AuthService] SignOut Error:', error.message);
+        // State might still be cleared by listener, but set error here
+        this._authState.update(s => ({ ...s, loading: false, error: error.message }));
+        return { error: error.message };
+      }
+
+      // Success, state updated by onAuthStateChange.
+      this._authState.update(s => ({ ...s, loading: false }));
+       // Optionally navigate after sign out
+       this.router.navigate(['/login']); // Example redirect
+      return { error: null };
+
+    } catch (err: any) {
+      console.error('[AuthService] Unexpected SignOut Error:', err);
+      const message = err.message || 'An unexpected error occurred during sign out.';
+      this._authState.update(s => ({ ...s, loading: false, error: message }));
+      return { error: message };
+    }
+  }
+
+  /**
+   * Sends a password reset email to the user.
+   * @param {PasswordResetCredentials} credentials - Email and options.
+   * @returns {Promise<{ error: string | null }>} Result object.
+   */
+  async sendPasswordResetEmail(credentials: PasswordResetCredentials): Promise<{ error: string | null }> {
+    this._authState.update(s => ({ ...s, loading: true, error: null }));
+    try {
+      const { error } = await this.supabase.auth.resetPasswordForEmail(credentials.email, {
+        redirectTo: credentials.options?.emailRedirectTo,
+      });
+
+      if (error) {
+        console.error('[AuthService] Password Reset Error:', error.message);
+        this._authState.update(s => ({ ...s, loading: false, error: error.message }));
+        return { error: error.message };
+      }
+
+      this._authState.update(s => ({ ...s, loading: false }));
+      return { error: null }; // Email sent successfully
+
+    } catch (err: any) {
+      console.error('[AuthService] Unexpected Password Reset Error:', err);
+      const message = err.message || 'An unexpected error occurred.';
+      this._authState.update(s => ({ ...s, loading: false, error: message }));
+      return { error: message };
+    }
+  }
+
+  /**
+   * Updates the user's password when they are already authenticated.
+   * @param {UpdatePasswordCredentials} credentials - The new password.
+   * @returns {Promise<{ user: User | null; error: string | null }>} Result object.
+   */
+  async updatePassword(credentials: UpdatePasswordCredentials): Promise<{ user: User | null; error: string | null }> {
+      this._authState.update(s => ({ ...s, loading: true, error: null }));
+      try {
+          const { data, error } = await this.supabase.auth.updateUser({
+              password: credentials.newPassword
+          });
+
+          if (error) {
+              console.error('[AuthService] Update Password Error:', error.message);
+              this._authState.update(s => ({ ...s, loading: false, error: error.message }));
+              return { user: null, error: error.message };
+          }
+
+          this._authState.update(s => ({ ...s, loading: false }));
+          return { user: data.user, error: null }; // Password updated successfully
+
+      } catch (err: any) {
+          console.error('[AuthService] Unexpected Update Password Error:', err);
+          const message = err.message || 'An unexpected error occurred.';
+          this._authState.update(s => ({ ...s, loading: false, error: message }));
+          return { user: null, error: message };
+      }
+  }
+
+  /**
+   * Sets a new password for the user after they have clicked a recovery link.
+   * This method is typically called on a dedicated password reset page/component
+   * which handles the access_token from the URL fragment. Supabase client often
+   * handles this automatically if the user lands on the page via the link.
+   * If manual handling is needed, you'd parse the token and set the session first.
+   * This implementation assumes the session is implicitly set by Supabase client.
+   * @param {SetNewPasswordCredentials} credentials - The new password.
+   * @returns {Promise<{ user: User | null; error: string | null }>} Result object.
+   */
+  async setNewPassword(credentials: SetNewPasswordCredentials): Promise<{ user: User | null; error: string | null }> {
+      // The user should have a session containing the recovery token at this point
+      // if they followed the password reset link correctly.
+      // We call updateUser which uses the existing session context.
+      console.log('[AuthService] Attempting to set new password (updateUser)...');
+      return this.updatePassword({ newPassword: credentials.newPassword });
+  }
+
+
+  /**
+   * Refreshes the current session. Usually handled automatically by Supabase client.
+   * @returns {Promise<{ session: Session | null; error: string | null }>} Result object.
+   */
+  async refreshSession(): Promise<{ session: Session | null; error: string | null }> {
+      this._authState.update(s => ({ ...s, loading: true, error: null }));
+      try {
+          const { data, error } = await this.supabase.auth.refreshSession();
+          if (error) {
+              console.error('[AuthService] Refresh Session Error:', error.message);
+              this._authState.update(s => ({ ...s, loading: false, error: error.message }));
+              // Consider signing out if refresh fails critically
+              // await this.signOut();
+              return { session: null, error: error.message };
+          }
+          // State updated by onAuthStateChange listener
+          this._authState.update(s => ({ ...s, loading: false }));
+          return { session: data.session, error: null };
+      } catch (err: any) {
+          console.error('[AuthService] Unexpected Refresh Session Error:', err);
+          const message = err.message || 'An unexpected error occurred.';
+          this._authState.update(s => ({ ...s, loading: false, error: message }));
+          return { session: null, error: message };
+      }
+  }
+
+  // --- Optional: Fetch User Profile/Roles ---
+  /**
+   * Example function to fetch additional user data (like roles) after authentication.
+   * This might involve calling another service (e.g., ProfileService, CollaboratorService).
+   * @param {string | undefined} userId - The ID of the user.
+   */
+  // private async fetchUserRoles(userId: string | undefined): Promise<void> {
+  //   if (!userId) {
+  //     this._authState.update(current => ({ ...current, userRoles: null }));
+  //     return;
+  //   }
+  //   console.log(`[AuthService] Fetching roles for user ${userId}...`);
+  //   try {
+  //     // Replace with your actual logic to get roles (e.g., from 'collaborators' table)
+  //     // const roles = await inject(CollaboratorService).getRolesForUser(userId);
+  //     const roles = ['DUMMY_ROLE']; // Placeholder
+  //     this._authState.update(current => ({ ...current, userRoles: roles }));
+  //     console.log(`[AuthService] Roles fetched for user ${userId}:`, roles);
+  //   } catch (error: any) {
+  //     console.error(`[AuthService] Failed to fetch roles for user ${userId}:`, error);
+  //     this._authState.update(current => ({ ...current, userRoles: null, error: 'Failed to load user profile.' }));
+  //   }
+  // }
+
+  /**
+   * Cleans up the auth state change subscription.
+   */
+  ngOnDestroy(): void {
+    if (this.authSubscription) {
+      console.log('[AuthService] Unsubscribing from auth state changes.');
+      this.authSubscription.unsubscribe();
+      this.authSubscription = null;
+    }
+  }
+}
+
+/**
+ * @fileoverview Service for interacting with the 'agreements' table,
+ * related 'agreement_roles', the 'agreement_with_roles' view, and RPC functions.
+ */
+import { Injectable, signal, WritableSignal, computed, Signal, inject, effect, untracked } from '@angular/core';
+import { SupabaseClient, PostgrestError } from '@supabase/supabase-js';
+import { from, throwError, Observable, forkJoin } from 'rxjs';
+import { map, catchError, tap } from 'rxjs/operators';
+
+import {
+    Agreement, AgreementInsert, AgreementUpdate,
+    AgreementRole, AgreementRoleInsert, Role,
+    AgreementWithRoles, // View type
+    GetAgreementsWithRolesPaginatedParams, // RPC Param type
+    GetAgreementsWithRolesPaginatedResult, // RPC Result type
+    PaginatedResult, PaginationOptions, FilterOptions // Shared types
+} from '../types-supabase/supabase.types'; // Adjust path as needed
+import { BaseSupabaseService } from './base-supabase.service'; // Optional base class
+
+@Injectable({
+  providedIn: 'root',
+})
+// Using BaseSupabaseService for shared loading/error signals and handlers
+export class AgreementService extends BaseSupabaseService {
+
+  // --- State Signals for Agreements ---
+  private _agreements = signal<AgreementWithRoles[]>([]); // Store agreements with roles (from view/RPC)
+  private _selectedAgreement = signal<AgreementWithRoles | null>(null);
+  private _totalCount = signal<number>(0); // For pagination
+
+  // Public read-only signals
+  readonly agreements: Signal<AgreementWithRoles[]> = this._agreements.asReadonly();
+  readonly selectedAgreement: Signal<AgreementWithRoles | null> = this._selectedAgreement.asReadonly();
+  readonly totalCount: Signal<number> = this._totalCount.asReadonly();
+
+  // --- State Signals for related data (if needed independently) ---
+  // Example: signal for roles associated with the selected agreement
+  private _selectedAgreementRoles = signal<Role[]>([]);
+  readonly selectedAgreementRoles: Signal<Role[]> = this._selectedAgreementRoles.asReadonly();
+
+  constructor() {
+    super(); // Call BaseSupabaseService constructor if extending
+
+    // Example effect: Fetch roles when selectedAgreement changes
+    effect(() => {
+        const selected = this.selectedAgreement();
+        // Use untracked if fetching roles depends on another service (e.g., RoleService)
+        // to avoid creating a dependency cycle if RoleService also reads agreements.
+        untracked(() => {
+             if (selected?.id) {
+                // Option 1: Roles might be directly in the AgreementWithRoles view/RPC result
+                if (selected.roles && Array.isArray(selected.roles)) {
+                     // Assuming selected.roles is already the Role[] data
+                     // Adjust based on the actual structure of your 'roles' JSON in the view
+                     this._selectedAgreementRoles.set(selected.roles as Role[]);
+                }
+                // Option 2: Fetch roles separately if not included directly
+                // else {
+                //    this.fetchRolesForAgreement(selected.id);
+                // }
+             } else {
+                 this._selectedAgreementRoles.set([]); // Clear roles if no agreement selected
+             }
+        });
+
+    });
+  }
+
+  // --- Fetching Agreements (Paginated RPC Example) ---
+
+  /**
+   * Fetches a paginated list of agreements with their roles using the RPC function.
+   * Updates the internal signals for agreements list and total count.
+   * @param {GetAgreementsWithRolesPaginatedParams} params - Pagination and filter parameters.
+   * @returns {Promise<void>} Promise resolving when the fetch is complete.
+   */
+  async loadAgreements(params: GetAgreementsWithRolesPaginatedParams): Promise<void> {
+    await this.wrapAsyncOperation(
+        this.fetchAgreementsPaginated(params),
+        'Load Agreements'
+    );
+  }
+
+  /**
+   * Calls the 'get_agreements_with_roles_paginated' RPC function.
+   * @param {GetAgreementsWithRolesPaginatedParams} params - Parameters for the RPC call.
+   * @returns {Promise<void>} Internal method resolving after state update.
+   */
+  private async fetchAgreementsPaginated(params: GetAgreementsWithRolesPaginatedParams): Promise<void> {
+    const { data, error } = await this.supabase.rpc('get_agreements_with_roles_paginated', {
+        // Map frontend params to RPC function argument names (e.g., p_limit)
+        p_limit: params.limit,
+        p_offset: params.offset,
+        p_status: params.status,
+        p_headquarter_id: params.headquarterId,
+        p_season_id: params.seasonId,
+        p_search: params.search,
+        p_role_id: params.roleId,
+    });
+
+    if (error) {
+        console.error('RPC Error:', error);
+        throw error; // Let wrapAsyncOperation handle the error signal
+    }
+
+    // Assuming the RPC returns { data: AgreementWithRoles[], count: number }
+    const result = data as GetAgreementsWithRolesPaginatedResult;
+    this._agreements.set(result?.data ?? []);
+    this._totalCount.set(result?.count ?? 0);
+  }
+
+  // --- Fetching a Single Agreement ---
+
+ /**
+  * Fetches a single agreement by its ID, potentially using the view or RPC.
+  * Updates the _selectedAgreement signal.
+  * @param {string} id - The ID of the agreement to fetch.
+  * @returns {Promise<void>}
+  */
+ async loadAgreementById(id: string): Promise<void> {
+    this.startOperation(); // Use base class helper
+    try {
+        // Option 1: Use RPC function if available
+        // const { data, error } = await this.supabase.rpc('get_agreement_with_roles_by_id', { p_agreement_id: id });
+        // if (error) throw error;
+        // this._selectedAgreement.set(data as AgreementWithRoles);
+
+        // Option 2: Query the view directly
+        const { data, error } = await this.supabase
+            .from('agreement_with_roles') // Query the view
+            .select('*')
+            .eq('id', id)
+            .maybeSingle(); // Use maybeSingle to handle not found gracefully
+
+        if (error) throw error;
+        this._selectedAgreement.set(data); // data will be null if not found
+        this.handleSuccess();
+
+    } catch (err) {
+        this.handleError(err, 'Load Agreement By ID');
+        this._selectedAgreement.set(null); // Clear selection on error
+    }
+ }
+
+  /**
+   * Clears the selected agreement.
+   */
+  clearSelectedAgreement(): void {
+    this._selectedAgreement.set(null);
+    this._selectedAgreementRoles.set([]); // Also clear related roles
+  }
+
+
+  // --- CRUD Operations for Agreements ---
+
+  /**
+   * Creates a new agreement and optionally links roles.
+   * @param {AgreementInsert} agreementData - Data for the new agreement.
+   * @param {string[]} roleIds - Array of role IDs to link to the agreement.
+   * @returns {Promise<Agreement | null>} The created agreement (without roles) or null on error.
+   */
+  async createAgreement(agreementData: AgreementInsert, roleIds: string[]): Promise<Agreement | null> {
+    this.startOperation();
+    try {
+      // 1. Insert the agreement
+      const { data: newAgreement, error: agreementError } = await this.supabase
+        .from('agreements')
+        .insert(agreementData)
+        .select()
+        .single();
+
+      if (agreementError) throw agreementError;
+      if (!newAgreement) throw new Error('Agreement creation failed, no data returned.');
+
+      // 2. Insert into agreement_roles if roles are provided
+      if (roleIds && roleIds.length > 0) {
+        const rolesToInsert: AgreementRoleInsert[] = roleIds.map(roleId => ({
+          agreement_id: newAgreement.id,
+          role_id: roleId,
+        }));
+
+        const { error: rolesError } = await this.supabase
+          .from('agreement_roles')
+          .insert(rolesToInsert);
+
+        if (rolesError) {
+          // Consider rollback or cleanup strategy if role linking fails
+          console.error('Failed to link roles to agreement:', rolesError);
+          // Optionally delete the created agreement if role linking is critical
+          // await this.deleteAgreement(newAgreement.id); // Be careful with cascading deletes
+          throw rolesError;
+        }
+      }
+
+      this.handleSuccess(newAgreement);
+      // Optionally reload the paginated list or add the new item manually
+      // this.loadAgreements({...}); // Or optimistic update
+      return newAgreement;
+
+    } catch (err) {
+      this.handleError(err, 'Create Agreement');
+      return null;
+    }
+  }
+
+  /**
+   * Updates an existing agreement and its associated roles.
+   * This requires fetching current roles, calculating differences, and performing inserts/deletes.
+   * @param {string} agreementId - The ID of the agreement to update.
+   * @param {AgreementUpdate} agreementUpdates - Updates for the agreement table.
+   * @param {string[]} newRoleIds - The complete list of role IDs that *should* be associated after the update.
+   * @returns {Promise<Agreement | null>} The updated agreement or null on error.
+   */
+  async updateAgreementWithRoles(agreementId: string, agreementUpdates: AgreementUpdate, newRoleIds: string[]): Promise<Agreement | null> {
+      this.startOperation();
+      try {
+          // 1. Update the agreement itself
+          const { data: updatedAgreement, error: updateError } = await this.supabase
+              .from('agreements')
+              .update(agreementUpdates)
+              .eq('id', agreementId)
+              .select()
+              .single();
+
+          if (updateError) throw updateError;
+          if (!updatedAgreement) throw new Error('Agreement update failed.');
+
+          // 2. Manage roles
+          // Get current roles associated with the agreement
+          const { data: currentRoles, error: currentRolesError } = await this.supabase
+              .from('agreement_roles')
+              .select('role_id')
+              .eq('agreement_id', agreementId);
+
+          if (currentRolesError) throw currentRolesError;
+
+          const currentRoleIds = currentRoles?.map(r => r.role_id) ?? [];
+          const rolesToAdd = newRoleIds.filter(id => !currentRoleIds.includes(id));
+          const rolesToRemove = currentRoleIds.filter(id => !newRoleIds.includes(id));
+
+          const operations: Promise<any>[] = [];
+
+          // Add new roles
+          if (rolesToAdd.length > 0) {
+              const rolesToInsert: AgreementRoleInsert[] = rolesToAdd.map(roleId => ({
+                  agreement_id: agreementId,
+                  role_id: roleId,
+              }));
+              operations.push(this.supabase.from('agreement_roles').insert(rolesToInsert));
+          }
+
+          // Remove old roles
+          if (rolesToRemove.length > 0) {
+              operations.push(
+                  this.supabase
+                      .from('agreement_roles')
+                      .delete()
+                      .eq('agreement_id', agreementId)
+                      .in('role_id', rolesToRemove)
+              );
+          }
+
+          // Execute role changes
+          await Promise.all(operations); // Consider transaction if possible/needed
+
+          this.handleSuccess(updatedAgreement);
+           // Optionally reload the selected agreement or the list
+           this.loadAgreementById(agreementId); // Reload selected
+          return updatedAgreement;
+
+      } catch (err) {
+          this.handleError(err, 'Update Agreement With Roles');
+          return null;
+      }
+  }
+
+
+  /**
+   * Deletes an agreement. Consider cascade deletes in Supabase or handle related data manually.
+   * Note: Deleting from 'agreements' might automatically cascade to 'agreement_roles'
+   * depending on your foreign key setup. Verify this behavior.
+   * @param {string} id - The ID of the agreement to delete.
+   * @returns {Promise<boolean>} True on success, false on error.
+   */
+  async deleteAgreement(id: string): Promise<boolean> {
+    this.startOperation();
+    try {
+      // If cascade delete is NOT set up for agreement_roles, delete them first:
+      // const { error: roleError } = await this.supabase
+      //   .from('agreement_roles')
+      //   .delete()
+      //   .eq('agreement_id', id);
+      // if (roleError) throw roleError;
+
+      // Delete the agreement itself
+      const { error } = await this.supabase
+        .from('agreements')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      this.handleSuccess(true);
+      // Remove from local state or reload list
+      this._agreements.update(list => list.filter(a => a.id !== id));
+      if (this.selectedAgreement()?.id === id) {
+          this.clearSelectedAgreement();
+      }
+      this._totalCount.update(count => Math.max(0, count -1)); // Adjust count
+      return true;
+
+    } catch (err) {
+      this.handleError(err, 'Delete Agreement');
+      return false;
+    }
+  }
+
+  // --- Helper to fetch roles (if not included in view/RPC) ---
+  /**
+   * Fetches roles associated with a specific agreement ID.
+   * Updates the _selectedAgreementRoles signal.
+   * @param {string} agreementId - The agreement ID.
+   * @returns {Promise<void>}
+   */
+   private async fetchRolesForAgreement(agreementId: string): Promise<void> {
+     // This might require joining agreement_roles with roles table
+     // Or potentially calling RoleService if it exists and has appropriate methods
+     console.warn(`[AgreementService] fetchRolesForAgreement(${agreementId}) - Implementation needed if roles aren't directly available.`);
+     // Placeholder:
+     try {
+         const { data, error } = await this.supabase
+             .from('agreement_roles')
+             .select('roles (*)') // Fetch related role data
+             .eq('agreement_id', agreementId);
+
+         if (error) throw error;
+
+         // Extract the actual role objects
+         const roles = data?.map(item => item.roles).filter(role => role !== null) as Role[] ?? [];
+         this._selectedAgreementRoles.set(roles);
+
+     } catch (error) {
+         console.error(`[AgreementService] Error fetching roles for agreement ${agreementId}:`, error);
+         this._selectedAgreementRoles.set([]); // Clear on error
+     }
+   }
+}
+
+/**
+ * @fileoverview Service for interacting with the 'roles' table in Supabase.
+ * Includes caching similar to CountryService for potentially static role data.
+ */
+import { Injectable, signal, WritableSignal, computed, Signal, inject, OnDestroy } from '@angular/core';
+import { SupabaseClient, PostgrestError } from '@supabase/supabase-js';
+import { Observable, from, throwError, timer, Subject, startWith } from 'rxjs';
+import { map, switchMap, shareReplay, catchError, tap, takeUntil } from 'rxjs/operators';
+import { toSignal } from '@angular/core/rxjs-interop';
+
+import { Role, RoleInsert, RoleUpdate } from '../types-supabase/supabase.types'; // Adjust path as needed
+
+// Cache configuration
+const CACHE_SIZE = 1;
+const REFRESH_INTERVAL_MS = 60 * 60 * 1000; // Refresh cache every hour
+
+@Injectable({
+  providedIn: 'root',
+})
+export class RoleService implements OnDestroy {
+  private supabase: SupabaseClient = inject(SupabaseClient);
+
+  // --- State Signals ---
+  private _roles: WritableSignal<Role[]> = signal([]);
+  private _loading: WritableSignal<boolean> = signal(false);
+  private _error: WritableSignal<string | null> = signal(null);
+
+  readonly roles: Signal<Role[]> = this._roles.asReadonly();
+  readonly loading: Signal<boolean> = this._loading.asReadonly();
+  readonly error: Signal<string | null> = this._error.asReadonly();
+
+  // --- Caching ---
+  private refreshCache$ = new Subject<void>();
+  private destroy$ = new Subject<void>();
+
+  private roles$: Observable<Role[]> = timer(0, REFRESH_INTERVAL_MS).pipe(
+    takeUntil(this.destroy$),
+    tap(() => console.log('[RoleService] Refreshing role cache...')),
+    switchMap(() => this.fetchRolesFromSupabase()),
+    shareReplay({ bufferSize: CACHE_SIZE, refCount: true })
+  );
+
+  readonly cachedRolesSignal: Signal<Role[] | undefined> = toSignal(this.roles$);
+
+  constructor() {
+    // Subscribe to manage internal signal state from the cached observable
+    this.refreshCache$.pipe(
+        startWith(undefined), // Initial fetch trigger
+        tap(() => this._loading.set(true)),
+        switchMap(() => this.roles$),
+        takeUntil(this.destroy$)
+    ).subscribe({
+        next: (roles) => {
+            this._roles.set(roles);
+            this._loading.set(false);
+            this._error.set(null);
+            console.log('[RoleService] Role cache updated.');
+        },
+        error: (err) => {
+            const message = err instanceof PostgrestError ? err.message : 'Failed to fetch roles';
+            console.error('[RoleService] Error fetching roles:', err);
+            this._error.set(message);
+            this._roles.set([]);
+            this._loading.set(false);
+        }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    console.log('[RoleService] Destroyed.');
+  }
+
+  /**
+   * Fetches all roles directly from Supabase. Used internally for caching.
+   * @returns {Observable<Role[]>} Observable emitting the list of roles.
+   */
+  private fetchRolesFromSupabase(): Observable<Role[]> {
+    console.log('[RoleService] Fetching roles from Supabase...');
+    return from(
+      this.supabase
+        .from('roles')
+        .select('*')
+        .order('name', { ascending: true })
+    ).pipe(
+      map(response => {
+        if (response.error) {
+          console.error('[RoleService] Supabase error fetching roles:', response.error);
+          throw response.error;
+        }
+        return response.data || [];
+      }),
+      catchError(err => throwError(() => err))
+    );
+  }
+
+  /**
+   * Forces a refresh of the role cache.
+   */
+  refreshRoles(): void {
+    console.log('[RoleService] Manual cache refresh triggered.');
+    this.refreshCache$.next();
+  }
+
+  /**
+   * Finds a role by its ID from the cached list using a computed signal.
+   * @param {Signal<string | null>} idSignal - Signal emitting the role ID.
+   * @returns {Signal<Role | undefined>} Signal emitting the found role or undefined.
+   */
+  getRoleByIdSignal(idSignal: Signal<string | null>): Signal<Role | undefined> {
+    return computed(() => {
+      const id = idSignal();
+      const roles = this.cachedRolesSignal();
+      if (!id || !roles) {
+        return undefined;
+      }
+      return roles.find(r => r.id === id);
+    });
+  }
+
+   /**
+   * Finds a role by its code (e.g., 'ADMIN', 'STUDENT') from the cached list.
+   * @param {Signal<string | null>} codeSignal - Signal emitting the role code.
+   * @returns {Signal<Role | undefined>} Signal emitting the found role or undefined.
+   */
+  getRoleByCodeSignal(codeSignal: Signal<string | null>): Signal<Role | undefined> {
+    return computed(() => {
+      const code = codeSignal();
+      const roles = this.cachedRolesSignal(); // Use cached signal
+      if (!code || !roles) {
+        return undefined;
+      }
+      // Case-insensitive comparison might be useful depending on requirements
+      return roles.find(r => r.code.toUpperCase() === code.toUpperCase());
+    });
+  }
+
+
+  // --- CRUD Operations (If roles are manageable through the UI) ---
+
+  /**
+   * Adds a new role.
+   * @param {RoleInsert} roleData - Data for the new role.
+   * @returns {Promise<Role | null>} The created role or null on error.
+   */
+  async addRole(roleData: RoleInsert): Promise<Role | null> {
+    this._loading.set(true);
+    this._error.set(null);
+    try {
+      const { data, error } = await this.supabase
+        .from('roles')
+        .insert(roleData)
+        .select()
+        .single();
+      if (error) throw error;
+      this.refreshRoles(); // Invalidate cache
+      this._loading.set(false);
+      return data;
+    } catch (err) {
+      const message = err instanceof PostgrestError ? err.message : 'Failed to add role';
+      console.error('[RoleService] Error adding role:', err);
+      this._error.set(message);
+      this._loading.set(false);
+      return null;
+    }
+  }
+
+  /**
+   * Updates an existing role.
+   * @param {string} id - The ID of the role to update.
+   * @param {RoleUpdate} updates - Updates to apply.
+   * @returns {Promise<Role | null>} The updated role or null on error.
+   */
+  async updateRole(id: string, updates: RoleUpdate): Promise<Role | null> {
+    this._loading.set(true);
+    this._error.set(null);
+    try {
+      const { data, error } = await this.supabase
+        .from('roles')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      this.refreshRoles(); // Invalidate cache
+      this._loading.set(false);
+      return data;
+    } catch (err) {
+      const message = err instanceof PostgrestError ? err.message : 'Failed to update role';
+      console.error('[RoleService] Error updating role:', err);
+      this._error.set(message);
+      this._loading.set(false);
+      return null;
+    }
+  }
+
+  /**
+   * Deletes a role.
+   * @param {string} id - The ID of the role to delete.
+   * @returns {Promise<boolean>} True on success, false on error.
+   */
+  async deleteRole(id: string): Promise<boolean> {
+    this._loading.set(true);
+    this._error.set(null);
+    try {
+      const { error } = await this.supabase
+        .from('roles')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      this.refreshRoles(); // Invalidate cache
+      this._loading.set(false);
+      return true;
+    } catch (err) {
+      const message = err instanceof PostgrestError ? err.message : 'Failed to delete role';
+      console.error('[RoleService] Error deleting role:', err);
+      this._error.set(message);
+      this._loading.set(false);
+      return false;
+    }
+  }
+}
+
+/**
+ * @fileoverview Service for interacting with the 'countries' table in Supabase.
+ * Implements caching for country data as it's considered static/rarely changing.
+ */
+import { Injectable, signal, WritableSignal, computed, Signal, inject } from '@angular/core';
+import { SupabaseClient, PostgrestError } from '@supabase/supabase-js';
+import { Observable, from, throwError, timer, Subject } from 'rxjs';
+import { map, switchMap, shareReplay, catchError, tap, takeUntil } from 'rxjs/operators';
+import { toSignal } from '@angular/core/rxjs-interop';
+
+import { Country, CountryInsert, CountryUpdate } from '../types-supabase/supabase.types'; // Adjust path as needed
+
+// Define Cache configuration
+const CACHE_SIZE = 1; // Only cache the latest emission
+const REFRESH_INTERVAL_MS = 60 * 60 * 1000; // Refresh cache every hour (adjust as needed)
+
+@Injectable({
+  providedIn: 'root',
+})
+export class CountryService {
+  private supabase: SupabaseClient = inject(SupabaseClient); // Use inject()
+
+  // --- State Signals ---
+  // Use individual signals for granular state management
+  private _countries: WritableSignal<Country[]> = signal([]);
+  private _loading: WritableSignal<boolean> = signal(false);
+  private _error: WritableSignal<string | null> = signal(null);
+
+  // Public signals for component consumption
+  readonly countries: Signal<Country[]> = this._countries.asReadonly();
+  readonly loading: Signal<boolean> = this._loading.asReadonly();
+  readonly error: Signal<string | null> = this._error.asReadonly();
+
+  // --- Caching Implementation ---
+  // Subject to trigger cache refresh
+  private refreshCache$ = new Subject<void>();
+  private destroy$ = new Subject<void>(); // To manage observable lifecycle
+
+  // Observable stream for fetching countries with caching and periodic refresh
+  private countries$: Observable<Country[]> = timer(0, REFRESH_INTERVAL_MS).pipe( // Emit immediately, then periodically
+    takeUntil(this.destroy$), // Clean up timer on service destruction
+    tap(() => console.log('[CountryService] Refreshing country cache...')),
+    switchMap(() => this.fetchCountriesFromSupabase()),
+    shareReplay({ bufferSize: CACHE_SIZE, refCount: true }) // Cache the result
+  );
+
+  // Signal derived from the cached observable stream
+  // This is the primary way components should access the cached countries
+  readonly cachedCountriesSignal: Signal<Country[] | undefined> = toSignal(this.countries$);
+
+  constructor() {
+    // Subscribe to the cached stream to update the internal signal state
+    // This keeps the individual signals (_countries, _loading, _error) in sync
+    // with the cached observable's state.
+    this.refreshCache$.pipe(
+        startWith(undefined), // Trigger initial fetch
+        tap(() => this._loading.set(true)),
+        switchMap(() => this.countries$), // Connect to the cached observable
+        takeUntil(this.destroy$)
+    ).subscribe({
+        next: (countries) => {
+            this._countries.set(countries);
+            this._loading.set(false);
+            this._error.set(null);
+            console.log('[CountryService] Country cache updated successfully.');
+        },
+        error: (err) => {
+            const message = err instanceof PostgrestError ? err.message : 'Failed to fetch countries';
+            console.error('[CountryService] Error fetching countries:', err);
+            this._error.set(message);
+            this._countries.set([]); // Clear data on error
+            this._loading.set(false);
+        }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    console.log('[CountryService] Destroyed, cleaning up subscriptions.');
+  }
+
+  /**
+   * Fetches all countries directly from Supabase.
+   * This method is used internally by the caching mechanism.
+   * Components should generally use `cachedCountriesSignal` or `countries`.
+   * @returns {Observable<Country[]>} An observable emitting the list of countries.
+   */
+  private fetchCountriesFromSupabase(): Observable<Country[]> {
+    console.log('[CountryService] Fetching countries directly from Supabase...');
+    return from(
+      this.supabase
+        .from('countries')
+        .select('*')
+        .order('name', { ascending: true }) // Example ordering
+    ).pipe(
+      map(response => {
+        if (response.error) {
+          console.error('[CountryService] Supabase error fetching countries:', response.error);
+          throw response.error; // Let catchError handle it
+        }
+        return response.data || [];
+      }),
+      catchError(err => {
+        // Error is logged by the subscriber, just rethrow
+        return throwError(() => err);
+      })
+    );
+  }
+
+  /**
+   * Forces a refresh of the country cache.
+   * Components can call this if they need to ensure the latest data.
+   */
+  refreshCountries(): void {
+    console.log('[CountryService] Manual cache refresh triggered.');
+    this.refreshCache$.next();
+  }
+
+  /**
+   * Finds a country by its ID from the cached list.
+   * Uses a computed signal for efficient lookups.
+   * @param {Signal<string | null>} idSignal - A signal emitting the ID of the country to find.
+   * @returns {Signal<Country | undefined>} A signal emitting the found country or undefined.
+   */
+  getCountryByIdSignal(idSignal: Signal<string | null>): Signal<Country | undefined> {
+    return computed(() => {
+      const id = idSignal();
+      const countries = this.cachedCountriesSignal(); // Use the cached signal
+      if (!id || !countries) {
+        return undefined;
+      }
+      return countries.find(c => c.id === id);
+    });
+  }
+
+  // --- CRUD Operations (Optional - Countries are often static) ---
+  // If countries can be modified, add methods like these:
+
+  /**
+   * Adds a new country to the database.
+   * Consider if cache invalidation is needed after add/update/delete.
+   * @param {CountryInsert} countryData - Data for the new country.
+   * @returns {Promise<Country | null>} Promise resolving with the newly created country or null on error.
+   */
+  async addCountry(countryData: CountryInsert): Promise<Country | null> {
+    this._loading.set(true);
+    this._error.set(null);
+    try {
+      const { data, error } = await this.supabase
+        .from('countries')
+        .insert(countryData)
+        .select()
+        .single(); // Assuming you want the created record back
+
+      if (error) {
+        throw error;
+      }
+
+      this.refreshCountries(); // Refresh cache after modification
+      this._loading.set(false);
+      return data;
+    } catch (err) {
+      const message = err instanceof PostgrestError ? err.message : 'Failed to add country';
+      console.error('[CountryService] Error adding country:', err);
+      this._error.set(message);
+      this._loading.set(false);
+      return null;
+    }
+  }
+
+  /**
+   * Updates an existing country.
+   * @param {string} id - The ID of the country to update.
+   * @param {CountryUpdate} updates - The updates to apply.
+   * @returns {Promise<Country | null>} Promise resolving with the updated country or null on error.
+   */
+  async updateCountry(id: string, updates: CountryUpdate): Promise<Country | null> {
+    this._loading.set(true);
+    this._error.set(null);
+    try {
+      const { data, error } = await this.supabase
+        .from('countries')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      this.refreshCountries(); // Refresh cache
+      this._loading.set(false);
+      return data;
+    } catch (err) {
+      const message = err instanceof PostgrestError ? err.message : 'Failed to update country';
+      console.error('[CountryService] Error updating country:', err);
+      this._error.set(message);
+      this._loading.set(false);
+      return null;
+    }
+  }
+
+  /**
+   * Deletes a country.
+   * @param {string} id - The ID of the country to delete.
+   * @returns {Promise<boolean>} Promise resolving with true on success, false on error.
+   */
+  async deleteCountry(id: string): Promise<boolean> {
+    this._loading.set(true);
+    this._error.set(null);
+    try {
+      const { error } = await this.supabase
+        .from('countries')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        throw error;
+      }
+
+      this.refreshCountries(); // Refresh cache
+      this._loading.set(false);
+      return true;
+    } catch (err) {
+      const message = err instanceof PostgrestError ? err.message : 'Failed to delete country';
+      console.error('[CountryService] Error deleting country:', err);
+      this._error.set(message);
+      this._loading.set(false);
+      return false;
+    }
+  }
+}
+
+/**
+ * @fileoverview Optional Base class for Supabase services to share common logic.
+ * Provides basic loading and error state management.
+ * Services can extend this or implement their own state logic.
+ */
+import { WritableSignal, signal } from '@angular/core';
+import { SupabaseClient, PostgrestError } from '@supabase/supabase-js';
+import { Observable, throwError, of } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
+import { inject } from '@angular/core'; // Use inject for SupabaseClient
+
+export abstract class BaseSupabaseService {
+  // Inject SupabaseClient - replace with your actual injection mechanism if different
+  // (e.g., constructor injection if not using inject function)
+  protected supabase: SupabaseClient = inject(SupabaseClient);
+
+  // --- State Signals ---
+  readonly loading: WritableSignal<boolean> = signal(false);
+  readonly error: WritableSignal<string | null> = signal(null);
+
+  /**
+   * Handles the start of an async operation.
+   * Sets loading to true and clears any previous error.
+   */
+  protected startOperation(): void {
+    this.loading.set(true);
+    this.error.set(null);
+  }
+
+  /**
+   * Handles the successful completion of an async operation.
+   * Sets loading to false.
+   * @param {T} data - The data returned by the operation (optional).
+   * @returns {T} The input data.
+   */
+  protected handleSuccess<T>(data?: T): T | undefined {
+    this.loading.set(false);
+    return data;
+  }
+
+  /**
+   * Handles errors during Supabase operations (both Promises and Observables).
+   * Sets the error signal and loading to false.
+   * Logs the error to the console.
+   * Can be used with `catch` for Promises or `catchError` for Observables.
+   * @param {PostgrestError | Error | any} error - The error object.
+   * @param {string} [context='Operation'] - Context for the error message.
+   * @returns For Observables: throws an error. For Promises: returns null or throws.
+   */
+  protected handleError(error: PostgrestError | Error | any, context: string = 'Operation'): null {
+    const errorMessage = error?.message || `${context} failed: Unknown error`;
+    console.error(`[Supabase Error - ${context}]:`, error);
+    this.error.set(errorMessage);
+    this.loading.set(false);
+    // For direct promise catch blocks, you might just return null or rethrow
+    // depending on how you want the calling code to behave.
+    // Returning null here to indicate failure in a promise chain if needed.
+    return null;
+    // If used with RxJS catchError, rethrowing is standard:
+    // return throwError(() => new Error(errorMessage));
+  }
+
+  /**
+   * Wraps an Observable Supabase operation with loading and error handling.
+   * @template T
+   * @param {Observable<T>} operation$ - The Observable performing the Supabase call.
+   * @param {string} [context='Operation'] - Context for error handling.
+   * @returns {Observable<T>} Observable with integrated state handling.
+   */
+  protected wrapObservableOperation<T>(operation$: Observable<T>, context: string = 'Operation'): Observable<T> {
+      this.startOperation();
+      return operation$.pipe(
+          tap(data => this.handleSuccess(data)),
+          catchError(err => {
+              this.handleError(err, context);
+              return throwError(() => err); // Rethrow after handling state
+          })
+          // finalize(() => this.loading.set(false)) // Alternative loading=false placement
+      );
+  }
+
+   /**
+   * Wraps an async (Promise-based) Supabase operation with loading and error handling.
+   * @template T
+   * @param {Promise<T>} operationPromise - The Promise performing the Supabase call.
+   * @param {string} [context='Operation'] - Context for error handling.
+   * @returns {Promise<T | null>} Promise resolving with data or null on error.
+   */
+  protected async wrapAsyncOperation<T>(operationPromise: Promise<T>, context: string = 'Operation'): Promise<T | null> {
+    this.startOperation();
+    try {
+      const result = await operationPromise;
+      this.handleSuccess(result);
+      return result;
+    } catch (error) {
+      this.handleError(error, context);
+      return null; // Indicate failure
+    }
+  }
+
+  /**
+   * Helper to extract data and handle potential PostgrestErrors from Supabase responses.
+   * Throws an error if the Supabase call itself resulted in an error.
+   * @template T
+   * @param {{ data: T | null; error: PostgrestError | null }} response - The Supabase response object.
+   * @param {string} [context='Fetch'] - Context for potential error messages.
+   * @returns {T} The data from the response.
+   * @throws {PostgrestError} If the Supabase response contains an error.
+   */
+  protected handleResponse<T>(
+    response: { data: T | null; error: PostgrestError | null },
+    context: string = 'Fetch'
+  ): T {
+    if (response.error) {
+      console.error(`[Supabase Error - ${context}]:`, response.error);
+      throw response.error; // Let the main handler catch this
+    }
+    // Supabase might return null data even without an error (e.g., select single not found)
+    // The caller should handle null possibility if appropriate for the query type.
+    // Here we assume non-null data is expected or null is handled upstream.
+    // Adding a check for null data might be necessary depending on use case.
+    // if (response.data === null) {
+    //   throw new Error(`${context}: No data returned.`);
+    // }
+    return response.data as T; // Cast needed as data can be null
+  }
+}
+
+
+
+
+
+
+
+
 
 
