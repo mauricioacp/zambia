@@ -1,7 +1,6 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import { PostgrestError } from '@supabase/supabase-js';
-import { Observable, from, map, shareReplay, tap } from 'rxjs';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { from, map, Observable, shareReplay, tap } from 'rxjs';
 
 import { SupabaseService } from '../supabase.service';
 import {
@@ -11,7 +10,7 @@ import {
   CountryUpdate,
   CountryViewModel,
   CountryWithHeadquartersCount,
-} from '@zambia/shared/types-supabase';
+} from '@zambia/types-supabase';
 
 /**
  * Service for managing Country data
@@ -36,7 +35,7 @@ export class CountryService {
   });
 
   // Observable for countries signal
-  private countries$ = toObservable(this.countriesSignal);
+  // private countries$ = toObservable(this.countriesSignal);
 
   // Cache for countries
   private countriesCache$: Observable<Country[]> | null = null;

@@ -1,78 +1,78 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import { afterNextRender, computed, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 
 export const enum AppTheme {
   LIGHT = 'light',
   DARK = 'dark',
 }
 
-const CLIENT_RENDER = typeof localStorage !== 'undefined';
-
 const APP_THEME = 'theme';
 
-let selectedTheme: AppTheme | undefined = undefined;
-
-if (CLIENT_RENDER) {
-  selectedTheme = (localStorage.getItem(APP_THEME) as AppTheme) || undefined;
+function getStoredTheme(platformId: object): AppTheme | null {
+  if (isPlatformBrowser(platformId)) {
+    const storedValue = localStorage.getItem(APP_THEME);
+    if (storedValue === AppTheme.LIGHT || storedValue === AppTheme.DARK) {
+      return storedValue;
+    }
+  }
+  return null;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class ThemeService {
+  private platformId = inject(PLATFORM_ID);
   private document = inject(DOCUMENT);
-  currentTheme = signal<AppTheme | undefined>(selectedTheme);
+  private isBrowser = isPlatformBrowser(this.platformId);
+
+  private initialTheme = (() => {
+    const stored = getStoredTheme(this.platformId);
+    return stored === AppTheme.LIGHT ? AppTheme.LIGHT : AppTheme.DARK;
+  })();
+
+  currentTheme = signal<AppTheme>(this.initialTheme);
   isDarkTheme = computed(() => this.currentTheme() === AppTheme.DARK);
-  private mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
   constructor() {
-    this.initializeTheme();
-    this.setupSystemThemeListener();
-  }
-
-  private initializeTheme() {
-    if (this.currentTheme() === undefined) {
-      if (this.mediaQuery.matches) {
-        this.addClassToHtml('dark');
-      } else {
-        this.removeClassFromHtml('dark');
-      }
+    if (this.isBrowser) {
+      this.applyInitialTheme();
     } else {
-      if (this.currentTheme() === AppTheme.DARK) {
-        this.addClassToHtml('dark');
-      } else {
-        this.removeClassFromHtml('dark');
-      }
+      console.log('this is ssr');
     }
+
+    afterNextRender(() => {
+      this.applyInitialTheme();
+    });
   }
 
-  private setupSystemThemeListener() {
-    if (CLIENT_RENDER) {
-      this.mediaQuery.addEventListener('change', (e) => {
-        if (this.currentTheme() === undefined) {
-          if (e.matches) {
-            this.addClassToHtml('dark');
-          } else {
-            this.removeClassFromHtml('dark');
-          }
-        }
-      });
+  private applyInitialTheme() {
+    if (!this.isBrowser) return;
+
+    if (this.initialTheme === AppTheme.DARK) {
+      this.addClassToHtml('dark');
+    } else {
+      this.removeClassFromHtml('dark');
     }
   }
 
   setLightTheme() {
+    if (!this.isBrowser) return;
     this.currentTheme.set(AppTheme.LIGHT);
     this.setToLocalStorage(AppTheme.LIGHT);
     this.removeClassFromHtml('dark');
   }
 
   setDarkTheme() {
+    if (!this.isBrowser) return;
     this.currentTheme.set(AppTheme.DARK);
     this.setToLocalStorage(AppTheme.DARK);
     this.addClassToHtml('dark');
   }
 
   toggleTheme() {
+    if (!this.isBrowser) return;
+
     if (this.currentTheme() === AppTheme.LIGHT) {
       this.setDarkTheme();
     } else {
@@ -81,20 +81,21 @@ export class ThemeService {
   }
 
   private addClassToHtml(className: string) {
-    if (CLIENT_RENDER) {
-      this.removeClassFromHtml(className);
-      this.document.documentElement.classList.add(className);
+    if (this.isBrowser) {
+      if (!this.document.documentElement.classList.contains(className)) {
+        this.document.documentElement.classList.add(className);
+      }
     }
   }
 
   private removeClassFromHtml(className: string) {
-    if (CLIENT_RENDER) {
+    if (this.isBrowser) {
       this.document.documentElement.classList.remove(className);
     }
   }
 
   private setToLocalStorage(theme: AppTheme) {
-    if (CLIENT_RENDER) {
+    if (this.isBrowser) {
       localStorage.setItem(APP_THEME, theme);
     }
   }

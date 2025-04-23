@@ -2,13 +2,13 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnDestro
 import { CommonModule } from '@angular/common';
 import { logoSvg } from '../assets/logo-svg';
 import { DomSanitizer } from '@angular/platform-browser';
-import { Router } from 'express';
+import { Router, RouterLink } from '@angular/router';
 import { map, Subscription, take, timer } from 'rxjs';
 
 @Component({
   selector: 'z-access-denied-page',
-  imports: [CommonModule],
-  template: ` <div class="flex min-h-screen items-center justify-center bg-slate-700 p-4 font-sans">
+  imports: [CommonModule, RouterLink],
+  template: ` <div class="flex h-full items-center justify-center p-4 align-middle">
     <div class="w-full max-w-md space-y-6 rounded-lg bg-slate-50 p-8 text-center shadow-xl">
       <div class="flex justify-center text-slate-700" [innerHTML]="safeSvg"></div>
 
@@ -24,22 +24,27 @@ import { map, Subscription, take, timer } from 'rxjs';
       </div>
 
       <a
-        routerLink="/"
-        (click)="redirectToHome()"
+        routerLink="/dashboard"
         class="inline-block rounded-md bg-slate-700 px-6 py-2 text-sm font-medium text-white transition duration-150 ease-in-out hover:bg-slate-600 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 focus:outline-none"
       >
         Ir a Inicio Ahora
       </a>
     </div>
   </div>`,
-  styles: ``,
+  styles: `
+    :host {
+      display: block;
+      width: 100%;
+      min-height: 100%;
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccessDeniedPageUiComponent implements OnInit, OnDestroy {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
-  private readonly initialCountdownSeconds = 20;
+  private readonly initialCountdownSeconds = 20000000;
   countdown = this.initialCountdownSeconds;
 
   private countdownSubscription: Subscription | null = null;
@@ -75,6 +80,6 @@ export class AccessDeniedPageUiComponent implements OnInit, OnDestroy {
     if (this.countdownSubscription && !this.countdownSubscription.closed) {
       this.countdownSubscription.unsubscribe();
     }
-    this.router.navigate(['/']);
+    this.router.navigate(['/dashboard']);
   }
 }

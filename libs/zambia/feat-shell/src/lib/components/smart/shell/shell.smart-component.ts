@@ -26,5 +26,5 @@ import { RouterOutlet } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShellSmartComponent {
-  userSessionActive = signal(false);
+  userSessionActive = signal(true);
 }

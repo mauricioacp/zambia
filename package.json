@@ -30,6 +30,7 @@
     "@angular/router": "19.2.1",
     "@angular/ssr": "19.2.1",
     "@ngx-translate/core": "^16.0.4",
+    "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.4",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
@@ -107,6 +108,11 @@
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "overrides": {
+    "@supabase/supabase-js": {
+      "@supabase/auth-js": "2.61.0"
     }
   }
 }

@@ -3,8 +3,8 @@ import { Router } from '@angular/router';
 
 import { distinctUntilChanged, filter, from, map, Observable } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { AuthSession, createClient } from '@supabase/supabase-js';
-import { APP_CONFIG } from '@zambia/util-config';
+import { AuthSession } from '@supabase/supabase-js';
+import { SupabaseService } from '@zambia/data-access-supabase';
 
 @Injectable({
   providedIn: 'root',
@@ -15,8 +15,8 @@ export class AuthService {
   readonly #session = signal<AuthSession | null>(null);
   readonly #loading = signal<boolean>(false);
   readonly #acting = signal<boolean>(false);
-  readonly #appConfig = inject(APP_CONFIG);
-  readonly #supabase = createClient(this.#appConfig.API_URL, this.#appConfig.API_ANON_KEY);
+  readonly #supabaseService = inject(SupabaseService);
+  readonly #supabase = this.#supabaseService.getClient();
 
   public readonly acting = this.#acting.asReadonly();
   public readonly loading = this.#loading.asReadonly();

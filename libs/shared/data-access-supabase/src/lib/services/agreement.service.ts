@@ -1,7 +1,6 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import { PostgrestError } from '@supabase/supabase-js';
-import { Observable, from, map, of, shareReplay, switchMap, tap } from 'rxjs';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { from, map, Observable, shareReplay, tap } from 'rxjs';
 
 import { SupabaseService } from '../supabase.service';
 import {
@@ -12,7 +11,7 @@ import {
   AgreementUpdate,
   AgreementViewModel,
   AgreementWithRoles,
-} from '@zambia/shared/types-supabase';
+} from '@zambia/types-supabase';
 
 /**
  * Service for managing Agreement data
@@ -36,7 +35,7 @@ export class AgreementService {
   });
 
   // Observable for agreements signal
-  private agreements$ = toObservable(this.agreementsSignal);
+  // private agreements$ = toObservable(this.agreementsSignal);
 
   // Cache for agreements with roles
   private agreementsWithRolesCache$: Observable<AgreementWithRoles[]> | null = null;

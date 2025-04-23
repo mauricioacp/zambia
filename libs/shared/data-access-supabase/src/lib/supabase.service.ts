@@ -3,11 +3,6 @@ import { createClient, PostgrestError, SupabaseClient } from '@supabase/supabase
 import { Database } from '@zambia/types-supabase';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 
-/**
- * Base service for Supabase client initialization and common operations
- * This service provides the Supabase client instance and common methods
- * for interacting with Supabase.
- */
 @Injectable({
   providedIn: 'root',
 })
@@ -52,11 +47,7 @@ export class SupabaseService {
     this.error.set(null);
   }
 
-  /**
-   * Handle successful operation
-   * @param data Optional data from the operation
-   */
-  protected handleSuccess<T>(data?: T): void {
+  protected handleSuccess(): void {
     this.loading.set(false);
     this.error.set(null);
   }
@@ -82,7 +73,7 @@ export class SupabaseService {
   protected wrapObservableOperation<T>(operation$: Observable<T>, context = 'Operation'): Observable<T> {
     this.startOperation();
     return operation$.pipe(
-      tap((data) => this.handleSuccess(data)),
+      tap(() => this.handleSuccess()),
       catchError((err) => {
         this.handleError(err, context);
         return throwError(() => err); // Rethrow after handling state
@@ -101,7 +92,7 @@ export class SupabaseService {
     this.startOperation();
     try {
       const result = await operationPromise;
-      this.handleSuccess(result);
+      this.handleSuccess();
       return result;
     } catch (error) {
       this.handleError(error as Error, context);

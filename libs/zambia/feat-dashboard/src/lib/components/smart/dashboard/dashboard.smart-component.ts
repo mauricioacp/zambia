@@ -75,7 +75,7 @@ import { RouterOutlet } from '@angular/router';
         <z-brand-logo brand-logo-mobile />
       </z-page-header>
       <z-page-container>
-        <router-outlet></router-outlet>
+        <router-outlet />
       </z-page-container>
       <section class="mt-auto">
         <z-page-footer />
