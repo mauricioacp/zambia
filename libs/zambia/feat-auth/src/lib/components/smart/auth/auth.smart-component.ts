@@ -27,7 +27,7 @@ interface AuthFormData {
     <div class="auth-container min-h-dvh bg-gray-100 dark:bg-gray-900 dark:text-gray-100">
       <main class="flex max-w-full flex-auto flex-col">
         <div class="mx-auto flex min-h-dvh w-full items-center justify-center p-4 lg:p-8">
-          <div class="w-full max-w-md lg:py-16">
+          <div class="w-full max-w-lg lg:py-16">
             <div class="bg-primary flex flex-col overflow-hidden rounded-lg shadow-lg md:flex-row">
               <!-- Form Section -->
               <section class="bg-gray-100 px-6 py-10 md:px-10 lg:p-16 dark:bg-gray-800">

@@ -4,3 +4,4 @@
 /.nx/cache
 /.nx/workspace-data
 .angular
+libs/shared/types-supabase/src/lib/types/supabase.type.ts

@@ -10,7 +10,7 @@ import { RouterOutlet } from '@angular/router';
     <main
       class="bg-linear-to-r from-red-500 via-orange-400 to-yellow-400 dark:via-none dark:from-blue-500 dark:to-teal-400"
     >
-      @if (session()) {
+      @if (userSessionActive()) {
         <router-outlet />
       } @else {
         <z-auth />
@@ -26,5 +26,5 @@ import { RouterOutlet } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShellSmartComponent {
-  session = signal(true);
+  userSessionActive = signal(false);
 }

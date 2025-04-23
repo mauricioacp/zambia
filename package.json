@@ -6,6 +6,7 @@
     "start": "npx nx run zambia:storybook:ci",
     "config": "ts-node ./apps/zambia/set-env.ts",
     "serve": "npm run config && npx nx run zambia:serve:development",
+    "supabase:gen:types:local": "npx supabase gen types typescript --local > libs/shared/types-supabase/src/lib/types/supabase.type.ts",
     "dev": "npx nx run zambia:serve:development",
     "test": "npx nx test zambia",
     "e2e": "npx nx e2e zambia",
@@ -31,7 +32,8 @@
     "@ngx-translate/core": "^16.0.4",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "rxjs": "~7.8.0"
+    "rxjs": "~7.8.0",
+    "supabase": "^2.22.4"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "19.2.1",
