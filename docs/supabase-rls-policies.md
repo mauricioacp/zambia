@@ -801,7 +801,7 @@ BEGIN
     IF user_role IN ('superadmin', 'general_director', 'executive_leader') THEN
         -- Global activities for top-level roles
         RETURN QUERY
-        SELECT 
+        SELECT
             activities.id,
             activities.title,
             activities.created_at,
@@ -812,7 +812,7 @@ BEGIN
     ELSIF user_role = 'headquarter_manager' AND user_headquarter_id IS NOT NULL THEN
         -- Headquarter-specific activities for managers
         RETURN QUERY
-        SELECT 
+        SELECT
             activities.id,
             activities.title,
             activities.created_at,
@@ -824,13 +824,13 @@ BEGIN
     ELSE
         -- User-specific activities for everyone else
         RETURN QUERY
-        SELECT 
+        SELECT
             activities.id,
             activities.title,
             activities.created_at,
             activities.activity_type
         FROM activities
-        WHERE 
+        WHERE
             activities.user_id = user_id OR
             activities.scope = 'public' OR
             (

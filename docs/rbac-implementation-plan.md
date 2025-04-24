@@ -222,7 +222,7 @@ BEGIN
         SELECT collaborators.headquarter_id INTO user_headquarter_id
         FROM collaborators
         WHERE collaborators.user_id = auth.uid();
-        
+
         IF user_headquarter_id IS NULL THEN
             RAISE EXCEPTION 'No headquarter found for user';
         END IF;
@@ -314,7 +314,7 @@ async signIn(email: string, password: string) {
 // Data access flow in a service
 public getDashboardStats(): Observable<DashboardStat[]> {
   const supabase = this.supabaseService.getClient();
-  
+
   // Call RPC function for global stats
   return from(supabase.rpc('get_global_dashboard_stats')).pipe(
     map(response => this.supabaseService.handleResponse(response, 'Fetch Dashboard Stats')),
@@ -341,9 +341,7 @@ Components can display these errors to the user:
 ```html
 <!-- Error display in component template -->
 @if (supabaseService.error()) {
-  <div class="error-message">
-    {{ supabaseService.error()?.message }}
-  </div>
+<div class="error-message">{{ supabaseService.error()?.message }}</div>
 }
 ```
 
@@ -364,22 +362,14 @@ The dashboard is structured as a set of components that adapt to the user's role
 @Component({
   selector: 'z-panel',
   standalone: true,
-  imports: [
-    CommonModule, 
-    RouterLink,
-    HasRoleDirective,
-    HasAnyRoleDirective,
-    HasRoleLevelDirective
-  ],
+  imports: [CommonModule, RouterLink, HasRoleDirective, HasAnyRoleDirective, HasRoleLevelDirective],
   template: `
     <div class="p-6">
       <h1 class="mb-6 text-2xl font-bold">Panel de Control</h1>
-      
+
       <!-- Welcome message based on role -->
       <div class="mb-8 rounded-lg bg-white p-6 shadow-md">
-        <h2 class="mb-2 text-xl font-semibold">
-          Bienvenido, {{ getUserDisplayName() }}
-        </h2>
+        <h2 class="mb-2 text-xl font-semibold">Bienvenido, {{ getUserDisplayName() }}</h2>
         <p class="text-gray-600">
           @if (rolesService.hasRole(Role.SUPERADMIN)) {
             Tienes acceso completo a todas las funciones del sistema.
@@ -451,24 +441,24 @@ export class DashboardDataService {
 
   public getDashboardStats(): Observable<DashboardStat[]> {
     const supabase = this.supabaseService.getClient();
-    
+
     if (this.rolesService.hasRole(Role.SUPERADMIN) || this.rolesService.hasRole(Role.GENERAL_DIRECTOR)) {
       // Call RPC function for global stats
       return from(supabase.rpc('get_global_dashboard_stats')).pipe(
-        map(response => this.supabaseService.handleResponse(response, 'Fetch Dashboard Stats')),
-        map(data => this.mapToStatsList(data))
+        map((response) => this.supabaseService.handleResponse(response, 'Fetch Dashboard Stats')),
+        map((data) => this.mapToStatsList(data))
       );
     } else if (this.rolesService.hasRole(Role.HEADQUARTER_MANAGER)) {
       // Call RPC function for headquarter-specific stats
       return from(supabase.rpc('get_headquarter_dashboard_stats')).pipe(
-        map(response => this.supabaseService.handleResponse(response, 'Fetch Dashboard Stats')),
-        map(data => this.mapToStatsList(data))
+        map((response) => this.supabaseService.handleResponse(response, 'Fetch Dashboard Stats')),
+        map((data) => this.mapToStatsList(data))
       );
     } else {
       // Call RPC function for user-specific stats
       return from(supabase.rpc('get_user_dashboard_stats')).pipe(
-        map(response => this.supabaseService.handleResponse(response, 'Fetch Dashboard Stats')),
-        map(data => this.mapToStatsList(data))
+        map((response) => this.supabaseService.handleResponse(response, 'Fetch Dashboard Stats')),
+        map((data) => this.mapToStatsList(data))
       );
     }
   }
@@ -546,15 +536,13 @@ describe('HasRoleDirective', () => {
 
   beforeEach(() => {
     authService = jasmine.createSpyObj('AuthService', ['hasRole']);
-    
+
     TestBed.configureTestingModule({
       declarations: [TestComponent],
       imports: [HasRoleDirective],
-      providers: [
-        { provide: AuthService, useValue: authService }
-      ]
+      providers: [{ provide: AuthService, useValue: authService }],
     });
-    
+
     fixture = TestBed.createComponent(TestComponent);
   });
 
@@ -574,7 +562,7 @@ describe('HasRoleDirective', () => {
 });
 
 @Component({
-  template: `<div *hasRole="'superadmin'">Content</div>`
+  template: `<div *hasRole="'superadmin'">Content</div>`,
 })
 class TestComponent {}
 ```
@@ -591,16 +579,19 @@ To ensure the RBAC system is well-documented and maintainable, the following doc
 ## Implementation Roadmap
 
 1. **Phase 1: Frontend RBAC Components**
+
    - Implement structural directives (`HasRoleDirective`, `HasAnyRoleDirective`, `HasRoleLevelDirective`)
    - Implement route guards (`rolesGuard`, `roleLevelGuard`)
    - Implement `RolesService` with role hierarchy
 
 2. **Phase 2: Backend RLS Policies**
+
    - Implement RLS policies for all tables
    - Implement RPC functions for complex operations
    - Test policies and functions to ensure they work correctly
 
 3. **Phase 3: Role-Based Dashboard**
+
    - Implement `DashboardDataService` for fetching role-specific data
    - Implement role-specific dashboard components
    - Test dashboard with different user roles

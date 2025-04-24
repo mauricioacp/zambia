@@ -10,6 +10,9 @@ import {
 } from '@zambia/data-access-roles-permissions';
 import { Role } from '@zambia/util-roles-permissions';
 
+/**
+ * Interface for dashboard statistics
+ */
 interface DashboardStat {
   label: string;
   value: number;
@@ -17,11 +20,75 @@ interface DashboardStat {
   color: string;
 }
 
+/**
+ * Interface for recent activity items
+ */
 interface RecentActivity {
   id: string;
   title: string;
   date: Date;
   type: string;
+}
+
+/**
+ * Interface for quick links
+ */
+interface QuickLink {
+  label: string;
+  route: string;
+  icon: string;
+  description?: string;
+}
+
+/**
+ * Interface for system alerts
+ */
+interface SystemAlert {
+  id: string;
+  message: string;
+  type: 'info' | 'warning' | 'error' | 'success';
+  date: Date;
+}
+
+/**
+ * Interface for headquarter summary
+ */
+interface HeadquarterSummary {
+  id: string;
+  name: string;
+  studentCount: number;
+  collaboratorCount: number;
+  upcomingWorkshops: number;
+}
+
+/**
+ * Interface for headquarter activity
+ */
+interface HeadquarterActivity {
+  id: string;
+  description: string;
+  date: Date;
+  type: string;
+}
+
+/**
+ * Interface for headquarter performance metric
+ */
+interface HeadquarterPerformanceMetric {
+  label: string;
+  currentValue: number;
+  previousValue: number;
+  trend: 'up' | 'down' | 'stable';
+  percentChange: number;
+}
+
+/**
+ * Interface for headquarter management action
+ */
+interface HeadquarterManagementAction {
+  label: string;
+  route: string;
+  icon: string;
 }
 
 @Component({
@@ -34,16 +101,19 @@ interface RecentActivity {
 
       <!-- Welcome message based on role -->
       <div class="mb-8 rounded-lg bg-white p-6 shadow-md">
-        <!--        <h2 class="mb-2 text-xl font-semibold">Bienvenido, {{ getUserDisplayName() }}</h2>-->
+        <h2 class="mb-2 text-xl font-semibold">Bienvenido, {{ getUserDisplayName() }}</h2>
         <p class="text-gray-600">
           @if (rolesService.hasRole(Role.SUPERADMIN)) {
-            Tienes acceso completo a todas las funciones del sistema.
+            Como Superadministrador, tienes acceso sin restricciones para gestionar acuerdos, usuarios, sedes y
+            configuraciones del sistema en toda la plataforma.
           } @else if (rolesService.hasRole(Role.GENERAL_DIRECTOR)) {
-            Tienes acceso a la información de todas las sedes.
+            Como Director General, puedes ver datos completos y reportes de todas las sedes, monitorear el rendimiento
+            general y gestionar operaciones de alto nivel.
           } @else if (rolesService.hasRole(Role.HEADQUARTER_MANAGER)) {
-            Tienes acceso a la información de tu sede.
+            Como Director de Sede, puedes gestionar estudiantes, colaboradores y actividades específicas de tu sede
+            asignada.
           } @else {
-            Bienvenido al sistema.
+            Bienvenido! Explora las funciones disponibles según tu rol asignado.
           }
         </p>
       </div>
@@ -164,6 +234,197 @@ interface RecentActivity {
             }
           </div>
         </div>
+
+        <!-- Quick Links Widget - visible to all -->
+        <div class="rounded-lg bg-white p-6 shadow-md">
+          <h2 class="mb-4 text-xl font-semibold">Accesos Rápidos</h2>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            @for (link of quickLinks(); track link.label) {
+              <a
+                [routerLink]="link.route"
+                class="flex items-center rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50"
+              >
+                <div class="mr-3 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+                  <span class="material-icons text-blue-600">{{ link.icon }}</span>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-800">{{ link.label }}</p>
+                  <p class="text-xs text-gray-500">{{ link.description }}</p>
+                </div>
+              </a>
+            }
+          </div>
+        </div>
+
+        <!-- System Status Widget - visible to all -->
+        <div class="rounded-lg bg-white p-6 shadow-md">
+          <h2 class="mb-4 text-xl font-semibold">Estado del Sistema</h2>
+          <div class="space-y-3">
+            @for (alert of systemAlerts(); track alert.id) {
+              <div
+                class="rounded-lg p-3"
+                [ngClass]="{
+                  'border-l-4 border-blue-400 bg-blue-50': alert.type === 'info',
+                  'border-l-4 border-green-400 bg-green-50': alert.type === 'success',
+                  'border-l-4 border-yellow-400 bg-yellow-50': alert.type === 'warning',
+                  'border-l-4 border-red-400 bg-red-50': alert.type === 'error',
+                }"
+              >
+                <div class="flex items-center">
+                  <span
+                    class="material-icons mr-2 text-lg"
+                    [ngClass]="{
+                      'text-blue-500': alert.type === 'info',
+                      'text-green-500': alert.type === 'success',
+                      'text-yellow-500': alert.type === 'warning',
+                      'text-red-500': alert.type === 'error',
+                    }"
+                  >
+                    {{
+                      alert.type === 'info'
+                        ? 'info'
+                        : alert.type === 'success'
+                          ? 'check_circle'
+                          : alert.type === 'warning'
+                            ? 'warning'
+                            : 'error'
+                    }}
+                  </span>
+                  <p class="font-medium">{{ alert.message }}</p>
+                </div>
+                <p class="mt-1 text-xs text-gray-500">{{ alert.date | date: 'medium' }}</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Headquarter Summary Widget -->
+        <div class="rounded-lg bg-white p-6 shadow-md">
+          <h2 class="mb-4 text-xl font-semibold">{{ headquarterSummary().name }}</h2>
+          <div class="grid grid-cols-3 gap-4">
+            <div class="rounded-lg bg-blue-50 p-4 text-center">
+              <p class="text-3xl font-bold text-blue-600">{{ headquarterSummary().studentCount }}</p>
+              <p class="text-sm text-gray-600">Estudiantes</p>
+            </div>
+            <div class="rounded-lg bg-green-50 p-4 text-center">
+              <p class="text-3xl font-bold text-green-600">{{ headquarterSummary().collaboratorCount }}</p>
+              <p class="text-sm text-gray-600">Colaboradores</p>
+            </div>
+            <div class="rounded-lg bg-purple-50 p-4 text-center">
+              <p class="text-3xl font-bold text-purple-600">{{ headquarterSummary().upcomingWorkshops }}</p>
+              <p class="text-sm text-gray-600">Talleres Próximos</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Headquarter Dashboard Design Reference (commented out) -->
+        <!--
+      This section contains the design for the headquarter-specific dashboard widgets.
+      These would be implemented in a separate component (e.g., headquarter-dashboard.smart-component.ts).-->
+
+        <div class="grid grid-cols-2 gap-6 lg:grid-cols-2">
+          <!-- Local Activity Feed Widget -->
+          <div class="rounded-lg bg-white p-6 shadow-md">
+            <h2 class="mb-4 text-xl font-semibold">Actividad Local</h2>
+            <div class="space-y-3">
+              @for (activity of headquarterActivities(); track activity.id) {
+                <div class="flex items-center border-b border-gray-200 pb-2">
+                  <div
+                    class="mr-3 flex h-8 w-8 items-center justify-center rounded-full"
+                    [ngClass]="{
+                      'bg-blue-100': activity.type === 'info',
+                      'bg-green-100': activity.type === 'success',
+                      'bg-yellow-100': activity.type === 'warning',
+                      'bg-red-100': activity.type === 'error',
+                    }"
+                  >
+                    <span
+                      class="material-icons text-sm"
+                      [ngClass]="{
+                        'text-blue-600': activity.type === 'info',
+                        'text-green-600': activity.type === 'success',
+                        'text-yellow-600': activity.type === 'warning',
+                        'text-red-600': activity.type === 'error',
+                      }"
+                    >
+                      {{
+                        activity.type === 'info'
+                          ? 'info'
+                          : activity.type === 'success'
+                            ? 'check_circle'
+                            : activity.type === 'warning'
+                              ? 'warning'
+                              : 'error'
+                      }}
+                    </span>
+                  </div>
+                  <div>
+                    <p class="font-medium">{{ activity.description }}</p>
+                    <p class="text-xs text-gray-500">{{ activity.date | date: 'medium' }}</p>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Headquarter Performance Widget -->
+          <div class="rounded-lg bg-white p-6 shadow-md">
+            <h2 class="mb-4 text-xl font-semibold">Rendimiento</h2>
+            <div class="space-y-4">
+              @for (metric of headquarterPerformanceMetrics(); track metric.label) {
+                <div>
+                  <div class="flex items-center justify-between">
+                    <p class="font-medium">{{ metric.label }}</p>
+                    <div class="flex items-center">
+                      <p class="font-bold">{{ metric.currentValue }}</p>
+                      <span
+                        class="ml-2 flex items-center text-sm"
+                        [ngClass]="{
+                          'text-red-600': metric.trend === 'up' && metric.label === 'Abandonos',
+                          'text-green-600': metric.trend === 'down' && metric.label === 'Abandonos',
+                          'text-gray-600': metric.trend === 'stable',
+                        }"
+                      >
+                        <span class="material-icons text-sm">
+                          {{
+                            metric.trend === 'up'
+                              ? 'arrow_upward'
+                              : metric.trend === 'down'
+                                ? 'arrow_downward'
+                                : 'remove'
+                          }}
+                        </span>
+                        {{ metric.percentChange }}%
+                      </span>
+                    </div>
+                  </div>
+                  <div class="mt-1 h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                    <div
+                      class="h-full rounded-full bg-blue-600"
+                      [style.width.%]="(metric.currentValue / metric.previousValue) * 100"
+                    ></div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Management Actions Widget -->
+          <div class="rounded-lg bg-white p-6 shadow-md">
+            <h2 class="mb-4 text-xl font-semibold">Gestión</h2>
+            <div class="grid grid-cols-2 gap-3">
+              @for (action of headquarterManagementActions(); track action.label) {
+                <a
+                  [routerLink]="action.route"
+                  class="flex flex-col items-center rounded-lg border border-gray-200 p-4 text-center transition hover:bg-gray-50"
+                >
+                  <span class="material-icons mb-2 text-3xl text-blue-600">{{ action.icon }}</span>
+                  <p class="font-medium">{{ action.label }}</p>
+                </a>
+              }
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   `,
@@ -216,6 +477,145 @@ export class PanelSmartComponent {
     },
   ]);
 
+  // Quick Links Widget data
+  protected quickLinks = signal<QuickLink[]>([
+    {
+      label: 'Mi Perfil',
+      route: '/profile',
+      icon: 'person',
+      description: 'Ver y editar información personal',
+    },
+    {
+      label: 'Calendario',
+      route: '/calendar',
+      icon: 'calendar_today',
+      description: 'Eventos y actividades programadas',
+    },
+    {
+      label: 'Mensajes',
+      route: '/messages',
+      icon: 'mail',
+      description: 'Centro de comunicaciones',
+    },
+    {
+      label: 'Documentos',
+      route: '/documents',
+      icon: 'description',
+      description: 'Archivos y recursos compartidos',
+    },
+  ]);
+
+  // System Status Widget data
+  protected systemAlerts = signal<SystemAlert[]>([
+    {
+      id: '1',
+      message: 'Mantenimiento programado el 15 de Julio a las 22:00',
+      type: 'info',
+      date: new Date(Date.now() + 1000 * 60 * 60 * 24 * 3), // 3 days in future
+    },
+    {
+      id: '2',
+      message: 'Sincronización de datos completada exitosamente',
+      type: 'success',
+      date: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
+    },
+    {
+      id: '3',
+      message: 'Actualización de sistema disponible',
+      type: 'warning',
+      date: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
+    },
+  ]);
+
+  // Sample data for headquarter-specific dashboard (for design reference)
+  // In a real implementation, these would be in the headquarter dashboard component
+  protected headquarterSummary = signal<HeadquarterSummary>({
+    id: '1',
+    name: 'Sede Madrid',
+    studentCount: 156,
+    collaboratorCount: 25,
+    upcomingWorkshops: 3,
+  });
+
+  protected headquarterActivities = signal<HeadquarterActivity[]>([
+    {
+      id: '1',
+      description: 'Nuevo estudiante: María García',
+      date: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
+      type: 'success',
+    },
+    {
+      id: '2',
+      description: 'Taller "Introducción a la Programación" completado',
+      date: new Date(Date.now() - 1000 * 60 * 60 * 3), // 3 hours ago
+      type: 'info',
+    },
+    {
+      id: '3',
+      description: 'Facilitador ausente: Juan Pérez',
+      date: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
+      type: 'warning',
+    },
+  ]);
+
+  protected headquarterPerformanceMetrics = signal<HeadquarterPerformanceMetric[]>([
+    {
+      label: 'Asistencia',
+      currentValue: 92,
+      previousValue: 88,
+      trend: 'up',
+      percentChange: 4.5,
+    },
+    {
+      label: 'Satisfacción',
+      currentValue: 4.7,
+      previousValue: 4.5,
+      trend: 'up',
+      percentChange: 4.4,
+    },
+    {
+      label: 'Abandonos',
+      currentValue: 3,
+      previousValue: 5,
+      trend: 'down',
+      percentChange: 40,
+    },
+    {
+      label: 'Progreso Académico',
+      currentValue: 78,
+      previousValue: 75,
+      trend: 'up',
+      percentChange: 4,
+    },
+  ]);
+
+  protected headquarterManagementActions = signal<HeadquarterManagementAction[]>([
+    {
+      label: 'Añadir Estudiante',
+      route: '/dashboard/headquarter/students/new',
+      icon: 'person_add',
+    },
+    {
+      label: 'Gestionar Colaboradores',
+      route: '/dashboard/headquarter/collaborators',
+      icon: 'people',
+    },
+    {
+      label: 'Programar Taller',
+      route: '/dashboard/headquarter/workshops/new',
+      icon: 'event',
+    },
+    {
+      label: 'Reportes Locales',
+      route: '/dashboard/headquarter/reports',
+      icon: 'bar_chart',
+    },
+  ]);
+
+  /**
+   * Gets the display name of the current user
+   * @returns The user's name, email, or a default value
+   */
   protected getUserDisplayName(): string {
     const session = this.authService.session();
     if (!session) return 'Usuario';
