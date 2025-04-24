@@ -1,24 +1,33 @@
 export const REQUIRED_ROLES = 'requiredRoles';
 
 export const Role = {
+  /* level 100 */
+  SUPERADMIN: 'superadmin',
+  /* level 90 */
   GENERAL_DIRECTOR: 'general_director',
+  EXECUTIVE_LEADER: 'executive_leader',
+  /* level 80 */
   PEDAGOGICAL_LEADER: 'pedagogical_leader',
   INNOVATION_LEADER: 'innovation_leader',
   COMMUNICATION_LEADER: 'communication_leader',
-  EXECUTIVE_LEADER: 'executive_leader',
   COMMUNITY_LEADER: 'community_leader',
   COORDINATION_LEADER: 'coordination_leader',
-  COORDINATOR: 'coordinator',
   LEGAL_ADVISOR: 'legal_advisor',
+  /* level 70 */
+  COORDINATOR: 'coordinator',
   KONSEJO_MEMBER: 'konsejo_member',
+  /* level 50 */
   HEADQUARTER_MANAGER: 'headquarter_manager',
+  /* level 40 */
   PEDAGOGICAL_MANAGER: 'pedagogical_manager',
   COMMUNICATION_MANAGER: 'communication_manager',
   COMPANION_DIRECTOR: 'companion_director',
+  /* level 30 */
   MANAGER_ASSISTANT: 'manager_assistant',
-  SUPERADMIN: 'superadmin',
+  /* level 20 */
   COMPANION: 'companion',
   FACILITATOR: 'facilitator',
+  /* level 1 */
   STUDENT: 'student',
 } as const;
 
