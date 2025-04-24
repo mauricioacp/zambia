@@ -141,7 +141,10 @@ interface HeadquarterManagementAction {
       <!-- Role-specific sections -->
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <!-- Admin Section -->
-        <div *hasRole="Role.SUPERADMIN" class="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 dark:shadow-gray-900/30">
+        <div
+          *hasRole="Role.SUPERADMIN"
+          class="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 dark:shadow-gray-900/30"
+        >
           <h2 class="mb-4 text-xl font-semibold text-gray-800 dark:text-white">Administración</h2>
           <div class="space-y-2">
             <div class="flex items-center justify-between rounded bg-gray-100 p-3 dark:bg-gray-700 dark:text-gray-200">
@@ -164,7 +167,10 @@ interface HeadquarterManagementAction {
         </div>
 
         <!-- Director Section -->
-        <div *hasAnyRole="[Role.GENERAL_DIRECTOR, Role.EXECUTIVE_LEADER]" class="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 dark:shadow-gray-900/30">
+        <div
+          *hasAnyRole="[Role.GENERAL_DIRECTOR, Role.EXECUTIVE_LEADER]"
+          class="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 dark:shadow-gray-900/30"
+        >
           <h2 class="mb-4 text-xl font-semibold text-gray-800 dark:text-white">Dirección General</h2>
           <div class="space-y-2">
             <div class="flex items-center justify-between rounded bg-gray-100 p-3 dark:bg-gray-700 dark:text-gray-200">
@@ -187,7 +193,10 @@ interface HeadquarterManagementAction {
         </div>
 
         <!-- Headquarter Manager Section -->
-        <div *hasRoleLevel="Role.HEADQUARTER_MANAGER" class="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 dark:shadow-gray-900/30">
+        <div
+          *hasRoleLevel="Role.HEADQUARTER_MANAGER"
+          class="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 dark:shadow-gray-900/30"
+        >
           <h2 class="mb-4 text-xl font-semibold text-gray-800 dark:text-white">Mi Sede</h2>
           <div class="space-y-2">
             <div class="flex items-center justify-between rounded bg-gray-100 p-3 dark:bg-gray-700 dark:text-gray-200">
@@ -224,7 +233,8 @@ interface HeadquarterManagementAction {
                   [ngClass]="{
                     'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300': activity.type === 'info',
                     'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300': activity.type === 'success',
-                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300': activity.type === 'warning',
+                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300':
+                      activity.type === 'warning',
                     'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300': activity.type === 'error',
                   }"
                 >
@@ -244,7 +254,9 @@ interface HeadquarterManagementAction {
                 [routerLink]="link.route"
                 class="flex items-center rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50"
               >
-                <div class="mr-3 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+                <div
+                  class="mr-3 flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30"
+                >
                   <span class="material-icons text-blue-600 dark:text-blue-300">{{ link.icon }}</span>
                 </div>
                 <div>
@@ -264,9 +276,12 @@ interface HeadquarterManagementAction {
               <div
                 class="rounded-lg p-3"
                 [ngClass]="{
-                  'border-l-4 border-blue-400 bg-blue-50 dark:border-blue-500 dark:bg-blue-900/20': alert.type === 'info',
-                  'border-l-4 border-green-400 bg-green-50 dark:border-green-500 dark:bg-green-900/20': alert.type === 'success',
-                  'border-l-4 border-yellow-400 bg-yellow-50 dark:border-yellow-500 dark:bg-yellow-900/20': alert.type === 'warning',
+                  'border-l-4 border-blue-400 bg-blue-50 dark:border-blue-500 dark:bg-blue-900/20':
+                    alert.type === 'info',
+                  'border-l-4 border-green-400 bg-green-50 dark:border-green-500 dark:bg-green-900/20':
+                    alert.type === 'success',
+                  'border-l-4 border-yellow-400 bg-yellow-50 dark:border-yellow-500 dark:bg-yellow-900/20':
+                    alert.type === 'warning',
                   'border-l-4 border-red-400 bg-red-50 dark:border-red-500 dark:bg-red-900/20': alert.type === 'error',
                 }"
               >
@@ -307,11 +322,15 @@ interface HeadquarterManagementAction {
               <p class="text-sm text-gray-600 dark:text-gray-300">Estudiantes</p>
             </div>
             <div class="rounded-lg bg-green-50 p-4 text-center dark:bg-green-900/20">
-              <p class="text-3xl font-bold text-green-600 dark:text-green-400">{{ headquarterSummary().collaboratorCount }}</p>
+              <p class="text-3xl font-bold text-green-600 dark:text-green-400">
+                {{ headquarterSummary().collaboratorCount }}
+              </p>
               <p class="text-sm text-gray-600 dark:text-gray-300">Colaboradores</p>
             </div>
             <div class="rounded-lg bg-purple-50 p-4 text-center dark:bg-purple-900/20">
-              <p class="text-3xl font-bold text-purple-600 dark:text-purple-400">{{ headquarterSummary().upcomingWorkshops }}</p>
+              <p class="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                {{ headquarterSummary().upcomingWorkshops }}
+              </p>
               <p class="text-sm text-gray-600 dark:text-gray-300">Talleres Próximos</p>
             </div>
           </div>
