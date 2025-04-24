@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Agreement } from '@zambia/types-supabase';
 
 /**
@@ -20,13 +21,40 @@ interface AgreementStats {
 @Component({
   selector: 'z-agreements',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="h-full overflow-auto bg-gray-50 p-6 dark:bg-gray-900">
       <h1 class="mb-6 text-2xl font-bold text-gray-900 dark:text-white">Gestión de Acuerdos</h1>
 
+      <!-- Search Bar -->
+      <div class="mb-6 rounded-lg bg-white p-4 shadow-md dark:bg-gray-800 dark:shadow-gray-900/30">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+          <div class="relative flex-grow">
+            <span class="material-icons absolute top-1/2 left-3 -translate-y-1/2 text-gray-400 dark:text-gray-500"
+              >search</span
+            >
+            <input
+              type="text"
+              placeholder="Buscar acuerdos por nombre, email o documento..."
+              class="w-full rounded-lg border border-gray-300 bg-white py-2 pr-4 pl-10 text-gray-700 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              [ngModel]="searchTerm()"
+              (ngModelChange)="updateSearchTerm($event)"
+            />
+          </div>
+          <button
+            class="rounded-lg bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+            (click)="clearSearch()"
+          >
+            <span class="flex items-center">
+              <span class="material-icons mr-1 text-sm">clear</span>
+              Limpiar
+            </span>
+          </button>
+        </div>
+      </div>
+
       <!-- Dashboard Widgets -->
-      <div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
         <!-- Agreement Status Summary Widget -->
         <div class="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 dark:shadow-gray-900/30">
           <h2 class="mb-4 text-xl font-semibold text-gray-800 dark:text-white">Estado de Acuerdos</h2>
@@ -53,7 +81,7 @@ interface AgreementStats {
         <!-- Agreements Requiring Action Widget -->
         <div class="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 dark:shadow-gray-900/30">
           <h2 class="mb-4 text-xl font-semibold text-gray-800 dark:text-white">Acuerdos que Requieren Acción</h2>
-          <div class="space-y-3">
+          <div class="max-h-60 space-y-3 overflow-auto pr-2">
             @if (agreementsRequiringAction().length === 0) {
               <p class="text-gray-500 dark:text-gray-400">No hay acuerdos que requieran acción en este momento.</p>
             } @else {
@@ -88,7 +116,7 @@ interface AgreementStats {
         <!-- Recent Agreements Widget -->
         <div class="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 dark:shadow-gray-900/30">
           <h2 class="mb-4 text-xl font-semibold text-gray-800 dark:text-white">Acuerdos Recientes</h2>
-          <div class="space-y-3">
+          <div class="max-h-60 space-y-3 overflow-auto pr-2">
             @for (agreement of recentAgreements(); track agreement.id) {
               <div class="border-b border-gray-200 pb-2 dark:border-gray-700">
                 <p class="font-medium text-gray-800 dark:text-white">{{ agreement.name }} {{ agreement.last_name }}</p>
@@ -113,6 +141,60 @@ interface AgreementStats {
                 </div>
               </div>
             }
+          </div>
+        </div>
+      </div>
+
+      <!-- Detailed Statistics Section -->
+      <div class="mb-8 rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 dark:shadow-gray-900/30">
+        <h2 class="mb-4 text-xl font-semibold text-gray-800 dark:text-white">Estadísticas Detalladas</h2>
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <!-- Conversion Rate -->
+          <div>
+            <div class="flex items-center justify-between">
+              <p class="font-medium text-gray-700 dark:text-gray-300">Tasa de Conversión</p>
+              <p class="font-bold text-gray-800 dark:text-white">{{ getConversionRate() }}%</p>
+            </div>
+            <div class="mt-1 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+              <div class="h-full rounded-full bg-blue-600 dark:bg-blue-500" [style.width.%]="getConversionRate()"></div>
+            </div>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Acuerdos aprobados vs. total de acuerdos</p>
+          </div>
+
+          <!-- Completion Rate -->
+          <div>
+            <div class="flex items-center justify-between">
+              <p class="font-medium text-gray-700 dark:text-gray-300">Tasa de Finalización</p>
+              <p class="font-bold text-gray-800 dark:text-white">{{ getCompletionRate() }}%</p>
+            </div>
+            <div class="mt-1 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+              <div
+                class="h-full rounded-full bg-green-600 dark:bg-green-500"
+                [style.width.%]="getCompletionRate()"
+              ></div>
+            </div>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Usuarios creados vs. acuerdos aprobados</p>
+          </div>
+
+          <!-- Rejection Rate -->
+          <div>
+            <div class="flex items-center justify-between">
+              <p class="font-medium text-gray-700 dark:text-gray-300">Tasa de Rechazo</p>
+              <p class="font-bold text-gray-800 dark:text-white">{{ getRejectionRate() }}%</p>
+            </div>
+            <div class="mt-1 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+              <div class="h-full rounded-full bg-red-600 dark:bg-red-500" [style.width.%]="getRejectionRate()"></div>
+            </div>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Acuerdos rechazados vs. total de acuerdos</p>
+          </div>
+
+          <!-- Pending Time -->
+          <div>
+            <div class="flex items-center justify-between">
+              <p class="font-medium text-gray-700 dark:text-gray-300">Tiempo Promedio de Aprobación</p>
+              <p class="font-bold text-gray-800 dark:text-white">{{ getAverageApprovalTime() }} días</p>
+            </div>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Tiempo promedio desde creación hasta aprobación</p>
           </div>
         </div>
       </div>
@@ -278,12 +360,15 @@ interface AgreementStats {
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AgreementsSmartComponent {
-  // Mock data for agreements
-  private mockAgreements = signal<Agreement[]>([]);
+export class AgreementsSmartComponent implements OnInit {
+  // Service injection
+  // private agreementService = inject(AgreementService);
 
-  // Derived signals for the UI
+  // Signals for data management
+  private agreements = signal<Agreement[]>([]);
   public filteredAgreements = signal<Agreement[]>([]);
+  public searchTerm = signal<string>('');
+  public isLoading = signal<boolean>(false);
 
   // Calculate agreement statistics
   public agreementStats = signal<AgreementStats>({
@@ -300,15 +385,40 @@ export class AgreementsSmartComponent {
   // Recent agreements (5 most recent)
   public recentAgreements = signal<Agreement[]>([]);
 
-  constructor() {
+  mockAgreements: Agreement[] = [];
+
+  ngOnInit(): void {
+    this.loadAgreements();
+  }
+
+  /**
+   * Load agreements from the service
+   */
+  private loadAgreements(): void {
+    this.isLoading.set(true);
+
+    // For development, we'll still use mock data initially
+    // In production, this would be replaced with a service call
     this.initializeMockData();
-    this.updateDerivedSignals();
+
+    // Simulate a service call
+    setTimeout(() => {
+      // In a real implementation, this would be:
+      // this.agreementService.getAgreements().subscribe(agreements => {
+      //   this.agreements.set(agreements);
+      //   this.updateDerivedSignals();
+      //   this.isLoading.set(false);
+      // });
+
+      this.isLoading.set(false);
+    }, 1000);
   }
 
   /**
    * Initialize mock data for agreements
    */
   private initializeMockData(): void {
+    // Set the agreements signal with mock data
     const mockData: Agreement[] = [
       {
         id: '1',
@@ -612,16 +722,35 @@ export class AgreementsSmartComponent {
       },
     ];
 
-    this.mockAgreements.set(mockData);
+    this.mockAgreements = mockData;
+    this.agreements.set(mockData);
+    this.updateDerivedSignals();
   }
 
   /**
    * Updates all derived signals based on the current agreements data
    */
   private updateDerivedSignals(): void {
-    const agreements = this.mockAgreements();
+    const agreements = this.agreements();
+    const searchTerm = this.searchTerm().toLowerCase().trim();
 
-    // Update statistics
+    // Apply search filter if there's a search term
+    let filtered = agreements;
+    if (searchTerm) {
+      filtered = agreements.filter(
+        (a) =>
+          a.name?.toLowerCase().includes(searchTerm) ||
+          '' ||
+          a.last_name?.toLowerCase().includes(searchTerm) ||
+          '' ||
+          a.email?.toLowerCase().includes(searchTerm) ||
+          '' ||
+          a.document_number?.toLowerCase().includes(searchTerm) ||
+          ''
+      );
+    }
+
+    // Update statistics (based on all agreements, not just filtered ones)
     const stats: AgreementStats = {
       pending: agreements.filter((a) => a.status === 'pending').length,
       approved: agreements.filter((a) => a.status === 'approved').length,
@@ -641,8 +770,8 @@ export class AgreementsSmartComponent {
       .slice(0, 5);
     this.recentAgreements.set(recent);
 
-    // Update filtered agreements (initially all agreements)
-    this.filteredAgreements.set(agreements);
+    // Update filtered agreements
+    this.filteredAgreements.set(filtered);
   }
 
   /**
@@ -689,9 +818,9 @@ export class AgreementsSmartComponent {
     const status = select.value;
 
     if (status === 'all') {
-      this.filteredAgreements.set(this.mockAgreements());
+      this.filteredAgreements.set(this.mockAgreements);
     } else {
-      const filtered = this.mockAgreements().filter((a) => a.status === status);
+      const filtered = this.mockAgreements.filter((a) => a.status === status);
       this.filteredAgreements.set(filtered);
     }
   }
@@ -718,13 +847,18 @@ export class AgreementsSmartComponent {
   approveAgreement(id: string): void {
     console.log(`Approve agreement: ${id}`);
 
-    // Update the agreement status in the mock data
-    const agreements = this.mockAgreements();
+    // In a real implementation, this would call the service:
+    // this.agreementService.updateAgreementStatus(id, 'approved').subscribe(() => {
+    //   this.loadAgreements();
+    // });
+
+    // For now, update the agreement status in the local data
+    const agreements = this.agreements();
     const updatedAgreements = agreements.map((a) =>
       a.id === id ? { ...a, status: 'approved', updated_at: new Date().toISOString() } : a
     );
 
-    this.mockAgreements.set(updatedAgreements);
+    this.agreements.set(updatedAgreements);
     this.updateDerivedSignals();
   }
 
@@ -734,13 +868,18 @@ export class AgreementsSmartComponent {
   rejectAgreement(id: string): void {
     console.log(`Reject agreement: ${id}`);
 
-    // Update the agreement status in the mock data
-    const agreements = this.mockAgreements();
+    // In a real implementation, this would call the service:
+    // this.agreementService.updateAgreementStatus(id, 'rejected').subscribe(() => {
+    //   this.loadAgreements();
+    // });
+
+    // For now, update the agreement status in the local data
+    const agreements = this.agreements();
     const updatedAgreements = agreements.map((a) =>
       a.id === id ? { ...a, status: 'rejected', updated_at: new Date().toISOString() } : a
     );
 
-    this.mockAgreements.set(updatedAgreements);
+    this.agreements.set(updatedAgreements);
     this.updateDerivedSignals();
   }
 
@@ -750,8 +889,13 @@ export class AgreementsSmartComponent {
   createUser(id: string): void {
     console.log(`Create user for agreement: ${id}`);
 
-    // Update the agreement status and assign a mock user ID
-    const agreements = this.mockAgreements();
+    // In a real implementation, this would call the service:
+    // this.agreementService.createUserForAgreement(id).subscribe(() => {
+    //   this.loadAgreements();
+    // });
+
+    // For now, update the agreement status and assign a mock user ID
+    const agreements = this.agreements();
     const updatedAgreements = agreements.map((a) =>
       a.id === id
         ? {
@@ -763,7 +907,7 @@ export class AgreementsSmartComponent {
         : a
     );
 
-    this.mockAgreements.set(updatedAgreements);
+    this.agreements.set(updatedAgreements);
     this.updateDerivedSignals();
   }
 
@@ -773,5 +917,71 @@ export class AgreementsSmartComponent {
   createNewAgreement(): void {
     console.log('Create new agreement');
     // In a real implementation, this would navigate to the agreement creation page
+  }
+
+  /**
+   * Update the search term and filter agreements
+   */
+  updateSearchTerm(term: string): void {
+    this.searchTerm.set(term);
+    this.updateDerivedSignals();
+  }
+
+  /**
+   * Clear the search term
+   */
+  clearSearch(): void {
+    this.searchTerm.set('');
+    this.updateDerivedSignals();
+  }
+
+  /**
+   * Calculate the conversion rate (approved / total)
+   */
+  getConversionRate(): number {
+    const stats = this.agreementStats();
+    if (stats.total === 0) return 0;
+    return Math.round(((stats.approved + stats.userCreated) / stats.total) * 100);
+  }
+
+  /**
+   * Calculate the completion rate (users created / approved)
+   */
+  getCompletionRate(): number {
+    const stats = this.agreementStats();
+    if (stats.approved === 0) return 0;
+    return Math.round((stats.userCreated / (stats.approved + stats.userCreated)) * 100);
+  }
+
+  /**
+   * Calculate the rejection rate (rejected / total)
+   */
+  getRejectionRate(): number {
+    const stats = this.agreementStats();
+    if (stats.total === 0) return 0;
+    return Math.round((stats.rejected / stats.total) * 100);
+  }
+
+  /**
+   * Calculate the average approval time in days
+   */
+  getAverageApprovalTime(): number {
+    const agreements = this.agreements();
+    const approvedAgreements = agreements.filter((a) => a.status === 'approved' || a.status === 'USER_CREATED');
+
+    if (approvedAgreements.length === 0) return 0;
+
+    let totalDays = 0;
+    for (const agreement of approvedAgreements) {
+      if (agreement.created_at && agreement.updated_at) {
+        const createdDate = new Date(agreement.created_at);
+        const updatedDate = new Date(agreement.updated_at);
+        const diffTime = Math.abs(updatedDate.getTime() - createdDate.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        totalDays += diffDays;
+      }
+    }
+
+    return Math.round(totalDays / approvedAgreements.length);
   }
 }
