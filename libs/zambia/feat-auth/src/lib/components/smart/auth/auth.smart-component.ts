@@ -106,7 +106,6 @@ export class AuthSmartComponent {
   readonly safeSvg = this.sanitizer.bypassSecurityTrustHtml(logoSvg);
   readonly isDarkMode = this.themeService.isDarkTheme;
   readonly isLoading = this.authService.acting;
-  readonly isAuthenticated = this.authService.session;
 
   errorMessage = '';
 

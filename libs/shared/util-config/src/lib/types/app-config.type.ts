@@ -2,7 +2,7 @@ import { InjectionToken } from '@angular/core';
 
 export type AppConfigType = {
   API_URL: string;
-  API_ANON_KEY: string;
+  API_PUBLIC_KEY: string;
   PROD: false;
 };
 

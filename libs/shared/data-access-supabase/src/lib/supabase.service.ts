@@ -1,47 +1,31 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { createClient, PostgrestError, SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@zambia/types-supabase';
 import { catchError, Observable, tap, throwError } from 'rxjs';
+import { APP_CONFIG } from '@zambia/util-config';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SupabaseService {
-  private supabaseClient: SupabaseClient<Database>;
-
-  // Signal for tracking loading state
+  private readonly supabaseClient: SupabaseClient<Database>;
+  private config = inject(APP_CONFIG);
   public loading = signal<boolean>(false);
 
-  // Signal for tracking error state
   public error = signal<Error | null>(null);
 
   constructor() {
-    // Initialize Supabase client
-    // Note: In a real application, these values should come from environment variables
-    const supabaseUrl = 'https://your-project-url.supabase.co';
-    const supabaseKey = 'your-anon-key';
-
-    this.supabaseClient = createClient<Database>(supabaseUrl, supabaseKey);
+    this.supabaseClient = createClient<Database>(this.config.API_URL, this.config.API_PUBLIC_KEY);
   }
 
-  /**
-   * Get the Supabase client instance
-   * @returns The Supabase client instance
-   */
   public getClient(): SupabaseClient<Database> {
     return this.supabaseClient;
   }
 
-  /**
-   * Reset error state
-   */
   public resetError(): void {
     this.error.set(null);
   }
 
-  /**
-   * Start an operation by setting loading state
-   */
   protected startOperation(): void {
     this.loading.set(true);
     this.error.set(null);
@@ -53,9 +37,8 @@ export class SupabaseService {
   }
 
   /**
-   * Handle errors from Supabase operations
-   * @param error The error to handle
-   * @param context Optional context for the error
+   * @param error
+   * @param context
    */
   protected handleError(error: Error | PostgrestError, context = 'Operation'): void {
     console.error(`Supabase ${context} failed:`, error);
@@ -64,11 +47,10 @@ export class SupabaseService {
   }
 
   /**
-   * Wraps an Observable operation with loading and error handling.
    * @template T
-   * @param {Observable<T>} operation$ - The Observable performing the Supabase call.
-   * @param {string} [context='Operation'] - Context for error handling.
-   * @returns {Observable<T>} Observable with integrated state handling.
+   * @param {Observable<T>} operation$
+   * @param {string} [context='Operation']
+   * @returns {Observable<T>}
    */
   protected wrapObservableOperation<T>(operation$: Observable<T>, context = 'Operation'): Observable<T> {
     this.startOperation();
@@ -76,17 +58,16 @@ export class SupabaseService {
       tap(() => this.handleSuccess()),
       catchError((err) => {
         this.handleError(err, context);
-        return throwError(() => err); // Rethrow after handling state
+        return throwError(() => err);
       })
     );
   }
 
   /**
-   * Wraps an async (Promise-based) Supabase operation with loading and error handling.
    * @template T
-   * @param {Promise<T>} operationPromise - The Promise performing the Supabase call.
-   * @param {string} [context='Operation'] - Context for error handling.
-   * @returns {Promise<T | null>} Promise resolving with data or null on error.
+   * @param {Promise<T>} operationPromise
+   * @param {string} [context='Operation']
+   * @returns {Promise<T | null>}
    */
   protected async wrapAsyncOperation<T>(operationPromise: Promise<T>, context = 'Operation'): Promise<T | null> {
     this.startOperation();
@@ -96,24 +77,22 @@ export class SupabaseService {
       return result;
     } catch (error) {
       this.handleError(error as Error, context);
-      return null; // Indicate failure
+      return null;
     }
   }
 
   /**
-   * Helper to extract data and handle potential PostgrestErrors from Supabase responses.
-   * Throws an error if the Supabase call itself resulted in an error.
    * @template T
-   * @param {{ data: T | null; error: PostgrestError | null }} response - The Supabase response object.
-   * @param {string} [context='Fetch'] - Context for potential error messages.
-   * @returns {T} The data from the response.
-   * @throws {PostgrestError} If the Supabase response contains an error.
+   * @param {{ data: T | null; error: PostgrestError | null }} response
+   * @param {string} [context='Fetch']
+   * @returns {T}
+   * @throws {PostgrestError}
    */
   protected handleResponse<T>(response: { data: T | null; error: PostgrestError | null }, context = 'Fetch'): T {
     if (response.error) {
       console.error(`[Supabase Error - ${context}]:`, response.error);
-      throw response.error; // Let the main handler catch this
+      throw response.error;
     }
-    return response.data as T; // Cast needed as data can be null
+    return response.data as T;
   }
 }

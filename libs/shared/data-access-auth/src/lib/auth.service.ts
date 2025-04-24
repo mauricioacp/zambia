@@ -11,11 +11,13 @@ import { SupabaseService } from '@zambia/data-access-supabase';
 })
 export class AuthService {
   private router = inject(Router);
+  readonly #supabaseService = inject(SupabaseService);
 
   readonly #session = signal<AuthSession | null>(null);
+  readonly isAuthenticated = computed(() => !!this.#session());
+  readonly isAuthenticatedAsAdmin = computed(() => this.isAuthenticated() && this.hasRole('admin'));
   readonly #loading = signal<boolean>(false);
   readonly #acting = signal<boolean>(false);
-  readonly #supabaseService = inject(SupabaseService);
   readonly #supabase = this.#supabaseService.getClient();
 
   public readonly acting = this.#acting.asReadonly();
@@ -84,7 +86,7 @@ export class AuthService {
     this.#session.set(null);
     return this.#supabase.auth.signOut().then((v) => {
       this.#acting.set(false);
-      this.router.navigate(['/login']);
+      this.router.navigate(['/']);
       return v;
     });
   }

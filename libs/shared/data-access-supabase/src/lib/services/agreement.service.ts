@@ -14,40 +14,30 @@ import {
 } from '@zambia/types-supabase';
 
 /**
- * Service for managing Agreement data
- * Provides methods for CRUD operations and retrieving agreements with their associated roles
+ * CRUD operations and retrieving agreements with their associated roles
  */
 @Injectable({
   providedIn: 'root',
 })
 export class AgreementService {
-  // Signal for all agreements
   private agreementsSignal = signal<Agreement[]>([]);
-
-  // Signal for selected agreement
   private selectedAgreementIdSignal = signal<string | null>(null);
 
-  // Computed signal for selected agreement
   public selectedAgreement = computed(() => {
     const id = this.selectedAgreementIdSignal();
     if (!id) return null;
     return this.agreementsSignal().find((agreement) => agreement.id === id) || null;
   });
 
-  // Observable for agreements signal
-  // private agreements$ = toObservable(this.agreementsSignal);
-
-  // Cache for agreements with roles
   private agreementsWithRolesCache$: Observable<AgreementWithRoles[]> | null = null;
 
   constructor(private supabaseService: SupabaseService) {}
 
   /**
-   * Get all agreements
    * @param status Optional status filter
    * @param headquarterId Optional headquarter filter
    * @param seasonId Optional season filter
-   * @returns Observable of agreements
+   * @returns Observable<Agreement[]>
    */
   public getAgreements(status?: AgreementStatus, headquarterId?: string, seasonId?: string): Observable<Agreement[]> {
     this.supabaseService.loading.set(true);
@@ -81,11 +71,6 @@ export class AgreementService {
     );
   }
 
-  /**
-   * Get an agreement by ID
-   * @param id Agreement ID
-   * @returns Observable of agreement
-   */
   public getAgreementById(id: string): Observable<Agreement | null> {
     this.supabaseService.loading.set(true);
 
@@ -101,11 +86,6 @@ export class AgreementService {
     );
   }
 
-  /**
-   * Get agreements with their associated roles
-   * Uses caching for better performance
-   * @returns Observable of agreements with roles
-   */
   public getAgreementsWithRoles(): Observable<AgreementWithRoles[]> {
     if (this.agreementsWithRolesCache$) {
       return this.agreementsWithRolesCache$;
@@ -122,18 +102,13 @@ export class AgreementService {
         return data as AgreementWithRoles[];
       }),
       tap(() => this.supabaseService.loading.set(false)),
-      // Cache the result for 5 minutes, keep last 1 value, reset when there are no subscribers
+      // Cache the result for 5 minutes, keep the last value, reset when there are no subscribers
       shareReplay({ bufferSize: 1, refCount: true, windowTime: 5 * 60 * 1000 })
     );
 
     return this.agreementsWithRolesCache$;
   }
 
-  /**
-   * Get agreements by role
-   * @param roleId Role ID
-   * @returns Observable of agreements with roles
-   */
   public getAgreementsByRole(roleId: string): Observable<AgreementWithRoles[]> {
     this.supabaseService.loading.set(true);
 
@@ -149,11 +124,6 @@ export class AgreementService {
     );
   }
 
-  /**
-   * Create a new agreement
-   * @param agreement Agreement data
-   * @returns Observable of created agreement
-   */
   public createAgreement(agreement: AgreementInsert): Observable<Agreement | null> {
     this.supabaseService.loading.set(true);
 
@@ -174,12 +144,6 @@ export class AgreementService {
     );
   }
 
-  /**
-   * Update an agreement
-   * @param id Agreement ID
-   * @param updates Agreement updates
-   * @returns Observable of updated agreement
-   */
   public updateAgreement(id: string, updates: AgreementUpdate): Observable<Agreement | null> {
     this.supabaseService.loading.set(true);
 
@@ -202,11 +166,6 @@ export class AgreementService {
     );
   }
 
-  /**
-   * Delete an agreement
-   * @param id Agreement ID
-   * @returns Observable of success status
-   */
   public deleteAgreement(id: string): Observable<boolean> {
     this.supabaseService.loading.set(true);
 
@@ -217,29 +176,18 @@ export class AgreementService {
           return false;
         }
 
-        // Update the agreements signal by removing the deleted agreement
         this.agreementsSignal.update((agreements) => agreements.filter((a) => a.id !== id));
 
-        // Reset selected agreement if it was the deleted one
         if (this.selectedAgreementIdSignal() === id) {
           this.selectedAgreementIdSignal.set(null);
         }
-
-        // Invalidate cache
-        this.agreementsWithRolesCache$ = null;
-
+        this.invalidateCache();
         return true;
       }),
       tap(() => this.supabaseService.loading.set(false))
     );
   }
 
-  /**
-   * Add a role to an agreement
-   * @param agreementId Agreement ID
-   * @param roleId Role ID
-   * @returns Observable of success status
-   */
   public addRoleToAgreement(agreementId: string, roleId: string): Observable<boolean> {
     this.supabaseService.loading.set(true);
 
@@ -254,9 +202,7 @@ export class AgreementService {
           this.handleError(error);
           return false;
         }
-
-        // Invalidate cache
-        this.agreementsWithRolesCache$ = null;
+        this.invalidateCache();
 
         return true;
       }),
@@ -264,12 +210,6 @@ export class AgreementService {
     );
   }
 
-  /**
-   * Remove a role from an agreement
-   * @param agreementId Agreement ID
-   * @param roleId Role ID
-   * @returns Observable of success status
-   */
   public removeRoleFromAgreement(agreementId: string, roleId: string): Observable<boolean> {
     this.supabaseService.loading.set(true);
 
@@ -286,9 +226,7 @@ export class AgreementService {
           this.handleError(error);
           return false;
         }
-
-        // Invalidate cache
-        this.agreementsWithRolesCache$ = null;
+        this.invalidateCache();
 
         return true;
       }),
@@ -296,19 +234,14 @@ export class AgreementService {
     );
   }
 
-  /**
-   * Set the selected agreement
-   * @param id Agreement ID
-   */
+  public invalidateCache(): void {
+    this.agreementsWithRolesCache$ = null;
+  }
+
   public setSelectedAgreement(id: string | null): void {
     this.selectedAgreementIdSignal.set(id);
   }
 
-  /**
-   * Convert agreements to view models
-   * @param agreements Agreements to convert
-   * @returns Agreement view models
-   */
   public toViewModel(agreements: Agreement[]): AgreementViewModel[] {
     return agreements.map((agreement) => ({
       ...agreement,
@@ -316,10 +249,6 @@ export class AgreementService {
     }));
   }
 
-  /**
-   * Handle errors from Supabase operations
-   * @param error The error to handle
-   */
   private handleError(error: PostgrestError): void {
     console.error('Agreement service error:', error);
     this.supabaseService.error.set(new Error(error.message));
