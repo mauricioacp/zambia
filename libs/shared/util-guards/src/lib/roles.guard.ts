@@ -4,6 +4,7 @@ import { ActivatedRouteSnapshot, CanActivateFn, Router } from '@angular/router';
 import { REQUIRED_ROLES } from './GUARDS_CONSTANTS';
 import { AuthService } from '@zambia/data-access-auth';
 import { APP_CONFIG } from '@zambia/util-config';
+import { firstValueFrom } from 'rxjs';
 
 export const rolesGuard: CanActivateFn = async (route: ActivatedRouteSnapshot) => {
   const authService = inject(AuthService);
@@ -11,6 +12,8 @@ export const rolesGuard: CanActivateFn = async (route: ActivatedRouteSnapshot) =
   const config = inject(APP_CONFIG);
   const forbiddenPath = '/access-denied';
   const requiredRoles = route.data[REQUIRED_ROLES] as string[] | undefined;
+
+  await firstValueFrom(authService.initialAuthCheckComplete$);
 
   if (!requiredRoles || requiredRoles.length === 0) {
     console.log('[RolesGuard] No required roles specified for this route. Allowing access.');

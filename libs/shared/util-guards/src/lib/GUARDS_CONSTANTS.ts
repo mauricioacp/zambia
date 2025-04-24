@@ -1,22 +1,51 @@
 export const REQUIRED_ROLES = 'requiredRoles';
-// new Map([
-//   ['general_director', 'Director General'],
-//   ['pedagogical_leader', 'Líder Pedagógico'],
-//   ['innovation_leader', 'Líder de Innovación'],
-//   ['communication_leader', 'Líder de Comunicación'],
-//   ['executive_leader', 'Líder Ejecutivo'],
-//   ['community_leader', 'Líder de Komunidad'],
-//   ['coordination_leader', 'Líder de Koordinación'],
-//   ['coordinator', 'Koordinador'],
-//   ['legal_advisor', 'Asesor Legal'],
-//   ['konsejo_member', 'Miembro del Konsejo de Dirección'],
-//   ['headquarter_manager', 'Director/a Local'],
-//   ['pedagogical_manager', 'Director/a Pedagógico Local'],
-//   ['communication_manager', 'Director/a de Comunicación Local'],
-//   ['companion_director', 'Director/a de Acompañantes Local'],
-//   ['manager_assistant', 'Asistente a la dirección'],
-//   ['superadmin', 'Super administrador'],
-//   ['companion', 'Acompañante'],
-//   ['facilitator', 'Facilitador'],
-//   ['student', 'Alumno']
-// ])
+
+export const Role = {
+  GENERAL_DIRECTOR: 'general_director',
+  PEDAGOGICAL_LEADER: 'pedagogical_leader',
+  INNOVATION_LEADER: 'innovation_leader',
+  COMMUNICATION_LEADER: 'communication_leader',
+  EXECUTIVE_LEADER: 'executive_leader',
+  COMMUNITY_LEADER: 'community_leader',
+  COORDINATION_LEADER: 'coordination_leader',
+  COORDINATOR: 'coordinator',
+  LEGAL_ADVISOR: 'legal_advisor',
+  KONSEJO_MEMBER: 'konsejo_member',
+  HEADQUARTER_MANAGER: 'headquarter_manager',
+  PEDAGOGICAL_MANAGER: 'pedagogical_manager',
+  COMMUNICATION_MANAGER: 'communication_manager',
+  COMPANION_DIRECTOR: 'companion_director',
+  MANAGER_ASSISTANT: 'manager_assistant',
+  SUPERADMIN: 'superadmin',
+  COMPANION: 'companion',
+  FACILITATOR: 'facilitator',
+  STUDENT: 'student',
+} as const;
+
+export type RoleCode = (typeof Role)[keyof typeof Role];
+
+export const ROLES_NAMES = new Map<RoleCode, string>([
+  [Role.GENERAL_DIRECTOR, 'Director General'],
+  [Role.PEDAGOGICAL_LEADER, 'Líder Pedagógico'],
+  [Role.INNOVATION_LEADER, 'Líder de Innovación'],
+  [Role.COMMUNICATION_LEADER, 'Líder de Comunicación'],
+  [Role.EXECUTIVE_LEADER, 'Líder Ejecutivo'],
+  [Role.COMMUNITY_LEADER, 'Líder de Komunidad'],
+  [Role.COORDINATION_LEADER, 'Líder de Koordinación'],
+  [Role.COORDINATOR, 'Koordinador'],
+  [Role.LEGAL_ADVISOR, 'Asesor Legal'],
+  [Role.KONSEJO_MEMBER, 'Miembro del Konsejo de Dirección'],
+  [Role.HEADQUARTER_MANAGER, 'Director/a Local'],
+  [Role.PEDAGOGICAL_MANAGER, 'Director/a Pedagógico Local'],
+  [Role.COMMUNICATION_MANAGER, 'Director/a de Comunicación Local'],
+  [Role.COMPANION_DIRECTOR, 'Director/a de Acompañantes Local'],
+  [Role.MANAGER_ASSISTANT, 'Asistente a la dirección'],
+  [Role.SUPERADMIN, 'Super administrador'],
+  [Role.COMPANION, 'Acompañante'],
+  [Role.FACILITATOR, 'Facilitador'],
+  [Role.STUDENT, 'Alumno'],
+]);
+
+export function getRoleName(roleCode: RoleCode): string {
+  return ROLES_NAMES.get(roleCode) || roleCode;
+}

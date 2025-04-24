@@ -24,7 +24,7 @@ import { map, Subscription, take, timer } from 'rxjs';
       </div>
 
       <a
-        routerLink="/dashboard"
+        routerLink="/dashboard/panel"
         class="inline-block rounded-md bg-slate-700 px-6 py-2 text-sm font-medium text-white transition duration-150 ease-in-out hover:bg-slate-600 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 focus:outline-none"
       >
         Ir a Inicio Ahora
@@ -44,7 +44,7 @@ export class AccessDeniedPageUiComponent implements OnInit, OnDestroy {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
-  private readonly initialCountdownSeconds = 20000000;
+  private readonly initialCountdownSeconds = 20;
   countdown = this.initialCountdownSeconds;
 
   private countdownSubscription: Subscription | null = null;
@@ -80,6 +80,6 @@ export class AccessDeniedPageUiComponent implements OnInit, OnDestroy {
     if (this.countdownSubscription && !this.countdownSubscription.closed) {
       this.countdownSubscription.unsubscribe();
     }
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/dashboard/panel']);
   }
 }

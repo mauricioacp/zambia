@@ -1,6 +1,7 @@
 # Angular v19 Supabase Services Documentation
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Installation & Setup](#installation--setup)
 - [API Documentation](#api-documentation)
@@ -53,7 +54,7 @@ Create or update your environment files with Supabase credentials:
 export const environment = {
   production: false,
   supabaseUrl: 'YOUR_SUPABASE_URL',
-  supabaseKey: 'YOUR_SUPABASE_PUBLIC_KEY'
+  supabaseKey: 'YOUR_SUPABASE_PUBLIC_KEY',
 };
 ```
 
@@ -79,10 +80,10 @@ export const appConfig: ApplicationConfig = {
       provide: APP_CONFIG,
       useValue: {
         API_URL: environment.supabaseUrl,
-        API_PUBLIC_KEY: environment.supabaseKey
-      } as AppConfig
-    }
-  ]
+        API_PUBLIC_KEY: environment.supabaseKey,
+      } as AppConfig,
+    },
+  ],
 };
 ```
 
@@ -96,7 +97,7 @@ import { AuthService } from '@zambia/data-access-auth';
 
 @Component({
   selector: 'app-root',
-  template: `<div>App works!</div>`
+  template: `<div>App works!</div>`,
 })
 export class AppComponent {
   private supabaseService = inject(SupabaseService);
@@ -116,10 +117,10 @@ The core service that initializes and provides access to the Supabase client.
 
 #### Properties
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `loading` | `Signal<boolean>` | Signal indicating if an operation is in progress |
-| `error` | `Signal<Error \| null>` | Signal containing the current error state |
+| Property  | Type                    | Description                                      |
+| --------- | ----------------------- | ------------------------------------------------ |
+| `loading` | `Signal<boolean>`       | Signal indicating if an operation is in progress |
+| `error`   | `Signal<Error \| null>` | Signal containing the current error state        |
 
 #### Methods
 
@@ -190,8 +191,8 @@ Service for managing agreements and their associated roles.
 
 #### Properties
 
-| Property | Type | Description |
-|----------|------|-------------|
+| Property            | Type                          | Description                                            |
+| ------------------- | ----------------------------- | ------------------------------------------------------ |
 | `selectedAgreement` | `Computed<Agreement \| null>` | Computed property for the currently selected agreement |
 
 #### Methods
@@ -311,8 +312,8 @@ Service for managing country data with efficient caching.
 
 #### Properties
 
-| Property | Type | Description |
-|----------|------|-------------|
+| Property          | Type                        | Description                                          |
+| ----------------- | --------------------------- | ---------------------------------------------------- |
 | `selectedCountry` | `Computed<Country \| null>` | Computed property for the currently selected country |
 
 #### Methods
@@ -401,15 +402,15 @@ Service for managing authentication, sessions, and role-based access control.
 
 #### Properties
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `acting` | `ReadonlySignal<boolean>` | Signal indicating if an authentication action is in progress |
-| `loading` | `ReadonlySignal<boolean>` | Signal indicating if a loading operation is in progress |
-| `session` | `ReadonlySignal<AuthSession \| null>` | Signal containing the current authentication session |
-| `userId$` | `Observable<string>` | Observable of the current user ID |
-| `userRoles` | `Computed<string[]>` | Computed property for the current user's roles |
-| `isAuthenticated` | `Computed<boolean>` | Computed property indicating if the user is authenticated |
-| `isAuthenticatedAsAdmin` | `Computed<boolean>` | Computed property indicating if the user is authenticated as an admin |
+| Property                 | Type                                  | Description                                                           |
+| ------------------------ | ------------------------------------- | --------------------------------------------------------------------- |
+| `acting`                 | `ReadonlySignal<boolean>`             | Signal indicating if an authentication action is in progress          |
+| `loading`                | `ReadonlySignal<boolean>`             | Signal indicating if a loading operation is in progress               |
+| `session`                | `ReadonlySignal<AuthSession \| null>` | Signal containing the current authentication session                  |
+| `userId$`                | `Observable<string>`                  | Observable of the current user ID                                     |
+| `userRoles`              | `Computed<string[]>`                  | Computed property for the current user's roles                        |
+| `isAuthenticated`        | `Computed<boolean>`                   | Computed property indicating if the user is authenticated             |
+| `isAuthenticatedAsAdmin` | `Computed<boolean>`                   | Computed property indicating if the user is authenticated as an admin |
 
 #### Methods
 
@@ -485,7 +486,7 @@ import { SupabaseService } from '@zambia/data-access-supabase';
   template: `
     <div *ngIf="supabaseService.loading()">Loading...</div>
     <div *ngIf="supabaseService.error()">Error: {{ supabaseService.error()?.message }}</div>
-  `
+  `,
 })
 export class ExampleComponent implements OnInit {
   supabaseService = inject(SupabaseService);
@@ -527,7 +528,7 @@ import { SupabaseService } from '@zambia/data-access-supabase';
       <p>{{ supabaseService.error()?.message }}</p>
       <button (click)="supabaseService.resetError()">Dismiss</button>
     </div>
-  `
+  `,
 })
 export class ErrorHandlingComponent {
   supabaseService = inject(SupabaseService);
@@ -556,7 +557,7 @@ import { AgreementStatus } from '@zambia/types-supabase';
     </ul>
 
     <button (click)="loadActiveAgreements()">Load Active Agreements</button>
-  `
+  `,
 })
 export class AgreementsListComponent implements OnInit {
   private agreementService = inject(AgreementService);
@@ -581,7 +582,7 @@ export class AgreementsListComponent implements OnInit {
       error: (err) => {
         this.error = err.message;
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -597,7 +598,7 @@ export class AgreementsListComponent implements OnInit {
       error: (err) => {
         this.error = err.message;
         this.loading = false;
-      }
+      },
     });
   }
 }
@@ -617,24 +618,24 @@ import { AgreementInsert, AgreementStatus } from '@zambia/types-supabase';
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <div>
         <label for="name">First Name</label>
-        <input id="name" formControlName="name">
+        <input id="name" formControlName="name" />
       </div>
 
       <div>
         <label for="last_name">Last Name</label>
-        <input id="last_name" formControlName="last_name">
+        <input id="last_name" formControlName="last_name" />
       </div>
 
       <div>
         <label for="email">Email</label>
-        <input id="email" formControlName="email" type="email">
+        <input id="email" formControlName="email" type="email" />
       </div>
 
       <button type="submit" [disabled]="form.invalid || submitting">
         {{ submitting ? 'Creating...' : 'Create Agreement' }}
       </button>
     </form>
-  `
+  `,
 })
 export class AgreementFormComponent {
   private fb = inject(FormBuilder);
@@ -645,7 +646,7 @@ export class AgreementFormComponent {
   form: FormGroup = this.fb.group({
     name: ['', Validators.required],
     last_name: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]]
+    email: ['', [Validators.required, Validators.email]],
   });
 
   onSubmit() {
@@ -656,7 +657,7 @@ export class AgreementFormComponent {
     const newAgreement: AgreementInsert = {
       ...this.form.value,
       status: AgreementStatus.PENDING,
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
     };
 
     this.agreementService.createAgreement(newAgreement).subscribe({
@@ -672,7 +673,7 @@ export class AgreementFormComponent {
         this.submitting = false;
         console.error('Error creating agreement:', err);
         // Show error message
-      }
+      },
     });
   }
 }
@@ -707,12 +708,10 @@ import { AgreementService } from '@zambia/data-access-supabase';
           </option>
         </select>
 
-        <button [disabled]="!selectedRoleId" (click)="addRole()">
-          Add Role
-        </button>
+        <button [disabled]="!selectedRoleId" (click)="addRole()">Add Role</button>
       </div>
     </div>
-  `
+  `,
 })
 export class AgreementRolesComponent implements OnInit {
   private agreementService = inject(AgreementService);
@@ -740,7 +739,7 @@ export class AgreementRolesComponent implements OnInit {
       error: (err) => {
         console.error('Error loading agreement:', err);
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -749,17 +748,17 @@ export class AgreementRolesComponent implements OnInit {
     this.availableRoles = [
       { id: '1', name: 'Admin' },
       { id: '2', name: 'User' },
-      { id: '3', name: 'Guest' }
+      { id: '3', name: 'Guest' },
     ];
 
     // Load the agreement's current roles
     this.agreementService.getAgreementsWithRoles().subscribe({
       next: (agreementsWithRoles) => {
-        const currentAgreement = agreementsWithRoles.find(a => a.id === this.agreementId);
+        const currentAgreement = agreementsWithRoles.find((a) => a.id === this.agreementId);
         if (currentAgreement) {
           this.roles = currentAgreement.roles || [];
         }
-      }
+      },
     });
   }
 
@@ -772,8 +771,8 @@ export class AgreementRolesComponent implements OnInit {
         this.loading = false;
         if (success) {
           // Add the role to the local array for immediate UI update
-          const role = this.availableRoles.find(r => r.id === this.selectedRoleId);
-          if (role && !this.roles.some(r => r.id === role.id)) {
+          const role = this.availableRoles.find((r) => r.id === this.selectedRoleId);
+          if (role && !this.roles.some((r) => r.id === role.id)) {
             this.roles.push(role);
           }
           this.selectedRoleId = '';
@@ -782,7 +781,7 @@ export class AgreementRolesComponent implements OnInit {
       error: (err) => {
         console.error('Error adding role:', err);
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -793,13 +792,13 @@ export class AgreementRolesComponent implements OnInit {
         this.loading = false;
         if (success) {
           // Remove the role from the local array for immediate UI update
-          this.roles = this.roles.filter(r => r.id !== roleId);
+          this.roles = this.roles.filter((r) => r.id !== roleId);
         }
       },
       error: (err) => {
         console.error('Error removing role:', err);
         this.loading = false;
-      }
+      },
     });
   }
 }
@@ -828,7 +827,7 @@ import { CountryViewModel } from '@zambia/types-supabase';
     </div>
 
     <button (click)="refreshCountries()">Refresh</button>
-  `
+  `,
 })
 export class CountriesListComponent implements OnInit {
   private countryService = inject(CountryService);
@@ -852,7 +851,7 @@ export class CountriesListComponent implements OnInit {
       error: (err) => {
         console.error('Error loading countries:', err);
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -892,7 +891,7 @@ import { CountryWithHeadquartersCount } from '@zambia/types-supabase';
         </tr>
       </tbody>
     </table>
-  `
+  `,
 })
 export class CountryHeadquartersComponent implements OnInit {
   private countryService = inject(CountryService);
@@ -911,7 +910,7 @@ export class CountryHeadquartersComponent implements OnInit {
       error: (err) => {
         console.error('Error loading countries with HQ count:', err);
         this.loading = false;
-      }
+      },
     });
   }
 }
@@ -931,12 +930,12 @@ import { CountryInsert, CountryStatus } from '@zambia/types-supabase';
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <div>
         <label for="name">Country Name</label>
-        <input id="name" formControlName="name">
+        <input id="name" formControlName="name" />
       </div>
 
       <div>
         <label for="code">Country Code</label>
-        <input id="code" formControlName="code" maxlength="2">
+        <input id="code" formControlName="code" maxlength="2" />
         <small>2-letter ISO code (e.g., US, UK, DE)</small>
       </div>
 
@@ -944,7 +943,7 @@ import { CountryInsert, CountryStatus } from '@zambia/types-supabase';
         {{ submitting ? 'Saving...' : 'Save Country' }}
       </button>
     </form>
-  `
+  `,
 })
 export class CountryFormComponent {
   private fb = inject(FormBuilder);
@@ -954,7 +953,7 @@ export class CountryFormComponent {
 
   form: FormGroup = this.fb.group({
     name: ['', Validators.required],
-    code: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(2)]]
+    code: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(2)]],
   });
 
   onSubmit() {
@@ -964,7 +963,7 @@ export class CountryFormComponent {
 
     const newCountry: CountryInsert = {
       ...this.form.value,
-      status: CountryStatus.ACTIVE
+      status: CountryStatus.ACTIVE,
     };
 
     this.countryService.createCountry(newCountry).subscribe({
@@ -980,7 +979,7 @@ export class CountryFormComponent {
         this.submitting = false;
         console.error('Error creating country:', err);
         // Show error message
-      }
+      },
     });
   }
 }
@@ -1002,12 +1001,12 @@ import { AuthService } from '@zambia/data-access-auth';
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <div>
         <label for="email">Email</label>
-        <input id="email" formControlName="email" type="email">
+        <input id="email" formControlName="email" type="email" />
       </div>
 
       <div>
         <label for="password">Password</label>
-        <input id="password" formControlName="password" type="password">
+        <input id="password" formControlName="password" type="password" />
       </div>
 
       <div *ngIf="error" class="error">
@@ -1018,7 +1017,7 @@ import { AuthService } from '@zambia/data-access-auth';
         {{ authService.acting() ? 'Signing in...' : 'Sign In' }}
       </button>
     </form>
-  `
+  `,
 })
 export class LoginComponent {
   private fb = inject(FormBuilder);
@@ -1029,7 +1028,7 @@ export class LoginComponent {
 
   form: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', Validators.required]
+    password: ['', Validators.required],
   });
 
   async onSubmit() {
@@ -1067,9 +1066,7 @@ import { AuthService } from '@zambia/data-access-auth';
 @Component({
   selector: 'app-user-profile',
   template: `
-    <div *ngIf="!authService.isAuthenticated()">
-      Please sign in to view your profile.
-    </div>
+    <div *ngIf="!authService.isAuthenticated()">Please sign in to view your profile.</div>
 
     <div *ngIf="authService.isAuthenticated()">
       <h2>User Profile</h2>
@@ -1077,7 +1074,7 @@ import { AuthService } from '@zambia/data-access-auth';
       <div *ngIf="authService.session() as session">
         <p><strong>Email:</strong> {{ session.user?.email }}</p>
         <p><strong>User ID:</strong> {{ session.user?.id }}</p>
-        <p><strong>Last Sign In:</strong> {{ session.user?.last_sign_in_at | date:'medium' }}</p>
+        <p><strong>Last Sign In:</strong> {{ session.user?.last_sign_in_at | date: 'medium' }}</p>
       </div>
 
       <div>
@@ -1095,7 +1092,7 @@ import { AuthService } from '@zambia/data-access-auth';
 
       <button (click)="signOut()">Sign Out</button>
     </div>
-  `
+  `,
 })
 export class UserProfileComponent implements OnInit {
   authService = inject(AuthService);
@@ -1103,7 +1100,7 @@ export class UserProfileComponent implements OnInit {
 
   ngOnInit() {
     // Example of getting the user ID asynchronously
-    this.authService.getUserId().then(id => {
+    this.authService.getUserId().then((id) => {
       this.userId = id;
     });
   }
@@ -1136,7 +1133,7 @@ import { of } from 'rxjs';
     </div>
 
     <button (click)="loadProtectedData()">Refresh Data</button>
-  `
+  `,
 })
 export class ProtectedDataComponent implements OnInit {
   private authService = inject(AuthService);
@@ -1160,26 +1157,29 @@ export class ProtectedDataComponent implements OnInit {
     this.error = null;
 
     // First check if we need to refresh the token
-    this.authService.refreshToken().pipe(
-      // After refreshing (or if not needed), make the API call
-      switchMap(token => {
-        return this.http.get('/api/protected-data', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-      }),
-      catchError(err => {
-        this.error = 'Failed to load data. Please try again.';
-        console.error('Error loading protected data:', err);
-        return of(null);
-      })
-    ).subscribe(result => {
-      this.loading = false;
-      if (result) {
-        this.data = result;
-      }
-    });
+    this.authService
+      .refreshToken()
+      .pipe(
+        // After refreshing (or if not needed), make the API call
+        switchMap((token) => {
+          return this.http.get('/api/protected-data', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        }),
+        catchError((err) => {
+          this.error = 'Failed to load data. Please try again.';
+          console.error('Error loading protected data:', err);
+          return of(null);
+        })
+      )
+      .subscribe((result) => {
+        this.loading = false;
+        if (result) {
+          this.data = result;
+        }
+      });
   }
 }
 ```
@@ -1291,7 +1291,7 @@ export const SUPABASE_INITIALIZER_PROVIDER: Provider = {
   provide: APP_INITIALIZER,
   useFactory: configureSupabase,
   deps: [SupabaseService],
-  multi: true
+  multi: true,
 };
 ```
 
@@ -1306,10 +1306,8 @@ import { RealtimeChannel } from '@supabase/supabase-js';
   selector: 'app-realtime-updates',
   template: `
     <h2>Real-time Updates</h2>
-    <div *ngFor="let update of updates">
-      {{ update.timestamp | date:'medium' }}: {{ update.message }}
-    </div>
-  `
+    <div *ngFor="let update of updates">{{ update.timestamp | date: 'medium' }}: {{ update.message }}</div>
+  `,
 })
 export class RealtimeUpdatesComponent implements OnInit, OnDestroy {
   private supabaseService = inject(SupabaseService);
@@ -1335,13 +1333,13 @@ export class RealtimeUpdatesComponent implements OnInit, OnDestroy {
         {
           event: '*', // Listen to all changes
           schema: 'public',
-          table: 'agreements'
+          table: 'agreements',
         },
         (payload) => {
           console.log('Change received:', payload);
           this.updates.unshift({
             timestamp: new Date(),
-            message: `${payload.eventType} operation on record ${payload.new.id}`
+            message: `${payload.eventType} operation on record ${payload.new.id}`,
           });
         }
       )
@@ -1408,7 +1406,7 @@ export class SupabaseErrorHandler implements ErrorHandler {
 // Provider to be added to your app's providers array
 export const SUPABASE_ERROR_HANDLER_PROVIDER: Provider = {
   provide: ErrorHandler,
-  useClass: SupabaseErrorHandler
+  useClass: SupabaseErrorHandler,
 };
 ```
 
@@ -1433,8 +1431,8 @@ export class CountryEffects {
       ofType(loadCountries),
       switchMap(() =>
         this.countryService.getCountries().pipe(
-          map(countries => loadCountriesSuccess({ countries })),
-          catchError(error => of(loadCountriesFailure({ error })))
+          map((countries) => loadCountriesSuccess({ countries })),
+          catchError((error) => of(loadCountriesFailure({ error })))
         )
       )
     )
@@ -1453,38 +1451,39 @@ export class CountryEffects {
 
 #### Authentication Issues
 
-| Error | Possible Cause | Solution |
-|-------|----------------|----------|
-| "Invalid login credentials" | Incorrect email or password | Verify credentials and ensure the user exists in Supabase |
-| "Email not confirmed" | User hasn't confirmed their email | Implement email confirmation flow or confirm manually in Supabase dashboard |
-| "JWT expired" | Authentication token has expired | Use `refreshToken()` method to get a new token |
-| "User not found" | Trying to access a non-existent user | Verify the user exists in Supabase |
+| Error                       | Possible Cause                       | Solution                                                                    |
+| --------------------------- | ------------------------------------ | --------------------------------------------------------------------------- |
+| "Invalid login credentials" | Incorrect email or password          | Verify credentials and ensure the user exists in Supabase                   |
+| "Email not confirmed"       | User hasn't confirmed their email    | Implement email confirmation flow or confirm manually in Supabase dashboard |
+| "JWT expired"               | Authentication token has expired     | Use `refreshToken()` method to get a new token                              |
+| "User not found"            | Trying to access a non-existent user | Verify the user exists in Supabase                                          |
 
 #### Data Access Issues
 
-| Error | Possible Cause | Solution |
-|-------|----------------|----------|
-| "Foreign key violation" | Trying to create a record with invalid foreign key | Ensure the referenced record exists before creating the new record |
-| "Duplicate key value violates unique constraint" | Trying to create a record with a duplicate unique value | Check if the record already exists before creating |
-| "Permission denied" | User doesn't have permission to access the resource | Verify RLS (Row Level Security) policies in Supabase |
-| "Relation does not exist" | Table doesn't exist or is misspelled | Check table name and ensure it exists in the database |
+| Error                                            | Possible Cause                                          | Solution                                                           |
+| ------------------------------------------------ | ------------------------------------------------------- | ------------------------------------------------------------------ |
+| "Foreign key violation"                          | Trying to create a record with invalid foreign key      | Ensure the referenced record exists before creating the new record |
+| "Duplicate key value violates unique constraint" | Trying to create a record with a duplicate unique value | Check if the record already exists before creating                 |
+| "Permission denied"                              | User doesn't have permission to access the resource     | Verify RLS (Row Level Security) policies in Supabase               |
+| "Relation does not exist"                        | Table doesn't exist or is misspelled                    | Check table name and ensure it exists in the database              |
 
 #### Service-Specific Issues
 
-| Service | Issue | Solution |
-|---------|-------|----------|
-| SupabaseService | "Failed to initialize Supabase client" | Check API URL and key in environment configuration |
-| AgreementService | Cache not updating after changes | Call `invalidateCache()` after making changes |
-| CountryService | Flag images not loading | Verify country codes are correct and in lowercase |
-| AuthService | Roles not being detected | Ensure roles are stored in user metadata as expected |
+| Service          | Issue                                  | Solution                                             |
+| ---------------- | -------------------------------------- | ---------------------------------------------------- |
+| SupabaseService  | "Failed to initialize Supabase client" | Check API URL and key in environment configuration   |
+| AgreementService | Cache not updating after changes       | Call `invalidateCache()` after making changes        |
+| CountryService   | Flag images not loading                | Verify country codes are correct and in lowercase    |
+| AuthService      | Roles not being detected               | Ensure roles are stored in user metadata as expected |
 
 ### Debugging Tips
 
 1. **Enable Supabase Debug Mode**:
+
    ```typescript
    // In your app initialization
    const supabase = createClient(url, key, {
-     debug: true // Enable debug mode in development
+     debug: true, // Enable debug mode in development
    });
    ```
 
@@ -1503,22 +1502,25 @@ export class CountryEffects {
 ### FAQ
 
 #### Q: How do I handle offline support?
+
 A: These services don't provide built-in offline support. Consider implementing a service worker and local storage solution for offline capabilities.
 
 #### Q: Can I use these services with SSR (Server-Side Rendering)?
+
 A: Yes, but you'll need to ensure that Supabase client initialization happens only in the browser context or implement isomorphic handling.
 
 #### Q: How do I implement pagination with these services?
+
 A: Extend the service methods to accept pagination parameters (limit, offset) and pass them to the Supabase queries.
 
 #### Q: How can I improve performance for large datasets?
+
 A: Use more specific queries, implement pagination, and consider using Supabase's RPC (Remote Procedure Call) functions for complex operations.
 
 #### Q: How do I handle file uploads?
+
 A: Use Supabase Storage through the client:
+
 ```typescript
-const { data, error } = await this.supabaseService.getClient()
-  .storage
-  .from('bucket-name')
-  .upload('file-path', file);
+const { data, error } = await this.supabaseService.getClient().storage.from('bucket-name').upload('file-path', file);
 ```

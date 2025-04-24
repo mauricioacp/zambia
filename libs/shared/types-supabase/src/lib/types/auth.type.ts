@@ -1,15 +1,4 @@
-import { User as SupabaseUser, Session as SupabaseSession } from '@supabase/supabase-js';
-
-/**
- * Type representing a User entity
- * Extends the Supabase User type with additional properties
- */
-export interface User extends SupabaseUser {
-  role?: string;
-  roleId?: string;
-  permissions?: string[];
-  profile?: UserProfile;
-}
+import { Session as SupabaseSession, User } from '@supabase/supabase-js';
 
 /**
  * Type representing a Session entity

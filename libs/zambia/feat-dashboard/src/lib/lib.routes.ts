@@ -1,7 +1,8 @@
 import { DashboardSmartComponent } from './components/smart/dashboard/dashboard.smart-component';
 import { Route } from '@angular/router';
-import { authGuard, rolesGuard } from '@zambia/util-roles-permissions';
+import { authGuard, Role, rolesGuard } from '@zambia/util-roles-permissions';
 import { AccessDeniedPageUiComponent } from '@zambia/ui-components';
+import { PanelSmartComponent } from './components/smart/panel.smart-component';
 
 export const zambiaFeatDashboardRoutes: Route[] = [
   {
@@ -9,10 +10,14 @@ export const zambiaFeatDashboardRoutes: Route[] = [
     component: DashboardSmartComponent,
     children: [
       {
+        path: 'panel',
+        component: PanelSmartComponent,
+      },
+      {
         path: 'headquarter',
         canActivate: [authGuard, rolesGuard],
         data: {
-          requiredRoles: ['admin', 'editor'],
+          requiredRoles: [Role.SUPERADMIN, Role.HEADQUARTER_MANAGER],
         },
         loadChildren: () => import('@zambia/feat-headquarter').then((mod) => mod.featHeadQuarterRoutes),
       },
@@ -22,7 +27,7 @@ export const zambiaFeatDashboardRoutes: Route[] = [
       },
       {
         path: '**',
-        redirectTo: 'access-denied',
+        redirectTo: 'panel',
       },
     ],
   },
