@@ -18,6 +18,7 @@
       "@zambia/data-access-auth": ["libs/shared/data-access-auth/src/index.ts"],
       "@zambia/data-access-roles-permissions": ["libs/shared/data-access-roles-permissions/src/index.ts"],
       "@zambia/data-access-supabase": ["libs/shared/data-access-supabase/src/index.ts"],
+      "@zambia/feat-agreements": ["libs/zambia/feat-agreements/src/index.ts"],
       "@zambia/feat-auth": ["libs/zambia/feat-auth/src/index.ts"],
       "@zambia/feat-dashboard": ["libs/zambia/feat-dashboard/src/index.ts"],
       "@zambia/feat-headquarter": ["libs/zambia/feat-headquarter/src/index.ts"],

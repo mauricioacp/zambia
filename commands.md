@@ -30,3 +30,5 @@ npx nx g @nx/angular:library --name=types-supabase --tags=scope:shared,type:util
 npx nx g @nx/angular:library --name=data-access-supabase --tags=scope:shared,type:api --directory=libs/shared/data-access-supabase --dry-run
 nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/access-denied-page --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=access-denied-page --type=ui-component --dry-run
 nx g @nx/angular:component --path=libs/zambia/feat-dashboard/src/lib/components/smart/panel --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=panel --skipTests --type=smart-component --dry-run
+npx nx g @nx/angular:library --name=feat-agreements --tags=scope:zambia,type:feat --directory=libs/zambia/feat-agreements
+nx g @nx/angular:component --path=libs/zambia/feat-agreements/src/lib/components/smart/agreements/ --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=agreements --type=smart-component --dry-run

@@ -22,6 +22,14 @@ export const zambiaFeatDashboardRoutes: Route[] = [
         loadChildren: () => import('@zambia/feat-headquarter').then((mod) => mod.featHeadQuarterRoutes),
       },
       {
+        path: 'agreements',
+        canActivate: [authGuard, rolesGuard],
+        data: {
+          requiredRoles: [Role.SUPERADMIN, Role.HEADQUARTER_MANAGER],
+        },
+        loadChildren: () => import('@zambia/feat-agreements').then((mod) => mod.featAgreementsRoutes),
+      },
+      {
         path: 'access-denied',
         component: AccessDeniedPageUiComponent,
       },
