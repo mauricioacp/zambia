@@ -20,7 +20,7 @@ A comprehensive Angular application built with Nx monorepo architecture for mana
 
 ## Overview
 
-Zambia is a data management system designed for Akademia, an international educational organization. The system manages organizational structure across multiple countries, 
+Zambia is a data management system designed for Akademia, an international educational organization. The system manages organizational structure across multiple countries,
 including headquarters, seasons (academic periods), participants (students and collaborators), and activities (workshops and events).
 
 The application provides a comprehensive interface for:
