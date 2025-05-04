@@ -20,7 +20,8 @@ A comprehensive Angular application built with Nx monorepo architecture for mana
 
 ## Overview
 
-Zambia is a data management system designed for Akademia, an international educational organization. The system manages organizational structure across multiple countries, including headquarters, seasons (academic periods), participants (students and collaborators), and activities (workshops and events).
+Zambia is a data management system designed for Akademia, an international educational organization. The system manages organizational structure across multiple countries, 
+including headquarters, seasons (academic periods), participants (students and collaborators), and activities (workshops and events).
 
 The application provides a comprehensive interface for:
 
@@ -36,7 +37,6 @@ This project leverages the following technologies:
 - **Core Framework**: [Angular](https://angular.io/) (v19)
 - **Monorepo Management**: [Nx](https://nx.dev/) (v20)
 - **Backend/Database**: [Supabase](https://supabase.io/)
-- **State Management**: [RxJS](https://rxjs.dev/)
 - **UI Components**:
   - [Angular Material](https://material.angular.io/)
   - Custom UI components
@@ -73,6 +73,7 @@ zambia/
 │   └── zambia/                # Application-specific libraries
 │       ├── feat-auth/         # Authentication feature
 │       ├── feat-dashboard/    # Dashboard feature
+│       ├── feat-agreements/   # Dashboard page for agreements review and approval
 │       ├── feat-headquarter/  # Headquarter management feature
 │       └── feat-shell/        # Application shell/layout
 ```
@@ -252,13 +253,9 @@ We welcome contributions to the Zambia project. Please follow these steps:
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
-4. Commit your changes using Commitizen:
-   ```bash
-   npm run cm
-   ```
-5. Push to the branch (`git push origin feature/amazing-feature`)
-6. Open a Pull Request
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License — see the LICENSE file for details.

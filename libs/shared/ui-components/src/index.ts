@@ -34,3 +34,13 @@ export * from './lib/ui-components/sidebar-item/main-sidebar-nav-item.ui-compone
 export * from './lib/ui-components/sidebar-nav-section-header/sidebar-nav-section-header.ui-component';
 
 export * from './lib/ui-components/access-denied-page.ui-component';
+
+export * from './lib/ui-components/welcome-message.ui-component';
+
+export * from './lib/ui-components/dashboard-stat-card.ui-component';
+
+export * from './lib/ui-components/info-card-item.ui-component';
+
+export * from './lib/ui-components/recent-activity-item.ui-component';
+
+export * from './lib/ui-components/quick-link-item.ui-component';

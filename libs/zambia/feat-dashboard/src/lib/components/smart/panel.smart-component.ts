@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '@zambia/data-access-auth';
@@ -9,6 +9,7 @@ import {
   RolesService,
 } from '@zambia/data-access-roles-permissions';
 import { Role } from '@zambia/util-roles-permissions';
+import { WelcomeMessageUiComponent } from '@zambia/ui-components';
 
 /**
  * Interface for dashboard statistics
@@ -94,29 +95,19 @@ interface HeadquarterManagementAction {
 @Component({
   selector: 'z-panel',
   standalone: true,
-  imports: [CommonModule, RouterLink, HasRoleLevelDirective, HasAnyRoleDirective, HasRoleDirective],
+  imports: [
+    CommonModule,
+    RouterLink,
+    HasRoleLevelDirective,
+    HasAnyRoleDirective,
+    HasRoleDirective,
+    WelcomeMessageUiComponent,
+  ],
   template: `
     <div class="h-full overflow-auto bg-gray-50 p-6 dark:bg-gray-900">
       <h1 class="mb-6 text-2xl font-bold text-gray-900 dark:text-white">Panel de Control</h1>
 
-      <!-- Welcome message based on role -->
-      <div class="mb-8 rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 dark:shadow-gray-900/30">
-        <h2 class="mb-2 text-xl font-semibold text-gray-800 dark:text-white">Bienvenido, {{ getUserDisplayName() }}</h2>
-        <p class="text-gray-600 dark:text-gray-300">
-          @if (rolesService.hasRole(Role.SUPERADMIN)) {
-            Como Superadministrador, tienes acceso sin restricciones para gestionar acuerdos, usuarios, sedes y
-            configuraciones del sistema en toda la plataforma.
-          } @else if (rolesService.hasRole(Role.GENERAL_DIRECTOR)) {
-            Como Director General, puedes ver datos completos y reportes de todas las sedes, monitorear el rendimiento
-            general y gestionar operaciones de alto nivel.
-          } @else if (rolesService.hasRole(Role.HEADQUARTER_MANAGER)) {
-            Como Director de Sede, puedes gestionar estudiantes, colaboradores y actividades específicas de tu sede
-            asignada.
-          } @else {
-            Bienvenido! Explora las funciones disponibles según tu rol asignado.
-          }
-        </p>
-      </div>
+      <z-welcome-message [userName]="userName" [welcomeText]="welcomeText()" />
 
       <!-- Stats Section -->
       <div class="mb-8">
@@ -459,6 +450,8 @@ interface HeadquarterManagementAction {
 export class PanelSmartComponent {
   private authService = inject(AuthService);
   protected rolesService = inject(RolesService);
+  protected welcomeText = computed(() => this.rolesService.getWelcomeText());
+  protected userName = this.authService.userName();
   protected Role = Role;
 
   // Sample data - in a real app, this would come from a service
@@ -630,18 +623,4 @@ export class PanelSmartComponent {
       icon: 'bar_chart',
     },
   ]);
-
-  /**
-   * Gets the display name of the current user
-   * @returns The user's name, email, or a default value
-   */
-  protected getUserDisplayName(): string {
-    const session = this.authService.session();
-    if (!session) return 'Usuario';
-
-    const email = session.user?.email || '';
-    const name = (session.user?.user_metadata?.['name'] as string) || '';
-
-    return name || email.split('@')[0] || 'Usuario';
-  }
 }

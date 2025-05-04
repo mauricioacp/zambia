@@ -3,9 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Agreement } from '@zambia/types-supabase';
 
-/**
- * Interface for agreement statistics
- */
 interface AgreementStats {
   pending: number;
   approved: number;
@@ -14,10 +11,6 @@ interface AgreementStats {
   total: number;
 }
 
-/**
- * Smart component for managing agreements
- * Displays dashboard widgets and a smart table for agreements
- */
 @Component({
   selector: 'z-agreements',
   standalone: true,
@@ -89,6 +82,10 @@ interface AgreementStats {
                 <div
                   class="flex cursor-pointer items-center justify-between rounded-lg border border-gray-200 p-3 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50"
                   (click)="scrollToAgreement(agreement.id)"
+                  (keydown.enter)="scrollToAgreement(agreement.id)"
+                  tabindex="0"
+                  role="button"
+                  aria-label="Scroll to agreement"
                 >
                   <div>
                     <p class="font-medium text-gray-800 dark:text-white">

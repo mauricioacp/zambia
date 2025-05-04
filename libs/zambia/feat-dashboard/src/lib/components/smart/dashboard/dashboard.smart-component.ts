@@ -46,28 +46,22 @@ import { RouterOutlet } from '@angular/router';
           <z-main-sidebar-nav-item icon="home" text="Mi sede" [route]="''"></z-main-sidebar-nav-item>
           <z-sidebar-nav-section-header text="Integrantes"></z-sidebar-nav-section-header>
           <z-main-sidebar-nav-item
-            icon="face"
-            text="Alumnos"
-            [badgeNumber]="26"
-            [route]="'students'"
+            icon="insert_drive_file"
+            text="Documentos"
+            [route]="'facilitators'"
           ></z-main-sidebar-nav-item>
+          <z-main-sidebar-nav-item icon="face" text="Alumnos" [route]="'students'"></z-main-sidebar-nav-item>
           <z-main-sidebar-nav-item
             icon="person"
             text="Facilitadores"
-            [badgeNumber]="26"
             [route]="'facilitators'"
           ></z-main-sidebar-nav-item>
-          <z-main-sidebar-nav-item
-            icon="people"
-            text="Acompañantes"
-            [badgeNumber]="26"
-            [route]="'companions'"
-          ></z-main-sidebar-nav-item>
+          <z-main-sidebar-nav-item icon="people" text="Acompañantes" [route]="'companions'"></z-main-sidebar-nav-item>
         </z-sidebar-nav>
         <z-sidebar-mini sidebar-mini>
-          <z-sidebar-nav-item main-nav icon="dashboard" [route]="'/'"></z-sidebar-nav-item>
+          <z-sidebar-nav-item main-nav icon="dashboard" [route]="'/dashboard/panel'"></z-sidebar-nav-item>
           <z-sidebar-nav-item user-nav icon="settings" [route]="'settings'"></z-sidebar-nav-item>
-          <z-sidebar-nav-item user-nav icon="logout" [route]="'/'"></z-sidebar-nav-item>
+          <z-sidebar-nav-item user-nav icon="logout" [route]="'/login'"></z-sidebar-nav-item>
         </z-sidebar-mini>
       </z-sidebar>
 

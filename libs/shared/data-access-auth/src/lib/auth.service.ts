@@ -29,6 +29,13 @@ export class AuthService {
     distinctUntilChanged(),
     map((v) => v as string)
   );
+  readonly userName = computed(() => {
+    const session = this.session();
+    if (!session) return 'Usuario';
+    const email = session.user?.email || '';
+    const name = (session.user?.user_metadata?.['name'] as string) || '';
+    return name || email.split('@')[0] || 'Usuario';
+  });
 
   public readonly initialAuthCheckComplete$: Observable<boolean> = toObservable(this.loading).pipe(
     filter((loading) => !loading),

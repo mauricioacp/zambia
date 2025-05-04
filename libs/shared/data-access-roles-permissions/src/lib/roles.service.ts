@@ -88,4 +88,17 @@ export class RolesService {
   public getRoleLevel(role: RoleCode): number {
     return this.roleLevels.get(role) || 0;
   }
+
+  getWelcomeText() {
+    /* todo this messages should be keys and then translated in the i18n json.*/
+    if (this.hasRole(Role.SUPERADMIN)) {
+      return 'Como Superadministrador, tienes acceso sin restricciones para gestionar acuerdos, usuarios, sedes y configuraciones del sistema en toda la plataforma.';
+    } else if (this.hasRole(Role.GENERAL_DIRECTOR)) {
+      return 'Como Director General, puedes ver datos completos y reportes de todas las sedes, monitorear el rendimiento general y gestionar operaciones de alto nivel.';
+    } else if (this.hasRole(Role.HEADQUARTER_MANAGER)) {
+      return 'Como Director de Sede, puedes gestionar estudiantes, colaboradores y actividades específicas de tu sede asignada.';
+    } else {
+      return 'Bienvenido! Explora las funciones disponibles según tu rol asignado.';
+    }
+  }
 }

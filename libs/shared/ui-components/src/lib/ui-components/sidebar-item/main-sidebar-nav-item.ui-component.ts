@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
@@ -35,5 +35,5 @@ export class MainSidebarNavItemUiComponent {
   text = input.required<string>();
   route = input.required<string>();
   badgeNumber = input<number>();
-  itemClicked = new EventEmitter<MouseEvent>();
+  itemClicked = output<MouseEvent>();
 }
