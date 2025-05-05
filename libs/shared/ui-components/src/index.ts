@@ -44,3 +44,5 @@ export * from './lib/ui-components/info-card-item.ui-component';
 export * from './lib/ui-components/recent-activity-item.ui-component';
 
 export * from './lib/ui-components/quick-link-item.ui-component';
+
+export * from './lib/ui-components/showcase.ui-component';

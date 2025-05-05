@@ -2,7 +2,7 @@ import { DashboardSmartComponent } from './components/smart/dashboard/dashboard.
 import { Route } from '@angular/router';
 import { authGuard, Role, rolesGuard } from '@zambia/util-roles-permissions';
 import { AccessDeniedPageUiComponent } from '@zambia/ui-components';
-import { PanelSmartComponent } from './components/smart/panel.smart-component';
+import { PanelSmartComponent } from './components/smart/main-panel/panel.smart-component';
 
 export const zambiaFeatDashboardRoutes: Route[] = [
   {
@@ -12,6 +12,10 @@ export const zambiaFeatDashboardRoutes: Route[] = [
       {
         path: 'panel',
         component: PanelSmartComponent,
+      },
+      {
+        path: 'showcase',
+        loadComponent: () => import('@zambia/ui-components').then((mod) => mod.ShowcaseUiComponent),
       },
       {
         path: 'headquarter',

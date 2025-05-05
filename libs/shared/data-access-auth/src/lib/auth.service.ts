@@ -1,7 +1,7 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { distinctUntilChanged, filter, from, map, Observable, shareReplay } from 'rxjs';
+import { filter, from, map, Observable, shareReplay } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Session } from '@supabase/supabase-js';
 import { SupabaseService } from '@zambia/data-access-supabase';
@@ -12,10 +12,8 @@ import { SupabaseService } from '@zambia/data-access-supabase';
 export class AuthService {
   private router = inject(Router);
   readonly #supabaseService = inject(SupabaseService);
-
   readonly #session = signal<Session | null>(null);
   readonly isAuthenticated = computed(() => !!this.#session());
-  readonly isAuthenticatedAsAdmin = computed(() => this.isAuthenticated() && this.hasRole('admin'));
   readonly #loading = signal<boolean>(false);
   readonly #acting = signal<boolean>(false);
   readonly #supabase = this.#supabaseService.getClient();
@@ -23,12 +21,7 @@ export class AuthService {
   public readonly acting = this.#acting.asReadonly();
   public readonly loading = this.#loading.asReadonly();
   public readonly session = this.#session.asReadonly();
-  public readonly userId$ = toObservable(this.#session).pipe(
-    map((v) => v?.user?.id),
-    filter((v) => !!v),
-    distinctUntilChanged(),
-    map((v) => v as string)
-  );
+
   readonly userName = computed(() => {
     const session = this.session();
     if (!session) return 'Usuario';
@@ -116,9 +109,9 @@ export class AuthService {
       email,
       password,
     });
-    this.router.navigate(['/dashboard/panel']);
     this.#acting.set(false);
     this.#loading.set(false);
+    await this.router.navigate(['/dashboard/panel']);
     return v;
   }
 

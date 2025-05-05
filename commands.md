@@ -37,3 +37,5 @@ npx nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-compo
 npx nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/dashboard-stat-card --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=dashboard-stat-card --type=ui-component --skipTests
 npx nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/recent-activity-item --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=recent-activity-item --type=ui-component --skipTests
 npx nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/quick-link-item --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=quick-link-item --type=ui-component --skipTests --dry-run
+npx nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/showcase --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=showcase --type=ui-component --skipTests --dry-run
+
