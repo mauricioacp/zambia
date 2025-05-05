@@ -13,6 +13,7 @@ export const authGuard: CanActivateFn = (): Observable<boolean | UrlTree> => {
     take(1),
     map((session) => {
       const isAuthenticated = !!session;
+      console.debug(`[AuthGuard] isAuthenticated: ${isAuthenticated}`);
       if (isAuthenticated) {
         return true;
       } else {

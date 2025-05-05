@@ -8,7 +8,7 @@ const envFileContent = `export const environment = {
   production: false,
   API_URL: '${process.env['API_URL'] || 'not loaded'}',
   API_PUBLIC_KEY: '${process.env['API_PUBLIC_KEY'] || 'not loaded'}',
-  PROD: '${process.env['PROD']}',
+  PROD: '${process.env['PROD'] ?? ''}',
 };
 `;
 

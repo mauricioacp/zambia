@@ -5,6 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import translationsEs from '../../public/i18n/es.json';
 // @ts-expect-error
 import translationsEn from '../../public/i18n/en.json';
+import { APP_CONFIG } from '@zambia/util-config';
 
 @Component({
   imports: [RouterModule],
@@ -15,6 +16,7 @@ import translationsEn from '../../public/i18n/en.json';
 })
 export class AppComponent {
   readonly #translate = inject(TranslateService);
+  readonly config = inject(APP_CONFIG);
 
   constructor() {
     this.#translate.addLangs(['es', 'en']);
@@ -25,5 +27,7 @@ export class AppComponent {
       ...translationsEs,
       ...translationsEn,
     });
+
+    console.log(this.config.PROD ? 'PROD' : 'DEV');
   }
 }
