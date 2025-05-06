@@ -1,8 +1,10 @@
 import { DashboardSmartComponent } from './components/smart/dashboard/dashboard.smart-component';
 import { Route } from '@angular/router';
-import { authGuard, Role, rolesGuard } from '@zambia/util-roles-permissions';
-import { AccessDeniedPageUiComponent } from '@zambia/ui-components';
+
+import { AccessDeniedPageUiComponent, ShowcaseUiComponent } from '@zambia/ui-components';
 import { PanelSmartComponent } from './components/smart/main-panel/panel.smart-component';
+import { authGuard, rolesGuard } from '@zambia/util-roles-permissions';
+import { ROLE } from '@zambia/util-roles-definitions';
 
 export const zambiaFeatDashboardRoutes: Route[] = [
   {
@@ -15,13 +17,13 @@ export const zambiaFeatDashboardRoutes: Route[] = [
       },
       {
         path: 'showcase',
-        loadComponent: () => import('@zambia/ui-components').then((mod) => mod.ShowcaseUiComponent),
+        component: ShowcaseUiComponent,
       },
       {
         path: 'headquarter',
         canActivate: [authGuard, rolesGuard],
         data: {
-          requiredRoles: [Role.SUPERADMIN, Role.HEADQUARTER_MANAGER],
+          requiredRoles: [ROLE.SUPERADMIN, ROLE.HEADQUARTER_MANAGER],
         },
         loadChildren: () => import('@zambia/feat-headquarter').then((mod) => mod.featHeadQuarterRoutes),
       },
@@ -29,7 +31,7 @@ export const zambiaFeatDashboardRoutes: Route[] = [
         path: 'agreements',
         canActivate: [authGuard, rolesGuard],
         data: {
-          requiredRoles: [Role.SUPERADMIN, Role.HEADQUARTER_MANAGER],
+          requiredRoles: [ROLE.SUPERADMIN, ROLE.HEADQUARTER_MANAGER],
         },
         loadChildren: () => import('@zambia/feat-agreements').then((mod) => mod.featAgreementsRoutes),
       },

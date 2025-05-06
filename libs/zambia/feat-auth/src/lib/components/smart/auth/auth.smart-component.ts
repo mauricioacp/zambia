@@ -77,9 +77,9 @@ interface AuthFormData {
                     }
                   </button>
 
-                  @if (errorMessage) {
+                  @if (signInError) {
                     <div class="mt-4 text-sm text-red-600">
-                      {{ errorMessage }}
+                      {{ signInError | translate }}
                     </div>
                   }
                 </form>
@@ -107,7 +107,7 @@ export class AuthSmartComponent {
   readonly isDarkMode = this.themeService.isDarkTheme;
   readonly isLoading = this.authService.acting;
 
-  errorMessage = '';
+  signInError = '';
 
   readonly authForm = new FormGroup({
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -122,26 +122,16 @@ export class AuthSmartComponent {
     return this.authForm.get('password') as FormControl;
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     if (this.authForm.valid) {
-      this.errorMessage = '';
-
       const { email, password } = this.authForm.value as AuthFormData;
 
-      this.authService
-        .signIn(email, password)
-        .then((response) => {
-          if (response.error) {
-            console.error('Authentication error:', response.error);
-            this.errorMessage = response.error.message || 'Authentication failed. Please try again.';
-          } else {
-            this.authForm.reset();
-          }
-        })
-        .catch((error) => {
-          console.error('Unexpected error:', error);
-          this.errorMessage = 'An unexpected error occurred. Please try again.';
-        });
+      const { error } = await this.authService.signIn(email, password);
+      if (error) {
+        this.signInError = 'invalid_login';
+      } else {
+        this.authForm.reset();
+      }
     }
   }
 }

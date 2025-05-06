@@ -3,7 +3,7 @@ import { Observable, of } from 'rxjs';
 import { SupabaseService } from '@zambia/data-access-supabase';
 import { AuthService } from '@zambia/data-access-auth';
 import { RolesService } from '@zambia/data-access-roles-permissions';
-import { Role } from '@zambia/util-roles-permissions';
+import { ROLE } from '@zambia/util-roles-definitions';
 
 export interface DashboardStat {
   label: string;
@@ -73,14 +73,14 @@ export class DashboardDataService {
     */
 
     // Mock implementation for demonstration
-    if (this.rolesService.hasRole(Role.SUPERADMIN) || this.rolesService.hasRole(Role.GENERAL_DIRECTOR)) {
+    if (this.rolesService.hasRole(ROLE.SUPERADMIN) || this.rolesService.hasRole(ROLE.GENERAL_DIRECTOR)) {
       return of([
         { label: 'Estudiantes', value: 1245, icon: 'school', color: 'bg-blue-500' },
         { label: 'Facilitadores', value: 78, icon: 'person', color: 'bg-green-500' },
         { label: 'Acompañantes', value: 42, icon: 'people', color: 'bg-purple-500' },
         { label: 'Sedes', value: 8, icon: 'location_on', color: 'bg-orange-500' },
       ]);
-    } else if (this.rolesService.hasRole(Role.HEADQUARTER_MANAGER)) {
+    } else if (this.rolesService.hasRole(ROLE.HEADQUARTER_MANAGER)) {
       return of([
         { label: 'Estudiantes', value: 156, icon: 'school', color: 'bg-blue-500' },
         { label: 'Facilitadores', value: 12, icon: 'person', color: 'bg-green-500' },
@@ -178,16 +178,16 @@ export class DashboardDataService {
     */
 
     // Mock implementation for demonstration
-    if (this.rolesService.hasRoleLevelOrHigher(Role.GENERAL_DIRECTOR)) {
-      return of([
-        { id: '1', name: 'Sede Madrid', studentCount: 245, facilitatorCount: 15, companionCount: 8 },
-        { id: '2', name: 'Sede Barcelona', studentCount: 198, facilitatorCount: 12, companionCount: 6 },
-        { id: '3', name: 'Sede Valencia', studentCount: 156, facilitatorCount: 10, companionCount: 5 },
-        { id: '4', name: 'Sede Sevilla', studentCount: 132, facilitatorCount: 8, companionCount: 4 },
-      ]);
-    } else {
-      return of([]);
-    }
+    // if (this.rolesService.hasRoleLevelOrHigher(ROLE.GENERAL_DIRECTOR)) {
+    //   return of([
+    //     { id: '1', name: 'Sede Madrid', studentCount: 245, facilitatorCount: 15, companionCount: 8 },
+    //     { id: '2', name: 'Sede Barcelona', studentCount: 198, facilitatorCount: 12, companionCount: 6 },
+    //     { id: '3', name: 'Sede Valencia', studentCount: 156, facilitatorCount: 10, companionCount: 5 },
+    //     { id: '4', name: 'Sede Sevilla', studentCount: 132, facilitatorCount: 8, companionCount: 4 },
+    //   ]);
+    // } else {
+    return of([]);
+    // }
   }
 
   /**
@@ -213,7 +213,7 @@ export class DashboardDataService {
     */
 
     // Mock implementation for demonstration
-    if (this.rolesService.hasRole(Role.SUPERADMIN)) {
+    if (this.rolesService.hasRole(ROLE.SUPERADMIN)) {
       return of(5);
     } else {
       return of(0);
@@ -243,7 +243,7 @@ export class DashboardDataService {
     */
 
     // Mock implementation for demonstration
-    if (this.rolesService.hasRole(Role.SUPERADMIN)) {
+    if (this.rolesService.hasRole(ROLE.SUPERADMIN)) {
       return of(12);
     } else {
       return of(0);

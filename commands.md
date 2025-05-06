@@ -38,4 +38,7 @@ npx nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-compo
 npx nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/recent-activity-item --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=recent-activity-item --type=ui-component --skipTests
 npx nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/quick-link-item --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=quick-link-item --type=ui-component --skipTests --dry-run
 npx nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/showcase --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=showcase --type=ui-component --skipTests --dry-run
+npx nx g @nx/angular:library --name=data-access-generic --tags=scope:shared,type:api --directory=libs/shared/data-access-generic &&
+npx nx g @nx/angular:service --name=resource-factory --project=data-access-generic --path=libs/shared/data-access-generic/src/lib/ --skipTests
+npx nx g @nx/angular:library --name=util-roles-definitions --tags=scope:shared,type:util --directory=libs/shared/util-roles-definitions --dry-run
 

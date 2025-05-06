@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HasAnyRoleDirective } from '@zambia/data-access-roles-permissions';
-import { Role } from '@zambia/util-roles-permissions';
+
 import { RouterLink } from '@angular/router';
+import { ROLE } from '@zambia/util-roles-definitions';
+import { HasAnyRoleDirective } from '@zambia/util-roles-permissions';
 
 interface DashboardStat {
   label: string;
@@ -524,7 +525,7 @@ interface HeadquarterManagementAction {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShowcaseUiComponent {
-  protected Role = Role;
+  protected Role = ROLE;
 
   protected stats = signal<DashboardStat[]>([
     { label: 'Estudiantes', value: 1245, icon: 'school', color: 'bg-blue-500' },

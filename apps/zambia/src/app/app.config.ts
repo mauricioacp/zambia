@@ -7,6 +7,8 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { APP_CONFIG } from '@zambia/util-config';
+import { provideEventPlugins } from '@taiga-ui/event-plugins';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -18,5 +20,7 @@ export const appConfig: ApplicationConfig = {
     provideTranslateService({
       defaultLanguage: 'es',
     }),
+    provideAnimations(),
+    provideEventPlugins(),
   ],
 };

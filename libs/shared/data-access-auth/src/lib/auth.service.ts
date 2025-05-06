@@ -1,10 +1,11 @@
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { filter, from, map, Observable, shareReplay } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Session } from '@supabase/supabase-js';
 import { SupabaseService } from '@zambia/data-access-supabase';
+import { tryCatch } from '@zambia/data-access-generic';
 
 @Injectable({
   providedIn: 'root',
@@ -13,46 +14,28 @@ export class AuthService {
   private router = inject(Router);
   readonly #supabaseService = inject(SupabaseService);
   readonly #session = signal<Session | null>(null);
-  readonly isAuthenticated = computed(() => !!this.#session());
   readonly #loading = signal<boolean>(false);
   readonly #acting = signal<boolean>(false);
   readonly #supabase = this.#supabaseService.getClient();
 
-  public readonly acting = this.#acting.asReadonly();
-  public readonly loading = this.#loading.asReadonly();
-  public readonly session = this.#session.asReadonly();
+  readonly acting = this.#acting.asReadonly();
+  readonly loading = this.#loading.asReadonly();
+  readonly session = this.#session.asReadonly();
+
+  readonly isAuthenticated = computed(() => !!this.#session());
 
   readonly userName = computed(() => {
     const session = this.session();
-    if (!session) return 'Usuario';
+    if (!session) return '';
     const email = session.user?.email || '';
     const name = (session.user?.user_metadata?.['name'] as string) || '';
     return name || email.split('@')[0] || 'Usuario';
   });
 
-  public readonly initialAuthCheckComplete$: Observable<boolean> = toObservable(this.loading).pipe(
+  readonly initialAuthCheckComplete$: Observable<boolean> = toObservable(this.loading).pipe(
     filter((loading) => !loading),
     shareReplay(1)
   );
-
-  public userRoles = computed(() => {
-    const user = this.session()?.user;
-
-    if (!user || !user.user_metadata?.['roles']) {
-      return [];
-    }
-
-    const rolesMetadata = user.user_metadata['roles'];
-
-    if (!Array.isArray(rolesMetadata)) {
-      console.warn('user_metadata.roles is not an array:', rolesMetadata);
-      return [];
-    }
-
-    return rolesMetadata
-      .map((role) => role?.code)
-      .filter((code): code is string => typeof code === 'string' && code.length > 0);
-  });
 
   constructor() {
     this.#supabase.auth
@@ -70,22 +53,9 @@ export class AuthService {
         this.#loading.set(false);
       }
     });
-
-    effect(() => {
-      const session = this.#session();
-      console.log('Auth state changed:', {
-        isAuthenticated: !!session,
-        user: session?.user,
-      });
-    });
   }
 
-  public async getUserId(): Promise<string> {
-    const session = await this.#supabase.auth.getSession();
-    return session.data.session?.user.id as string;
-  }
-
-  public refreshToken(): Observable<string> {
+  refreshToken(): Observable<string> {
     return from(this.#supabase.auth.refreshSession()).pipe(
       map((session) => {
         if (!session?.data.session?.access_token) {
@@ -96,45 +66,40 @@ export class AuthService {
     );
   }
 
-  /**
-   * @param email
-   * @param password
-   * @returns Promise
-   */
-  public async signIn(email: string, password: string) {
+  async signIn(email: string, password: string) {
     this.#acting.set(true);
     this.#loading.set(true);
 
-    const v = await this.#supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    this.#acting.set(false);
-    this.#loading.set(false);
-    await this.router.navigate(['/dashboard/panel']);
-    return v;
+    const onFinally = () => {
+      this.#acting.set(false);
+      this.#loading.set(false);
+    };
+
+    const signInOperation = () =>
+      this.#supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+    const result = await tryCatch(signInOperation, onFinally);
+
+    if (result.error) {
+      return { data: null, error: result.error };
+    }
+
+    if (result.data && result.data.data.user) {
+      await this.router.navigate(['/dashboard/panel']);
+    }
+
+    return { data: result.data, error: null };
   }
 
-  public async signOut() {
+  async signOut() {
     this.#acting.set(true);
     return this.#supabase.auth.signOut().then((v) => {
       this.#acting.set(false);
-      this.router.navigate(['/login']);
+      this.router.navigate(['/']);
       return v;
     });
-  }
-
-  public hasRole(role: string): boolean {
-    const roles = this.userRoles();
-    return roles.includes(role);
-  }
-
-  public hasAnyRole(roles: string[]): boolean {
-    const userRoles = this.userRoles();
-    return roles.some((role) => userRoles.includes(role));
-  }
-
-  public getCurrentUserRoles(): string[] {
-    return this.userRoles();
   }
 }

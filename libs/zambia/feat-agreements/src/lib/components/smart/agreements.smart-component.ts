@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Agreement } from '@zambia/types-supabase';
+import { Tables } from '@zambia/types-supabase';
 
 interface AgreementStats {
   pending: number;
@@ -75,38 +75,38 @@ interface AgreementStats {
         <div class="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 dark:shadow-gray-900/30">
           <h2 class="mb-4 text-xl font-semibold text-gray-800 dark:text-white">Acuerdos que Requieren Acción</h2>
           <div class="max-h-60 space-y-3 overflow-auto pr-2">
-            @if (agreementsRequiringAction().length === 0) {
-              <p class="text-gray-500 dark:text-gray-400">No hay acuerdos que requieran acción en este momento.</p>
-            } @else {
-              @for (agreement of agreementsRequiringAction(); track agreement.id) {
-                <div
-                  class="flex cursor-pointer items-center justify-between rounded-lg border border-gray-200 p-3 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50"
-                  (click)="scrollToAgreement(agreement.id)"
-                  (keydown.enter)="scrollToAgreement(agreement.id)"
-                  tabindex="0"
-                  role="button"
-                  aria-label="Scroll to agreement"
-                >
-                  <div>
-                    <p class="font-medium text-gray-800 dark:text-white">
-                      {{ agreement.name }} {{ agreement.last_name }}
-                    </p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ agreement.email }}</p>
-                  </div>
-                  <span
-                    class="rounded-full px-3 py-1 text-xs"
-                    [ngClass]="{
-                      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300':
-                        agreement.status === 'pending',
-                      'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300':
-                        agreement.status === 'approved',
-                    }"
-                  >
-                    {{ agreement.status === 'pending' ? 'Pendiente' : 'Aprobado' }}
-                  </span>
-                </div>
-              }
-            }
+            <!--            @if (agreementsRequiringAction().length === 0) {-->
+            <!--              <p class="text-gray-500 dark:text-gray-400">No hay acuerdos que requieran acción en este momento.</p>-->
+            <!--            } @else {-->
+            <!--              @for (agreement of agreementsRequiringAction(); track agreement.id) {-->
+            <!--                <div-->
+            <!--                  class="flex cursor-pointer items-center justify-between rounded-lg border border-gray-200 p-3 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50"-->
+            <!--                  (click)="scrollToAgreement(agreement.id)"-->
+            <!--                  (keydown.enter)="scrollToAgreement(agreement.id)"-->
+            <!--                  tabindex="0"-->
+            <!--                  role="button"-->
+            <!--                  aria-label="Scroll to agreement"-->
+            <!--                >-->
+            <!--                  <div>-->
+            <!--                    <p class="font-medium text-gray-800 dark:text-white">-->
+            <!--                      {{ agreement.name }} {{ agreement.last_name }}-->
+            <!--                    </p>-->
+            <!--                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ agreement.email }}</p>-->
+            <!--                  </div>-->
+            <!--                  <span-->
+            <!--                    class="rounded-full px-3 py-1 text-xs"-->
+            <!--                    [ngClass]="{-->
+            <!--                      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300':-->
+            <!--                        agreement.status === 'pending',-->
+            <!--                      'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300':-->
+            <!--                        agreement.status === 'approved',-->
+            <!--                    }"-->
+            <!--                  >-->
+            <!--                    {{ agreement.status === 'pending' ? 'Pendiente' : 'Aprobado' }}-->
+            <!--                  </span>-->
+            <!--                </div>-->
+            <!--              }-->
+            <!--            }-->
           </div>
         </div>
 
@@ -362,8 +362,8 @@ export class AgreementsSmartComponent implements OnInit {
   // private agreementService = inject(AgreementService);
 
   // Signals for data management
-  private agreements = signal<Agreement[]>([]);
-  public filteredAgreements = signal<Agreement[]>([]);
+  private agreements = signal<Tables<'agreements'>[]>([]);
+  public filteredAgreements = signal<Tables<'agreements'>[]>([]);
   public searchTerm = signal<string>('');
   public isLoading = signal<boolean>(false);
 
@@ -377,12 +377,12 @@ export class AgreementsSmartComponent implements OnInit {
   });
 
   // Agreements requiring action (pending or approved without user)
-  public agreementsRequiringAction = signal<Agreement[]>([]);
+  // public agreementsRequiringAction = signal < Tables<'agreements'[]>([]);
 
   // Recent agreements (5 most recent)
-  public recentAgreements = signal<Agreement[]>([]);
+  public recentAgreements = signal<Tables<'agreements'>[]>([]);
 
-  mockAgreements: Agreement[] = [];
+  mockAgreements: Tables<'agreements'>[] = [];
 
   ngOnInit(): void {
     this.loadAgreements();
@@ -416,311 +416,36 @@ export class AgreementsSmartComponent implements OnInit {
    */
   private initializeMockData(): void {
     // Set the agreements signal with mock data
-    const mockData: Agreement[] = [
-      {
-        id: '1',
-        name: 'Juan',
-        last_name: 'Pérez',
-        email: 'juan.perez@example.com',
-        phone: '+34612345678',
-        document_number: '12345678A',
-        address: 'Calle Principal 123, Madrid',
-        status: 'pending',
-        headquarter_id: '1',
-        season_id: '2023',
-        user_id: null,
-        signature_data: null,
-        age_verification: true,
-        ethical_document_agreement: true,
-        mailing_agreement: true,
-        volunteering_agreement: true,
-        created_at: '2023-06-15T10:30:00Z',
-        updated_at: null,
-      },
-      {
-        id: '2',
-        name: 'María',
-        last_name: 'García',
-        email: 'maria.garcia@example.com',
-        phone: '+34623456789',
-        document_number: '23456789B',
-        address: 'Avenida Secundaria 456, Barcelona',
-        status: 'approved',
-        headquarter_id: '2',
-        season_id: '2023',
-        user_id: null,
-        signature_data: null,
-        age_verification: true,
-        ethical_document_agreement: true,
-        mailing_agreement: true,
-        volunteering_agreement: true,
-        created_at: '2023-06-10T14:45:00Z',
-        updated_at: '2023-06-12T09:15:00Z',
-      },
-      {
-        id: '3',
-        name: 'Carlos',
-        last_name: 'Rodríguez',
-        email: 'carlos.rodriguez@example.com',
-        phone: '+34634567890',
-        document_number: '34567890C',
-        address: 'Plaza Mayor 789, Valencia',
-        status: 'USER_CREATED',
-        headquarter_id: '3',
-        season_id: '2023',
-        user_id: 'user123',
-        signature_data: null,
-        age_verification: true,
-        ethical_document_agreement: true,
-        mailing_agreement: false,
-        volunteering_agreement: true,
-        created_at: '2023-06-05T11:20:00Z',
-        updated_at: '2023-06-08T16:30:00Z',
-      },
-      {
-        id: '4',
-        name: 'Ana',
-        last_name: 'Martínez',
-        email: 'ana.martinez@example.com',
-        phone: '+34645678901',
-        document_number: '45678901D',
-        address: 'Calle Nueva 321, Sevilla',
-        status: 'rejected',
-        headquarter_id: '4',
-        season_id: '2023',
-        user_id: null,
-        signature_data: null,
-        age_verification: true,
-        ethical_document_agreement: false,
-        mailing_agreement: true,
-        volunteering_agreement: false,
-        created_at: '2023-06-01T09:00:00Z',
-        updated_at: '2023-06-03T13:45:00Z',
-      },
-      {
-        id: '5',
-        name: 'Pedro',
-        last_name: 'Sánchez',
-        email: 'pedro.sanchez@example.com',
-        phone: '+34656789012',
-        document_number: '56789012E',
-        address: 'Avenida Principal 654, Bilbao',
-        status: 'pending',
-        headquarter_id: '5',
-        season_id: '2023',
-        user_id: null,
-        signature_data: null,
-        age_verification: true,
-        ethical_document_agreement: true,
-        mailing_agreement: true,
-        volunteering_agreement: true,
-        created_at: '2023-05-28T15:10:00Z',
-        updated_at: null,
-      },
-      {
-        id: '6',
-        name: 'Laura',
-        last_name: 'Fernández',
-        email: 'laura.fernandez@example.com',
-        phone: '+34667890123',
-        document_number: '67890123F',
-        address: 'Calle Antigua 987, Málaga',
-        status: 'approved',
-        headquarter_id: '1',
-        season_id: '2023',
-        user_id: 'user456',
-        signature_data: null,
-        age_verification: true,
-        ethical_document_agreement: true,
-        mailing_agreement: false,
-        volunteering_agreement: true,
-        created_at: '2023-05-25T10:45:00Z',
-        updated_at: '2023-05-27T14:30:00Z',
-      },
-      {
-        id: '7',
-        name: 'Javier',
-        last_name: 'López',
-        email: 'javier.lopez@example.com',
-        phone: '+34678901234',
-        document_number: '78901234G',
-        address: 'Plaza Central 456, Zaragoza',
-        status: 'USER_CREATED',
-        headquarter_id: '2',
-        season_id: '2023',
-        user_id: 'user789',
-        signature_data: null,
-        age_verification: true,
-        ethical_document_agreement: true,
-        mailing_agreement: true,
-        volunteering_agreement: true,
-        created_at: '2023-05-20T13:15:00Z',
-        updated_at: '2023-05-23T11:00:00Z',
-      },
-      {
-        id: '8',
-        name: 'Carmen',
-        last_name: 'Gómez',
-        email: 'carmen.gomez@example.com',
-        phone: '+34689012345',
-        document_number: '89012345H',
-        address: 'Avenida del Mar 123, Alicante',
-        status: 'pending',
-        headquarter_id: '3',
-        season_id: '2023',
-        user_id: null,
-        signature_data: null,
-        age_verification: true,
-        ethical_document_agreement: true,
-        mailing_agreement: true,
-        volunteering_agreement: false,
-        created_at: '2023-05-18T09:30:00Z',
-        updated_at: null,
-      },
-      {
-        id: '9',
-        name: 'Miguel',
-        last_name: 'Torres',
-        email: 'miguel.torres@example.com',
-        phone: '+34690123456',
-        document_number: '90123456I',
-        address: 'Calle Mayor 789, Murcia',
-        status: 'rejected',
-        headquarter_id: '4',
-        season_id: '2023',
-        user_id: null,
-        signature_data: null,
-        age_verification: false,
-        ethical_document_agreement: true,
-        mailing_agreement: false,
-        volunteering_agreement: true,
-        created_at: '2023-05-15T16:45:00Z',
-        updated_at: '2023-05-17T10:30:00Z',
-      },
-      {
-        id: '10',
-        name: 'Lucía',
-        last_name: 'Díaz',
-        email: 'lucia.diaz@example.com',
-        phone: '+34601234567',
-        document_number: '01234567J',
-        address: 'Plaza España 321, Granada',
-        status: 'approved',
-        headquarter_id: '5',
-        season_id: '2023',
-        user_id: null,
-        signature_data: null,
-        age_verification: true,
-        ethical_document_agreement: true,
-        mailing_agreement: true,
-        volunteering_agreement: true,
-        created_at: '2023-05-12T11:00:00Z',
-        updated_at: '2023-05-14T15:15:00Z',
-      },
-      {
-        id: '11',
-        name: 'Daniel',
-        last_name: 'Ruiz',
-        email: 'daniel.ruiz@example.com',
-        phone: '+34612345670',
-        document_number: '12345670K',
-        address: 'Avenida Central 654, Valladolid',
-        status: 'pending',
-        headquarter_id: '1',
-        season_id: '2023',
-        user_id: null,
-        signature_data: null,
-        age_verification: true,
-        ethical_document_agreement: true,
-        mailing_agreement: false,
-        volunteering_agreement: true,
-        created_at: '2023-05-10T14:30:00Z',
-        updated_at: null,
-      },
-      {
-        id: '12',
-        name: 'Elena',
-        last_name: 'Moreno',
-        email: 'elena.moreno@example.com',
-        phone: '+34623456780',
-        document_number: '23456780L',
-        address: 'Calle del Sol 987, Córdoba',
-        status: 'USER_CREATED',
-        headquarter_id: '2',
-        season_id: '2023',
-        user_id: 'user012',
-        signature_data: null,
-        age_verification: true,
-        ethical_document_agreement: true,
-        mailing_agreement: true,
-        volunteering_agreement: true,
-        created_at: '2023-05-08T09:15:00Z',
-        updated_at: '2023-05-11T13:45:00Z',
-      },
-      {
-        id: '13',
-        name: 'Pablo',
-        last_name: 'Jiménez',
-        email: 'pablo.jimenez@example.com',
-        phone: '+34634567801',
-        document_number: '34567801M',
-        address: 'Plaza Mayor 456, Salamanca',
-        status: 'approved',
-        headquarter_id: '3',
-        season_id: '2023',
-        user_id: null,
-        signature_data: null,
-        age_verification: true,
-        ethical_document_agreement: true,
-        mailing_agreement: true,
-        volunteering_agreement: false,
-        created_at: '2023-05-05T10:00:00Z',
-        updated_at: '2023-05-07T16:30:00Z',
-      },
-      {
-        id: '14',
-        name: 'Sofía',
-        last_name: 'Navarro',
-        email: 'sofia.navarro@example.com',
-        phone: '+34645678012',
-        document_number: '45678012N',
-        address: 'Avenida del Parque 123, Pamplona',
-        status: 'rejected',
-        headquarter_id: '4',
-        season_id: '2023',
-        user_id: null,
-        signature_data: null,
-        age_verification: false,
-        ethical_document_agreement: false,
-        mailing_agreement: true,
-        volunteering_agreement: true,
-        created_at: '2023-05-03T15:45:00Z',
-        updated_at: '2023-05-05T11:30:00Z',
-      },
-      {
-        id: '15',
-        name: 'Alejandro',
-        last_name: 'Vázquez',
-        email: 'alejandro.vazquez@example.com',
-        phone: '+34656789123',
-        document_number: '56789123O',
-        address: 'Calle del Río 456, Santander',
-        status: 'pending',
-        headquarter_id: '5',
-        season_id: '2023',
-        user_id: null,
-        signature_data: null,
-        age_verification: true,
-        ethical_document_agreement: true,
-        mailing_agreement: true,
-        volunteering_agreement: true,
-        created_at: '2023-05-01T08:30:00Z',
-        updated_at: null,
-      },
-    ];
+    // const mockData: Partial<Tables<'agreements'>[]> = [
+    //   {
+    //     id: '1',
+    //     name: 'Juan',
+    //     last_name: 'Pérez',
+    //     email: 'juan.perez@example.com',
+    //     phone: '+34612345678',
+    //     document_number: '12345678A',
+    //     address: 'Calle Principal 123, Madrid',
+    //     status: 'pending',
+    //     headquarter_id: '1',
+    //     season_id: '2023',
+    //     user_id: null,
+    //     signature_data: null,
+    //     age_verification: true,
+    //     ethical_document_agreement: true,
+    //     mailing_agreement: true,
+    //     volunteering_agreement: true,
+    //     created_at: '2023-06-15T10:30:00Z',
+    //     updated_at: null,
+    //     activation_date: null,
+    //     birth_date: null,
+    //     fts_name_lastname: undefined,
+    //     gender: null,
+    //     role_id: '',
+    //   },
+    // ];
 
-    this.mockAgreements = mockData;
-    this.agreements.set(mockData);
+    // this.mockAgreements = mockData;
+    // this.agreements.set(mockData);
     this.updateDerivedSignals();
   }
 
@@ -758,8 +483,8 @@ export class AgreementsSmartComponent implements OnInit {
     this.agreementStats.set(stats);
 
     // Update agreements requiring action
-    const requireAction = agreements.filter((a) => a.status === 'pending' || (a.status === 'approved' && !a.user_id));
-    this.agreementsRequiringAction.set(requireAction);
+    // const requireAction = agreements.filter((a) => a.status === 'pending' || (a.status === 'approved' && !a.user_id));
+    // this.agreementsRequiringAction.set(requireAction);
 
     // Update recent agreements (5 most recent)
     const recent = [...agreements]

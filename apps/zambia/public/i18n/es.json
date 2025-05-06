@@ -11,5 +11,6 @@
   "forgot-password": "¿Olvidaste la contraseña?",
   "log-in": "Ingresar",
   "no-account": "¿No tienes una cuenta?",
-  "sign-up": "Quiero registrarme"
+  "sign-up": "Quiero registrarme",
+  "invalid_login": "Credenciales incorrectas."
 }

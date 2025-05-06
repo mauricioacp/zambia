@@ -6,12 +6,13 @@ import translationsEs from '../../public/i18n/es.json';
 // @ts-expect-error
 import translationsEn from '../../public/i18n/en.json';
 import { APP_CONFIG } from '@zambia/util-config';
+import { TuiRoot } from '@taiga-ui/core';
 
 @Component({
-  imports: [RouterModule],
+  imports: [RouterModule, TuiRoot],
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css',
+  styleUrls: ['./app.component.css', './app.component.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
