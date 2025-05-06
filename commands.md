@@ -41,4 +41,3 @@ npx nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-compo
 npx nx g @nx/angular:library --name=data-access-generic --tags=scope:shared,type:api --directory=libs/shared/data-access-generic &&
 npx nx g @nx/angular:service --name=resource-factory --project=data-access-generic --path=libs/shared/data-access-generic/src/lib/ --skipTests
 npx nx g @nx/angular:library --name=util-roles-definitions --tags=scope:shared,type:util --directory=libs/shared/util-roles-definitions --dry-run
-
