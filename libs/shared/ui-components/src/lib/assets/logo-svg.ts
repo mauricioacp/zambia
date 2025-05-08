@@ -1,8 +1,6 @@
 export const logoSvg = `<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
  width="60pt" height="60pt" viewBox="0 0 560.000000 378.000000"
- preserveAspectRatio="xMidYMid meet">
-
-<g transform="translate(0.000000,378.000000) scale(0.100000,-0.100000)"
+ preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,378.000000) scale(0.100000,-0.100000)"
 fill="currentColor" stroke="none">
 <path d="M3205 3243 c-33 -60 -69 -126 -81 -148 -12 -22 -94 -170 -184 -330
 -89 -159 -225 -406 -303 -547 -78 -142 -145 -258 -149 -258 -5 0 -8 182 -8

@@ -1,13 +1,14 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'z-sidebar-nav-section-header',
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   template: `<div
     class="px-3 pt-5 pb-2 text-xs font-semibold tracking-wider text-gray-400 uppercase dark:text-gray-500"
   >
-    {{ text() }}
+    {{ text() | translate }}
   </div>`,
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,

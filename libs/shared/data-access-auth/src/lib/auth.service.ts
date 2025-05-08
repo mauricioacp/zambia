@@ -1,7 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { filter, from, map, Observable, shareReplay } from 'rxjs';
+import { filter, Observable, shareReplay } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Session } from '@supabase/supabase-js';
 import { SupabaseService } from '@zambia/data-access-supabase';
@@ -55,43 +55,21 @@ export class AuthService {
     });
   }
 
-  refreshToken(): Observable<string> {
-    return from(this.#supabase.auth.refreshSession()).pipe(
-      map((session) => {
-        if (!session?.data.session?.access_token) {
-          throw new Error('Failed to refresh token.');
-        }
-        return session.data.session.access_token;
-      })
-    );
-  }
-
-  async signIn(email: string, password: string) {
+  async signIn(email: string, password: string): Promise<boolean> {
     this.#acting.set(true);
     this.#loading.set(true);
 
-    const onFinally = () => {
-      this.#acting.set(false);
-      this.#loading.set(false);
-    };
-
-    const signInOperation = () =>
+    const { data } = await tryCatch(() =>
       this.#supabase.auth.signInWithPassword({
         email,
         password,
-      });
+      })
+    );
 
-    const result = await tryCatch(signInOperation, onFinally);
+    this.#acting.set(false);
+    this.#loading.set(false);
 
-    if (result.error) {
-      return { data: null, error: result.error };
-    }
-
-    if (result.data && result.data.data.user) {
-      await this.router.navigate(['/dashboard/panel']);
-    }
-
-    return { data: result.data, error: null };
+    return !!data;
   }
 
   async signOut() {

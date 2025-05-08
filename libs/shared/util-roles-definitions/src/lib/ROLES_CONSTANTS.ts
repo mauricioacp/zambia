@@ -27,7 +27,7 @@ export const ROLE = {
   FACILITATOR: 'facilitator',
   /* level 1 */
   STUDENT: 'student',
-} as const;
+};
 
 export type RoleCode = (typeof ROLE)[keyof typeof ROLE];
 
@@ -53,6 +53,39 @@ export const ROLES_NAMES = new Map<RoleCode, string>([
   [ROLE.STUDENT, 'Alumno'],
 ]);
 
+export type ROLE_GROUP = keyof typeof ROLE_GROUPS;
+
+export const ROLE_GROUPS = {
+  ADMINISTRATION: [ROLE.SUPERADMIN],
+  TOP_MANAGEMENT: [ROLE.GENERAL_DIRECTOR, ROLE.EXECUTIVE_LEADER],
+  LEADERSHIP_TEAM: [
+    ROLE.PEDAGOGICAL_LEADER,
+    ROLE.INNOVATION_LEADER,
+    ROLE.COMMUNICATION_LEADER,
+    ROLE.COMMUNITY_LEADER,
+    ROLE.COORDINATION_LEADER,
+    ROLE.LEGAL_ADVISOR,
+  ],
+  COORDINATION_TEAM: [ROLE.COORDINATOR, ROLE.KONSEJO_MEMBER],
+  HEADQUARTERS_MANAGEMENT: [ROLE.HEADQUARTER_MANAGER],
+  LOCAL_MANAGEMENT_TEAM: [ROLE.PEDAGOGICAL_MANAGER, ROLE.COMMUNICATION_MANAGER, ROLE.COMPANION_DIRECTOR],
+  ASSISTANTS: [ROLE.MANAGER_ASSISTANT],
+  FIELD_STAFF: [ROLE.COMPANION, ROLE.FACILITATOR],
+  STUDENTS: [ROLE.STUDENT],
+};
+
 export function getRoleName(roleCode: RoleCode): string {
   return ROLES_NAMES.get(roleCode) || roleCode;
+}
+
+export function filterRoleGroups<T extends ROLE_GROUP[]>(
+  ...excludeGroups: T
+): Record<Exclude<ROLE_GROUP, T[number]>, RoleCode[]> {
+  const result = { ...ROLE_GROUPS };
+
+  excludeGroups.forEach((group) => {
+    delete result[group];
+  });
+
+  return result as Record<Exclude<ROLE_GROUP, T[number]>, RoleCode[]>;
 }

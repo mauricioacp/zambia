@@ -1,17 +1,15 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatIconRegistry } from '@angular/material/icon';
-import { logoSvg } from '../../assets/logo-svg';
-import { DomSanitizer } from '@angular/platform-browser';
-import { BrandUiComponent } from '../brand/brand.ui-component';
+
+import { BrandLogoComponent } from '../brand/brand-logo.component';
 
 @Component({
   selector: 'z-sidebar-mini',
-  imports: [CommonModule, BrandUiComponent],
+  imports: [CommonModule, BrandLogoComponent],
   template: `
     <div class="absolute top-0 bottom-0 left-0 z-10 flex w-14 flex-col border-r border-transparent bg-gray-900/50">
-      <div class="flex-none">
-        <z-brand></z-brand>
+      <div class="flex h-16 flex-none items-center justify-center">
+        <z-brand-logo />
       </div>
       <nav class="grow space-y-2 px-2 py-4">
         <ng-content select="[main-nav]"></ng-content>
@@ -21,19 +19,6 @@ import { BrandUiComponent } from '../brand/brand.ui-component';
       </nav>
     </div>
   `,
-  styles: `
-    .logo-icon {
-      width: 44px;
-      height: 44px;
-    }
-  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SidebarMiniUiComponent {
-  private readonly iconRegistry = inject(MatIconRegistry);
-  private readonly domSanitizer = inject(DomSanitizer);
-
-  constructor() {
-    this.iconRegistry.addSvgIconLiteral('logo', this.domSanitizer.bypassSecurityTrustHtml(logoSvg));
-  }
-}
+export class SidebarMiniUiComponent {}

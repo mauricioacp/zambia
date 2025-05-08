@@ -1,10 +1,12 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
+import { WindowService } from './window.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LayoutService {
-  sidebarOpen = signal(true);
+  private windowService = inject(WindowService);
+  sidebarOpen = signal(this.windowService.isMobile());
 
   userDropdownOpen = signal(false);
 
@@ -17,7 +19,7 @@ export class LayoutService {
   }
 
   closeSidebar(): void {
-    if (window.innerWidth < 1024) {
+    if (this.windowService.isMobile()) {
       this.sidebarOpen.set(false);
     }
   }

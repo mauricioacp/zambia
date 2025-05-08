@@ -1,18 +1,16 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LayoutService } from '../../layout/layout.service';
-import { MatIcon } from '@angular/material/icon';
-import { MatMiniFabButton } from '@angular/material/button';
 import { NotificationsButtonComponent } from './notifications-button.component';
 import { ThemeToggleComponent } from './theme-toggle.component';
+import { SidebarToggleComponent } from './sidebar-toggle.component';
 
 @Component({
   selector: 'z-page-header',
-  imports: [CommonModule, MatIcon, MatMiniFabButton, NotificationsButtonComponent, ThemeToggleComponent],
+  imports: [CommonModule, NotificationsButtonComponent, ThemeToggleComponent, SidebarToggleComponent],
   template: `
     <header
       id="page-header"
-      [class.lg:pl-72]="layoutService.sidebarOpen()"
+      [class.lg:pl-72]="sidebarOpenState()"
       class="fixed top-0 right-0 left-0 z-30 flex h-16 flex-none items-center bg-white shadow-xs dark:bg-gray-800"
     >
       <div class="max-w-10xl mx-auto flex w-full justify-between px-4 lg:px-8">
@@ -20,17 +18,13 @@ import { ThemeToggleComponent } from './theme-toggle.component';
         <div class="flex items-center gap-2">
           <!-- Toggle Sidebar on Desktop -->
           <div class="hidden lg:block">
-            <button (click)="layoutService.toggleSidebar()" mat-mini-fab aria-label="Abrir/Cerrar menu">
-              <mat-icon>menu</mat-icon>
-            </button>
+            <z-sidebar-toggle (clicked)="toggleSidebar.emit()" [icon]="icon" />
           </div>
           <!-- END Toggle Sidebar on Desktop -->
 
           <!-- Toggle Sidebar on Mobile -->
           <div class="lg:hidden">
-            <button (click)="layoutService.openSidebar()" mat-mini-fab aria-label="Abrir/Cerrar menu">
-              <mat-icon>menu</mat-icon>
-            </button>
+            <z-sidebar-toggle (clicked)="toggleSidebar.emit()" [icon]="icon" />
           </div>
           <!-- END Toggle Sidebar on Mobile -->
         </div>
@@ -55,5 +49,7 @@ import { ThemeToggleComponent } from './theme-toggle.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PageHeaderUiComponent {
-  readonly layoutService = inject(LayoutService);
+  icon = 'menu';
+  sidebarOpenState = input.required<boolean>();
+  @Output() toggleSidebar = new EventEmitter<void>();
 }

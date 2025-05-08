@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   BrandLogoComponent,
@@ -15,6 +15,21 @@ import {
   SidebarUiComponent,
 } from '@zambia/ui-components';
 import { RouterOutlet } from '@angular/router';
+import { AuthService } from '@zambia/data-access-auth';
+import { RolesService } from '@zambia/data-access-roles-permissions';
+
+interface NavItem {
+  icon: string;
+  text: string;
+  route: string;
+  roles?: string[];
+}
+
+interface NavSection {
+  header?: string;
+  items: NavItem[];
+  roles?: string[];
+}
 
 @Component({
   selector: 'z-dashboard',
@@ -39,34 +54,38 @@ import { RouterOutlet } from '@angular/router';
       [class.lg:pl-72]="layoutService.sidebarOpen()"
       class="mx-auto flex min-h-dvh w-full min-w-80 flex-col bg-gray-100 dark:bg-gray-900 dark:text-gray-100"
     >
-      <z-sidebar>
-        <z-sidebar-header sidebar-header title="Bienvenido Usuario" (closeClicked)="layoutService.closeSidebar()">
+      <z-sidebar [isOpen]="layoutService.sidebarOpen()">
+        <z-sidebar-header
+          sidebar-header
+          title="{{ authService.userName() }}"
+          (closeClicked)="layoutService.closeSidebar()"
+        >
         </z-sidebar-header>
         <z-sidebar-nav sidebar-nav>
-          <z-main-sidebar-nav-item icon="home" text="Mi sede" [route]="''"></z-main-sidebar-nav-item>
-          <z-sidebar-nav-section-header text="Integrantes"></z-sidebar-nav-section-header>
-          <z-main-sidebar-nav-item
-            icon="insert_drive_file"
-            text="Documentos"
-            [route]="'facilitators'"
-          ></z-main-sidebar-nav-item>
-          <z-main-sidebar-nav-item icon="face" text="Alumnos" [route]="'students'"></z-main-sidebar-nav-item>
-          <z-main-sidebar-nav-item
-            icon="person"
-            text="Facilitadores"
-            [route]="'facilitators'"
-          ></z-main-sidebar-nav-item>
-          <z-main-sidebar-nav-item icon="people" text="Acompañantes" [route]="'companions'"></z-main-sidebar-nav-item>
+          @for (section of navSectionsByCurrentUserRole(); track section.header) {
+            @if (section.header) {
+              <z-sidebar-nav-section-header [text]="section.header"></z-sidebar-nav-section-header>
+            }
+            @for (item of section.items; track item.route) {
+              <z-main-sidebar-nav-item
+                [icon]="item.icon"
+                [text]="item.text"
+                [route]="item.route"
+              ></z-main-sidebar-nav-item>
+            }
+          }
         </z-sidebar-nav>
         <z-sidebar-mini sidebar-mini>
-          <z-sidebar-nav-item main-nav icon="dashboard" [route]="'/dashboard/panel'"></z-sidebar-nav-item>
+          <z-sidebar-nav-item main-nav icon="layout-dashboard" [route]="'/dashboard/panel'"></z-sidebar-nav-item>
           <z-sidebar-nav-item user-nav icon="settings" [route]="'settings'"></z-sidebar-nav-item>
-          <z-sidebar-nav-item user-nav icon="logout" [route]="'/login'"></z-sidebar-nav-item>
+          <z-sidebar-nav-item user-nav icon="log-out" (clicked)="this.authService.signOut()"></z-sidebar-nav-item>
         </z-sidebar-mini>
       </z-sidebar>
 
-      <z-page-header>
+      <z-page-header [sidebarOpenState]="layoutService.sidebarOpen()" (toggleSidebar)="layoutService.toggleSidebar()">
+        >
         <z-brand-logo brand-logo-mobile />
+        <div class="flex h-16 flex-none items-center justify-center" brand-logo-mobile></div>
       </z-page-header>
       <z-page-container>
         <router-outlet />
@@ -79,6 +98,36 @@ import { RouterOutlet } from '@angular/router';
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DashboardSmartComponent {
+export class DashboardSmartComponent implements OnInit {
   readonly layoutService = inject(LayoutService);
+  readonly authService = inject(AuthService);
+  private allNavSections: NavSection[] = inject(RolesService).allowedNavigationsByRole();
+  private readonly rolesService = inject(RolesService);
+
+  readonly navSectionsByCurrentUserRole = signal<NavSection[]>([]);
+
+  ngOnInit(): void {
+    this.updateFilteredNavItems();
+  }
+
+  private updateFilteredNavItems(): void {
+    const currentUserRole = this.rolesService.userRole();
+    if (!currentUserRole) {
+      this.navSectionsByCurrentUserRole.set([]);
+      return;
+    }
+
+    const filteredSections = this.allNavSections
+      .filter((section) => {
+        return !section.roles || this.rolesService.hasAnyRole(section.roles);
+      })
+      .map((section) => {
+        const filteredItems = section.items.filter((item) => {
+          return !item.roles || this.rolesService.hasAnyRole(item.roles);
+        });
+        return { ...section, items: filteredItems };
+      })
+      .filter((section) => section.items.length > 0);
+    this.navSectionsByCurrentUserRole.set(filteredSections);
+  }
 }

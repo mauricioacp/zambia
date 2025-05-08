@@ -1,6 +1,6 @@
 import { computed, inject, Injectable } from '@angular/core';
 import { AuthService } from '@zambia/data-access-auth';
-import { ROLE, RoleCode } from '@zambia/util-roles-definitions';
+import { filterRoleGroups, ROLE, ROLE_GROUPS, RoleCode } from '@zambia/util-roles-definitions';
 
 @Injectable({
   providedIn: 'root',
@@ -8,7 +8,6 @@ import { ROLE, RoleCode } from '@zambia/util-roles-definitions';
 export class RolesService {
   private authService = inject(AuthService);
   userRole = computed(() => this.authService.session()?.user.user_metadata['role']);
-  userRoleLevel = computed(() => this.authService.session()?.user.user_metadata['role_level']);
 
   public hasRole(role: RoleCode): boolean {
     return this.userRole() === role;
@@ -29,5 +28,76 @@ export class RolesService {
 
   hasAnyRole(roles: string[]) {
     return roles.some((role) => this.hasRole(role as RoleCode));
+  }
+
+  allowedNavigationsByRole() {
+    return [
+      {
+        items: [{ icon: 'newspaper', text: 'main_panel', route: '' }],
+      },
+      {
+        header: 'members',
+        roles: [...Object.values(filterRoleGroups('STUDENTS')).flat()],
+        items: [
+          {
+            icon: 'user-round-check',
+            text: 'board',
+            route: 'board',
+            roles: [
+              ...ROLE_GROUPS.ADMINISTRATION,
+              ...ROLE_GROUPS.TOP_MANAGEMENT,
+              ...ROLE_GROUPS.LEADERSHIP_TEAM,
+              ...ROLE_GROUPS.COORDINATION_TEAM,
+            ],
+          },
+          {
+            icon: 'circle-user-round',
+            text: 'students',
+            route: 'students',
+            roles: [...Object.values(filterRoleGroups('STUDENTS')).flat()],
+          },
+          {
+            icon: 'users-round',
+            text: 'facilitators',
+            route: 'facilitators',
+            roles: [...Object.values(filterRoleGroups('STUDENTS')).flat()],
+          },
+          {
+            icon: 'users-round',
+            text: 'Acompañantes',
+            route: 'companions',
+            roles: [...Object.values(filterRoleGroups('STUDENTS')).flat()],
+          },
+        ],
+      },
+      {
+        header: 'reports',
+        items: [
+          {
+            icon: 'chart-area',
+            text: 'reports',
+            route: 'reports',
+            roles: [
+              ...ROLE_GROUPS.ADMINISTRATION,
+              ...ROLE_GROUPS.TOP_MANAGEMENT,
+              ...ROLE_GROUPS.LEADERSHIP_TEAM,
+              ...ROLE_GROUPS.COORDINATION_TEAM,
+              ...ROLE_GROUPS.HEADQUARTERS_MANAGEMENT,
+            ],
+          },
+        ],
+      },
+      {
+        header: 'my_akademy',
+        items: [
+          {
+            icon: 'paperclip',
+            text: 'documents',
+            route: 'documents',
+            roles: [...Object.values(ROLE_GROUPS).flat()],
+          },
+        ],
+      },
+    ];
   }
 }

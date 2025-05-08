@@ -5,6 +5,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '@zambia/data-access-auth';
+import { Router } from '@angular/router';
 
 interface AuthFormData {
   email: string;
@@ -99,6 +100,7 @@ interface AuthFormData {
   `,
 })
 export class AuthSmartComponent {
+  private router = inject(Router);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly themeService = inject(ThemeService);
   private readonly authService = inject(AuthService);
@@ -126,11 +128,12 @@ export class AuthSmartComponent {
     if (this.authForm.valid) {
       const { email, password } = this.authForm.value as AuthFormData;
 
-      const { error } = await this.authService.signIn(email, password);
-      if (error) {
-        this.signInError = 'invalid_login';
-      } else {
+      const success = await this.authService.signIn(email, password);
+      if (success) {
         this.authForm.reset();
+        await this.router.navigate(['/dashboard/panel']);
+      } else {
+        this.signInError = 'invalid_login';
       }
     }
   }
