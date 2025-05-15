@@ -1,12 +1,15 @@
 import { computed, inject, Injectable } from '@angular/core';
 import { AuthService } from '@zambia/data-access-auth';
-import { filterRoleGroups, ROLE, ROLE_GROUPS, RoleCode } from '@zambia/util-roles-definitions';
+import { filterRoleGroups, getRoleName, ROLE, ROLE_GROUPS, RoleCode } from '@zambia/util-roles-definitions';
+import { TranslateService } from '@ngx-translate/core';
+import { ICONS } from '@zambia/ui-components';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RolesService {
   private authService = inject(AuthService);
+  private translate = inject(TranslateService);
   userRole = computed(() => this.authService.session()?.user.user_metadata['role']);
 
   public hasRole(role: RoleCode): boolean {
@@ -14,16 +17,41 @@ export class RolesService {
   }
 
   getWelcomeText() {
-    /* todo this messages should be keys and then translated in the i18n json.*/
-    if (this.hasRole(ROLE.SUPERADMIN)) {
-      return 'Como Superadministrador, tienes acceso sin restricciones para gestionar acuerdos, usuarios, sedes y configuraciones del sistema en toda la plataforma.';
-    } else if (this.hasRole(ROLE.GENERAL_DIRECTOR)) {
-      return 'Como Director General, puedes ver datos completos y reportes de todas las sedes, monitorear el rendimiento general y gestionar operaciones de alto nivel.';
-    } else if (this.hasRole(ROLE.HEADQUARTER_MANAGER)) {
-      return 'Como Director de Sede, puedes gestionar estudiantes, colaboradores y actividades específicas de tu sede asignada.';
-    } else {
-      return 'Bienvenido! Explora las funciones disponibles según tu rol asignado.';
+    const role = this.userRole() as unknown as RoleCode;
+    const roleName = getRoleName(role); // Assumes getRoleName provides the role name in the correct language
+
+    let welcomeText = this.translate.instant('welcome.base', { roleName });
+
+    let suffixKey = '';
+    let suffixParams: object | undefined = undefined;
+
+    if (
+      this.hasAnyRole([
+        ...ROLE_GROUPS.ADMINISTRATION,
+        ...ROLE_GROUPS.TOP_MANAGEMENT,
+        ...ROLE_GROUPS.LEADERSHIP_TEAM,
+        ...ROLE_GROUPS.COORDINATION_TEAM,
+      ])
+    ) {
+      suffixKey = 'welcome.suffix.allOrgData';
+    } else if (this.hasAnyRole([...ROLE_GROUPS.HEADQUARTERS_MANAGEMENT, ROLE.MANAGER_ASSISTANT])) {
+      suffixKey = 'welcome.suffix.yourHQData';
+    } else if (this.hasAnyRole([...ROLE_GROUPS.FIELD_STAFF])) {
+      suffixKey = 'welcome.suffix.ownDataAndActivity';
+      let activityTypeKey = 'welcome.activityType.accompanimentSessions';
+      if (role === ROLE.FACILITATOR) {
+        activityTypeKey = 'welcome.activityType.workshops';
+      }
+      suffixParams = { activityType: this.translate.instant(activityTypeKey) };
+    } else if (this.hasRole(ROLE.STUDENT)) {
+      suffixKey = 'welcome.suffix.student';
     }
+
+    if (suffixKey) {
+      welcomeText += this.translate.instant(suffixKey, suffixParams);
+    }
+
+    return welcomeText;
   }
 
   hasAnyRole(roles: string[]) {
@@ -33,14 +61,14 @@ export class RolesService {
   allowedNavigationsByRole() {
     return [
       {
-        items: [{ icon: 'newspaper', text: 'main_panel', route: '' }],
+        items: [{ icon: ICONS.NEWSPAPER, text: 'main_panel', route: '' }],
       },
       {
         header: 'members',
         roles: [...Object.values(filterRoleGroups('STUDENTS')).flat()],
         items: [
           {
-            icon: 'user-round-check',
+            icon: ICONS.USER_ROUND_CHECK,
             text: 'board',
             route: 'board',
             roles: [
@@ -51,19 +79,19 @@ export class RolesService {
             ],
           },
           {
-            icon: 'circle-user-round',
+            icon: ICONS.CIRCLE_USER_ROUND,
             text: 'students',
             route: 'students',
             roles: [...Object.values(filterRoleGroups('STUDENTS')).flat()],
           },
           {
-            icon: 'users-round',
+            icon: ICONS.USER_ROUND,
             text: 'facilitators',
             route: 'facilitators',
             roles: [...Object.values(filterRoleGroups('STUDENTS')).flat()],
           },
           {
-            icon: 'users-round',
+            icon: ICONS.USERS,
             text: 'Acompañantes',
             route: 'companions',
             roles: [...Object.values(filterRoleGroups('STUDENTS')).flat()],
@@ -74,7 +102,7 @@ export class RolesService {
         header: 'reports',
         items: [
           {
-            icon: 'chart-area',
+            icon: ICONS.CHART_AREA,
             text: 'reports',
             route: 'reports',
             roles: [
@@ -91,7 +119,7 @@ export class RolesService {
         header: 'my_akademy',
         items: [
           {
-            icon: 'paperclip',
+            icon: ICONS.PAPERCLIP,
             text: 'documents',
             route: 'documents',
             roles: [...Object.values(ROLE_GROUPS).flat()],

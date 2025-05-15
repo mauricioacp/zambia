@@ -1076,6 +1076,18 @@ export type Database = {
           attendance_percentage: number
         }[]
       }
+      get_dashboard_agreement_review_statistics: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      get_dashboard_statistics: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      get_dashboard_statistics_by_prospect_agreements: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       get_facilitator_multiple_roles_stats: {
         Args: Record<PropertyKey, never>
         Returns: Json
@@ -1124,10 +1136,6 @@ export type Database = {
       }
       get_user_dashboard_stats: {
         Args: { target_user_id: string }
-        Returns: Json
-      }
-      get_workshop_attendance_stats: {
-        Args: { target_hq_id?: string; season_id?: string }
         Returns: Json
       }
     }

@@ -43,3 +43,11 @@ export * from './lib/ui-components/recent-activity-item.ui-component';
 export * from './lib/ui-components/quick-link-item.ui-component';
 
 export * from './lib/ui-components/showcase.ui-component';
+
+export * from './lib/icons/IconsConstants';
+
+export * from './lib/ui-components/data-badge.ui-component';
+
+export * from './lib/ui-components/generic-table/generic-table.ui-component';
+
+export * from './lib/ui-components/card/card.component';

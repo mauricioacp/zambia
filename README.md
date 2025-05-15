@@ -38,7 +38,6 @@ This project leverages the following technologies:
 - **Monorepo Management**: [Nx](https://nx.dev/) (v20)
 - **Backend/Database**: [Supabase](https://supabase.io/)
 - **UI Components**:
-  - [Angular Material](https://material.angular.io/)
   - Custom UI components
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 - **Component Development**: [Storybook](https://storybook.js.org/)

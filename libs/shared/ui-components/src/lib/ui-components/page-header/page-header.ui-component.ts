@@ -11,7 +11,7 @@ import { SidebarToggleComponent } from './sidebar-toggle.component';
     <header
       id="page-header"
       [class.lg:pl-72]="sidebarOpenState()"
-      class="fixed top-0 right-0 left-0 z-30 flex h-16 flex-none items-center bg-white shadow-xs dark:bg-gray-800"
+      class="fixed top-0 right-0 left-0 z-30 flex h-16 flex-none items-center bg-white shadow-xs transition-all duration-500 ease-out dark:bg-gray-800"
     >
       <div class="max-w-10xl mx-auto flex w-full justify-between px-4 lg:px-8">
         <!-- Left Section -->

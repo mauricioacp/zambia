@@ -16,6 +16,7 @@
     "baseUrl": ".",
     "paths": {
       "@zambia/data-access-auth": ["libs/shared/data-access-auth/src/index.ts"],
+      "@zambia/data-access-dashboard": ["libs/shared/data-access-dashboard/src/index.ts"],
       "@zambia/data-access-generic": ["libs/shared/data-access-generic/src/index.ts"],
       "@zambia/data-access-roles-permissions": ["libs/shared/data-access-roles-permissions/src/index.ts"],
       "@zambia/data-access-supabase": ["libs/shared/data-access-supabase/src/index.ts"],

@@ -1,5 +1,5 @@
 import { Route } from '@angular/router';
-import { AgreementsSmartComponent } from '@zambia/feat-agreements';
+import { AgreementsSmartComponent } from './components/smart/agreements.smart-component';
 
 export const featAgreementsRoutes: Route[] = [
   {

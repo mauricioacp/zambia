@@ -28,7 +28,6 @@
         ],
         "styles": [
           "apps/zambia/src/styles.css",
-          "apps/zambia/src/custom-theme.scss",
           "@taiga-ui/core/styles/taiga-ui-theme.less",
           "@taiga-ui/core/styles/taiga-ui-fonts.less"
         ],

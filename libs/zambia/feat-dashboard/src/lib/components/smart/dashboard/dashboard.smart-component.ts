@@ -52,7 +52,7 @@ interface NavSection {
     <div
       id="page-container"
       [class.lg:pl-72]="layoutService.sidebarOpen()"
-      class="mx-auto flex min-h-dvh w-full min-w-80 flex-col bg-gray-100 dark:bg-gray-900 dark:text-gray-100"
+      class="mx-auto flex min-h-dvh w-full min-w-80 flex-col bg-gray-100 transition-all duration-500 ease-out dark:bg-gray-900 dark:text-gray-100"
     >
       <z-sidebar [isOpen]="layoutService.sidebarOpen()">
         <z-sidebar-header

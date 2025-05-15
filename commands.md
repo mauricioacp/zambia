@@ -41,3 +41,8 @@ npx nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-compo
 npx nx g @nx/angular:library --name=data-access-generic --tags=scope:shared,type:api --directory=libs/shared/data-access-generic &&
 npx nx g @nx/angular:service --name=resource-factory --project=data-access-generic --path=libs/shared/data-access-generic/src/lib/ --skipTests
 npx nx g @nx/angular:library --name=util-roles-definitions --tags=scope:shared,type:util --directory=libs/shared/util-roles-definitions --dry-run
+npx nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/data-badge --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=data-badge --type=ui-component --skipTests --dry-run
+npx nx g @nx/angular:library --name=data-access-dashboard --tags=scope:shared,type:api --directory=libs/shared/data-access-dashboard
+nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/generic-table --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=generic-table --type=ui-component --skipTests
+npx nx g @nx/angular:service --name=agreements --project=data-access-generic --path=libs/shared/data-access-dashboard/src/lib/ --skipTests
+

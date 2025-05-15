@@ -1,5 +1,6 @@
 import { afterNextRender, computed, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { TUI_DARK_MODE } from '@taiga-ui/core';
 
 export const enum AppTheme {
   LIGHT = 'light',
@@ -34,6 +35,11 @@ export class ThemeService {
   currentTheme = signal<AppTheme>(this.initialTheme);
   isDarkTheme = computed(() => this.currentTheme() === AppTheme.DARK);
 
+  /* private readonly key = inject(TUI_DARK_MODE_KEY);
+  private readonly storage = inject(WA_LOCAL_STORAGE);
+  private readonly media = inject(WA_WINDOW).matchMedia('(prefers-color-scheme: dark)');*/
+  protected readonly darkMode = inject(TUI_DARK_MODE);
+
   constructor() {
     if (this.isBrowser) {
       this.applyInitialTheme();
@@ -43,6 +49,7 @@ export class ThemeService {
 
     afterNextRender(() => {
       this.applyInitialTheme();
+      this.darkMode.set(true);
     });
   }
 
