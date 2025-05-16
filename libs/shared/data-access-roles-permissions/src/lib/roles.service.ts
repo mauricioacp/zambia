@@ -18,7 +18,7 @@ export class RolesService {
 
   getWelcomeText() {
     const role = this.userRole() as unknown as RoleCode;
-    const roleName = getRoleName(role); // Assumes getRoleName provides the role name in the correct language
+    const roleName = getRoleName(role);
 
     let welcomeText = this.translate.instant('welcome.base', { roleName });
 

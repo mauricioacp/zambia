@@ -7,7 +7,6 @@ export interface CardColumnData {
 }
 
 function trimColData(colData: CardColumnData[]): CardColumnData[] {
-  console.warn('CardComponent: colData should not exceed 3 items. Truncating.');
   return colData.slice(0, 3);
 }
 
@@ -17,8 +16,12 @@ function trimColData(colData: CardColumnData[]): CardColumnData[] {
   template: `
     <div
       class="card-base"
-      [class.card-item]="applyHoverScale()"
-      [ngClass]="staticBorderColor() ? [staticBorderColor(), 'ring-2', 'ring-offset-2', 'ring-offset-slate-900'] : []"
+      [class.hover-gradient-border]="applyAnimatedBorder()"
+      [ngClass]="
+        applyAnimatedBorder()
+          ? getBorderColorClass()
+          : staticBorderColor() + ' ring-2 ring-offset-2 ring-offset-slate-900'
+      "
     >
       <div>
         <div class="mb-4 flex items-start justify-between">
@@ -74,10 +77,6 @@ function trimColData(colData: CardColumnData[]): CardColumnData[] {
       min-height: 220px;
     }
 
-    .card-item:hover {
-      transform: scale(1.01);
-    }
-
     .stat-card-icon {
       width: 2.75rem;
       height: 2.75rem;
@@ -86,6 +85,101 @@ function trimColData(colData: CardColumnData[]): CardColumnData[] {
       justify-content: center;
       border-radius: 0.5rem;
       background-color: #334155;
+    }
+
+    /* Hover Gradient Border */
+    .hover-gradient-border {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hover-gradient-border::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      bottom: -2px;
+      left: -2px;
+      border-radius: 10px;
+      background: transparent;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .hover-gradient-border:hover::before {
+      opacity: 1;
+    }
+
+    /* Border-only gradient styles */
+    .border-sky:hover::before {
+      background: linear-gradient(45deg, #0ea5e9, #38bdf8);
+      -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      padding: 2px;
+    }
+
+    .border-green:hover::before {
+      background: linear-gradient(45deg, #10b981, #34d399);
+      -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      padding: 2px;
+    }
+
+    .border-purple:hover::before {
+      background: linear-gradient(45deg, #8b5cf6, #a78bfa);
+      -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      padding: 2px;
+    }
+
+    .border-yellow:hover::before {
+      background: linear-gradient(45deg, #f59e0b, #fbbf24);
+      -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      padding: 2px;
+    }
+
+    .border-pink:hover::before {
+      background: linear-gradient(45deg, #ec4899, #f472b6);
+      -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      padding: 2px;
+    }
+
+    .border-teal:hover::before {
+      background: linear-gradient(45deg, #14b8a6, #2dd4bf);
+      -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      padding: 2px;
+    }
+
+    .border-orange:hover::before {
+      background: linear-gradient(45deg, #f97316, #fb923c);
+      -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      padding: 2px;
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -104,9 +198,17 @@ export class CardComponent {
 
   staticBorderColor = input<string>('ring-sky-500');
   applyAnimatedBorder = input<boolean>(true);
-  applyHoverScale = input<boolean>(true);
 
   gridClass = computed(() => {
     return `mb-4 grid grid-cols-${this.colData().length} gap-x-4 gap-y-2 text-sm`;
   });
+
+  getBorderColorClass(): string {
+    // Extract color from bg-{color}-{shade}
+    const colorMatch = this.progressBarColor().match(/bg-(.*?)-\d+/);
+    if (colorMatch && colorMatch[1]) {
+      return `border-${colorMatch[1]}`;
+    }
+    return 'border-sky'; // Default
+  }
 }

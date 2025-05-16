@@ -7,14 +7,14 @@ export class DashboardFacadeService {
   private supabase = inject(SupabaseService);
 
   private readonly iconMap = {
-    countries: 'tuiIconWorld',
-    headquarters: 'tuiIconHome',
-    collaborators: 'tuiIconUsers',
-    students: 'tuiIconUserPlus',
-    konsejo_members: 'tuiIconStar',
-    directors: 'tuiIconBriefcase',
-    facilitators: 'tuiIconPresentation',
-    companions: 'tuiIconHeart',
+    countries: 'globe',
+    headquarters: 'landmark',
+    directors: 'user-round-check',
+    facilitators: 'users',
+    students: 'user-round',
+    konsejo_members: 'sparkle',
+    collaborators: 'circle-user-round',
+    companions: 'users',
   };
 
   private readonly colorMap = {

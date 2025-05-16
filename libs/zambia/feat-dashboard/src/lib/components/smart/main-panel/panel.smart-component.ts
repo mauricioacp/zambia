@@ -1,20 +1,19 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '@zambia/data-access-auth';
 import { RolesService } from '@zambia/data-access-roles-permissions';
 import { CardColumnData, CardComponent, DataBadgeUiComponent, WelcomeMessageUiComponent } from '@zambia/ui-components';
 import { DashboardFacadeService } from '@zambia/data-access-dashboard';
 
 interface ReviewStat {
-  id: string; // Unique identifier for the stat (e.g., 'overall', 'students')
+  id: string;
   title: string;
   pending: number;
   reviewed: number;
   total: number;
   percentage_reviewed: number;
-  color: string; // Tailwind class for progress bar color, e.g., 'bg-sky-500'
-  textColor: string; // Tailwind class for percentage text color, e.g., 'text-sky-400'
-  iconSvg?: string; // Optional custom SVG for the icon
+  color: string;
+  textColor: string;
+  iconSvg?: string;
 }
 
 interface ReviewStatsData {
@@ -26,12 +25,17 @@ interface ReviewStatsData {
   standalone: true,
   imports: [CommonModule, WelcomeMessageUiComponent, DataBadgeUiComponent, CardComponent],
   template: `
-    <div class="h-full overflow-auto bg-gray-50 p-6 dark:bg-gray-900">
+    <div class="h-full w-full overflow-auto bg-gray-50 p-6 dark:bg-gray-900">
       <h1 class="mb-4 text-2xl font-bold text-gray-900 dark:text-white">Panel de Control</h1>
-      <z-welcome-message [userName]="userName" [welcomeText]="welcomeText()" />
+      <z-welcome-message [welcomeText]="welcomeText()" />
       <!-- Stats Section -->
       <div class="mb-4">
-        <h2 class="mb-4 text-xl font-semibold text-gray-800 dark:text-white">Estadísticas</h2>
+        <div class="mb-4">
+          <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Estadísticas globales</h2>
+          <p class="text-gray-600 dark:text-gray-300">
+            Estos datos corresponden a los acuerdos que ya han sido revisados por un responsable
+          </p>
+        </div>
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           @for (stat of dashboardFacade.dashboardStats(); track stat.label) {
@@ -40,32 +44,43 @@ interface ReviewStatsData {
         </div>
       </div>
 
-      <z-card
-        [mainTitle]="overallStat.title"
-        [mainSubtitle]="overallStat.total + ' Acuerdos Totales'"
-        [colData]="getCardColData(overallStat)"
-        [progressPercentage]="overallStat.percentage_reviewed"
-        [progressBarColor]="overallStat.color"
-        [progressTextColor]="overallStat.textColor"
-        [staticBorderColor]="'ring-sky-500'"
-        [applyAnimatedBorder]="false"
-        [applyHoverScale]="false"
-        [icon]="overallStat.iconSvg!"
-      ></z-card>
+      <div class="w-full space-y-6">
+        <div class="mb-4">
+          <div class="mb-4">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Estadísticas detalladas</h2>
+            <p class="text-gray-600 dark:text-gray-300">
+              Estos datos corresponden a los acuerdos pendientes por revisar y el porcentaje de acuerdos revisados.
+            </p>
+          </div>
+          <z-card
+            [mainTitle]="overallStat.title"
+            [mainSubtitle]="overallStat.total + ' Acuerdos Totales'"
+            [colData]="getCardColData(overallStat)"
+            [progressPercentage]="overallStat.percentage_reviewed"
+            [progressBarColor]="'bg-sky-500'"
+            [progressTextColor]="overallStat.textColor"
+            [staticBorderColor]="'ring-sky-500'"
+            [applyAnimatedBorder]="true"
+            [icon]="overallStat.iconSvg!"
+          ></z-card>
+        </div>
+      </div>
 
-      <z-card
-        *ngFor="let stat of otherStats"
-        [mainTitle]="stat.title"
-        [mainSubtitle]="stat.total + ' Acuerdos Totales'"
-        [colData]="getCardColData(stat)"
-        [progressPercentage]="stat.percentage_reviewed"
-        [progressBarColor]="stat.color"
-        [progressTextColor]="stat.textColor"
-        [applyAnimatedBorder]="true"
-        [applyHoverScale]="true"
-        [icon]="stat.iconSvg!"
-      >
-      </z-card>
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        @for (stat of otherStats; track stat.title) {
+          <z-card
+            [mainTitle]="stat.title"
+            [mainSubtitle]="stat.total + ' Acuerdos Totales'"
+            [colData]="getCardColData(stat)"
+            [progressPercentage]="stat.percentage_reviewed"
+            [progressBarColor]="stat.color"
+            [progressTextColor]="stat.textColor"
+            [applyAnimatedBorder]="true"
+            [icon]="stat.iconSvg!"
+          >
+          </z-card>
+        }
+      </div>
     </div>
   `,
   styles: `
@@ -78,10 +93,8 @@ interface ReviewStatsData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PanelSmartComponent implements OnInit {
-  private authService = inject(AuthService);
   protected rolesService = inject(RolesService);
   protected welcomeText = computed(() => this.rolesService.getWelcomeText());
-  protected userName = this.authService.userName();
   protected dashboardFacade = inject(DashboardFacadeService);
   protected skeleton = signal(true);
 

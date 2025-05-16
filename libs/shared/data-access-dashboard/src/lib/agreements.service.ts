@@ -61,7 +61,6 @@ export class AgreementsService {
     return {
       p_limit: this.limit(),
       p_offset: this.offset(),
-      // Convert null to undefined for all optional params
       ...(this.status() !== null && { p_status: this.status()! }),
       ...(this.headquarterId() !== null && { p_headquarter_id: this.headquarterId()! }),
       ...(this.seasonId() !== null && { p_season_id: this.seasonId()! }),
