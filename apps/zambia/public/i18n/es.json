@@ -50,5 +50,9 @@
   "edit": "Editar",
   "delete": "Eliminar",
   "no.headquarters.found": "No se encontraron sedes.",
-  "failed.to.load": "Error al cargar los datos"
+  "failed.to.load": "Error al cargar los datos",
+
+  "back.to.countries": "Volver a Países",
+  "headquarters.in": "Sedes en",
+  "country.not.found": "País no encontrado"
 }
