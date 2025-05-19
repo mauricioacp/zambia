@@ -31,5 +31,15 @@
   "welcome.suffix.ownDataAndActivity": ", puedes acceder a tus propios datos y {{activityType}}.",
   "welcome.suffix.student": ", puedes acceder a tus propios datos y el organigrama de la sede.",
   "welcome.activityType.accompanimentSessions": "sesiones de acompañamiento",
-  "welcome.activityType.workshops": "talleres"
+  "welcome.activityType.workshops": "talleres",
+  "management": "Administración",
+  "countries": "Países",
+  "headquarters": "Sedes",
+  "workshops": "Talleres",
+  "agreements": "Acuerdos",
+
+  "welcome.countries.list": "Países donde se encuentra la Akademia, puedes seleccionar un país para ver sus sedes.",
+  "name": "Nombre",
+  "code": "Código",
+  "status": "Estado"
 }

@@ -1,15 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TuiTableTh } from '@taiga-ui/addon-table';
-import { TuiCell } from '@taiga-ui/layout';
-import { TuiCheckbox } from '@taiga-ui/kit';
 import { FormsModule } from '@angular/forms';
-import { TuiTitle } from '@taiga-ui/core';
 
 @Component({
   selector: 'z-generic-table',
   standalone: true,
-  imports: [CommonModule, TuiTableTh, TuiCell, TuiCheckbox, FormsModule, TuiTitle],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="overflow-x-auto">
       @if (loading()) {
@@ -46,24 +42,12 @@ import { TuiTitle } from '@taiga-ui/core';
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead class="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th tuiTh>
-                <div [tuiCell]="'m'">
-                  <input
-                    tuiCheckbox
-                    type="checkbox"
-                    [ngModel]="checked"
-                    [size]="'m'"
-                    (ngModelChange)="onCheck($event)"
-                  />
-                  <span tuiTitle>Checkbox</span>
-                </div>
-              </th>
               @for (header of displayHeaders(); track header) {
                 <th
                   scope="col"
                   class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
                 >
-                  {{ header }}
+                  {{ displayLabels()[header] || header }}
                 </th>
               }
             </tr>
@@ -93,9 +77,11 @@ export class GenericTableUiComponent<T extends Record<string, unknown>> {
   loading = input<boolean>(true);
   items = input<T[]>([]);
   headers = input<string[]>([]);
+  headerLabels = input<Record<string, string>>({});
   emptyMessage = input<string>('No data available');
   itemsSelectionChange = output<T[]>();
   trackBy = input<string>('id');
+
   displayHeaders = computed(() => {
     const providedHeaders = this.headers();
     const currentItems = this.items();
@@ -106,6 +92,8 @@ export class GenericTableUiComponent<T extends Record<string, unknown>> {
 
     return Object.keys(currentItems[0]);
   });
+
+  displayLabels = computed(() => this.headerLabels() || {});
 
   protected get checked(): boolean | null {
     const every = this.items().every(({ selected }) => selected);

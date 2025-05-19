@@ -34,15 +34,13 @@ interface MyItem {
   selector: 'app-my-component',
   standalone: true,
   imports: [GenericTableUiComponent],
-  template: `
-    <zambia-generic-table [items]="myItems()"></zambia-generic-table>
-  `
+  template: ` <zambia-generic-table [items]="myItems()"></zambia-generic-table> `,
 })
 export class MyComponent {
   // Use a signal for reactive updates
   myItems = signal<MyItem[]>([
     { id: '1', name: 'Item 1', status: 'Active' },
-    { id: '2', name: 'Item 2', status: 'Inactive' }
+    { id: '2', name: 'Item 2', status: 'Inactive' },
   ]);
 }
 ```
@@ -63,17 +61,12 @@ interface MyItem {
   selector: 'app-my-component',
   standalone: true,
   imports: [GenericTableUiComponent],
-  template: `
-    <zambia-generic-table 
-      [items]="myItems()"
-      [headers]="headers()"
-    ></zambia-generic-table>
-  `
+  template: ` <zambia-generic-table [items]="myItems()" [headers]="headers()"></zambia-generic-table> `,
 })
 export class MyComponent {
   myItems = signal<MyItem[]>([
     { id: '1', name: 'Item 1', status: 'Active' },
-    { id: '2', name: 'Item 2', status: 'Inactive' }
+    { id: '2', name: 'Item 2', status: 'Inactive' },
   ]);
 
   headers = signal<string[]>(['name', 'status']);
@@ -95,12 +88,7 @@ interface MyItem {
   selector: 'app-my-component',
   standalone: true,
   imports: [GenericTableUiComponent],
-  template: `
-    <zambia-generic-table 
-      [items]="myItems()"
-      [emptyMessage]="emptyMessage()"
-    ></zambia-generic-table>
-  `
+  template: ` <zambia-generic-table [items]="myItems()" [emptyMessage]="emptyMessage()"></zambia-generic-table> `,
 })
 export class MyComponent {
   myItems = signal<MyItem[]>([]);
@@ -123,17 +111,12 @@ interface CustomItem {
   selector: 'app-my-component',
   standalone: true,
   imports: [GenericTableUiComponent],
-  template: `
-    <zambia-generic-table 
-      [items]="myItems()"
-      [trackBy]="trackByField()"
-    ></zambia-generic-table>
-  `
+  template: ` <zambia-generic-table [items]="myItems()" [trackBy]="trackByField()"></zambia-generic-table> `,
 })
 export class MyComponent {
   myItems = signal<CustomItem[]>([
     { customId: 'a1', name: 'Item 1' },
-    { customId: 'a2', name: 'Item 2' }
+    { customId: 'a2', name: 'Item 2' },
   ]);
 
   trackByField = signal<string>('customId');
@@ -142,12 +125,12 @@ export class MyComponent {
 
 ## Inputs
 
-| Input | Type | Default | Description |
-|-------|------|---------|-------------|
-| items | `input<T[]>` | `[]` | Signal with array of objects to display in the table |
-| headers | `input<string[]>` | `[]` | Signal with array of property names to display as columns. If empty, all properties from the first item will be used |
-| emptyMessage | `input<string>` | `'No data available'` | Signal with message to display when the items array is empty |
-| trackBy | `input<string>` | `'id'` | Signal with property name to use for tracking items in the @for loop |
+| Input        | Type              | Default               | Description                                                                                                          |
+| ------------ | ----------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| items        | `input<T[]>`      | `[]`                  | Signal with array of objects to display in the table                                                                 |
+| headers      | `input<string[]>` | `[]`                  | Signal with array of property names to display as columns. If empty, all properties from the first item will be used |
+| emptyMessage | `input<string>`   | `'No data available'` | Signal with message to display when the items array is empty                                                         |
+| trackBy      | `input<string>`   | `'id'`                | Signal with property name to use for tracking items in the @for loop                                                 |
 
 ## Example with Agreement Type
 
@@ -166,7 +149,7 @@ import { Agreement, AgreementsFacadeService } from '@zambia/feat-agreements';
       [headers]="headers()"
       [emptyMessage]="emptyMessage()"
     ></zambia-generic-table>
-  `
+  `,
 })
 export class AgreementsTableComponent {
   private agreementsFacade = inject(AgreementsFacadeService);

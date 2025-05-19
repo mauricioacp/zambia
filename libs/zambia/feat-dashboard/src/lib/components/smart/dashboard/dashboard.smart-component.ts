@@ -5,7 +5,6 @@ import {
   LayoutService,
   MainSidebarNavItemUiComponent,
   PageContainerUiComponent,
-  PageFooterUiComponent,
   PageHeaderUiComponent,
   SidebarHeaderUiComponent,
   SidebarMiniUiComponent,
@@ -37,7 +36,6 @@ interface NavSection {
     CommonModule,
     SidebarUiComponent,
     PageContainerUiComponent,
-    PageFooterUiComponent,
     PageHeaderUiComponent,
     SidebarMiniUiComponent,
     SidebarNavItemUiComponent,
@@ -76,23 +74,32 @@ interface NavSection {
           }
         </z-sidebar-nav>
         <z-sidebar-mini sidebar-mini>
-          <z-sidebar-nav-item main-nav icon="layout-dashboard" [route]="'/dashboard/panel'"></z-sidebar-nav-item>
-          <z-sidebar-nav-item user-nav icon="settings" [route]="'settings'"></z-sidebar-nav-item>
-          <z-sidebar-nav-item user-nav icon="log-out" (clicked)="this.authService.signOut()"></z-sidebar-nav-item>
+          <z-sidebar-nav-item
+            [label]="'Panel de gestión'"
+            main-nav
+            icon="layout-dashboard"
+            [route]="'/dashboard/panel'"
+          ></z-sidebar-nav-item>
+          <z-sidebar-nav-item [label]="'Mis datos'" user-nav icon="user" [route]="'settings'"></z-sidebar-nav-item>
+          <z-sidebar-nav-item
+            [label]="'Cerrar sesión'"
+            user-nav
+            icon="log-out"
+            (clicked)="this.authService.signOut()"
+          ></z-sidebar-nav-item>
         </z-sidebar-mini>
       </z-sidebar>
 
       <z-page-header [sidebarOpenState]="layoutService.sidebarOpen()" (toggleSidebar)="layoutService.toggleSidebar()">
-        >
         <z-brand-logo brand-logo-mobile />
         <div class="flex h-16 flex-none items-center justify-center" brand-logo-mobile></div>
       </z-page-header>
       <z-page-container>
         <router-outlet />
       </z-page-container>
-      <section class="mt-auto">
-        <z-page-footer />
-      </section>
+      <!--      <section class="mt-auto">-->
+      <!--        <z-page-footer />-->
+      <!--      </section>-->
     </div>
   `,
   styles: ``,

@@ -78,7 +78,7 @@ export class RolesService {
       documents: ICONS.PAPERCLIP,
       countries: ICONS.COUNTRIES,
       headquarters: ICONS.HEADQUARTERS,
-      workshops: ICONS.BOARD,
+      workshops: ICONS.BOOK,
       agreements: ICONS.PAPERCLIP,
     };
 

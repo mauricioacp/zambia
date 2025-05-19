@@ -20,7 +20,11 @@ export class CountriesFacadeService {
 
   countries = resource({
     loader: async () => {
-      const { data, error } = await this.supabase.getClient().from('countries').select('*').order('name');
+      const { data, error } = await this.supabase
+        .getClient()
+        .from('countries')
+        .select('name, code, status')
+        .order('name');
 
       if (error) {
         console.error('Error fetching countries:', error);

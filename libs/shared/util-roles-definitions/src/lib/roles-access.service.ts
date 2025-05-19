@@ -1,5 +1,5 @@
 import { computed, inject, Injectable } from '@angular/core';
-import { filterRoleGroups, ROLE, ROLE_GROUPS, RoleCode } from './ROLES_CONSTANTS';
+import { ROLE, ROLE_GROUPS, RoleCode } from './ROLES_CONSTANTS';
 import { AuthService } from '@zambia/data-access-auth';
 
 @Injectable({
@@ -48,7 +48,7 @@ export class RolesAccessService {
       {
         items: [{ text: 'main_panel', route: 'panel' }],
       },
-      {
+      /* todo {
         header: 'members',
         roles: [...Object.values(filterRoleGroups('STUDENTS')).flat()],
         items: [
@@ -78,7 +78,7 @@ export class RolesAccessService {
             roles: [...Object.values(filterRoleGroups('STUDENTS')).flat()],
           },
         ],
-      },
+      },*/
       {
         header: 'management',
         roles: adminAndManagementRoles,
@@ -105,7 +105,7 @@ export class RolesAccessService {
           },
         ],
       },
-      {
+      /* todo {
         header: 'reports',
         items: [
           {
@@ -120,8 +120,8 @@ export class RolesAccessService {
             ],
           },
         ],
-      },
-      {
+      },*/
+      /* todo  {
         header: 'my_akademy',
         items: [
           {
@@ -130,7 +130,7 @@ export class RolesAccessService {
             roles: [...Object.values(ROLE_GROUPS).flat()],
           },
         ],
-      },
+      },*/
     ];
   }
 }
