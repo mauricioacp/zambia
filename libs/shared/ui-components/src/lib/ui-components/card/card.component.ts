@@ -16,21 +16,21 @@ function trimColData(colData: CardColumnData[]): CardColumnData[] {
   imports: [CommonModule, TuiIcon],
   template: `
     <div
-      class="card-base"
+      class="card-base bg-white shadow-md dark:bg-slate-800 dark:shadow-gray-900/30"
       [class.hover-gradient-border]="applyAnimatedBorder()"
       [ngClass]="
         applyAnimatedBorder()
           ? getBorderColorClass()
-          : staticBorderColor() + ' ring-2 ring-offset-2 ring-offset-slate-900'
+          : staticBorderColor() + ' ring-2 ring-offset-2 ring-offset-gray-100 dark:ring-offset-slate-900'
       "
     >
       <div>
         <div class="mb-4 flex items-start justify-between">
           <div>
-            <h3 class="text-lg font-semibold text-slate-100">{{ mainTitle() }}</h3>
-            <p class="text-xs text-slate-400">{{ mainSubtitle() }}</p>
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-slate-100">{{ mainTitle() }}</h3>
+            <p class="text-xs text-gray-500 dark:text-slate-400">{{ mainSubtitle() }}</p>
           </div>
-          <div class="stat-card-icon">
+          <div class="stat-card-icon bg-gray-200 dark:bg-gray-700">
             <tui-icon
               [attr.aria-label]="icon() + ' icon'"
               [icon]="icon()"
@@ -44,19 +44,19 @@ function trimColData(colData: CardColumnData[]): CardColumnData[] {
         <div [class]="gridClass()">
           @for (col of colData(); track col.dataSubtitle) {
             <div>
-              <p class="text-xs text-slate-400">{{ col.dataSubtitle }}</p>
-              <p class="text-xl font-bold text-slate-100">{{ col.dataNumber }}</p>
+              <p class="text-xs text-gray-500 dark:text-slate-400">{{ col.dataSubtitle }}</p>
+              <p class="text-xl font-bold text-gray-800 dark:text-slate-100">{{ col.dataNumber }}</p>
             </div>
           }
         </div>
       </div>
 
       <div class="mt-auto">
-        <div class="mb-1 flex justify-between text-xs text-slate-400">
+        <div class="mb-1 flex justify-between text-xs text-gray-500 dark:text-slate-400">
           <span>Progreso</span>
           <span [ngClass]="progressTextColor()" class="font-semibold">{{ progressPercentage().toFixed(1) }}%</span>
         </div>
-        <div class="h-2.5 w-full overflow-hidden rounded-full bg-slate-700">
+        <div class="h-2.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-slate-700">
           <div [ngClass]="progressBarColor()" class="h-2.5 rounded-full" [style.width.%]="progressPercentage()"></div>
         </div>
       </div>
@@ -68,7 +68,6 @@ function trimColData(colData: CardColumnData[]): CardColumnData[] {
     }
 
     .card-base {
-      background-color: #1e293b;
       padding: 1.25rem;
       border-radius: 0.85rem;
       box-shadow:
@@ -93,7 +92,6 @@ function trimColData(colData: CardColumnData[]): CardColumnData[] {
       align-items: center;
       justify-content: center;
       border-radius: 0.5rem;
-      background-color: #334155;
     }
 
     /* Hover Gradient Border */

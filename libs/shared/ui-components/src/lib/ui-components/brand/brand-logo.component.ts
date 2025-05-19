@@ -7,7 +7,7 @@ import { logoSvg } from '../../assets/logo-svg';
   selector: 'z-brand-logo',
   standalone: true,
   imports: [CommonModule],
-  template: `<span class="logo" [innerHTML]="safeLogoSvg"></span> `,
+  template: `<span class="logo text-gray-300 dark:text-white" [innerHTML]="safeLogoSvg"></span> `,
   styles: `
     .logo {
       width: 48px;

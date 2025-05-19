@@ -17,12 +17,12 @@ export class DashboardFacadeService {
   private readonly iconMap = {
     countries: 'globe',
     headquarters: 'landmark',
-    directors: 'user-round-check',
-    facilitators: 'users',
-    students: 'user-round',
-    konsejo_members: 'sparkle',
-    collaborators: 'circle-user-round',
-    companions: 'users',
+    students: 'user',
+    collaborators: 'users',
+    konsejo_members: 'star',
+    directors: 'briefcase',
+    facilitators: 'book-open',
+    companions: 'heart',
   };
 
   private readonly colorMap = {

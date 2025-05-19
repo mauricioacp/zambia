@@ -20,7 +20,7 @@ export const zambiaFeatDashboardRoutes: Route[] = [
         component: ShowcaseUiComponent,
       },
       {
-        path: 'headquarter',
+        path: 'headquarters',
         canActivate: [authGuard, rolesGuard],
         data: {
           requiredRoles: [ROLE.SUPERADMIN, ROLE.HEADQUARTER_MANAGER],
