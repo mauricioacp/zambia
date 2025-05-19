@@ -6,7 +6,7 @@ import { WindowService } from './window.service';
 })
 export class LayoutService {
   private windowService = inject(WindowService);
-  sidebarOpen = signal(this.windowService.isMobile());
+  sidebarOpen = signal(!this.windowService.isMobile());
 
   userDropdownOpen = signal(false);
 

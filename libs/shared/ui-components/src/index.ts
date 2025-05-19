@@ -44,8 +44,6 @@ export * from './lib/ui-components/quick-link-item.ui-component';
 
 export * from './lib/ui-components/showcase.ui-component';
 
-export * from './lib/icons/IconsConstants';
-
 export * from './lib/ui-components/data-badge.ui-component';
 
 export * from './lib/ui-components/card/card.component';

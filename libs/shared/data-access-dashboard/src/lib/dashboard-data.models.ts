@@ -26,3 +26,36 @@ export interface StatBadge {
     standby?: number;
   };
 }
+
+export interface AgreementReviewStatistic {
+  pending: number;
+  reviewed: number;
+  total: number;
+  percentage_reviewed: number;
+}
+
+export interface AgreementReviewStatistics {
+  students: AgreementReviewStatistic;
+  collaborators: AgreementReviewStatistic;
+  konsejo_members: AgreementReviewStatistic;
+  directors: AgreementReviewStatistic;
+  facilitators: AgreementReviewStatistic;
+  companions: AgreementReviewStatistic;
+  overall: AgreementReviewStatistic;
+}
+
+export interface ReviewStat {
+  id: string;
+  title: string;
+  pending: number;
+  reviewed: number;
+  total: number;
+  percentage_reviewed: number;
+  color: string;
+  textColor: string;
+  iconSvg: string;
+}
+
+export interface ReviewStatRecord {
+  [key: string]: ReviewStat;
+}

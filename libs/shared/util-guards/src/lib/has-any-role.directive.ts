@@ -1,27 +1,22 @@
-import { Directive, inject, Input, TemplateRef, ViewContainerRef } from '@angular/core';
-import { RolesService } from '@zambia/data-access-roles-permissions';
+import { Directive, inject, Input, OnInit, TemplateRef, ViewContainerRef } from '@angular/core';
+import { USER_ROLE_TOKEN } from './ROLE_TOKEN';
+import { RoleCode } from '@zambia/util-roles-definitions';
 
 @Directive({
-  // eslint-disable-next-line @angular-eslint/directive-selector
-  selector: '[hasAnyRole]',
+  selector: '[zHasAnyRole]',
   standalone: true,
 })
-export class HasAnyRoleDirective {
-  private rolesService = inject(RolesService);
+export class HasAnyRoleDirective implements OnInit {
   private viewContainer = inject(ViewContainerRef);
   private templateRef = inject(TemplateRef<unknown>);
+  private userRole = inject(USER_ROLE_TOKEN);
+  @Input() zHasAnyRole: RoleCode[] = [];
 
-  private hasView = false;
-
-  @Input() set hasAnyRole(roles: string[]) {
-    const hasAnyRole = this.rolesService.hasAnyRole(roles);
-
-    if (hasAnyRole && !this.hasView) {
+  ngOnInit(): void {
+    if (this.zHasAnyRole.includes(this.userRole())) {
       this.viewContainer.createEmbeddedView(this.templateRef);
-      this.hasView = true;
-    } else if (!hasAnyRole && this.hasView) {
+    } else {
       this.viewContainer.clear();
-      this.hasView = false;
     }
   }
 }

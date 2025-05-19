@@ -9,6 +9,8 @@ import { environment } from '../environments/environment';
 import { APP_CONFIG } from '@zambia/util-config';
 import { provideEventPlugins } from '@taiga-ui/event-plugins';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { USER_ROLE_TOKEN } from '@zambia/util-roles-permissions';
+import { RolesService } from '@zambia/data-access-roles-permissions';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -22,5 +24,10 @@ export const appConfig: ApplicationConfig = {
     }),
     provideAnimations(),
     provideEventPlugins(),
+    {
+      provide: USER_ROLE_TOKEN,
+      useFactory: (rolesService: RolesService) => () => rolesService.userRole(),
+      deps: [RolesService],
+    },
   ],
 };

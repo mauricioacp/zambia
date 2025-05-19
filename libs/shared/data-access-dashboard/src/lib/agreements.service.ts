@@ -144,7 +144,6 @@ export class AgreementsService {
     if (filters.p_search !== undefined) this.search.set(filters.p_search);
     if (filters.p_role_id !== undefined) this.roleId.set(filters.p_role_id);
 
-    // Reset to first page when filters change
     this.page.set(1);
   }
 

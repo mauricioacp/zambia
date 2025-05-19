@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TuiIcon } from '@taiga-ui/core';
 
 export interface CardColumnData {
   dataSubtitle: string;
@@ -12,7 +13,7 @@ function trimColData(colData: CardColumnData[]): CardColumnData[] {
 
 @Component({
   selector: 'z-card',
-  imports: [CommonModule],
+  imports: [CommonModule, TuiIcon],
   template: `
     <div
       class="card-base"
@@ -29,7 +30,15 @@ function trimColData(colData: CardColumnData[]): CardColumnData[] {
             <h3 class="text-lg font-semibold text-slate-100">{{ mainTitle() }}</h3>
             <p class="text-xs text-slate-400">{{ mainSubtitle() }}</p>
           </div>
-          <div class="stat-card-icon">taiga icon</div>
+          <div class="stat-card-icon">
+            <tui-icon
+              [attr.aria-label]="icon() + ' icon'"
+              [icon]="icon()"
+              [style.background]="progressTextColor()"
+              [style.color]="'white'"
+              [style.font-size.rem]="2"
+            />
+          </div>
         </div>
 
         <div [class]="gridClass()">

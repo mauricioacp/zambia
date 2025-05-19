@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 
 import { RouterLink } from '@angular/router';
 import { ROLE } from '@zambia/util-roles-definitions';
-import { HasAnyRoleDirective } from '@zambia/util-roles-permissions';
 
 interface DashboardStat {
   label: string;
@@ -64,7 +63,7 @@ interface HeadquarterManagementAction {
 
 @Component({
   selector: 'z-showcase',
-  imports: [CommonModule, HasAnyRoleDirective, RouterLink],
+  imports: [CommonModule, RouterLink],
   template: `
     <!-- Stats Section -->
     <div class="mb-8">
