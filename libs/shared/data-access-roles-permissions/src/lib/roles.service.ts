@@ -76,6 +76,10 @@ export class RolesService {
       companions: ICONS.USERS,
       reports: ICONS.CHART_AREA,
       documents: ICONS.PAPERCLIP,
+      countries: ICONS.COUNTRIES,
+      headquarters: ICONS.HEADQUARTERS,
+      workshops: ICONS.BOARD,
+      agreements: ICONS.PAPERCLIP,
     };
 
     for (const section of enrichedNavigation) {

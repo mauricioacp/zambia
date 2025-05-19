@@ -1,9 +1,14 @@
 import { Route } from '@angular/router';
-import { AgreementsSmartComponent } from './components/smart/agreements.smart-component';
+import { AgreementsListSmartComponent } from './components/smart/agreements-list.smart-component';
+import { AgreementDetailSmartComponent } from './components/smart/agreement-detail.smart-component';
 
 export const featAgreementsRoutes: Route[] = [
   {
     path: '',
-    component: AgreementsSmartComponent,
+    component: AgreementsListSmartComponent,
+  },
+  {
+    path: ':agreementId',
+    component: AgreementDetailSmartComponent,
   },
 ];

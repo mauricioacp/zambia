@@ -1,5 +1,5 @@
 import { computed, inject, Injectable } from '@angular/core';
-import { filterRoleGroups, ROLE_GROUPS, RoleCode } from './ROLES_CONSTANTS';
+import { filterRoleGroups, ROLE, ROLE_GROUPS, RoleCode } from './ROLES_CONSTANTS';
 import { AuthService } from '@zambia/data-access-auth';
 
 @Injectable({
@@ -38,9 +38,15 @@ export class RolesAccessService {
   getNavigationForRole(role: RoleCode | null) {
     if (!role) return [];
 
+    const adminAndManagementRoles = [
+      ...ROLE_GROUPS.ADMINISTRATION,
+      ...ROLE_GROUPS.TOP_MANAGEMENT,
+      ...ROLE_GROUPS.HEADQUARTERS_MANAGEMENT,
+    ];
+
     return [
       {
-        items: [{ text: 'main_panel', route: '' }],
+        items: [{ text: 'main_panel', route: 'panel' }],
       },
       {
         header: 'members',
@@ -70,6 +76,32 @@ export class RolesAccessService {
             text: 'Acompañantes',
             route: 'companions',
             roles: [...Object.values(filterRoleGroups('STUDENTS')).flat()],
+          },
+        ],
+      },
+      {
+        header: 'management',
+        roles: adminAndManagementRoles,
+        items: [
+          {
+            text: 'countries',
+            route: 'countries',
+            roles: adminAndManagementRoles,
+          },
+          {
+            text: 'headquarters',
+            route: 'headquarters',
+            roles: adminAndManagementRoles,
+          },
+          {
+            text: 'workshops',
+            route: 'workshops',
+            roles: [...adminAndManagementRoles, ROLE.FACILITATOR],
+          },
+          {
+            text: 'agreements',
+            route: 'agreements',
+            roles: adminAndManagementRoles,
           },
         ],
       },

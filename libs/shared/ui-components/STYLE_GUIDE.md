@@ -18,29 +18,29 @@ The Zambia UI Components library uses Tailwind CSS color classes with a consiste
 
 ### Light Theme Colors
 
-| Element | Background | Text | Border/Accent |
-|---------|------------|------|---------------|
-| Primary UI | `bg-white` | `text-gray-800` | `ring-sky-500` |
-| Secondary/Subtle | `bg-gray-50`, `bg-gray-100` | `text-gray-500`, `text-gray-600` | `border-gray-200` |
-| Accent - Blue | `bg-blue-50`, `bg-blue-500` | `text-blue-600` | `border-blue-400` |
-| Accent - Green | `bg-green-50`, `bg-green-500` | `text-green-600` | `border-green-400` |
-| Accent - Purple | `bg-purple-50`, `bg-purple-500` | `text-purple-600` | `border-purple-400` |
-| Accent - Yellow | `bg-yellow-50`, `bg-yellow-500` | `text-yellow-600` | `border-yellow-400` |
-| Accent - Red | `bg-red-50`, `bg-red-500` | `text-red-600` | `border-red-400` |
-| Shadows | `shadow-md` | - | - |
+| Element          | Background                      | Text                             | Border/Accent       |
+| ---------------- | ------------------------------- | -------------------------------- | ------------------- |
+| Primary UI       | `bg-white`                      | `text-gray-800`                  | `ring-sky-500`      |
+| Secondary/Subtle | `bg-gray-50`, `bg-gray-100`     | `text-gray-500`, `text-gray-600` | `border-gray-200`   |
+| Accent - Blue    | `bg-blue-50`, `bg-blue-500`     | `text-blue-600`                  | `border-blue-400`   |
+| Accent - Green   | `bg-green-50`, `bg-green-500`   | `text-green-600`                 | `border-green-400`  |
+| Accent - Purple  | `bg-purple-50`, `bg-purple-500` | `text-purple-600`                | `border-purple-400` |
+| Accent - Yellow  | `bg-yellow-50`, `bg-yellow-500` | `text-yellow-600`                | `border-yellow-400` |
+| Accent - Red     | `bg-red-50`, `bg-red-500`       | `text-red-600`                   | `border-red-400`    |
+| Shadows          | `shadow-md`                     | -                                | -                   |
 
 ### Dark Theme Colors
 
-| Element | Background | Text | Border/Accent |
-|---------|------------|------|---------------|
-| Primary UI | `dark:bg-slate-800`, `dark:bg-gray-800` | `dark:text-white`, `dark:text-slate-100` | `dark:ring-sky-500` |
-| Secondary/Subtle | `dark:bg-gray-900`, `dark:bg-gray-700` | `dark:text-gray-300`, `dark:text-slate-400` | `dark:border-gray-700` |
-| Accent - Blue | `dark:bg-blue-900/30` | `dark:text-blue-300`, `dark:text-blue-400` | `dark:border-blue-500` |
-| Accent - Green | `dark:bg-green-900/30` | `dark:text-green-300`, `dark:text-green-400` | `dark:border-green-500` |
-| Accent - Purple | `dark:bg-purple-900/30` | `dark:text-purple-300`, `dark:text-purple-400` | `dark:border-purple-500` |
-| Accent - Yellow | `dark:bg-yellow-900/30` | `dark:text-yellow-300`, `dark:text-yellow-400` | `dark:border-yellow-500` |
-| Accent - Red | `dark:bg-red-900/30` | `dark:text-red-300`, `dark:text-red-400` | `dark:border-red-500` |
-| Shadows | `dark:shadow-gray-900/30` | - | - |
+| Element          | Background                              | Text                                           | Border/Accent            |
+| ---------------- | --------------------------------------- | ---------------------------------------------- | ------------------------ |
+| Primary UI       | `dark:bg-slate-800`, `dark:bg-gray-800` | `dark:text-white`, `dark:text-slate-100`       | `dark:ring-sky-500`      |
+| Secondary/Subtle | `dark:bg-gray-900`, `dark:bg-gray-700`  | `dark:text-gray-300`, `dark:text-slate-400`    | `dark:border-gray-700`   |
+| Accent - Blue    | `dark:bg-blue-900/30`                   | `dark:text-blue-300`, `dark:text-blue-400`     | `dark:border-blue-500`   |
+| Accent - Green   | `dark:bg-green-900/30`                  | `dark:text-green-300`, `dark:text-green-400`   | `dark:border-green-500`  |
+| Accent - Purple  | `dark:bg-purple-900/30`                 | `dark:text-purple-300`, `dark:text-purple-400` | `dark:border-purple-500` |
+| Accent - Yellow  | `dark:bg-yellow-900/30`                 | `dark:text-yellow-300`, `dark:text-yellow-400` | `dark:border-yellow-500` |
+| Accent - Red     | `dark:bg-red-900/30`                    | `dark:text-red-300`, `dark:text-red-400`       | `dark:border-red-500`    |
+| Shadows          | `dark:shadow-gray-900/30`               | -                                              | -                        |
 
 ## Typography
 
@@ -52,12 +52,10 @@ The library uses a consistent typography system based on Tailwind CSS classes:
   - H1: `text-2xl font-bold`
   - H2: `text-xl font-semibold`
   - H3: `text-lg font-semibold`
-  
 - Body Text:
   - Default: Base font size (no class needed)
   - Small: `text-sm`
   - Extra Small: `text-xs`
-  
 - Special Text:
   - Numbers/Stats: `text-2xl`, `text-3xl` with `font-bold`
 
@@ -73,7 +71,6 @@ The library uses a consistent typography system based on Tailwind CSS classes:
 - Primary text:
   - Light: `text-gray-800`
   - Dark: `dark:text-white`, `dark:text-slate-100`
-  
 - Secondary text:
   - Light: `text-gray-500`, `text-gray-600`
   - Dark: `dark:text-gray-400`, `dark:text-slate-400`
@@ -89,6 +86,7 @@ Dark mode is implemented using Tailwind's `dark:` prefix classes. The applicatio
 ### Theme Switching
 
 Theme switching is handled by the `ThemeService` which:
+
 - Toggles the `dark` class on the HTML element
 - Persists theme preference in localStorage
 - Provides signals for components to react to theme changes
@@ -108,10 +106,12 @@ When creating or modifying components, always include both light and dark theme 
 ### Cards
 
 Cards use a consistent pattern:
+
 - Light theme: White background (`bg-white`), medium shadow (`shadow-md`), gray text
 - Dark theme: Slate background (`dark:bg-slate-800`), custom shadow (`dark:shadow-gray-900/30`), light text
 
 Example:
+
 ```html
 <div class="rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 dark:shadow-gray-900/30">
   <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Card Title</h2>
@@ -122,11 +122,13 @@ Example:
 ### Buttons
 
 Buttons follow these patterns:
+
 - Primary: Blue background with white text
 - Secondary: Gray background or outlined
 - Always include hover states
 
 Example:
+
 ```html
 <button class="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800">
   Button Text
@@ -136,13 +138,15 @@ Example:
 ### Icons
 
 Icons should:
+
 - Use consistent sizing
 - Inherit color from parent text by default
 - Use Taiga UI icons (Lucide icons)
 
 Example:
+
 ```html
- <tui-icon
+<tui-icon
   [attr.aria-label]="icon() + ' icon'"
   [icon]="icon()"
   [style.background]="progressTextColor()"
@@ -154,6 +158,7 @@ Example:
 ### Form Elements
 
 Form elements should:
+
 - Have consistent padding and border radius
 - Include proper focus states
 - Support both themes
@@ -163,6 +168,7 @@ Form elements should:
 ### Spacing Scale
 
 The library uses Tailwind's spacing scale:
+
 - `p-4`, `m-4`: Standard padding/margin (1rem)
 - `p-6`, `m-6`: Larger padding/margin (1.5rem)
 - `px-4 py-2`: Horizontal/vertical padding for buttons

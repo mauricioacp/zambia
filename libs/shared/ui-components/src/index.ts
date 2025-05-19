@@ -49,3 +49,5 @@ export * from './lib/ui-components/data-badge.ui-component';
 export * from './lib/ui-components/card/card.component';
 
 export * from './lib/layout/masonry.component';
+
+export * from './lib/ui-components/generic-table/generic-table.ui-component';
