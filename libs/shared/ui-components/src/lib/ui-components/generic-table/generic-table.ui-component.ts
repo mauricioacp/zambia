@@ -23,11 +23,11 @@ import { ColumnTemplateDirective } from '../../directives/column-template.direct
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead class="bg-gray-50 dark:bg-gray-900">
             <tr>
-              <th class="w-10 px-6 py-3">
+              <th class="w-10 px-4 py-3 sm:px-6">
                 <div class="h-5 w-5 rounded bg-gray-200 dark:bg-gray-700"></div>
               </th>
               @for (i of [1, 2, 3, 4, 5]; track i) {
-                <th scope="col" class="px-6 py-3 text-left">
+                <th scope="col" class="px-4 py-3 text-left sm:px-6">
                   <div class="h-4 w-24 rounded bg-gray-200 dark:bg-gray-700"></div>
                 </th>
               }
@@ -36,11 +36,11 @@ import { ColumnTemplateDirective } from '../../directives/column-template.direct
           <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-slate-800">
             @for (i of [1, 2, 3, 4, 5]; track i) {
               <tr>
-                <td class="px-6 py-4">
+                <td class="px-4 py-4 sm:px-6">
                   <div class="h-5 w-5 rounded bg-gray-200 dark:bg-gray-700"></div>
                 </td>
                 @for (j of [1, 2, 3, 4, 5]; track j) {
-                  <td class="px-6 py-4 whitespace-nowrap">
+                  <td class="px-4 py-4 whitespace-nowrap sm:px-6">
                     <div class="h-4 w-full max-w-[120px] rounded bg-gray-200 dark:bg-gray-700"></div>
                   </td>
                 }
@@ -55,7 +55,7 @@ import { ColumnTemplateDirective } from '../../directives/column-template.direct
               @for (header of displayHeaders(); track header) {
                 <th
                   scope="col"
-                  class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300"
+                  class="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase sm:px-6 dark:text-gray-300"
                 >
                   {{ displayLabels()[header] || header }}
                 </th>
@@ -65,7 +65,7 @@ import { ColumnTemplateDirective } from '../../directives/column-template.direct
               @for (action of actions(); track action) {
                 <th
                   scope="col"
-                  class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300"
+                  class="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase sm:px-6 dark:text-gray-300"
                 >
                   {{ action }}
                 </th>
@@ -74,9 +74,9 @@ import { ColumnTemplateDirective } from '../../directives/column-template.direct
           </thead>
           <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-slate-800">
             @for (item of items(); track getTrackBy(item)) {
-              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+              <tr class="even:bg-gray-100 hover:bg-gray-200 dark:even:bg-slate-700 dark:hover:bg-slate-600">
                 @for (header of displayHeaders(); track header) {
-                  <td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-300">
+                  <td class="px-4 py-4 text-sm whitespace-nowrap text-gray-700 sm:px-6 dark:text-gray-300">
                     @if (getColumnTemplate(header)) {
                       <ng-container
                         [ngTemplateOutlet]="getColumnTemplate(header)"
@@ -104,7 +104,7 @@ import { ColumnTemplateDirective } from '../../directives/column-template.direct
 
                 <!-- Action column cells -->
                 @for (action of actions(); track action) {
-                  <td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-300">
+                  <td class="px-4 py-4 text-sm whitespace-nowrap text-gray-700 sm:px-6 dark:text-gray-300">
                     <ng-container
                       [ngTemplateOutlet]="getColumnTemplate(action)"
                       [ngTemplateOutletContext]="{ $implicit: item, item: item }"

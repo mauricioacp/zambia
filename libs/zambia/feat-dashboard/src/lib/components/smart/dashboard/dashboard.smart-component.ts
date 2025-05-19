@@ -65,11 +65,13 @@ interface NavSection {
               <z-sidebar-nav-section-header [text]="section.header"></z-sidebar-nav-section-header>
             }
             @for (item of section.items; track item.route) {
-              <z-main-sidebar-nav-item
-                [icon]="item.icon"
-                [text]="item.text"
-                [route]="item.route"
-              ></z-main-sidebar-nav-item>
+              <div class="mb-2">
+                <z-main-sidebar-nav-item
+                  [icon]="item.icon"
+                  [text]="item.text"
+                  [route]="item.route"
+                ></z-main-sidebar-nav-item>
+              </div>
             }
           }
         </z-sidebar-nav>
