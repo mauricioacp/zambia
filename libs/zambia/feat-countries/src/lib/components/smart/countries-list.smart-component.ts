@@ -17,7 +17,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
     ColumnTemplateDirective,
   ],
   template: `
-    <div class="container mx-auto p-6">
+    <div class="h-full w-full overflow-auto bg-gray-50 p-6 dark:bg-gray-900">
       <h2 class="mb-6 text-2xl font-bold text-gray-800 dark:text-white">{{ 'countries' | translate }}</h2>
       <z-welcome-message [welcomeText]="welcomeText()"></z-welcome-message>
       <z-generic-table
@@ -51,7 +51,13 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
       </z-generic-table>
     </div>
   `,
-  styles: ``,
+  styles: `
+    :host {
+      display: block;
+      width: 100%;
+      min-height: 100%;
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CountriesListSmartComponent {

@@ -39,10 +39,16 @@
   "agreements": "Acuerdos",
 
   "welcome.countries.list": "Países donde se encuentra la Akademia, puedes seleccionar un país para ver sus sedes.",
+  "welcome.headquarters.list": "Sedes registradas en la plataforma, puedes ver los detalles de cada una.",
   "name": "Nombre",
   "code": "Código",
   "status": "Estado",
+  "country": "País",
+  "address": "Dirección",
+  "actions": "Acciones",
   "view": "Ver",
   "edit": "Editar",
-  "delete": "Eliminar"
+  "delete": "Eliminar",
+  "no.headquarters.found": "No se encontraron sedes.",
+  "failed.to.load": "Error al cargar los datos"
 }
