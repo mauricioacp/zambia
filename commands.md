@@ -47,4 +47,3 @@ nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-component
 npx nx g @nx/angular:service --name=agreements --project=data-access-generic --path=libs/shared/data-access-dashboard/src/lib/ --skipTests
 npx nx g @nx/angular:library --name=util-constants --tags=scope:shared,type:util --directory=libs/shared/util-constants --dry-run
 npx nx g @nx/angular:service --name=roles-access --project=util-roles-definitions --path=libs/shared/util-roles-definitions/src/lib/ --skipTests
-
