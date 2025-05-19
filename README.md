@@ -1,82 +1,260 @@
-# Zambia
+# Zambia - Akademia Data Management System
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+A comprehensive Angular application built with Nx monorepo architecture for managing Akademia's educational organization data across multiple countries.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+## Table of Contents
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+- [Overview](#overview)
+- [Tech Stack](#tech-stack)
+- [Monorepo Structure](#monorepo-structure)
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+- [Development Server](#development-server)
+- [Running Tests](#running-tests)
+- [Linting and Formatting](#linting-and-formatting)
+- [Building for Production](#building-for-production)
+- [Understanding the Monorepo with Nx](#understanding-the-monorepo-with-nx)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [License](#license)
 
-## Finish your CI setup
+## Overview
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/39RK5ZDAJb)
+Zambia is a data management system designed for Akademia, an international educational organization. The system manages organizational structure across multiple countries,
+including headquarters, seasons (academic periods), participants (students and collaborators), and activities (workshops and events).
 
+The application provides a comprehensive interface for:
 
-## Run tasks
+- Managing organizational hierarchy (countries, headquarters, seasons)
+- Handling participant registration and management
+- Scheduling and tracking educational activities
+- Managing roles and permissions
 
-To run the dev server for your app, use:
+## Tech Stack
 
-```sh
-npx nx serve zambia
+This project leverages the following technologies:
+
+- **Core Framework**: [Angular](https://angular.io/) (v19)
+- **Monorepo Management**: [Nx](https://nx.dev/) (v20)
+- **Backend/Database**: [Supabase](https://supabase.io/)
+- **UI Components**:
+  - Custom UI components
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Component Development**: [Storybook](https://storybook.js.org/)
+- **Internationalization**: [ngx-translate](https://github.com/ngx-translate/core)
+- **Testing**:
+  - [Jest](https://jestjs.io/) (Unit tests)
+  - [Playwright](https://playwright.dev/) (E2E tests)
+- **Code Quality**:
+  - [ESLint](https://eslint.org/)
+  - [Prettier](https://prettier.io/)
+  - [Husky](https://typicode.github.io/husky/) (Git hooks)
+  - [Commitizen](https://github.com/commitizen/cz-cli) (Standardized commits)
+
+## Monorepo Structure
+
+The project follows Nx's monorepo architecture with the following structure:
+
+```
+zambia/
+├── apps/
+│   ├── zambia/                # Main Angular application
+│   └── zambia-e2e/            # End-to-end tests for the application
+├── libs/
+│   ├── shared/                # Shared libraries used across applications
+│   │   ├── data-access-auth/  # Authentication services
+│   │   ├── data-access-roles-permissions/ # Role and permission management
+│   │   ├── data-access-supabase/ # Supabase database access
+│   │   ├── types-supabase/    # TypeScript types for Supabase data
+│   │   ├── ui-components/     # Shared UI components
+│   │   ├── util-config/       # Configuration utilities
+│   │   └── util-guards/       # Route guards for auth/authorization
+│   └── zambia/                # Application-specific libraries
+│       ├── feat-auth/         # Authentication feature
+│       ├── feat-dashboard/    # Dashboard feature
+│       ├── feat-agreements/   # Dashboard page for agreements review and approval
+│       ├── feat-headquarter/  # Headquarter management feature
+│       └── feat-shell/        # Application shell/layout
 ```
 
-To create a production bundle:
+## Prerequisites
 
-```sh
-npx nx build zambia
+Before you begin, ensure you have the following installed:
+
+- [Node.js](https://nodejs.org/) (v18 or later recommended)
+- [npm](https://www.npmjs.com/) (v8 or later)
+- [Git](https://git-scm.com/)
+
+## Getting Started
+
+To get started with the project, follow these steps:
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/your-organization/zambia.git
+   cd zambia
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables:
+   ```bash
+   npm run config
+   ```
+   This will generate the necessary environment configuration files.
+
+## Development Server
+
+To start the development server:
+
+```bash
+npm run serve
 ```
 
-To see all available targets to run for a project, run:
+This will:
 
-```sh
-npx nx show project zambia
+1. Generate the environment configuration
+2. Start the Angular development server
+
+The application will be available at `http://localhost:4200/`.
+
+Alternatively, you can use:
+
+```bash
+npm run dev
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+This runs the application without regenerating the environment configuration.
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Running Tests
 
-## Add new projects
+### Unit Tests
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+To run unit tests for the main application:
 
-Use the plugin's generator to create new projects.
-
-To generate a new application, use:
-
-```sh
-npx nx g @nx/angular:app demo
+```bash
+npm test
 ```
 
-To generate a new library, use:
+To run tests for a specific library:
 
-```sh
-npx nx g @nx/angular:lib mylib
+```bash
+npx nx test shared-ui-components
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+### End-to-End Tests
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+To run end-to-end tests:
 
+```bash
+npm run e2e
+```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Linting and Formatting
 
-## Install Nx Console
+### Linting
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+To lint the entire codebase:
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```bash
+npx nx run-many --target=lint --all
+```
 
-## Useful links
+To lint a specific project:
 
-Learn more:
+```bash
+npx nx lint zambia
+```
 
-- [Learn more about this workspace setup](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Formatting
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+To format staged files:
+
+```bash
+npm run prettier:staged
+```
+
+## Building for Production
+
+To build the application for production:
+
+```bash
+npx nx build zambia --configuration=production
+```
+
+The build artifacts will be stored in the `dist/apps/zambia` directory.
+
+## Understanding the Monorepo with Nx
+
+### Dependency Graph
+
+To visualize the project's dependency graph:
+
+```bash
+npm run graph
+```
+
+This will open the Nx dependency graph in your browser, showing the relationships between the different libraries and applications.
+
+### Generating New Code
+
+Nx provides generators to create new components, libraries, and more:
+
+#### Generate a new library:
+
+```bash
+npx nx g @nx/angular:lib my-new-lib
+```
+
+#### Generate a component in a library:
+
+```bash
+npx nx g @nx/angular:component my-component --project=shared-ui-components
+```
+
+#### Generate a service:
+
+```bash
+npx nx g @nx/angular:service my-service --project=shared-data-access-auth
+```
+
+### Running Affected Commands
+
+Nx allows you to run commands only on projects affected by changes:
+
+```bash
+npx nx affected:build
+npx nx affected:test
+npx nx affected:lint
+```
+
+## Deployment
+
+The application can be deployed to various hosting platforms. For production deployment:
+
+1. Build the application:
+
+   ```bash
+   npx nx build zambia --configuration=production
+   ```
+
+2. Deploy the contents of `dist/apps/zambia` to your hosting provider.
+
+## Contributing
+
+We welcome contributions to the Zambia project. Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License — see the LICENSE file for details.

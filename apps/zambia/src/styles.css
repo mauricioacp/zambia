@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
@@ -17,16 +19,10 @@
   }
 }
 
-:root {
-  /* Primary Colors */
-  --primary-black: #000000; /* Black C */
-  --primary-blue: #0077ad; /* 7468 C */
-  --primary-white: #ffffff; /* White */
-
-  /* Secondary Colors */
-  --secondary-dark-blue: #005782; /* 3025 C */
-  --secondary-light-blue: #9cd5df; /* 3105 C */
-  --secondary-yellow: #ffdd00; /* 109 C */
+@layer components {
+  .dark {
+    @apply bg-gray-900 text-white;
+  }
 }
 
 html,
@@ -42,12 +38,9 @@ body {
 
 @theme {
   --font-sans:
-    'Source Sans Pro', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji',
-    'Segoe UI Symbol', 'Noto Color Emoji';
+    'Source Sans Pro', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   --font-serif: 'Source Serif Pro', 'serif';
-  --font-mono:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
-    'Courier New', monospace;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 
   --color-red-50: oklch(0.971 0.013 17.38);
   --color-red-100: oklch(0.936 0.032 17.717);
@@ -370,10 +363,8 @@ body {
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg:
-    0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl:
-    0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
   --inset-shadow-2xs: inset 0 1px rgb(0 0 0 / 0.05);
   --inset-shadow-xs: inset 0 1px 1px rgb(0 0 0 / 0.05);
@@ -434,6 +425,27 @@ body {
   }
 }
 
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #888;
+  border-radius: 5px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--color-gray-300);
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
 .text-base {
   font-family: 'Source Sans Pro', sans-serif;
   font-weight: 400;
@@ -458,35 +470,4 @@ body {
   font-family: 'Source Sans Pro', sans-serif;
   font-weight: 900;
   text-transform: uppercase;
-}
-
-/* Quotes styling */
-blockquote {
-  font-family: 'Source Sans Pro', sans-serif;
-  font-style: italic;
-  border-left: 4px solid var(--primary-blue);
-  padding-left: 1rem;
-  margin-left: 0;
-}
-
-/* Link styling */
-a {
-  font-family: 'Source Sans Pro', sans-serif;
-  font-weight: 700;
-  color: var(--primary-blue);
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-html,
-body {
-  height: 100%;
-}
-
-body {
-  margin: 0;
-  font-family: Roboto, 'Helvetica Neue', sans-serif;
 }

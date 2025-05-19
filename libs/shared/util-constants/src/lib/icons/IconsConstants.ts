@@ -1,0 +1,13 @@
+export const ICONS = {
+  NEWSPAPER: 'newspaper',
+  COUNTRIES: 'globe',
+  LEADER: 'sparkle',
+  BOARD: 'board',
+  CIRCLE_USER_ROUND: 'circle-user-round',
+  USER_ROUND: 'user-round',
+  USER_ROUND_CHECK: 'user-round-check',
+  CHART_AREA: 'chart-area',
+  PAPERCLIP: 'paperclip',
+  USERS: 'users',
+  HEADQUARTERS: 'landmark',
+};

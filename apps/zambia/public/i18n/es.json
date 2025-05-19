@@ -1,7 +1,8 @@
 {
   "the.akademy": "La Akademia",
-  "welcome-log-in": "Bienvenido, ingresa tus credenciales para acceder al sistema",
+  "welcome-log-in": "Bienvenido al panel de administración de la Akademia, ingresa tus credenciales para acceder al sistema",
   "email": "Email",
+  "welcome": "Bienvenido",
   "enter-your-email": "Ingresa tu email",
   "invalid-email": "Email no válido",
   "password": "Contraseña",
@@ -11,5 +12,24 @@
   "forgot-password": "¿Olvidaste la contraseña?",
   "log-in": "Ingresar",
   "no-account": "¿No tienes una cuenta?",
-  "sign-up": "Quiero registrarme"
+  "sign-up": "Quiero registrarme",
+  "invalid_login": "Credenciales incorrectas.",
+  "main_panel": "Vista general",
+  "board": "Konsejo",
+  "students": "Alumnos",
+  "facilitators": "Facilitadores",
+  "companions": "Acompañantes",
+  "reports": "Reportes",
+  "documents": "Documentos",
+  "my_akademy": "Mi Akademia",
+  "members": "Miembros",
+  "panel_message": "",
+
+  "welcome.base": "Nivel de acceso: {{roleName}}",
+  "welcome.suffix.allOrgData": ", puedes acceder a todos los datos de la organización",
+  "welcome.suffix.yourHQData": ", puedes acceder a los datos de tu sede.",
+  "welcome.suffix.ownDataAndActivity": ", puedes acceder a tus propios datos y {{activityType}}.",
+  "welcome.suffix.student": ", puedes acceder a tus propios datos y el organigrama de la sede.",
+  "welcome.activityType.accompanimentSessions": "sesiones de acompañamiento",
+  "welcome.activityType.workshops": "talleres"
 }

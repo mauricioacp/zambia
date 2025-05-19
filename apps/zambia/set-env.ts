@@ -1,14 +1,16 @@
 const fs = require('fs');
 const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+const dotenv = require('dotenv');
 
-const envFileContent = `
-export const environment = {
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+
+const envFileContent = `export const environment = {
   production: false,
   API_URL: '${process.env['API_URL'] || 'not loaded'}',
+  API_PUBLIC_KEY: '${process.env['API_PUBLIC_KEY'] || 'not loaded'}',
+  PROD: '${process.env['PROD'] ?? ''}',
 };
 `;
-console.log(process.env['API_URL']);
 
 const environmentsDir = path.resolve(__dirname, 'src/environments');
 if (!fs.existsSync(environmentsDir)) {
