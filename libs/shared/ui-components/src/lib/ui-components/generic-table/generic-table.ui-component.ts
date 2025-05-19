@@ -94,7 +94,8 @@ import { ColumnTemplateDirective } from '../../directives/column-template.direct
                         [class.dark:bg-gray-900]="item[header] !== 'active'"
                         [class.dark:text-gray-300]="item[header] !== 'active'"
                       >
-                        {{ item[header] }}
+                        @let status = item[header] === 'active' ? 'activa' : 'inactiva';
+                        {{ status }}
                       </span>
                     } @else {
                       {{ item[header] }}

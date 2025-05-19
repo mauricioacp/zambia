@@ -54,5 +54,28 @@
 
   "back.to.countries": "Volver a Países",
   "headquarters.in": "Sedes en",
-  "country.not.found": "País no encontrado"
+  "country.not.found": "País no encontrado",
+
+  "back.to.headquarters": "Volver a Sedes",
+  "headquarter": "Sede",
+  "N/A": "N/D",
+  "current.season": "Temporada Actual",
+  "contact.information": "Información de Contacto",
+  "workshops.in": "Talleres en",
+  "start.date": "Fecha de Inicio",
+  "end.date": "Fecha de Fin",
+  "no.workshops.found": "No se encontraron talleres.",
+  "view.details": "Ver Detalles",
+  "seasons.in": "Temporadas en",
+  "no.seasons.found": "No se encontraron temporadas.",
+  "agreements.in": "Acuerdos en",
+  "role": "Rol",
+  "no.agreements.found": "No se encontraron acuerdos.",
+  "failed.to.load.headquarter": "Error al cargar la sede.",
+  "headquarter.not.found": "Sede no encontrada",
+
+  "last.name": "Apellidos",
+  "phone": "Teléfono",
+  "document.number": "Nº Documento",
+  "created.at": "Fecha Creación"
 }

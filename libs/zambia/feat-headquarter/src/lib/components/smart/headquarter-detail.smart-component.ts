@@ -1,21 +1,43 @@
-import { ChangeDetectionStrategy, Component, inject, input, signal, WritableSignal, effect } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+  signal,
+  WritableSignal,
+  effect,
+  computed,
+} from '@angular/core';
 import { CommonModule, NgClass } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HeadquartersFacadeService, HeadquarterWithRelations } from '../../services/headquarters-facade.service';
 import { TuiSkeleton } from '@taiga-ui/kit';
+import { GenericTableUiComponent, ColumnTemplateDirective } from '@zambia/ui-components';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TuiIcon } from '@taiga-ui/core';
+import { ICONS } from '@zambia/util-constants';
 
 @Component({
   selector: 'z-headquarter-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, TuiSkeleton, NgClass],
+  imports: [
+    CommonModule,
+    RouterModule,
+    TuiSkeleton,
+    NgClass,
+    GenericTableUiComponent,
+    ColumnTemplateDirective,
+    TranslatePipe,
+    TuiIcon,
+  ],
   template: `
-    <div class="container mx-auto p-6">
+    <div class="w-full bg-gray-50 p-6 dark:bg-gray-900">
       <div class="mb-4">
         <a
           routerLink="/dashboard/headquarters"
           class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
         >
-          &larr; Back to Headquarters
+          &larr; {{ 'back.to.headquarters' | translate }}
         </a>
       </div>
 
@@ -29,151 +51,251 @@ import { TuiSkeleton } from '@taiga-ui/kit';
           </div>
         </div>
       } @else if (headquarterData()) {
-        <div class="overflow-hidden rounded-lg bg-white shadow-md dark:bg-slate-800">
-          <div class="border-b border-gray-200 px-6 py-5 dark:border-gray-700">
-            <h3 class="text-xl font-semibold text-gray-800 dark:text-white">Headquarter Details</h3>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Information about {{ headquarterData()!.name }}</p>
+        <!-- Page Headings: With Details and Actions -->
+        <div class="mb-8 flex flex-col items-center gap-4 text-center md:flex-row md:justify-between md:text-left">
+          <!-- Heading -->
+          <div>
+            <h2 class="mb-2 text-2xl font-extrabold md:text-3xl">
+              {{ headquarterData()!.name }}
+            </h2>
+            <ul
+              class="inline-flex list-none flex-wrap items-center justify-center gap-3 text-sm font-medium text-gray-600 md:justify-start dark:text-gray-400"
+            >
+              <li class="inline-flex items-center gap-1.5">
+                <tui-icon [icon]="ICONS.HEADQUARTERS" class="opacity-50"></tui-icon>
+                <span>{{ 'headquarter' | translate }}</span>
+              </li>
+              @if (headquarterData()!.countries?.name) {
+                <li class="inline-flex items-center gap-1.5">
+                  <tui-icon [icon]="ICONS.COUNTRIES" class="opacity-50"></tui-icon>
+                  <span>{{ headquarterData()!.countries?.name }} ({{ headquarterData()!.countries?.code }})</span>
+                </li>
+              }
+              <li class="inline-flex items-center gap-1.5">
+                <tui-icon [icon]="'tuiIconMapPin'" class="opacity-50"></tui-icon>
+                <span>{{ headquarterData()!.address || ('N/A' | translate) }}</span>
+              </li>
+              <li class="inline-flex items-center gap-1.5">
+                <tui-icon [icon]="'tuiIconActivity'" class="opacity-50"></tui-icon>
+                <span
+                  class="inline-flex rounded-full px-2 text-xs leading-5 font-semibold"
+                  [ngClass]="
+                    headquarterData()!.status === 'active'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                      : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+                  "
+                >
+                  {{ headquarterData()!.status }}
+                </span>
+              </li>
+              @if (currentSeason()) {
+                <li class="inline-flex items-center gap-1.5">
+                  <tui-icon [icon]="'tuiIconCalendar'" class="opacity-50"></tui-icon>
+                  <span>{{ 'current.season' | translate }}: {{ currentSeason()!.name }}</span>
+                </li>
+              }
+            </ul>
           </div>
-          <div class="border-t border-gray-200 dark:border-gray-700">
-            <dl>
-              <div class="grid grid-cols-3 gap-4 bg-gray-50 px-6 py-5 dark:bg-gray-900">
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">Name</dt>
-                <dd class="col-span-2 text-sm text-gray-900 dark:text-gray-100">
-                  {{ headquarterData()!.name }}
-                </dd>
-              </div>
-              <div class="grid grid-cols-3 gap-4 bg-white px-6 py-5 dark:bg-slate-800">
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">Country</dt>
-                <dd class="col-span-2 text-sm text-gray-900 dark:text-gray-100">
-                  {{ headquarterData()!.countries?.name }} ({{ headquarterData()!.countries?.code }})
-                </dd>
-              </div>
-              <div class="grid grid-cols-3 gap-4 bg-gray-50 px-6 py-5 dark:bg-gray-900">
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">Address</dt>
-                <dd class="col-span-2 text-sm text-gray-900 dark:text-gray-100">
-                  {{ headquarterData()!.address || 'N/A' }}
-                </dd>
-              </div>
-              <div class="grid grid-cols-3 gap-4 bg-white px-6 py-5 dark:bg-slate-800">
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">Status</dt>
-                <dd class="col-span-2 text-sm text-gray-900 dark:text-gray-100">
-                  <span
-                    class="inline-flex rounded-full px-2 text-xs leading-5 font-semibold"
-                    [ngClass]="
-                      headquarterData()!.status === 'active'
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                        : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
-                    "
-                  >
-                    {{ headquarterData()!.status }}
-                  </span>
-                </dd>
-              </div>
-              <div class="grid grid-cols-3 gap-4 bg-gray-50 px-6 py-5 dark:bg-gray-900">
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-300">Contact Info</dt>
-                <dd class="col-span-2 text-sm text-gray-900 dark:text-gray-100">
-                  <pre class="whitespace-pre-wrap">{{ headquarterData()!.contact_info | json }}</pre>
-                </dd>
-              </div>
-            </dl>
+          <!-- END Heading -->
+
+          <!-- Actions -->
+          <div class="flex flex-none flex-wrap items-center justify-center gap-2 sm:justify-end">
+            <button
+              type="button"
+              class="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm leading-5 font-semibold text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-xs focus:ring-3 focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-transparent dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700"
+            >
+              <tui-icon [icon]="'pencil'" class="opacity-50"></tui-icon>
+              <span>{{ 'edit' | translate }}</span>
+            </button>
+          </div>
+          <!-- END Actions -->
+        </div>
+        <!-- END Page Headings: With Details and Actions -->
+
+        <!-- Contact Info -->
+        <div class="mb-6 overflow-hidden rounded-lg bg-white shadow-md dark:bg-slate-800">
+          <div class="border-b border-gray-200 px-6 py-5 dark:border-gray-700">
+            <h3 class="text-xl font-semibold text-gray-800 dark:text-white">{{ 'contact.information' | translate }}</h3>
+          </div>
+          <div class="border-t border-gray-200 p-6 dark:border-gray-700">
+            <pre class="whitespace-pre-wrap">{{ headquarterData()!.contact_info | json }}</pre>
           </div>
         </div>
 
         @if (headquarterData()!.scheduled_workshops?.length) {
           <div class="mt-6">
             <h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">
-              Workshops in {{ headquarterData()!.name }}
+              {{ 'workshops.in' | translate }} {{ headquarterData()!.name }}
             </h3>
-            <div class="overflow-hidden rounded-lg bg-white shadow-md dark:bg-slate-800">
-              <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-50 dark:bg-gray-900">
-                  <tr>
-                    <th
-                      class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300"
-                    >
-                      Name
-                    </th>
-                    <th
-                      class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300"
-                    >
-                      Start Date
-                    </th>
-                    <th
-                      class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300"
-                    >
-                      End Date
-                    </th>
-                    <th
-                      class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300"
-                    >
-                      Status
-                    </th>
-                    <th
-                      class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300"
-                    >
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-slate-800">
-                  @for (workshop of headquarterData()!.scheduled_workshops; track workshop.id) {
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                      <td class="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900 dark:text-white">
-                        {{ workshop.local_name }}
-                      </td>
-                      <td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-300">
-                        {{ workshop.start_datetime | date: 'medium' }}
-                      </td>
-                      <td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-300">
-                        {{ workshop.end_datetime | date: 'medium' }}
-                      </td>
-                      <td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-300">
-                        <span
-                          class="inline-flex rounded-full px-2 text-xs leading-5 font-semibold"
-                          [ngClass]="
-                            workshop.status === 'active'
-                              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                              : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
-                          "
-                        >
-                          {{ workshop.status }}
-                        </span>
-                      </td>
-                      <td class="px-6 py-4 text-sm whitespace-nowrap">
-                        <a
-                          [routerLink]="['/dashboard/workshops', workshop.id]"
-                          class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                        >
-                          View Details
-                        </a>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
+            <z-generic-table
+              [loading]="false"
+              [items]="headquarterData()!.scheduled_workshops!"
+              [headers]="['local_name', 'start_datetime', 'end_datetime', 'status', 'actions']"
+              [headerLabels]="{
+                local_name: ('name' | translate),
+                start_datetime: ('start.date' | translate),
+                end_datetime: ('end.date' | translate),
+                status: ('status' | translate),
+                actions: ('actions' | translate),
+              }"
+              [emptyMessage]="'no.workshops.found' | translate"
+            >
+              <ng-template [zColumnTemplate]="'start_datetime'" let-item>
+                {{ item.start_datetime | date: 'medium' }}
+              </ng-template>
+              <ng-template [zColumnTemplate]="'end_datetime'" let-item>
+                {{ item.end_datetime | date: 'medium' }}
+              </ng-template>
+              <ng-template [zColumnTemplate]="'status'" let-item>
+                <span
+                  class="inline-flex rounded-full px-2 text-xs leading-5 font-semibold"
+                  [ngClass]="
+                    item.status === 'active'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                      : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+                  "
+                >
+                  {{ item.status }}
+                </span>
+              </ng-template>
+              <ng-template [zColumnTemplate]="'actions'" let-item>
+                <a
+                  [routerLink]="['/dashboard/workshops', item.id]"
+                  class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  {{ 'view.details' | translate }}
+                </a>
+              </ng-template>
+            </z-generic-table>
+          </div>
+        }
+
+        @if (headquarterData()!.seasons?.length) {
+          <div class="mt-6">
+            <h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">
+              {{ 'seasons.in' | translate }} {{ headquarterData()!.name }}
+            </h3>
+            <z-generic-table
+              [loading]="false"
+              [items]="headquarterData()!.seasons!"
+              [headers]="['name', 'start_date', 'end_date', 'status']"
+              [headerLabels]="{
+                name: ('name' | translate),
+                start_date: ('start.date' | translate),
+                end_date: ('end.date' | translate),
+                status: ('status' | translate),
+              }"
+              [emptyMessage]="'no.seasons.found' | translate"
+            >
+              <ng-template [zColumnTemplate]="'start_date'" let-item>
+                {{ item.start_date | date: 'mediumDate' }}
+              </ng-template>
+              <ng-template [zColumnTemplate]="'end_date'" let-item>
+                {{ item.end_date | date: 'mediumDate' }}
+              </ng-template>
+              <ng-template [zColumnTemplate]="'status'" let-item>
+                <span
+                  class="inline-flex rounded-full px-2 text-xs leading-5 font-semibold"
+                  [ngClass]="
+                    item.status === 'active'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                      : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+                  "
+                >
+                  {{ item.status }}
+                </span>
+              </ng-template>
+            </z-generic-table>
+          </div>
+        }
+
+        @if (headquarterData()!.agreements?.length) {
+          <div class="mt-6">
+            <h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">
+              {{ 'agreements.in' | translate }} {{ headquarterData()!.name }}
+            </h3>
+            <z-generic-table
+              [loading]="false"
+              [items]="headquarterData()!.agreements!"
+              [headers]="['name', 'last_name', 'email', 'phone', 'document_number', 'status', 'created_at']"
+              [headerLabels]="{
+                name: ('name' | translate),
+                last_name: ('last.name' | translate),
+                email: ('email' | translate),
+                phone: ('phone' | translate),
+                document_number: ('document.number' | translate),
+                status: ('status' | translate),
+                created_at: ('created.at' | translate),
+              }"
+              [emptyMessage]="'no.agreements.found' | translate"
+            >
+              <ng-template [zColumnTemplate]="'status'" let-item>
+                <span
+                  class="inline-flex rounded-full px-2 text-xs leading-5 font-semibold"
+                  [ngClass]="
+                    item.status === 'active'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                      : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+                  "
+                >
+                  {{ item.status }}
+                </span>
+              </ng-template>
+              <ng-template [zColumnTemplate]="'created_at'" let-item>
+                {{ item.created_at | date: 'mediumDate' }}
+              </ng-template>
+            </z-generic-table>
           </div>
         }
       } @else if (headquartersFacade.detailLoadingError()) {
         <div class="rounded border-l-4 border-red-400 bg-red-50 p-4 dark:border-red-500 dark:bg-red-900/30">
           <p class="text-red-700 dark:text-red-300">
-            Failed to load headquarter: {{ headquartersFacade.detailLoadingError() }}
+            {{ 'failed.to.load.headquarter' | translate }}: {{ headquartersFacade.detailLoadingError() }}
           </p>
         </div>
       } @else {
         <div class="rounded border-l-4 border-red-400 bg-red-50 p-4 dark:border-red-500 dark:bg-red-900/30">
-          <p class="text-red-700 dark:text-red-300">Headquarter not found.</p>
+          <p class="text-red-700 dark:text-red-300">{{ 'headquarter.not.found' | translate }}</p>
         </div>
       }
     </div>
   `,
-  styles: ``,
+  styles: [
+    `
+      :host {
+        display: block;
+        width: 100%;
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeadquarterDetailSmartComponent {
   headquartersFacade = inject(HeadquartersFacadeService);
+  translate = inject(TranslateService);
   headquarterId = input.required<string>();
   headquarterData: WritableSignal<HeadquarterWithRelations | null> = signal(null);
+  ICONS = ICONS;
+
+  currentSeason = computed(() => {
+    const hqData = this.headquarterData();
+    if (!hqData || !hqData.seasons || hqData.seasons.length === 0) {
+      return null;
+    }
+    // Assuming seasons are sorted by start_date descending in the backend or we can sort here
+    // For now, let's find a season that is currently active based on start_date and end_date
+    const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+
+    return (
+      hqData.seasons.find((season) => {
+        const startDate = season.start_date;
+        const endDate = season.end_date;
+        return startDate && endDate && startDate <= today && today <= endDate && season.status === 'active';
+      }) ||
+      hqData.seasons.find((season) => season.status === 'active') ||
+      hqData.seasons[0]
+    ); // Fallback logic
+  });
 
   constructor() {
     effect(() => {
