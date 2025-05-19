@@ -1,7 +1,6 @@
-import { Injectable, inject, computed, linkedSignal, signal, WritableSignal } from '@angular/core';
+import { computed, inject, Injectable, linkedSignal, resource, signal, WritableSignal } from '@angular/core';
 import { SupabaseService } from '@zambia/data-access-supabase';
 import { Database } from '@zambia/types-supabase';
-import { resource } from '@angular/core';
 
 export type Workshop = Database['public']['Tables']['scheduled_workshops']['Row'];
 export type WorkshopType = Database['public']['Tables']['master_workshop_types']['Row'];
@@ -29,7 +28,6 @@ export class WorkshopsFacadeService {
   workshopByIdResource = linkedSignal(() => this.workshopById.value() ?? null);
   workshopTypesResource = linkedSignal(() => this.workshopTypes.value() ?? []);
 
-  // Resource for fetching all workshops
   workshops = resource({
     loader: async () => {
       const { data, error } = await this.supabase
@@ -54,7 +52,6 @@ export class WorkshopsFacadeService {
     },
   });
 
-  // Resource for fetching a single workshop by ID
   workshopById = resource({
     request: () => ({ workshopId: this.workshopId() }),
     loader: async ({ request }) => {
@@ -85,7 +82,6 @@ export class WorkshopsFacadeService {
     },
   });
 
-  // Resource for fetching all workshop types
   workshopTypes = resource({
     loader: async () => {
       const { data, error } = await this.supabase
@@ -107,7 +103,6 @@ export class WorkshopsFacadeService {
     this.workshopById.reload();
   }
 
-  // Computed properties for loading and error states
   isLoading = computed(() => this.workshops.isLoading());
   loadingError = computed(() => this.workshops.error);
 

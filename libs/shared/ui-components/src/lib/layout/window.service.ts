@@ -1,7 +1,6 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { inject, DestroyRef } from '@angular/core';
 
 export type WindowSize = 'mobile' | 'tablet' | 'desktop';
 
@@ -27,7 +26,6 @@ export class WindowService {
       desktop: '(min-width: 1024px)',
     };
 
-    // Use BreakpointObserver to track screen size changes
     this.breakpointObserver
       .observe([customBreakpoints.mobile, customBreakpoints.tablet, customBreakpoints.desktop])
       .pipe(takeUntilDestroyed(this.destroyRef))

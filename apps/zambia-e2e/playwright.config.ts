@@ -56,7 +56,6 @@ export default defineConfig({
       use: { ...devices['iPhone 12'] },
     }, */
 
-    // Uncomment for branded browsers
     /* {
       name: 'Microsoft Edge',
       use: { ...devices['Desktop Edge'], channel: 'msedge' },

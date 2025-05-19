@@ -23,7 +23,7 @@ export class CountriesFacadeService {
       const { data, error } = await this.supabase
         .getClient()
         .from('countries')
-        .select('name, code, status')
+        .select('id, name, code, status')
         .order('name');
 
       if (error) {

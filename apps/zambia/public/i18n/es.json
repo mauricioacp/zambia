@@ -41,5 +41,8 @@
   "welcome.countries.list": "Países donde se encuentra la Akademia, puedes seleccionar un país para ver sus sedes.",
   "name": "Nombre",
   "code": "Código",
-  "status": "Estado"
+  "status": "Estado",
+  "view": "Ver",
+  "edit": "Editar",
+  "delete": "Eliminar"
 }

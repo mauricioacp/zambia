@@ -216,6 +216,6 @@ export class CardComponent {
     if (colorMatch && colorMatch[1]) {
       return `border-${colorMatch[1]}`;
     }
-    return 'border-sky'; // Default
+    return 'border-sky';
   }
 }
