@@ -210,42 +210,89 @@ import { ICONS } from '@zambia/util-constants';
         }
 
         @if (headquarterData()!.agreements?.length) {
-          <div class="mt-6">
-            <h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">
-              {{ 'agreements.in' | translate }} {{ headquarterData()!.name }}
-            </h3>
-            <z-generic-table
-              [loading]="false"
-              [items]="headquarterData()!.agreements!"
-              [headers]="['name', 'last_name', 'email', 'phone', 'document_number', 'status', 'created_at']"
-              [headerLabels]="{
-                name: ('name' | translate),
-                last_name: ('last.name' | translate),
-                email: ('email' | translate),
-                phone: ('phone' | translate),
-                document_number: ('document.number' | translate),
-                status: ('status' | translate),
-                created_at: ('created.at' | translate),
-              }"
-              [emptyMessage]="'no.agreements.found' | translate"
-            >
-              <ng-template [zColumnTemplate]="'status'" let-item>
-                <span
-                  class="inline-flex rounded-full px-2 text-xs leading-5 font-semibold"
-                  [ngClass]="
-                    item.status === 'active'
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                      : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
-                  "
-                >
-                  {{ item.status }}
-                </span>
-              </ng-template>
-              <ng-template [zColumnTemplate]="'created_at'" let-item>
-                {{ item.created_at | date: 'mediumDate' }}
-              </ng-template>
-            </z-generic-table>
-          </div>
+          <!-- Alumnos de la actual edición -->
+          @if (currentEditionStudents()?.length) {
+            <div class="mt-6">
+              <h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">
+                {{ 'headquarter.students.current_edition' | translate }} {{ headquarterData()!.name }}
+              </h3>
+              <z-generic-table
+                [loading]="false"
+                [items]="currentEditionStudents()!"
+                [headers]="['name', 'last_name', 'email', 'phone', 'document_number', 'status', 'created_at']"
+                [headerLabels]="{
+                  name: ('name' | translate),
+                  last_name: ('last.name' | translate),
+                  email: ('email' | translate),
+                  phone: ('phone' | translate),
+                  document_number: ('document.number' | translate),
+                  status: ('status' | translate),
+                  created_at: ('created.at' | translate),
+                }"
+                [emptyMessage]="'no.agreements.found' | translate"
+              >
+                <ng-template [zColumnTemplate]="'status'" let-item>
+                  <span
+                    class="inline-flex rounded-full px-2 text-xs leading-5 font-semibold"
+                    [ngClass]="
+                      item.status === 'active'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                        : item.status === 'graduated'
+                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                          : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+                    "
+                  >
+                    {{ item.status | translate }}
+                  </span>
+                </ng-template>
+                <ng-template [zColumnTemplate]="'created_at'" let-item>
+                  {{ item.created_at | date: 'mediumDate' }}
+                </ng-template>
+              </z-generic-table>
+            </div>
+          }
+
+          <!-- Anteriores alumnos -->
+          @if (previousStudents()?.length) {
+            <div class="mt-6">
+              <h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">
+                {{ 'headquarter.students.previous' | translate }} {{ headquarterData()!.name }}
+              </h3>
+              <z-generic-table
+                [loading]="false"
+                [items]="previousStudents()!"
+                [headers]="['name', 'last_name', 'email', 'phone', 'document_number', 'status', 'created_at']"
+                [headerLabels]="{
+                  name: ('name' | translate),
+                  last_name: ('last.name' | translate),
+                  email: ('email' | translate),
+                  phone: ('phone' | translate),
+                  document_number: ('document.number' | translate),
+                  status: ('status' | translate),
+                  created_at: ('created.at' | translate),
+                }"
+                [emptyMessage]="'no.previous.students.found' | translate"
+              >
+                <ng-template [zColumnTemplate]="'status'" let-item>
+                  <span
+                    class="inline-flex rounded-full px-2 text-xs leading-5 font-semibold"
+                    [ngClass]="
+                      item.status === 'active'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                        : item.status === 'graduated'
+                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                          : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+                    "
+                  >
+                    {{ item.status | translate }}
+                  </span>
+                </ng-template>
+                <ng-template [zColumnTemplate]="'created_at'" let-item>
+                  {{ item.created_at | date: 'mediumDate' }}
+                </ng-template>
+              </z-generic-table>
+            </div>
+          }
         }
       } @else if (headquartersFacade.detailLoadingError()) {
         <div class="rounded border-l-4 border-red-400 bg-red-50 p-4 dark:border-red-500 dark:bg-red-900/30">
@@ -282,10 +329,7 @@ export class HeadquarterDetailSmartComponent {
     if (!hqData || !hqData.seasons || hqData.seasons.length === 0) {
       return null;
     }
-    // Assuming seasons are sorted by start_date descending in the backend or we can sort here
-    // For now, let's find a season that is currently active based on start_date and end_date
-    const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-
+    const today = new Date().toISOString().split('T')[0];
     return (
       hqData.seasons.find((season) => {
         const startDate = season.start_date;
@@ -294,7 +338,19 @@ export class HeadquarterDetailSmartComponent {
       }) ||
       hqData.seasons.find((season) => season.status === 'active') ||
       hqData.seasons[0]
-    ); // Fallback logic
+    );
+  });
+
+  currentEditionStudents = computed(() => {
+    const agreements = this.headquarterData()?.agreements;
+    if (!agreements) return [];
+    return agreements.filter((agreement) => agreement.status !== 'graduated');
+  });
+
+  previousStudents = computed(() => {
+    const agreements = this.headquarterData()?.agreements;
+    if (!agreements) return [];
+    return agreements.filter((agreement) => agreement.status === 'graduated');
   });
 
   constructor() {

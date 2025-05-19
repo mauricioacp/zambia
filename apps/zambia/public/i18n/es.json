@@ -77,5 +77,13 @@
   "last.name": "Apellidos",
   "phone": "Teléfono",
   "document.number": "Nº Documento",
-  "created.at": "Fecha Creación"
+  "created.at": "Fecha Creación",
+
+  "headquarter.students.current_edition": "Alumnos de la actual edición en",
+  "headquarter.students.previous": "Anteriores alumnos en",
+  "no.previous.students.found": "No se encontraron alumnos de anteriores ediciones.",
+  "graduated": "Graduado",
+  "prospect": "Prospecto",
+  "active": "Activo",
+  "inactive": "Inactivo"
 }
