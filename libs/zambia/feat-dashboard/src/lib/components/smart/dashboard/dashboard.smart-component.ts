@@ -50,13 +50,13 @@ interface NavSection {
     <div
       id="page-container"
       [class.lg:pl-72]="layoutService.sidebarOpen()"
-      class="bg-gray-100 transition-all duration-500 ease-out dark:bg-gray-900 dark:text-gray-100"
+      class="mx-auto flex min-h-dvh w-full min-w-80 flex-col bg-gray-100 transition-all duration-500 ease-out dark:bg-gray-900 dark:text-gray-100"
     >
       <z-sidebar [isOpen]="layoutService.sidebarOpen()">
         <z-sidebar-header
           sidebar-header
           title="{{ authService.userName() }}"
-          (closeClicked)="layoutService.closeSidebar()"
+          (closeClicked)="layoutService.toggleSidebar()"
         >
         </z-sidebar-header>
         <z-sidebar-nav sidebar-nav>
@@ -104,13 +104,7 @@ interface NavSection {
       <!--      </section>-->
     </div>
   `,
-  styles: `
-    :host {
-      display: block;
-      width: 100%;
-      min-height: 100%;
-    }
-  `,
+  styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardSmartComponent implements OnInit {
