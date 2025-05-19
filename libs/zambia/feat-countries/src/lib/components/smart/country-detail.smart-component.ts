@@ -23,7 +23,7 @@ import { ColumnTemplateDirective } from '@zambia/ui-components';
     ColumnTemplateDirective,
   ],
   template: `
-    <div class="h-full w-full overflow-auto bg-gray-50 p-6 dark:bg-gray-900">
+    <div class="w-full bg-gray-50 p-6 dark:bg-gray-900">
       <div class="mb-4">
         <a
           routerLink="/dashboard/countries"
@@ -141,7 +141,6 @@ import { ColumnTemplateDirective } from '@zambia/ui-components';
     :host {
       display: block;
       width: 100%;
-      min-height: 100%;
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

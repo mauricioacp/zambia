@@ -10,7 +10,7 @@ import { TuiSkeleton } from '@taiga-ui/kit';
   standalone: true,
   imports: [CommonModule, WelcomeMessageUiComponent, DataBadgeUiComponent, CardComponent, TuiSkeleton],
   template: `
-    <div class="h-full w-full overflow-auto bg-gray-50 p-6 dark:bg-gray-900">
+    <div class="bg-gray-50 p-6 dark:bg-gray-900">
       <h1 class="mb-4 text-2xl font-bold text-gray-900 dark:text-white">Panel de Control</h1>
       <z-welcome-message [welcomeText]="welcomeText()" />
       <!-- Stats Section -->
@@ -82,7 +82,7 @@ import { TuiSkeleton } from '@taiga-ui/kit';
     :host {
       display: block;
       width: 100%;
-      min-height: 100%;
+      height: 100%;
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
