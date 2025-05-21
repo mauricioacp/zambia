@@ -1,34 +1,6 @@
-# Zambia - Akademia Data Management System
+# Zambia Project
 
-A comprehensive Angular application built with Nx monorepo architecture for managing Akademia's educational organization data across multiple countries.
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Tech Stack](#tech-stack)
-- [Monorepo Structure](#monorepo-structure)
-- [Prerequisites](#prerequisites)
-- [Getting Started](#getting-started)
-- [Development Server](#development-server)
-- [Running Tests](#running-tests)
-- [Linting and Formatting](#linting-and-formatting)
-- [Building for Production](#building-for-production)
-- [Understanding the Monorepo with Nx](#understanding-the-monorepo-with-nx)
-- [Deployment](#deployment)
-- [Contributing](#contributing)
-- [License](#license)
-
-## Overview
-
-Zambia is a data management system designed for Akademia, an international educational organization. The system manages organizational structure across multiple countries,
-including headquarters, seasons (academic periods), participants (students and collaborators), and activities (workshops and events).
-
-The application provides a comprehensive interface for:
-
-- Managing organizational hierarchy (countries, headquarters, seasons)
-- Handling participant registration and management
-- Scheduling and tracking educational activities
-- Managing roles and permissions
+Angular application built with NX workspace for managing Akademia's educational organization data across multiple countries.
 
 ## Tech Stack
 
@@ -37,8 +9,7 @@ This project leverages the following technologies:
 - **Core Framework**: [Angular](https://angular.io/) (v19)
 - **Monorepo Management**: [Nx](https://nx.dev/) (v20)
 - **Backend/Database**: [Supabase](https://supabase.io/)
-- **UI Components**:
-  - Custom UI components
+- **UI Components**: [Taiga UI](https://taiga-ui.dev/)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 - **Component Development**: [Storybook](https://storybook.js.org/)
 - **Internationalization**: [ngx-translate](https://github.com/ngx-translate/core)
@@ -77,119 +48,122 @@ zambia/
 │       └── feat-shell/        # Application shell/layout
 ```
 
-## Prerequisites
+## Environment Setup
 
-Before you begin, ensure you have the following installed:
+This project supports different environment configurations for development and production.
 
-- [Node.js](https://nodejs.org/) (v18 or later recommended)
-- [npm](https://www.npmjs.com/) (v8 or later)
-- [Git](https://git-scm.com/)
+### Environment Files
 
-## Getting Started
+> **IMPORTANT**: The environment file structure has been updated to use root-level .env files instead of app-level files.
 
-To get started with the project, follow these steps:
+- `.env`: Base environment variables shared across all environments
+- `.env.development`: Development-specific environment variables (local development)
+- `.env.production`: Production-specific environment variables (deployment)
 
-1. Clone the repository:
+Example environment variables:
+
+```
+API_URL=https://api.yourdomain.com
+API_PUBLIC_KEY=your-api-key
+PROD=true/false
+```
+
+Environment template files are provided (`.env.development.example` and `.env.production.example`). Copy these to create your own environment files:
+
+```bash
+cp .env.development.example .env.development
+cp .env.production.example .env.production
+```
+
+If you previously had .env files in the apps/zambia directory, please move their contents to the corresponding root-level files.
+
+## Local Development
+
+### Option 1: Standard Development
+
+1. Install dependencies:
 
    ```bash
-   git clone https://github.com/your-organization/zambia.git
-   cd zambia
+   npm ci
    ```
 
-2. Install dependencies:
+2. Generate environment files:
 
    ```bash
-   npm install
+   npm run config:dev
    ```
 
-3. Set up environment variables:
+3. Start the development server:
    ```bash
-   npm run config
+   npm run serve
    ```
-   This will generate the necessary environment configuration files.
 
-## Development Server
+The application will be available at http://localhost:4200.
 
-To start the development server:
+### Option 2: Docker Development (with Hot Reloading)
 
-```bash
-npm run serve
-```
-
-This will:
-
-1. Generate the environment configuration
-2. Start the Angular development server
-
-The application will be available at `http://localhost:4200/`.
-
-Alternatively, you can use:
+For development with Docker (includes hot reloading):
 
 ```bash
-npm run dev
+npm run docker:dev
 ```
 
-This runs the application without regenerating the environment configuration.
-
-## Running Tests
-
-### Unit Tests
-
-To run unit tests for the main application:
+Or to rebuild the container:
 
 ```bash
-npm test
+npm run docker:dev:build
 ```
 
-To run tests for a specific library:
+The application will be available at http://localhost:4200.
+
+## Production Build
+
+### Local Production Build
+
+To build the application for production locally:
 
 ```bash
-npx nx test shared-ui-components
+npm run build:prod
 ```
 
-### End-to-End Tests
+The build output will be in `dist/apps/zambia/browser/`.
 
-To run end-to-end tests:
+### Docker Production Build
+
+Build and run the production Docker image:
 
 ```bash
-npm run e2e
+npm run docker:prod:build
 ```
 
-## Linting and Formatting
+This will build the application with production configuration and serve it using Nginx on port 80.
 
-### Linting
+## Deployment to Coolify
 
-To lint the entire codebase:
+To deploy to Coolify:
 
-```bash
-npx nx run-many --target=lint --all
-```
+1. Push your code to a Git repository
+2. In Coolify, connect to your repository
+3. Configure the environment variables in Coolify:
+   - `API_URL`
+   - `API_PUBLIC_KEY`
+   - `PROD=true`
+4. Set the build command to use the Docker Compose file:
+   ```
+   docker-compose up -d --build
+   ```
 
-To lint a specific project:
+## Environment Variables Management
 
-```bash
-npx nx lint zambia
-```
+Environment variables can be managed in three ways:
 
-### Formatting
+1. **Build-time variables**: Defined in `.env` files or passed as build arguments
+2. **Runtime variables**: Passed to containers as environment variables
+3. **Coolify variables**: Set in the Coolify dashboard
 
-To format staged files:
+The application has a runtime environment variable substitution mechanism for changing environment settings without rebuilding the application.
 
-```bash
-npm run prettier:staged
-```
-
-## Building for Production
-
-To build the application for production:
-
-```bash
-npx nx build zambia --configuration=production
-```
-
-The build artifacts will be stored in the `dist/apps/zambia` directory.
-
-## Understanding the Monorepo with Nx
+## Working with the Codebase
 
 ### Dependency Graph
 
@@ -201,60 +175,34 @@ npm run graph
 
 This will open the Nx dependency graph in your browser, showing the relationships between the different libraries and applications.
 
-### Generating New Code
+### Running Tests
 
-Nx provides generators to create new components, libraries, and more:
-
-#### Generate a new library:
+To run unit tests for the main application:
 
 ```bash
-npx nx g @nx/angular:lib my-new-lib
+npm test
 ```
 
-#### Generate a component in a library:
+To run end-to-end tests:
 
 ```bash
-npx nx g @nx/angular:component my-component --project=shared-ui-components
+npm run e2e
 ```
 
-#### Generate a service:
+### Linting and Formatting
+
+To format staged files:
 
 ```bash
-npx nx g @nx/angular:service my-service --project=shared-data-access-auth
+npm run prettier:staged
 ```
 
-### Running Affected Commands
+## Project Structure and Configuration Files
 
-Nx allows you to run commands only on projects affected by changes:
-
-```bash
-npx nx affected:build
-npx nx affected:test
-npx nx affected:lint
-```
-
-## Deployment
-
-The application can be deployed to various hosting platforms. For production deployment:
-
-1. Build the application:
-
-   ```bash
-   npx nx build zambia --configuration=production
-   ```
-
-2. Deploy the contents of `dist/apps/zambia` to your hosting provider.
-
-## Contributing
-
-We welcome contributions to the Zambia project. Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License — see the LICENSE file for details.
+- `apps/zambia`: Main Angular application
+- `libs/`: Shared libraries and feature modules
+- `docker-compose.yaml`: Production Docker Compose configuration
+- `docker-compose.dev.yaml`: Development Docker Compose with hot reloading
+- `dockerfile`: Production Dockerfile
+- `nginx.conf`: Nginx configuration for hosting the built application
+- `.env.*`: Environment configuration files

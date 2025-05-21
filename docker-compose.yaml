@@ -1,11 +1,22 @@
-version: '3.8'
-
 services:
-  frontend:
-    container_name: zambia-docker
+  zambia-app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: dockerfile
+      args:
+        - NODE_ENV=production
+        - API_URL=${API_URL:-https://api.yourdomain.com}
+        - API_PUBLIC_KEY=${API_PUBLIC_KEY:-your-api-key}
+        - PROD=true
+    container_name: zambia_production_app
     ports:
-      - '8080:80'
-    restart: unless-stopped
+      - '80:80'
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - API_URL=${API_URL:-https://api.yourdomain.com}
+      - API_PUBLIC_KEY=${API_PUBLIC_KEY:-your-api-key}
+      - PROD=true
+    env_file:
+      - .env
+      - .env.production
