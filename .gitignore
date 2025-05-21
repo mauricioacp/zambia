@@ -44,8 +44,14 @@ Thumbs.db
 .angular
 
 #env
+.env
+.env.*
+!.env.*.example
 apps/zambia/.env
+apps/zambia/.env.*
+!apps/zambia/.env.*.example
 apps/zambia/src/environments/environment.ts
+apps/zambia/src/environments/environment.*.ts
 
 .cursor\rules\nx-rules.mdc
 .github\instructions\nx.instructions.md
