@@ -19,25 +19,6 @@ interface AgreementStats {
     <div class="h-full overflow-auto bg-gray-50 p-6 dark:bg-gray-900">
       <h2 class="mb-6 text-2xl font-bold text-gray-900 dark:text-white">Gestión de Acuerdos</h2>
 
-      <!-- Detailed Statistics Section (Placeholder/Mock) -->
-      <div class="mb-8 rounded-lg bg-white p-6 shadow-md dark:bg-gray-800 dark:shadow-gray-900/30">
-        <h2 class="mb-4 text-xl font-semibold text-gray-800 dark:text-white">Estadísticas Detalladas (Mock)</h2>
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <p class="font-medium text-gray-700 dark:text-gray-300">Tasa de Conversión: N/A</p>
-          </div>
-          <div>
-            <p class="font-medium text-gray-700 dark:text-gray-300">Tasa de Finalización: N/A</p>
-          </div>
-          <div>
-            <p class="font-medium text-gray-700 dark:text-gray-300">Tasa de Rechazo: N/A</p>
-          </div>
-          <div>
-            <p class="font-medium text-gray-700 dark:text-gray-300">Tiempo Promedio Aprobación: N/A</p>
-          </div>
-        </div>
-      </div>
-
       @if (agreementsService.agreementsResource.isLoading()) {
         <div class="loading">Loading agreements...</div>
       } @else if (agreementsService.agreementsResource.error()) {

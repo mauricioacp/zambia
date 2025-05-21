@@ -1,9 +1,14 @@
 import { Route } from '@angular/router';
-import { HeadquarterDashboardSmartComponent } from './components/smart/headquarter-dashboard.smart-component';
+import { HeadquartersListSmartComponent } from './components/smart/headquarters-list.smart-component';
+import { HeadquarterDetailSmartComponent } from './components/smart/headquarter-detail.smart-component';
 
 export const featHeadQuarterRoutes: Route[] = [
   {
     path: '',
-    component: HeadquarterDashboardSmartComponent,
+    component: HeadquartersListSmartComponent,
+  },
+  {
+    path: ':headquarterId',
+    component: HeadquarterDetailSmartComponent,
   },
 ];

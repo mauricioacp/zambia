@@ -537,19 +537,19 @@ export class ShowcaseUiComponent {
     {
       id: '1',
       title: 'Nuevo estudiante registrado',
-      date: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
+      date: new Date(Date.now() - 1000 * 60 * 30),
       type: 'success',
     },
     {
       id: '2',
       title: 'Actualización de perfil de facilitador',
-      date: new Date(Date.now() - 1000 * 60 * 120), // 2 hours ago
+      date: new Date(Date.now() - 1000 * 60 * 120),
       type: 'info',
     },
     {
       id: '3',
       title: 'Problema con la sincronización de datos',
-      date: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
+      date: new Date(Date.now() - 1000 * 60 * 60 * 5),
       type: 'error',
     },
     {
@@ -594,13 +594,13 @@ export class ShowcaseUiComponent {
       id: '1',
       message: 'Mantenimiento programado el 15 de Julio a las 22:00',
       type: 'info',
-      date: new Date(Date.now() + 1000 * 60 * 60 * 24 * 3), // 3 days in future
+      date: new Date(Date.now() + 1000 * 60 * 60 * 24 * 3),
     },
     {
       id: '2',
       message: 'Sincronización de datos completada exitosamente',
       type: 'success',
-      date: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
+      date: new Date(Date.now() - 1000 * 60 * 30),
     },
     {
       id: '3',
@@ -624,19 +624,19 @@ export class ShowcaseUiComponent {
     {
       id: '1',
       description: 'Nuevo estudiante: María García',
-      date: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
+      date: new Date(Date.now() - 1000 * 60 * 60),
       type: 'success',
     },
     {
       id: '2',
       description: 'Taller "Introducción a la Programación" completado',
-      date: new Date(Date.now() - 1000 * 60 * 60 * 3), // 3 hours ago
+      date: new Date(Date.now() - 1000 * 60 * 60 * 3),
       type: 'info',
     },
     {
       id: '3',
       description: 'Facilitador ausente: Juan Pérez',
-      date: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
+      date: new Date(Date.now() - 1000 * 60 * 60 * 5),
       type: 'warning',
     },
   ]);

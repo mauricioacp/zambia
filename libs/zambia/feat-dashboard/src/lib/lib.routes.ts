@@ -20,6 +20,14 @@ export const zambiaFeatDashboardRoutes: Route[] = [
         component: ShowcaseUiComponent,
       },
       {
+        path: 'countries',
+        canActivate: [authGuard, rolesGuard],
+        data: {
+          requiredRoles: [ROLE.SUPERADMIN, ROLE.HEADQUARTER_MANAGER],
+        },
+        loadChildren: () => import('@zambia/feat-countries').then((mod) => mod.featCountriesRoutes),
+      },
+      {
         path: 'headquarters',
         canActivate: [authGuard, rolesGuard],
         data: {
@@ -34,6 +42,14 @@ export const zambiaFeatDashboardRoutes: Route[] = [
           requiredRoles: [ROLE.SUPERADMIN, ROLE.HEADQUARTER_MANAGER],
         },
         loadChildren: () => import('@zambia/feat-agreements').then((mod) => mod.featAgreementsRoutes),
+      },
+      {
+        path: 'workshops',
+        canActivate: [authGuard, rolesGuard],
+        data: {
+          requiredRoles: [ROLE.SUPERADMIN, ROLE.HEADQUARTER_MANAGER, ROLE.FACILITATOR],
+        },
+        loadChildren: () => import('@zambia/feat-workshops').then((mod) => mod.featWorkshopsRoutes),
       },
       {
         path: 'access-denied',

@@ -1,5 +1,5 @@
 import { computed, inject, Injectable } from '@angular/core';
-import { filterRoleGroups, ROLE_GROUPS, RoleCode } from './ROLES_CONSTANTS';
+import { ROLE, ROLE_GROUPS, RoleCode } from './ROLES_CONSTANTS';
 import { AuthService } from '@zambia/data-access-auth';
 
 @Injectable({
@@ -38,11 +38,17 @@ export class RolesAccessService {
   getNavigationForRole(role: RoleCode | null) {
     if (!role) return [];
 
+    const adminAndManagementRoles = [
+      ...ROLE_GROUPS.ADMINISTRATION,
+      ...ROLE_GROUPS.TOP_MANAGEMENT,
+      ...ROLE_GROUPS.HEADQUARTERS_MANAGEMENT,
+    ];
+
     return [
       {
-        items: [{ text: 'main_panel', route: '' }],
+        items: [{ text: 'main_panel', route: 'panel' }],
       },
-      {
+      /* todo {
         header: 'members',
         roles: [...Object.values(filterRoleGroups('STUDENTS')).flat()],
         items: [
@@ -72,8 +78,34 @@ export class RolesAccessService {
             roles: [...Object.values(filterRoleGroups('STUDENTS')).flat()],
           },
         ],
-      },
+      },*/
       {
+        header: 'management',
+        roles: adminAndManagementRoles,
+        items: [
+          {
+            text: 'countries',
+            route: 'countries',
+            roles: adminAndManagementRoles,
+          },
+          {
+            text: 'headquarters',
+            route: 'headquarters',
+            roles: adminAndManagementRoles,
+          },
+          {
+            text: 'workshops',
+            route: 'workshops',
+            roles: [...adminAndManagementRoles, ROLE.FACILITATOR],
+          },
+          {
+            text: 'agreements',
+            route: 'agreements',
+            roles: adminAndManagementRoles,
+          },
+        ],
+      },
+      /* todo {
         header: 'reports',
         items: [
           {
@@ -88,8 +120,8 @@ export class RolesAccessService {
             ],
           },
         ],
-      },
-      {
+      },*/
+      /* todo  {
         header: 'my_akademy',
         items: [
           {
@@ -98,7 +130,7 @@ export class RolesAccessService {
             roles: [...Object.values(ROLE_GROUPS).flat()],
           },
         ],
-      },
+      },*/
     ];
   }
 }

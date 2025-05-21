@@ -10,4 +10,5 @@ export const ICONS = {
   PAPERCLIP: 'paperclip',
   USERS: 'users',
   HEADQUARTERS: 'landmark',
+  BOOK: 'book',
 };

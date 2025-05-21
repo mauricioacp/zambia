@@ -5,7 +5,6 @@ import {
   LayoutService,
   MainSidebarNavItemUiComponent,
   PageContainerUiComponent,
-  PageFooterUiComponent,
   PageHeaderUiComponent,
   SidebarHeaderUiComponent,
   SidebarMiniUiComponent,
@@ -37,7 +36,6 @@ interface NavSection {
     CommonModule,
     SidebarUiComponent,
     PageContainerUiComponent,
-    PageFooterUiComponent,
     PageHeaderUiComponent,
     SidebarMiniUiComponent,
     SidebarNavItemUiComponent,
@@ -58,7 +56,7 @@ interface NavSection {
         <z-sidebar-header
           sidebar-header
           title="{{ authService.userName() }}"
-          (closeClicked)="layoutService.closeSidebar()"
+          (closeClicked)="layoutService.toggleSidebar()"
         >
         </z-sidebar-header>
         <z-sidebar-nav sidebar-nav>
@@ -67,32 +65,43 @@ interface NavSection {
               <z-sidebar-nav-section-header [text]="section.header"></z-sidebar-nav-section-header>
             }
             @for (item of section.items; track item.route) {
-              <z-main-sidebar-nav-item
-                [icon]="item.icon"
-                [text]="item.text"
-                [route]="item.route"
-              ></z-main-sidebar-nav-item>
+              <div class="mb-2">
+                <z-main-sidebar-nav-item
+                  [icon]="item.icon"
+                  [text]="item.text"
+                  [route]="item.route"
+                ></z-main-sidebar-nav-item>
+              </div>
             }
           }
         </z-sidebar-nav>
         <z-sidebar-mini sidebar-mini>
-          <z-sidebar-nav-item main-nav icon="layout-dashboard" [route]="'/dashboard/panel'"></z-sidebar-nav-item>
-          <z-sidebar-nav-item user-nav icon="settings" [route]="'settings'"></z-sidebar-nav-item>
-          <z-sidebar-nav-item user-nav icon="log-out" (clicked)="this.authService.signOut()"></z-sidebar-nav-item>
+          <z-sidebar-nav-item
+            [label]="'Panel de gestión'"
+            main-nav
+            icon="layout-dashboard"
+            [route]="'/dashboard/panel'"
+          ></z-sidebar-nav-item>
+          <z-sidebar-nav-item [label]="'Mis datos'" user-nav icon="user" [route]="'settings'"></z-sidebar-nav-item>
+          <z-sidebar-nav-item
+            [label]="'Cerrar sesión'"
+            user-nav
+            icon="log-out"
+            (clicked)="this.authService.signOut()"
+          ></z-sidebar-nav-item>
         </z-sidebar-mini>
       </z-sidebar>
 
       <z-page-header [sidebarOpenState]="layoutService.sidebarOpen()" (toggleSidebar)="layoutService.toggleSidebar()">
-        >
         <z-brand-logo brand-logo-mobile />
         <div class="flex h-16 flex-none items-center justify-center" brand-logo-mobile></div>
       </z-page-header>
       <z-page-container>
         <router-outlet />
       </z-page-container>
-      <section class="mt-auto">
-        <z-page-footer />
-      </section>
+      <!--      <section class="mt-auto">-->
+      <!--        <z-page-footer />-->
+      <!--      </section>-->
     </div>
   `,
   styles: ``,
