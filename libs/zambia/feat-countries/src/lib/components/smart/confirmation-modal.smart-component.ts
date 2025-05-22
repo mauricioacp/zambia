@@ -21,7 +21,7 @@ export interface ConfirmationData {
     <div class="confirmation-modal">
       <div class="modal-header">
         <tui-icon
-          [icon]="context.data.danger ? '@tui.alert-triangle' : '@tui.help-circle'"
+          [icon]="context.data.danger ? 'triangle-alert' : '@tui.help-circle'"
           [class]="context.data.danger ? 'danger-icon' : 'info-icon'"
         ></tui-icon>
         <h3 class="heading">{{ context.data.title }}</h3>
@@ -67,36 +67,44 @@ export interface ConfirmationData {
     .confirmation-modal {
       min-width: 400px;
       max-width: 500px;
+      text-align: center;
     }
 
     .modal-header {
-      text-align: center;
-      padding: 2rem 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 2rem 1.5rem;
       background: var(--tui-base-02);
       border-bottom: 1px solid var(--tui-border-normal);
     }
 
     .danger-icon {
-      font-size: 3rem;
+      display: block;
+      font-size: 3.5rem;
       color: var(--tui-status-negative);
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
     }
 
     .info-icon {
-      font-size: 3rem;
+      display: block;
+      font-size: 3.5rem;
       color: var(--tui-primary);
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
     }
 
     .heading {
-      font-size: 1.25rem;
+      font-size: 1.5rem;
       font-weight: 700;
       margin: 0;
       color: var(--tui-text-primary);
+      line-height: 1.3;
     }
 
     .modal-content {
-      padding: 1.5rem 2rem;
+      padding: 2rem 2.5rem;
+      background: var(--tui-base-01);
     }
 
     .message {
@@ -104,23 +112,41 @@ export interface ConfirmationData {
       line-height: 1.6;
       color: var(--tui-text-secondary);
       text-align: center;
+      font-size: 1rem;
     }
 
     .form-actions {
       display: flex;
       gap: 1rem;
       justify-content: center;
+      align-items: center;
       padding: 1.5rem 2rem 2rem;
       border-top: 1px solid var(--tui-border-normal);
       background: var(--tui-base-02);
     }
 
     .cancel-button {
-      min-width: 120px;
+      min-width: 140px;
     }
 
     .confirm-button {
-      min-width: 120px;
+      min-width: 140px;
+    }
+
+    @media (max-width: 480px) {
+      .confirmation-modal {
+        min-width: 300px;
+      }
+
+      .form-actions {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .cancel-button,
+      .confirm-button {
+        width: 100%;
+      }
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

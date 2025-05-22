@@ -38,24 +38,30 @@ import { AsyncPipe } from '@angular/common';
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-content">
         <div class="form-field">
-          <label class="field-label">
+          <label class="field-label" for="country-name">
             <tui-icon icon="@tui.map-pin" class="field-icon"></tui-icon>
             {{ 'country_name' | translate }}
           </label>
           <tui-textfield tuiAutoFocus tuiTextfieldSize="l" class="form-input">
-            <input tuiTextfield formControlName="name" [placeholder]="'enter_country_name' | translate" />
+            <input 
+              tuiTextfield 
+              id="country-name"
+              formControlName="name" 
+              [placeholder]="'enter_country_name' | translate" 
+            />
           </tui-textfield>
           <tui-error formControlName="name" [error]="[] | tuiFieldError | async"></tui-error>
         </div>
 
         <div class="form-field">
-          <label class="field-label">
+          <label class="field-label" for="country-code">
             <tui-icon icon="@tui.code" class="field-icon"></tui-icon>
             {{ 'country_code' | translate }}
           </label>
           <tui-textfield tuiTextfieldSize="l" class="form-input">
             <input
               tuiTextfield
+              id="country-code"
               formControlName="code"
               [placeholder]="'enter_country_code' | translate"
               maxlength="3"
@@ -69,12 +75,16 @@ import { AsyncPipe } from '@angular/common';
         </div>
 
         <div class="form-field">
-          <label class="field-label">
+          <label class="field-label" for="country-status">
             <tui-icon icon="@tui.toggle-on" class="field-icon"></tui-icon>
             {{ 'status' | translate }}
           </label>
           <tui-textfield tuiTextfieldSize="l" class="form-input">
-            <select tuiTextfield formControlName="status">
+            <select 
+              tuiTextfield 
+              id="country-status"
+              formControlName="status"
+            >
               <option value="" disabled>{{ 'select_status' | translate }}</option>
               <option value="active">{{ 'active' | translate }}</option>
               <option value="inactive">{{ 'inactive' | translate }}</option>
@@ -123,37 +133,49 @@ import { AsyncPipe } from '@angular/common';
     }
 
     .form-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       text-align: center;
-      padding: 2rem 2rem 1.5rem;
+      padding: 2.5rem 2rem 1.5rem;
       background: var(--tui-base-02);
       border-bottom: 1px solid var(--tui-border-normal);
     }
 
     .form-icon {
-      font-size: 3rem;
+      display: block;
+      font-size: 3.5rem;
       color: var(--tui-primary);
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
     }
 
     .heading {
       font-size: 1.5rem;
       font-weight: 700;
-      margin: 0 0 0.5rem;
+      margin: 0 0 0.75rem;
       color: var(--tui-text-primary);
+      line-height: 1.3;
     }
 
     .form-description {
       color: var(--tui-text-secondary);
       margin: 0;
-      font-size: 0.875rem;
+      font-size: 1rem;
+      line-height: 1.5;
     }
 
     .form-content {
-      padding: 2rem;
+      padding: 2rem 2.5rem;
+      background: var(--tui-base-01);
     }
 
     .form-field {
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .form-field:last-of-type {
+      margin-bottom: 0;
     }
 
     .field-label {
@@ -162,13 +184,15 @@ import { AsyncPipe } from '@angular/common';
       gap: 0.5rem;
       font-weight: 600;
       color: var(--tui-text-primary);
-      margin-bottom: 0.5rem;
-      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.9375rem;
+      cursor: pointer;
     }
 
     .field-icon {
-      font-size: 1rem;
+      font-size: 1.125rem;
       color: var(--tui-primary);
+      opacity: 0.8;
     }
 
     .form-input {
@@ -176,26 +200,48 @@ import { AsyncPipe } from '@angular/common';
     }
 
     .field-hint {
-      font-size: 0.75rem;
+      font-size: 0.8125rem;
       color: var(--tui-text-tertiary);
-      margin-top: 0.25rem;
+      margin-top: 0.5rem;
+      padding-left: 0.25rem;
     }
 
     .form-actions {
       display: flex;
       gap: 1rem;
-      justify-content: flex-end;
-      margin-top: 2rem;
-      padding-top: 1.5rem;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem 2rem 2rem;
       border-top: 1px solid var(--tui-border-normal);
+      background: var(--tui-base-02);
     }
 
     .cancel-button {
-      min-width: 120px;
+      min-width: 140px;
     }
 
     .submit-button {
-      min-width: 150px;
+      min-width: 140px;
+    }
+
+    @media (max-width: 580px) {
+      .country-form {
+        min-width: 320px;
+      }
+
+      .form-content {
+        padding: 1.5rem;
+      }
+
+      .form-actions {
+        flex-direction: column-reverse;
+        gap: 0.75rem;
+      }
+
+      .cancel-button,
+      .submit-button {
+        width: 100%;
+      }
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

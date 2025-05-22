@@ -180,7 +180,7 @@ export class CountriesListSmartComponent {
     const dialog = this.dialogService.open<boolean>(new PolymorpheusComponent(ConfirmationModalSmartComponent), {
       data: confirmationData,
       dismissible: true,
-      size: 's',
+      size: 'm',
     });
 
     dialog.subscribe({
