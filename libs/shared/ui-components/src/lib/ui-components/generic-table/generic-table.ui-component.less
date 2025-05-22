@@ -1,19 +1,69 @@
 @import '@taiga-ui/core/styles/taiga-ui-local.less';
 
 :host {
-  // Custom CSS properties using Taiga UI variables
-  --z-table-bg: var(--tui-background-base);
-  --z-table-border: var(--tui-border-normal);
-  --z-table-text: var(--tui-text-primary);
-  --z-table-text-secondary: var(--tui-text-secondary);
-  --z-table-hover: var(--tui-background-neutral-1-hover);
-  --z-table-selected: var(--tui-background-accent-1);
-  --z-table-selected-text: var(--tui-text-primary-on-accent-1);
-  --z-table-shadow: var(--tui-shadow-small);
-  --z-table-elevation: var(--tui-background-elevation-1);
-
   display: block;
   width: 100%;
+
+  // Override Taiga UI variables with style guide colors for light theme
+  --tui-background-base: #ffffff; // bg-white
+  --tui-background-elevation-1: rgb(249 250 251); // bg-gray-50
+  --tui-background-elevation-2: rgb(243 244 246); // bg-gray-100
+  --tui-background-neutral-1: rgb(249 250 251); // bg-gray-50
+  --tui-background-neutral-1-hover: rgb(243 244 246); // bg-gray-100
+  --tui-background-accent-1: rgb(59 130 246); // bg-blue-500
+  --tui-background-accent-1-hover: rgb(37 99 235); // bg-blue-600
+  --tui-border-normal: rgb(229 231 235); // border-gray-200
+  --tui-border-focus: rgb(14 165 233); // ring-sky-500
+  --tui-text-primary: rgb(31 41 55); // text-gray-800
+  --tui-text-secondary: rgb(107 114 128); // text-gray-500
+  --tui-text-tertiary: rgb(156 163 175); // text-gray-400
+  --tui-text-primary-on-accent-1: #ffffff;
+  --tui-shadow-small: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); // shadow-md
+  --tui-shadow-popup: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); // shadow-lg
+  --tui-status-positive: rgb(22 163 74); // text-green-600
+  --tui-status-positive-pale: rgb(240 253 244); // bg-green-50
+  --tui-status-negative: rgb(220 38 38); // text-red-600
+  --tui-status-negative-pale: rgb(254 242 242); // bg-red-50
+
+  // Dark theme overrides
+  @media (prefers-color-scheme: dark) {
+    --tui-background-base: rgb(30 41 59); // dark:bg-slate-800
+    --tui-background-elevation-1: rgb(17 24 39); // dark:bg-gray-900
+    --tui-background-elevation-2: rgb(55 65 81); // dark:bg-gray-700
+    --tui-background-neutral-1: rgb(55 65 81); // dark:bg-gray-700
+    --tui-background-neutral-1-hover: rgb(75 85 99); // dark:bg-gray-600
+    --tui-background-accent-1: rgb(59 130 246); // same blue in dark
+    --tui-background-accent-1-hover: rgb(37 99 235);
+    --tui-border-normal: rgb(55 65 81); // dark:border-gray-700
+    --tui-text-primary: #ffffff; // dark:text-white
+    --tui-text-secondary: rgb(156 163 175); // dark:text-gray-400
+    --tui-text-tertiary: rgb(107 114 128); // dark:text-gray-500
+    --tui-shadow-small: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --tui-shadow-popup: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+    --tui-status-positive: rgb(134 239 172); // dark:text-green-300
+    --tui-status-positive-pale: rgb(20 83 45 / 0.3); // dark:bg-green-900/30
+    --tui-status-negative: rgb(252 165 165); // dark:text-red-300
+    --tui-status-negative-pale: rgb(127 29 29 / 0.3); // dark:bg-red-900/30
+  }
+
+  // Dark class override (for manual theme switching)
+  :global(.dark) & {
+    --tui-background-base: rgb(30 41 59);
+    --tui-background-elevation-1: rgb(17 24 39);
+    --tui-background-elevation-2: rgb(55 65 81);
+    --tui-background-neutral-1: rgb(55 65 81);
+    --tui-background-neutral-1-hover: rgb(75 85 99);
+    --tui-border-normal: rgb(55 65 81);
+    --tui-text-primary: #ffffff;
+    --tui-text-secondary: rgb(156 163 175);
+    --tui-text-tertiary: rgb(107 114 128);
+    --tui-shadow-small: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --tui-shadow-popup: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+    --tui-status-positive: rgb(134 239 172);
+    --tui-status-positive-pale: rgb(20 83 45 / 0.3);
+    --tui-status-negative: rgb(252 165 165);
+    --tui-status-negative-pale: rgb(127 29 29 / 0.3);
+  }
 }
 
 // Extend Taiga UI table styles
@@ -29,14 +79,14 @@
 }
 
 .z-table-container {
-  background: var(--z-table-bg);
-  border: 1px solid var(--z-table-border);
-  box-shadow: var(--z-table-shadow);
+  background: var(--tui-background-base);
+  border: 1px solid var(--tui-border-normal);
+  box-shadow: var(--tui-shadow-small);
 }
 
 .z-table-controls {
-  background: var(--z-table-elevation);
-  border-bottom: 1px solid var(--z-table-border);
+  background: var(--tui-background-elevation-1);
+  border-bottom: 1px solid var(--tui-border-normal);
   padding: 1.5rem;
   
   .z-controls-wrapper {
@@ -55,7 +105,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  border-radius: var(--tui-radius-s);
+  border-radius: 0.5rem; // rounded-lg
   background: var(--tui-background-accent-1);
   color: var(--tui-text-primary-on-accent-1);
   border: 1px solid var(--tui-background-accent-1);
@@ -65,7 +115,6 @@
   
   &:hover {
     background: var(--tui-background-accent-1-hover);
-    box-shadow: var(--tui-shadow-small-hover);
     transform: translateY(-1px);
   }
   
@@ -89,15 +138,15 @@
     align-items: center;
     gap: 0.25rem;
     font-size: 0.75rem;
-    color: var(--z-table-text-secondary);
+    color: var(--tui-text-secondary);
   }
 }
 
 // Table styling that works with Taiga UI
 .z-table {
   [tuiThead] {
-    background: var(--z-table-elevation);
-    border-bottom: 1px solid var(--z-table-border);
+    background: var(--tui-background-elevation-1);
+    border-bottom: 1px solid var(--tui-border-normal);
     
     [tuiTh] {
       padding: 1rem 1.5rem;
@@ -105,7 +154,7 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: var(--z-table-text);
+      color: var(--tui-text-primary);
       
       .z-header-content {
         display: flex;
@@ -116,24 +165,24 @@
   }
   
   [tuiTbody] {
-    background: var(--z-table-bg);
+    background: var(--tui-background-base);
     
     [tuiTr] {
       .transition(all);
-      border-bottom: 1px solid var(--z-table-border);
+      border-bottom: 1px solid var(--tui-border-normal);
       
       &:nth-child(even) {
         background: var(--tui-background-neutral-1);
       }
       
       &:hover {
-        background: var(--z-table-hover);
+        background: var(--tui-background-neutral-1-hover);
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       }
       
       &.z-row-selected {
         background: var(--tui-background-accent-1);
-        color: var(--z-table-selected-text);
+        color: var(--tui-text-primary-on-accent-1);
         
         &:hover {
           background: var(--tui-background-accent-1-hover);
@@ -144,7 +193,7 @@
         .transition(color);
         padding: 1rem 1.5rem;
         font-size: 0.875rem;
-        color: var(--z-table-text);
+        color: var(--tui-text-primary);
         
         .z-cell-content {
           font-weight: 500;
@@ -154,6 +203,7 @@
   }
 }
 
+// Status badges using Taiga UI status variables
 .z-status-badge {
   display: inline-flex;
   align-items: center;
@@ -199,8 +249,8 @@
 }
 
 .z-pagination {
-  background: var(--z-table-elevation);
-  border-top: 1px solid var(--z-table-border);
+  background: var(--tui-background-elevation-1);
+  border-top: 1px solid var(--tui-border-normal);
   padding: 1rem 1.5rem;
   
   .z-pagination-wrapper {
@@ -211,7 +261,7 @@
   
   .z-pagination-info {
     font-size: 0.875rem;
-    color: var(--z-table-text-secondary);
+    color: var(--tui-text-secondary);
   }
 }
 
@@ -238,12 +288,12 @@
     margin-bottom: 0.5rem;
     font-size: 1.125rem;
     font-weight: 600;
-    color: var(--z-table-text);
+    color: var(--tui-text-primary);
   }
   
   .z-empty-description {
     font-size: 0.875rem;
-    color: var(--z-table-text-secondary);
+    color: var(--tui-text-secondary);
   }
   
   .z-clear-search {
@@ -253,7 +303,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
-    border-radius: var(--tui-radius-s);
+    border-radius: 0.375rem; // rounded-md
     background: var(--tui-background-accent-1);
     color: var(--tui-text-primary-on-accent-1);
     font-size: 0.875rem;
@@ -270,8 +320,10 @@
 
 .z-dropdown {
   width: 18rem;
-  border-radius: var(--tui-radius-m);
+  border-radius: 0.5rem; // rounded-lg
   box-shadow: var(--tui-shadow-popup);
+  background: var(--tui-background-base);
+  border: 1px solid var(--tui-border-normal);
   
   .z-dropdown-content {
     padding: 1rem;
@@ -281,7 +333,7 @@
     margin-bottom: 1rem;
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--z-table-text);
+    color: var(--tui-text-primary);
   }
   
   .z-column-option {
@@ -291,7 +343,7 @@
     gap: 0.75rem;
     margin-bottom: 0.75rem;
     padding: 0.5rem;
-    border-radius: var(--tui-radius-s);
+    border-radius: 0.375rem; // rounded-md
     cursor: pointer;
     
     &:hover {
@@ -301,8 +353,8 @@
     input {
       width: 1rem;
       height: 1rem;
-      border-radius: var(--tui-radius-xs);
-      border: 1px solid var(--z-table-border);
+      border-radius: 0.25rem; // rounded
+      border: 1px solid var(--tui-border-normal);
       accent-color: var(--tui-background-accent-1);
       
       &:focus {
@@ -314,22 +366,22 @@
     span {
       font-size: 0.875rem;
       font-weight: 500;
-      color: var(--z-table-text);
+      color: var(--tui-text-primary);
     }
   }
   
   .z-dropdown-footer {
     margin-top: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid var(--z-table-border);
+    border-top: 1px solid var(--tui-border-normal);
   }
   
   .z-reset-button {
     .transition(all);
     padding: 0.5rem 0.75rem;
-    border-radius: var(--tui-radius-s);
+    border-radius: 0.375rem; // rounded-md
     background: transparent;
-    color: var(--tui-text-action);
+    color: var(--tui-background-accent-1);
     font-size: 0.75rem;
     font-weight: 500;
     border: none;
@@ -337,7 +389,7 @@
     
     &:hover {
       background: var(--tui-background-neutral-1-hover);
-      color: var(--tui-text-action-hover);
+      color: var(--tui-background-accent-1-hover);
     }
   }
 }

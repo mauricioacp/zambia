@@ -85,11 +85,7 @@ import { TuiLabel, TuiTextfieldComponent, TuiTextfieldDirective, TuiTextfieldOpt
                       }
 
                       <div class="z-dropdown-footer">
-                        <button
-                          type="button"
-                          (click)="resetColumnVisibility()"
-                          class="z-reset-button"
-                        >
+                        <button type="button" (click)="resetColumnVisibility()" class="z-reset-button">
                           Mostrar todas las columnas
                         </button>
                       </div>
@@ -112,9 +108,7 @@ import { TuiLabel, TuiTextfieldComponent, TuiTextfieldDirective, TuiTextfieldOpt
                       (input)="onSearchChange($event)"
                       class="pr-10"
                     />
-                    <tui-icon
-                      icon="@tui.search"
-                    />
+                    <tui-icon icon="@tui.search" />
                   </tui-textfield>
                 </div>
                 @if (searchableColumns().length > 0) {
@@ -140,53 +134,34 @@ import { TuiLabel, TuiTextfieldComponent, TuiTextfieldDirective, TuiTextfieldOpt
             [columns]="displayHeaders()"
           >
             <thead tuiThead>
-            <tr tuiThGroup>
-              @for (header of displayHeaders(); track header) {
-                <th
-                  tuiTh
-                  scope="col"
-                  [style.min-width.px]="getColumnWidth(header)"
-                >
-                  <div class="z-header-content">
-                    <span>{{ displayLabels()[header] || header }}</span>
-                  </div>
-                </th>
-              }
-            </tr>
-            </thead>
-            <tbody
-              tuiTbody
-              *tuiLet="paginatedItems() | tuiTableSort as sortedItems"
-              [data]="sortedItems"
-            >
-              @for (item of sortedItems; track getTrackBy(item)) {
-                <tr
-                  tuiTr
-                  [ngClass]="getRowClasses(item)"
-                  (click)="onRowClick(item)"
-                >
+              <tr tuiThGroup>
                 @for (header of displayHeaders(); track header) {
-                  <td
-                    [ngClass]="getCellClasses(header)"
-                    tuiTd
-                    *tuiCell="header"
-                  >
-                    @if (getColumnTemplate(header); as template) {
-                      <ng-container *ngTemplateOutlet="template; context: { $implicit: item, item: item }" />
-                    } @else if (header === 'status') {
-                      @let status = getStatusDisplay(item[header]);
-                      <span
-                        class="z-status-badge"
-                        [ngClass]="getStatusComponentClasses(item[header])"
-                      >
-                        <span class="z-status-dot"></span>
-                        {{ status }}
-                      </span>
-                    } @else {
-                      <span class="z-cell-content">{{ formatCellValue(item[header]) }}</span>
-                    }
-                  </td>
+                  <th tuiTh scope="col" [style.min-width.px]="getColumnWidth(header)">
+                    <div class="z-header-content">
+                      <span>{{ displayLabels()[header] || header }}</span>
+                    </div>
+                  </th>
                 }
+              </tr>
+            </thead>
+            <tbody tuiTbody *tuiLet="paginatedItems() | tuiTableSort as sortedItems" [data]="sortedItems">
+              @for (item of sortedItems; track getTrackBy(item)) {
+                <tr tuiTr [ngClass]="getRowClasses(item)" (click)="onRowClick(item)">
+                  @for (header of displayHeaders(); track header) {
+                    <td [ngClass]="getCellClasses(header)" tuiTd *tuiCell="header">
+                      @if (getColumnTemplate(header); as template) {
+                        <ng-container *ngTemplateOutlet="template; context: { $implicit: item, item: item }" />
+                      } @else if (header === 'status') {
+                        @let status = getStatusDisplay(item[header]);
+                        <span class="z-status-badge" [ngClass]="getStatusComponentClasses(item[header])">
+                          <span class="z-status-dot"></span>
+                          {{ status }}
+                        </span>
+                      } @else {
+                        <span class="z-cell-content">{{ formatCellValue(item[header]) }}</span>
+                      }
+                    </td>
+                  }
                 </tr>
               }
             </tbody>
@@ -198,8 +173,8 @@ import { TuiLabel, TuiTextfieldComponent, TuiTextfieldDirective, TuiTextfieldOpt
           <div class="z-pagination border-t border-gray-200 dark:border-gray-700">
             <div class="z-pagination-wrapper">
               <div class="z-pagination-info">
-                Mostrando {{ (currentPage() * pageSize()) + 1 }}
-                - {{ Math.min((currentPage() + 1) * pageSize(), totalItems()) }} de {{ totalItems() }} resultados
+                Mostrando {{ currentPage() * pageSize() + 1 }} -
+                {{ Math.min((currentPage() + 1) * pageSize(), totalItems()) }} de {{ totalItems() }} resultados
               </div>
               <tui-table-pagination
                 [total]="totalItems()"
@@ -220,11 +195,7 @@ import { TuiLabel, TuiTextfieldComponent, TuiTextfieldDirective, TuiTextfieldOpt
           <h3 class="z-empty-title">No hay datos disponibles</h3>
           <p class="z-empty-description">{{ emptyMessage() }}</p>
           @if (searchTerm()) {
-            <button
-              type="button"
-              (click)="clearSearch()"
-              class="z-clear-search"
-            >
+            <button type="button" (click)="clearSearch()" class="z-clear-search">
               <tui-icon icon="@tui.x" class="h-4 w-4" />
               Limpiar búsqueda
             </button>
@@ -426,9 +397,7 @@ export class GenericTableUiComponent<T extends Record<string, unknown>> {
 
   getStatusDotClasses(status: unknown): string {
     if (typeof status === 'string') {
-      return status === 'active'
-        ? 'bg-green-500 dark:bg-green-400'
-        : 'bg-red-500 dark:bg-red-400';
+      return status === 'active' ? 'bg-green-500 dark:bg-green-400' : 'bg-red-500 dark:bg-red-400';
     }
     return 'bg-gray-500 dark:bg-gray-400';
   }

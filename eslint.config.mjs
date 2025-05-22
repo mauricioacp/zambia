@@ -26,11 +26,7 @@ export default [
             },
             {
               sourceTag: 'type:components',
-              onlyDependOnLibsWithTags: [
-                'type:components',
-                'type:util',
-                'type:api',
-              ],
+              onlyDependOnLibsWithTags: ['type:components', 'type:util', 'type:api'],
             },
             {
               sourceTag: 'type:util',
@@ -38,13 +34,7 @@ export default [
             },
             {
               sourceTag: 'type:feat',
-              onlyDependOnLibsWithTags: [
-                'type:util',
-                'type:api',
-                'type:feat',
-                'type:components',
-                'type:data-access',
-              ],
+              onlyDependOnLibsWithTags: ['type:util', 'type:api', 'type:feat', 'type:components', 'type:data-access'],
             },
             {
               sourceTag: 'scope:shared',
@@ -60,17 +50,10 @@ export default [
     },
   },
   {
-    files: [
-      '**/*.ts',
-      '**/*.tsx',
-      '**/*.cts',
-      '**/*.mts',
-      '**/*.js',
-      '**/*.jsx',
-      '**/*.cjs',
-      '**/*.mjs',
-    ],
+    files: ['**/*.ts', '**/*.tsx', '**/*.cts', '**/*.mts', '**/*.js', '**/*.jsx', '**/*.cjs', '**/*.mjs'],
     // Override or add rules here
-    rules: {},
+    rules: {
+      '@angular-eslint/template/label-has-associated-control': 'off',
+    },
   },
 ];
