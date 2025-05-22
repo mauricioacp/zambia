@@ -24,6 +24,8 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
       <z-generic-table
         [items]="headquartersFacade.headquartersResourceValue()"
         [headers]="['name', 'country', 'address', 'status', 'acciones']"
+        [searchableColumns]="['name', 'countries', 'address']"
+        [searchTransformers]="searchTransformers"
         [headerLabels]="headerLabels"
         [enablePagination]="true"
         [enableSorting]="true"
@@ -91,6 +93,18 @@ export class HeadquartersListSmartComponent {
     address: this.translate.instant('address'),
     status: this.translate.instant('status'),
     actions: this.translate.instant('actions'),
+  };
+
+  // Search transformers to handle complex objects
+  searchTransformers = {
+    countries: (value: any) => {
+      if (value && value.name && value.code) {
+        return `${value.name} (${value.code}) ${value.name} ${value.code}`;
+      }
+      if (value && value.name) return value.name;
+      if (value && value.code) return value.code;
+      return '';
+    }
   };
 
   constructor() {

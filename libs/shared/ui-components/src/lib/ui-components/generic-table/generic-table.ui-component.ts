@@ -103,9 +103,14 @@ import { TuiLabel, TuiTextfieldComponent, TuiTextfieldDirective, TuiTextfieldOpt
             @if (enableFiltering()) {
               <div class="max-w-sm flex-1">
                 <tui-textfield [tuiTextfieldSize]="'m'">
-                  <label for="search" tuiLabel>Buscar...</label>
+                  <label for="search" tuiLabel>{{ getSearchPlaceholder() }}</label>
                   <input tuiTextfield [value]="searchInputValue()" (input)="onSearchChange($event)" />
                 </tui-textfield>
+                @if (searchableColumns().length > 0) {
+                  <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    Buscando en: {{ getSearchableColumnsDisplay() }}
+                  </div>
+                }
               </div>
             }
           </div>
@@ -229,6 +234,8 @@ export class GenericTableUiComponent<T extends Record<string, unknown>> {
 
   // Search configuration
   searchDebounceTime = input<number>(300);
+  searchableColumns = input<string[]>([]);
+  searchTransformers = input<Record<string, (value: any) => string>>({}); // Custom transformers for specific columns
 
   sortableColumns = input<string[]>([]);
   columnWidths = input<Record<string, number>>({});
@@ -291,8 +298,15 @@ export class GenericTableUiComponent<T extends Record<string, unknown>> {
 
     if (!searchTerm) return items;
 
+    const searchableColumns = this.searchableColumns();
+    const allColumns = this.allAvailableColumns();
+
+    // Determine which columns to search in
+    const columnsToSearch = searchableColumns.length > 0 ? searchableColumns : allColumns;
+
     return items.filter((item) =>
-      Object.values(item).some((value) => {
+      columnsToSearch.some((column) => {
+        const value = this.getSearchableValueForColumn(item, column);
         if (value === null || value === undefined) return false;
 
         // Use TUI_DEFAULT_MATCHER for better matching (handles accents, special chars, etc.)
@@ -340,13 +354,6 @@ export class GenericTableUiComponent<T extends Record<string, unknown>> {
     }
 
     return JSON.stringify(item);
-  }
-
-  isSortable(column: string): boolean {
-    if (!this.enableSorting()) return false;
-
-    const sortableCols = this.sortableColumns();
-    return sortableCols.length === 0 || sortableCols.includes(column);
   }
 
   getColumnWidth(column: string): number | undefined {
@@ -406,6 +413,57 @@ export class GenericTableUiComponent<T extends Record<string, unknown>> {
     const target = event.target as HTMLInputElement;
     this.searchInputValue.set(target.value);
     // Page reset is handled automatically by the effect
+  }
+
+  getSearchPlaceholder(): string {
+    const searchableColumns = this.searchableColumns();
+    if (searchableColumns.length === 0) {
+      return 'Buscar en todas las columnas...';
+    }
+    return `Buscar en ${searchableColumns.length} columna${searchableColumns.length > 1 ? 's' : ''}...`;
+  }
+
+  getSearchableColumnsDisplay(): string {
+    const searchableColumns = this.searchableColumns();
+    const labels = this.displayLabels();
+
+    return searchableColumns
+      .map(column => labels[column] || column)
+      .join(', ');
+  }
+
+  getSearchableValueForColumn(item: T, column: string): unknown {
+    const value = item[column];
+    const transformers = this.searchTransformers();
+
+    if (transformers[column]) {
+      return transformers[column](value);
+    }
+
+    if (value && typeof value === 'object') {
+      if (column === 'country' || column === 'countries') {
+        const countryObj = value as any;
+        if (countryObj.name && countryObj.code) {
+          return `${countryObj.name} (${countryObj.code}) ${countryObj.name} ${countryObj.code}`;
+        }
+        if (countryObj.name) return countryObj.name;
+        if (countryObj.code) return countryObj.code;
+      }
+
+      const obj = value as any;
+      if (obj.name) return obj.name;
+      if (obj.title) return obj.title;
+      if (obj.description) return obj.description;
+      if (obj.label) return obj.label;
+
+      const stringProps = Object.values(obj).filter(v => typeof v === 'string');
+      if (stringProps.length > 0) {
+        return stringProps.join(' ');
+      }
+
+      return JSON.stringify(value);
+    }
+    return value;
   }
 
   onPaginationChange(event: TuiTablePaginationEvent): void {
