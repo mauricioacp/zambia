@@ -23,13 +23,14 @@ Zambia is an Angular application built with NX workspace for managing Akademia's
 
 The project follows a clear naming convention for libraries:
 
-- **data-access-*** - Services for data retrieval and manipulation
-- **types-*** - TypeScript type definitions
+- **data-access-\*** - Services for data retrieval and manipulation
+- **types-\*** - TypeScript type definitions
 - **ui-components** - Reusable UI components
-- **util-*** - Utility functions and helpers
-- **feat-*** - Feature modules with smart components
+- **util-\*** - Utility functions and helpers
+- **feat-\*** - Feature modules with smart components
 
 Components follow a type-based naming convention:
+
 - **smart-component** - Container components with business logic
 - **ui-component** - Presentational components
 
@@ -40,12 +41,12 @@ The project follows Nx's monorepo architecture with the following structure:
 - **apps/zambia/**: Main Angular application
 - **apps/zambia-e2e/**: End-to-end tests
 - **libs/shared/**: Shared libraries used across the application
-  - **data-access-***: Data services and API connections
+  - **data-access-\***: Data services and API connections
   - **ui-components/**: Reusable UI components
-  - **util-***: Utility functions and helpers
-  - **types-***: TypeScript type definitions
+  - **util-\***: Utility functions and helpers
+  - **types-\***: TypeScript type definitions
 - **libs/zambia/**: Feature-specific libraries
-  - **feat-***: Feature modules (dashboard, auth, shell, countries, etc.)
+  - **feat-\***: Feature modules (dashboard, auth, shell, countries, etc.)
 
 ### Component Organization
 
@@ -116,26 +117,32 @@ The application uses Supabase as its backend with the following main entities:
 ### Core Entities
 
 1. **agreements** - Stores participant agreements with personal info
+
    - Links to headquarters, roles, and seasons
    - Tracks various agreement statuses and permissions
 
 2. **headquarters** - Regional/local centers of the organization
+
    - Connected to countries
    - Contains address and contact information
 
 3. **roles** - Defines user roles and permissions
+
    - Includes code, name, description, and permission levels
    - Contains JSON permissions field for access control
 
 4. **seasons** - Program cycles or academic periods
+
    - Connected to headquarters
    - Has start and end dates
 
 5. **collaborators** - Staff members with specific roles
+
    - Connected to headquarters and roles
    - Tracks status (active, inactive, standby)
 
 6. **students** - Program participants
+
    - Connected to headquarters and seasons
    - Tracks enrollment status and progress
 
@@ -196,23 +203,18 @@ The application supports multiple languages using ngx-translate:
 This project uses Angular v19 with modern patterns and syntax. Always follow these guidelines:
 
 #### Template Syntax
+
 - **ALWAYS use new control flow syntax** instead of structural directives:
+
   ```html
   <!-- ✅ Use new control flow -->
   @if (condition) {
-    <div>Content</div>
-  }
-  
-  @for (item of items; track item.id) {
-    <div>{{ item.name }}</div>
-  }
-  
-  @switch (status) {
-    @case ('active') { <span>Active</span> }
-    @case ('inactive') { <span>Inactive</span> }
-    @default { <span>Unknown</span> }
-  }
-  
+  <div>Content</div>
+  } @for (item of items; track item.id) {
+  <div>{{ item.name }}</div>
+  } @switch (status) { @case ('active') { <span>Active</span> } @case ('inactive') { <span>Inactive</span> } @default {
+  <span>Unknown</span> } }
+
   <!-- ❌ Don't use old structural directives -->
   <div *ngIf="condition">Content</div>
   <div *ngFor="let item of items; trackBy: trackByFn">{{ item.name }}</div>
@@ -220,11 +222,11 @@ This project uses Angular v19 with modern patterns and syntax. Always follow the
 
 - **Use template variables with new syntax**:
   ```html
-  @let user = userService.currentUser();
-  @let isAdmin = user?.role === 'admin';
+  @let user = userService.currentUser(); @let isAdmin = user?.role === 'admin';
   ```
 
 #### Component Architecture
+
 - **Use OnPush change detection strategy** for all components
 - **Use standalone components** exclusively (no NgModules)
 - **Use signals** for reactive state management
@@ -232,6 +234,7 @@ This project uses Angular v19 with modern patterns and syntax. Always follow the
 - **Use effect()** for side effects, sparingly
 
 #### Signals and Reactivity
+
 - **Prefer signals over observables** for local component state
 - **Use linkedSignal()** for dependent state that needs to be writable
 - **Use resource()** for async data loading
@@ -239,52 +242,52 @@ This project uses Angular v19 with modern patterns and syntax. Always follow the
 - **Avoid effect()** unless absolutely necessary for DOM manipulation or external APIs
 
 Example patterns:
+
 ```typescript
 export class ExampleComponent {
   // Input signals
   data = input.required<Data>();
-  
+
   // State signals
   isLoading = signal(false);
   selectedItem = signal<Item | null>(null);
-  
+
   // Computed signals
-  filteredItems = computed(() => 
-    this.items().filter(item => item.status === this.selectedStatus())
-  );
-  
+  filteredItems = computed(() => this.items().filter((item) => item.status === this.selectedStatus()));
+
   // Linked signals for dependent state
-  processedData = linkedSignal(() => 
-    this.processData(this.data())
-  );
-  
+  processedData = linkedSignal(() => this.processData(this.data()));
+
   // Resource for async data
   users = resource({
-    loader: () => this.userService.getUsers()
+    loader: () => this.userService.getUsers(),
   });
-  
+
   // Output signals
   itemSelected = output<Item>();
 }
 ```
 
 #### Component Styling
+
 - **Use inline styles with template literals** for component-specific styles
 - **Leverage CSS custom properties** for theming
 - **Use :host selector** for component root styling
 - **Follow the established design system** (TaigaUI + Tailwind CSS)
 
 #### Custom Events and Outputs
+
 - **Use output()** function for component events
 - **Use descriptive event names** that indicate the action
 - **Emit minimal, focused data** in events
 
 Example:
+
 ```typescript
 export class UserCardComponent {
   userSelected = output<User>();
   userDeleted = output<string>(); // Just emit the ID
-  
+
   onUserClick(user: User): void {
     this.userSelected.emit(user);
   }
@@ -292,17 +295,20 @@ export class UserCardComponent {
 ```
 
 #### Content Projection
+
 - **Use ng-content** with select attributes for multiple slots
 - **Use ng-template** for conditional content projection
 - **Provide fallback content** when appropriate
 
 #### Component Lifecycle
+
 - **Use lifecycle hooks judiciously** with OnPush strategy
 - **Prefer signals and computed values** over lifecycle hooks for reactive updates
 - **Use afterNextRender()** for DOM manipulations
 - **Use afterRender()** for cleanup that needs to happen after every render
 
 ### Code Style Guidelines
+
 - **Use consistent naming conventions** following the style guide
 - **Write descriptive component and method names**
 - **Keep components focused and single-purpose**
@@ -311,6 +317,7 @@ export class UserCardComponent {
 - **Leverage type inference** where possible
 
 ### Testing Patterns
+
 - **Test component behavior**, not implementation details
 - **Use component harnesses** for complex component testing
 - **Mock external dependencies** properly

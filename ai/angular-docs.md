@@ -3,6 +3,7 @@
 Angular — Deliver web apps with confidence 🚀
 
 ## Table of Contents
+
 - [Style Guide](https://next.angular.dev/style-guide)
 
 ## Components
@@ -63,6 +64,7 @@ Angular — Deliver web apps with confidence 🚀
 - [Testing](https://angular.dev/guide/http/testing)
 
 ## Forms
+
 - [Forms overview](https://angular.dev/guide/forms)
 - [Reactive Forms](https://angular.dev/guide/forms/reactive-forms)
 - [Strictly types forms](https://angular.dev/guide/forms/typed-forms)
@@ -71,6 +73,7 @@ Angular — Deliver web apps with confidence 🚀
 - [Building dynamic forms](https://angular.dev/guide/forms/dynamic-forms)
 
 ## Routing
+
 - [Routing overview](https://angular.dev/guide/routing)
 - [Common routing tasks](https://angular.dev/guide/routing/common-router-tasks)
 - [Routing in an SPA](https://angular.dev/guide/routing/router-tutorial)
