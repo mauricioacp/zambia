@@ -328,6 +328,7 @@ export class UserCardComponent {
 ### Data Binding
 
 #### Text Interpolation and Property Binding
+
 - **Use interpolation `{{ }}` for dynamic text** - values are automatically converted to strings
 - **Use property binding `[property]="expression"`** for DOM properties, component inputs, and directive properties
 - **Use attribute binding `[attr.attributeName]="value"`** for HTML attributes
@@ -336,6 +337,7 @@ export class UserCardComponent {
 - **Create new object/array instances** to trigger change detection when needed
 
 #### Event Handling
+
 - **Use event binding `(eventName)="handler()"`** syntax consistently
 - **Access native events with `$event`** parameter when needed
 - **Use key modifiers** like `(keyup.enter)="handler()"` for keyboard interactions
@@ -343,6 +345,7 @@ export class UserCardComponent {
 - **Use descriptive method names** that indicate the action being performed
 
 #### Two-Way Binding
+
 - **Prefer reactive forms** with `[formControl]`, `[formGroup]`, and `formControlName` directives
 - **Use `FormBuilder` service** for cleaner reactive form code
 - **Use `patchValue()` for partial updates**, `setValue()` for complete replacements
@@ -351,17 +354,20 @@ export class UserCardComponent {
 ### Template Structure
 
 #### Content Projection
+
 - **Use `ng-content` with select attributes** for multi-slot projection:
   ```html
   <ng-content select="header"></ng-content>
   <ng-content select=".content"></ng-content>
-  <ng-content></ng-content> <!-- Default slot -->
+  <ng-content></ng-content>
+  <!-- Default slot -->
   ```
 - **Provide fallback content** inside `<ng-content>` tags when appropriate
 - **Avoid conditional `ng-content`** with control flow blocks
 - **Use `ngProjectAs`** for content aliasing when needed
 
 #### Template Organization
+
 - **Use `ng-template` for reusable template fragments**:
   ```html
   <ng-template #templateRef let-data="data">
@@ -371,28 +377,28 @@ export class UserCardComponent {
 - **Use `ng-container`** for grouping elements without extra DOM nodes
 - **Use `@let` variables** for complex expressions to improve readability:
   ```html
-  @let userName = user.name;
-  @let greeting = 'Hello, ' + userName;
+  @let userName = user.name; @let greeting = 'Hello, ' + userName;
   ```
 
 #### Template Reference Variables
+
 - **Use template references** for direct element/component access:
   ```html
-  <input #inputRef placeholder="Enter text">
-  <button (click)="handleClick(inputRef.value)">Submit</button>
+  <input #inputRef placeholder="Enter text" /> <button (click)="handleClick(inputRef.value)">Submit</button>
   ```
 
 ### Performance Optimization
 
 #### Deferred Loading
+
 - **Use `@defer` strategically** for components not visible on initial load:
   ```html
   @defer (on viewport) {
-    <heavy-component />
+  <heavy-component />
   } @placeholder {
-    <div>Loading...</div>
+  <div>Loading...</div>
   } @loading {
-    <spinner />
+  <spinner />
   }
   ```
 - **Choose appropriate triggers**: `idle`, `viewport`, `interaction`, `hover`, `timer`
@@ -401,6 +407,7 @@ export class UserCardComponent {
 - **Avoid deferring above-the-fold content** to prevent layout shifts
 
 #### Pipes and Transformations
+
 - **Use built-in pipes** for common transformations: `currency`, `date`, `titlecase`
 - **Chain pipes** for multiple transformations: `{{ value | pipe1 | pipe2 }}`
 - **Use pipe parameters** for customization: `{{ date | date:'hh:mm':'UTC' }}`
@@ -410,6 +417,7 @@ export class UserCardComponent {
 ### Expression Guidelines
 
 #### Safe Practices
+
 - **Use optional chaining `?.`** for safe property access
 - **Keep expressions simple** and focused on data transformation
 - **Avoid complex logic** in template expressions
@@ -417,6 +425,7 @@ export class UserCardComponent {
 - **Use `this.` explicitly** when template variables might shadow class members
 
 #### Expression Syntax
+
 - **Use supported literals**: strings, numbers, booleans, objects, arrays
 - **Avoid function calls** in expressions for performance
 - **Prefer component properties** over method calls in templates
@@ -424,12 +433,14 @@ export class UserCardComponent {
 ### Code Organization
 
 #### Whitespace and Formatting
+
 - **Use proper indentation** for template readability
 - **Consider `preserveWhitespaces: false`** in component metadata for optimization
 - **Be mindful of significant whitespace** in inline text content
 - **Angular automatically collapses** unnecessary whitespace
 
 #### Template Variables
+
 - **Scope `@let` variables** to current view and descendants
 - **Cannot reassign `@let` variables** after declaration
 - **Use descriptive variable names** that indicate their purpose

@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
 import { CountriesFacadeService, Country, CountryFormData } from '../../services/countries-facade.service';
-import { WelcomeMessageUiComponent } from '@zambia/ui-components';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TuiDialogService } from '@taiga-ui/core';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
@@ -14,11 +13,9 @@ import { EnhancedTableUiComponent, type TableColumn, type TableAction } from '@z
 @Component({
   selector: 'z-countries-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslatePipe, WelcomeMessageUiComponent, EnhancedTableUiComponent],
+  imports: [CommonModule, TranslatePipe, EnhancedTableUiComponent],
   template: `
     <div class="countries-wrapper">
-      <z-welcome-message [welcomeText]="welcomeText()"></z-welcome-message>
-
       <z-enhanced-table
         [items]="countriesFacade.countriesResource()"
         [columns]="tableColumns()"
@@ -53,7 +50,6 @@ import { EnhancedTableUiComponent, type TableColumn, type TableAction } from '@z
     .countries-wrapper {
       padding: 1.5rem;
       min-height: 100%;
-      background: var(--tui-base-01);
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -62,6 +58,7 @@ export class CountriesListSmartComponent {
   protected countriesFacade = inject(CountriesFacadeService);
   private translate = inject(TranslateService);
   private dialogService = inject(TuiDialogService);
+  private router = inject(Router);
 
   isProcessing = signal(false);
   welcomeText = computed(() => this.translate.instant('welcome.countries.list'));
@@ -100,7 +97,7 @@ export class CountriesListSmartComponent {
       label: this.translate.instant('view'),
       icon: '@tui.eye',
       color: 'primary',
-      handler: (country: Country) => this.onEditCountry(country),
+      handler: (country: Country) => this.onViewCountry(country),
     },
     {
       label: this.translate.instant('edit'),
@@ -125,7 +122,11 @@ export class CountriesListSmartComponent {
   }
 
   onRowClick(country: Country): void {
-    console.log('Country row clicked:', country);
+    this.onViewCountry(country);
+  }
+
+  onViewCountry(country: Country): void {
+    this.router.navigate(['/dashboard/countries', country.id]);
   }
 
   onCreateCountry(): void {
@@ -143,6 +144,7 @@ export class CountriesListSmartComponent {
       },
       error: (error) => {
         console.error('Create country dialog error:', error);
+        // TODO: Show error notification
       },
     });
   }
@@ -162,6 +164,7 @@ export class CountriesListSmartComponent {
       },
       error: (error) => {
         console.error('Edit country dialog error:', error);
+        // TODO: Show error notification
       },
     });
   }
@@ -188,6 +191,7 @@ export class CountriesListSmartComponent {
       },
       error: (error) => {
         console.error('Delete country dialog error:', error);
+        // TODO: Show error notification
       },
     });
   }
@@ -201,8 +205,8 @@ export class CountriesListSmartComponent {
       console.error('Failed to create country:', error);
       // TODO: Show error notification
     } else {
-      console.log('Country created successfully:', data);
       // TODO: Show success notification
+      this.countriesFacade.countries.reload();
     }
 
     this.isProcessing.set(false);
@@ -211,14 +215,15 @@ export class CountriesListSmartComponent {
   private async handleCountryUpdate(id: string, countryData: CountryFormData): Promise<void> {
     this.isProcessing.set(true);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { data, error } = await tryCatch(() => this.countriesFacade.updateCountry(id, countryData));
 
     if (error) {
       console.error('Failed to update country:', error);
       // TODO: Show error notification
     } else {
-      console.log('Country updated successfully:', data);
       // TODO: Show success notification
+      this.countriesFacade.countries.reload();
     }
 
     this.isProcessing.set(false);
@@ -227,15 +232,15 @@ export class CountriesListSmartComponent {
   private async handleCountryDelete(id: string): Promise<void> {
     this.isProcessing.set(true);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { data, error } = await tryCatch(() => this.countriesFacade.deleteCountry(id));
-    console.log(data);
 
     if (error) {
       console.error('Failed to delete country:', error);
       // TODO: Show error notification
     } else {
-      console.log('Country deleted successfully');
       // TODO: Show success notification
+      this.countriesFacade.countries.reload();
     }
 
     this.isProcessing.set(false);

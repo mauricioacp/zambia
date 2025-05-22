@@ -14,6 +14,8 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "paths": {
       "@zambia/data-access-auth": ["libs/shared/data-access-auth/src/index.ts"],
       "@zambia/data-access-dashboard": ["libs/shared/data-access-dashboard/src/index.ts"],

@@ -85,5 +85,25 @@
   "graduated": "Graduado",
   "prospect": "Prospecto",
   "active": "Activo",
-  "inactive": "Inactivo"
+  "inactive": "Inactivo",
+  
+  "countries_description": "Administra los países donde opera la organización educativa",
+  "create_country": "Crear País",
+  "edit_country": "Editar País",
+  "edit_country_description": "Actualiza la información del país seleccionado",
+  "create_country_description": "Agrega un nuevo país a la organización",
+  "country_name": "Nombre del País",
+  "enter_country_name": "Ingresa el nombre del país",
+  "country_code": "Código del País",
+  "enter_country_code": "Ingresa el código",
+  "country_code_hint": "Código de 2-3 letras (ej: AR, MX, USA)",
+  "select_status": "Selecciona el estado",
+  "cancel": "Cancelar",
+  "update_country": "Actualizar País",
+  "delete_country": "Eliminar País",
+  "delete_country_confirmation": "¿Estás seguro de que deseas eliminar el país {{name}}? Esta acción no se puede deshacer.",
+  "confirm": "Confirmar",
+  "loading": "Cargando...",
+  "no_countries_found": "No se encontraron países",
+  "no_countries_description": "Comienza agregando el primer país a tu organización"
 }
