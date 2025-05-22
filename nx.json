@@ -6,7 +6,7 @@
     "production": [
       "default",
       "!{projectRoot}/.eslintrc.json",
-      "!{projectRoot}/eslint.config.mjs",
+      "!{projectRoot}/eslint.config.cjs",
       "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
       "!{projectRoot}/tsconfig.spec.json",
       "!{projectRoot}/jest.config.[jt]s",
@@ -32,7 +32,7 @@
         "default",
         "{workspaceRoot}/.eslintrc.json",
         "{workspaceRoot}/.eslintignore",
-        "{workspaceRoot}/eslint.config.mjs"
+        "{workspaceRoot}/eslint.config.cjs"
       ]
     },
     "@nx/jest:jest": {
