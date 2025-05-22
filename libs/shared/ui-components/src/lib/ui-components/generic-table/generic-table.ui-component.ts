@@ -3,27 +3,31 @@ import {
   Component,
   computed,
   ContentChildren,
+  effect,
   input,
   output,
   QueryList,
   TemplateRef,
   signal,
 } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ColumnTemplateDirective } from '../../directives/column-template.directive';
 import {
   TuiTable,
   TuiTablePagination,
-  TuiTableFilters,
-  TuiReorder,
   type TuiTablePaginationEvent,
   type TuiSortChange,
 } from '@taiga-ui/addon-table';
-import { TuiLet } from '@taiga-ui/cdk';
+import { TUI_DEFAULT_MATCHER, TuiLet } from '@taiga-ui/cdk';
+import { debounceTime, distinctUntilChanged, map } from 'rxjs';
 import { TuiButton } from '@taiga-ui/core/components/button';
 import { TuiIcon } from '@taiga-ui/core/components/icon';
-import { TuiSkeleton } from '@taiga-ui/kit';
+import { TuiDropdownDirective, TuiDropdownOpen } from '@taiga-ui/core/directives/dropdown';
+import { TuiDataList } from '@taiga-ui/core/components/data-list';
+import {  TuiSkeleton } from '@taiga-ui/kit';
+import { TuiLabel, TuiTextfieldComponent, TuiTextfieldDirective, TuiTextfieldOptionsDirective } from '@taiga-ui/core';
 
 @Component({
   selector: 'z-generic-table',
@@ -33,12 +37,17 @@ import { TuiSkeleton } from '@taiga-ui/kit';
     FormsModule,
     TuiTable,
     TuiTablePagination,
-    TuiTableFilters,
-    TuiReorder,
     TuiLet,
     TuiButton,
     TuiIcon,
+    TuiDropdownDirective,
+    TuiDropdownOpen,
+    TuiDataList,
     TuiSkeleton,
+    TuiTextfieldDirective,
+    TuiTextfieldComponent,
+    TuiLabel,
+    TuiTextfieldOptionsDirective,
   ],
   template: `
     <div class="rounded-lg bg-white shadow-md dark:bg-slate-800 dark:shadow-gray-900/30">
@@ -46,47 +55,66 @@ import { TuiSkeleton } from '@taiga-ui/kit';
       @if (showTableControls()) {
         <div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
           <div class="flex flex-wrap items-center justify-between gap-4">
-            <!-- Column Reordering -->
-            @if (enableColumnReordering()) {
-              <button
-                tuiButton
-                type="button"
-                appearance="outline"
-                size="s"
-                (click)="toggleColumnReordering()"
-                class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-              >
-                <tui-icon icon="@tui.settings" class="mr-2" />
-                Configure Columns
-              </button>
+            <!-- Column Visibility -->
+            @if (enableColumnVisibility()) {
+              <div class="relative">
+                <button
+                  tuiButton
+                  type="button"
+                  appearance="outline"
+                  size="s"
+                  [tuiDropdown]="columnDropdown"
+                  [(tuiDropdownOpen)]="showColumnDropdown"
+                  class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  <tui-icon icon="@tui.eye" class="mr-2" />
+                  Show/Hide Columns
+                </button>
+
+                <ng-template #columnDropdown>
+                  <tui-data-list class="w-64" role="menu">
+                    <div class="p-3">
+                      <h4 class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">Column Visibility</h4>
+                      @for (column of allAvailableColumns(); track column) {
+                        <div>
+                          <input
+                            id="{{ column }}"
+                            type="checkbox"
+                            [checked]="isColumnVisible(column)"
+                            (change)="onColumnVisibilityChange(column, $event)"
+                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                          />
+                          <span class="text-sm text-gray-700 dark:text-gray-300">
+                            {{ displayLabels()[column] || column }}
+                          </span>
+                        </div>
+                      }
+
+                      <div class="mt-3 border-t border-gray-200 pt-3 dark:border-gray-600">
+                        <button
+                          type="button"
+                          (click)="resetColumnVisibility()"
+                          class="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                        >
+                          Mostrar todo
+                        </button>
+                      </div>
+                    </div>
+                  </tui-data-list>
+                </ng-template>
+              </div>
             }
 
             <!-- Search/Filter -->
             @if (enableFiltering()) {
               <div class="max-w-sm flex-1">
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  [value]="searchTerm()"
-                  (input)="onSearchChange($event)"
-                  class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm placeholder-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-400"
-                />
+                <tui-textfield [tuiTextfieldSize]="'m'">
+                  <label for="search" tuiLabel>Buscar...</label>
+                  <input tuiTextfield [value]="searchInputValue()" (input)="onSearchChange($event)" />
+                </tui-textfield>
               </div>
             }
           </div>
-
-          <!-- Column Reordering Interface -->
-          @if (showColumnReorderingInterface()) {
-            <div class="mt-4 rounded-md border border-gray-200 bg-white p-3 dark:border-gray-600 dark:bg-gray-800">
-              <h4 class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">Reorder Columns</h4>
-              <tui-reorder
-                [items]="reorderableColumns()"
-                [enabled]="enabledColumns()"
-                (itemsChange)="onColumnsReorder($event)"
-                (enabledChange)="onColumnsToggle($event)"
-              />
-            </div>
-          }
         </div>
       }
 
@@ -197,13 +225,16 @@ export class GenericTableUiComponent<T extends Record<string, unknown>> {
   enablePagination = input<boolean>(true);
   enableSorting = input<boolean>(true);
   enableFiltering = input<boolean>(true);
-  enableColumnReordering = input<boolean>(false);
+  enableColumnVisibility = input<boolean>(true);
   enableRowSelection = input<boolean>(false);
   showTableControls = input<boolean>(false);
   tableSize = input<'s' | 'm' | 'l'>('m');
 
   pageSize = input<number>(10);
   pageSizeOptions = input<number[]>([5, 10, 20, 50, 100]);
+  
+  // Search configuration
+  searchDebounceTime = input<number>(300);
 
   sortableColumns = input<string[]>([]);
   columnWidths = input<Record<string, number>>({});
@@ -215,47 +246,73 @@ export class GenericTableUiComponent<T extends Record<string, unknown>> {
   rowClick = output<T>();
 
   currentPage = signal(0);
-  searchTerm = signal('');
+  searchInputValue = signal('');
   selectedItems = signal<T[]>([]);
-  reorderableColumns = signal<string[]>([]);
-  enabledColumns = signal<string[]>([]);
-  showColumnReorderingInterface = signal(false);
+  visibleColumns = signal<string[]>([]);
+  showColumnDropdown = signal(false);
+
+  // Debounced search term using RxJS interop
+  searchTerm = toSignal(
+    toObservable(this.searchInputValue).pipe(
+      debounceTime(300), // Use default 300ms for now, can be made configurable later
+      distinctUntilChanged(),
+      map(term => term.toLowerCase().trim())
+    ),
+    { initialValue: '' }
+  );
 
   @ContentChildren(ColumnTemplateDirective) columnTemplates?: QueryList<ColumnTemplateDirective<T>>;
 
-  displayHeaders = computed(() => {
-    const enabledCols = this.enabledColumns();
+  // Effects
+  private searchPageResetEffect = effect(() => {
+    // Watch for changes in searchTerm and reset page
+    const currentSearch = this.searchTerm();
+    if (currentSearch !== '') {
+      this.currentPage.set(0);
+    }
+  });
+
+  allAvailableColumns = computed(() => {
     const providedHeaders = this.headers();
     const currentItems = this.items();
 
-    let headers: string[];
     if (providedHeaders.length > 0) {
-      headers = providedHeaders;
+      return providedHeaders;
     } else if (currentItems && currentItems.length > 0) {
-      headers = Object.keys(currentItems[0]);
+      return Object.keys(currentItems[0]);
     } else {
-      headers = [];
+      return [];
+    }
+  });
+
+  displayHeaders = computed(() => {
+    const allColumns = this.allAvailableColumns();
+    const visibleCols = this.visibleColumns();
+
+    // If no visible columns are set, show all columns
+    if (visibleCols.length === 0) {
+      return allColumns;
     }
 
-    if (enabledCols.length > 0) {
-      return headers.filter((header) => enabledCols.includes(header));
-    }
-
-    return headers;
+    // Filter to only show visible columns in the same order as allColumns
+    return allColumns.filter((header) => visibleCols.includes(header));
   });
 
   displayLabels = computed(() => this.headerLabels() || {});
 
   filteredItems = computed(() => {
     const items = this.items();
-    const searchTerm = this.searchTerm().toLowerCase().trim();
+    const searchTerm = this.searchTerm();
 
-    if (!searchTerm) {
-      return items;
-    }
+    if (!searchTerm) return items;
 
     return items.filter((item) =>
-      Object.values(item).some((value) => String(value).toLowerCase().includes(searchTerm))
+      Object.values(item).some((value) => {
+        if (value === null || value === undefined) return false;
+        
+        // Use TUI_DEFAULT_MATCHER for better matching (handles accents, special chars, etc.)
+        return TUI_DEFAULT_MATCHER(value, searchTerm);
+      })
     );
   });
 
@@ -362,8 +419,8 @@ export class GenericTableUiComponent<T extends Record<string, unknown>> {
 
   onSearchChange(event: Event): void {
     const target = event.target as HTMLInputElement;
-    this.searchTerm.set(target.value);
-    this.currentPage.set(0);
+    this.searchInputValue.set(target.value);
+    // Page reset is handled automatically by the effect
   }
 
   onPaginationChange(event: TuiTablePaginationEvent): void {
@@ -389,24 +446,41 @@ export class GenericTableUiComponent<T extends Record<string, unknown>> {
     this.rowClick.emit(item);
   }
 
-  toggleColumnReordering(): void {
-    const show = !this.showColumnReorderingInterface();
-    this.showColumnReorderingInterface.set(show);
+  // Column visibility methods
+  isColumnVisible(column: string): boolean {
+    const visible = this.visibleColumns();
+    // If no columns are explicitly set as visible, all are visible by default
+    return visible.length === 0 || visible.includes(column);
+  }
 
-    if (show && this.reorderableColumns().length === 0) {
-      // Initialize reorderable columns
-      const headers = this.displayHeaders();
-      this.reorderableColumns.set([...headers]);
-      this.enabledColumns.set([...headers]);
+  onColumnVisibilityChange(column: string, event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const isChecked = target.checked;
+    const currentVisible = this.visibleColumns();
+    const allColumns = this.allAvailableColumns();
+
+    if (isChecked) {
+      // Add column to visible list
+      if (!currentVisible.includes(column)) {
+        // If this is the first column being explicitly set, initialize with all columns
+        const newVisible = currentVisible.length === 0 ? [...allColumns] : [...currentVisible, column];
+        this.visibleColumns.set(newVisible);
+      }
+    } else {
+      // Remove column from visible list
+      if (currentVisible.length === 0) {
+        // If all columns were visible by default, initialize with all except this one
+        this.visibleColumns.set(allColumns.filter((col) => col !== column));
+      } else {
+        // Remove from existing visible list
+        this.visibleColumns.set(currentVisible.filter((col) => col !== column));
+      }
     }
   }
 
-  onColumnsReorder(orderedColumns: string[]): void {
-    this.reorderableColumns.set(orderedColumns);
-  }
-
-  onColumnsToggle(enabledColumns: string[]): void {
-    this.enabledColumns.set(enabledColumns);
+  resetColumnVisibility(): void {
+    this.visibleColumns.set([]);
+    this.showColumnDropdown.set(false);
   }
 
   // Legacy selection methods (for backward compatibility)

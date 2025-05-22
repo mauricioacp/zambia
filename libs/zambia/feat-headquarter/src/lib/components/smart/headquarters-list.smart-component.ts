@@ -29,7 +29,6 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
         [enableSorting]="true"
         [showTableControls]="true"
         [enableFiltering]="true"
-        [enableColumnReordering]="true"
         [pageSize]="10"
         [pageSizeOptions]="[5, 10, 20, 50]"
         [loading]="headquartersFacade.isLoading()"
