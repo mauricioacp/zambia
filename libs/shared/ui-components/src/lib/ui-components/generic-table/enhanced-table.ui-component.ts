@@ -25,7 +25,7 @@ import {
   TuiLabel,
   TuiLoader,
 } from '@taiga-ui/core';
-import { TuiAvatar, TuiBadge, TuiChevron } from '@taiga-ui/kit';
+import { TuiAvatar, TuiBadge, TuiChevron, TuiStatus } from '@taiga-ui/kit';
 import { TuiCell } from '@taiga-ui/layout';
 import { TuiLet, TUI_DEFAULT_MATCHER } from '@taiga-ui/cdk';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
@@ -74,8 +74,8 @@ export interface TableColumn {
     TuiChevron,
     TuiLet,
     TuiBadge,
+    TuiStatus,
   ],
-  styleUrls: ['./enhanced-table.ui-component.less'],
   template: `
     <div class="h-full w-full overflow-auto bg-gray-900 p-6 dark:bg-gray-900">
       <!-- Header Section -->
@@ -173,8 +173,9 @@ export interface TableColumn {
           @if (paginatedItems().length > 0) {
             <div class="overflow-x-auto">
               <table
+                tuiTheme="dark'"
                 tuiTable
-                class="z-table min-w-full bg-white dark:bg-gray-800"
+                class="min-w-full bg-white dark:bg-gray-800"
                 [columns]="displayHeaders()"
                 size="m"
               >
@@ -225,34 +226,40 @@ export interface TableColumn {
                               <tui-badge> {{ getDisplayValue(item, column.key) }}</tui-badge>
                             }
                             @case ('status') {
-                              <span
-                                class="rounded px-2 py-1 text-sm font-medium"
-                                [class]="getStatusClasses(item, column.key)"
-                              >
+                              <span [tuiStatus]="getStatusColor(item, column.key)">
+                                <tui-icon [icon]="getStatusIcon(item, column.key)"></tui-icon>
                                 {{ getDisplayValue(item, column.key) }}
                               </span>
                             }
                             @case ('actions') {
-                              <div class="flex space-x-2">
+                              <span tuiStatus class="actions-group flex gap-1">
                                 @for (action of getVisibleActions(item); track action.label) {
                                   @if (action.routerLink) {
                                     <a
                                       [routerLink]="action.routerLink(item)"
-                                      class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                                      tuiButton
+                                      appearance="action"
+                                      [iconStart]="action.icon"
+                                      size="xs"
+                                      class="action-button"
                                     >
                                       {{ action.label }}
                                     </a>
                                   } @else {
                                     <button
+                                      tuiButton
+                                      appearance="action"
+                                      [iconStart]="action.icon"
+                                      size="xs"
                                       (click)="action.handler(item); $event.stopPropagation()"
                                       [disabled]="isActionDisabled(action, item)"
-                                      [class]="getActionLinkClasses(action)"
+                                      [class]="getActionButtonClass(action)"
                                     >
                                       {{ action.label }}
                                     </button>
                                   }
                                 }
-                              </div>
+                              </span>
                             }
                             @case ('custom') {
                               @if (getColumnTemplate(column.key); as template) {
@@ -339,6 +346,7 @@ export interface TableColumn {
       display: block;
       width: 100%;
       min-height: 100%;
+      --tui-background-base: var(--color-slate-800);
     }
 
     .filters {
@@ -355,6 +363,10 @@ export interface TableColumn {
 
     .columns {
       width: 12rem;
+    }
+
+    z-table {
+      background: var(--tui-service-selection-background);
     }
 
     [tuiTh],
@@ -376,64 +388,76 @@ export interface TableColumn {
     .dark .table-row:hover {
       background: rgb(55 65 81) !important;
     }
+
+    .actions-group {
+      display: flex;
+      gap: 0.25rem;
+      align-items: center;
+    }
+
+    .action-button {
+      transition: all 0.2s ease;
+    }
+
+    .view-button:hover {
+      background-color: var(--tui-status-positive-pale) !important;
+      color: var(--tui-status-positive) !important;
+    }
+
+    .edit-button:hover {
+      background-color: var(--tui-status-warning-pale) !important;
+      color: var(--tui-status-warning) !important;
+    }
+
+    .delete-button:hover {
+      background-color: var(--tui-status-negative-pale) !important;
+      color: var(--tui-status-negative) !important;
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EnhancedTableUiComponent<T extends Record<string, any>> {
-  // Basic Configuration
   items = input.required<T[]>();
   columns = input.required<TableColumn[]>();
   loading = input<boolean>(false);
   trackBy = input<string>('id');
 
-  // Display Configuration
   title = input<string>('');
   description = input<string>('');
 
-  // Create Button Configuration
   showCreateButton = input<boolean>(false);
   createButtonLabel = input<string>('Create');
   createButtonIcon = input<string>('@tui.plus');
 
-  // Loading State
   loadingText = input<string>('Loading...');
 
-  // Empty State Configuration
   emptyStateTitle = input<string>('No data found');
   emptyStateDescription = input<string>('There are no items to display.');
   emptyStateIcon = input<string>('@tui.database');
   showEmptyStateAction = input<boolean>(true);
 
-  // Actions Configuration
   actions = input<TableAction<T>[]>([]);
 
-  // Feature toggles
   enablePagination = input<boolean>(true);
   enableFiltering = input<boolean>(true);
   enableColumnVisibility = input<boolean>(true);
 
-  // Pagination Configuration
   pageSize = input<number>(10);
   pageSizeOptions = input<number[]>([5, 10, 20, 50, 100]);
 
-  // Search Configuration
   searchableColumns = input<string[]>([]);
 
-  // Outputs
   createClick = output<void>();
   rowClick = output<T>();
   paginationChange = output<TuiTablePaginationEvent>();
 
-  // Internal State
   currentPage = signal(0);
   searchInputValue = signal('');
   visibleColumns = signal<string[]>([]);
   showColumnDropdown = signal(false);
 
-  // Helper for template access to Math
   Math = Math;
 
-  // Debounced search term using RxJS interop
   searchTerm = toSignal(
     toObservable(this.searchInputValue).pipe(
       debounceTime(300),
@@ -589,18 +613,6 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
     return action.disabled ? action.disabled(item) : false;
   }
 
-  getActionClasses(action: TableAction<T>): string {
-    const classes = ['action-button'];
-
-    if (action.color === 'warning') {
-      classes.push('action-warning');
-    } else if (action.color === 'danger') {
-      classes.push('action-danger');
-    }
-
-    return classes.join(' ');
-  }
-
   getCellClasses(column: TableColumn): string {
     const classes: string[] = [];
 
@@ -621,11 +633,10 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
     this.rowClick.emit(item);
   }
 
-  // Search functionality
   onSearchChange(event: Event): void {
     const target = event.target as HTMLInputElement;
     this.searchInputValue.set(target.value);
-    this.currentPage.set(0); // Reset to first page when searching
+    this.currentPage.set(0);
   }
 
   getSearchPlaceholder(): string {
@@ -691,25 +702,17 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
     this.showColumnDropdown.set(false);
   }
 
-  // Enhanced status styling following style guide
-  getStatusClasses(item: T, key: string): string {
-    const status = item[key];
-    if (typeof status === 'string') {
-      return status === 'active'
-        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-        : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
-    }
-    return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
-  }
-
-  getActionLinkClasses(action: TableAction<T>): string {
+  getActionButtonClass(action: TableAction<T>): string {
+    const baseClass = 'action-button';
     switch (action.color) {
+      case 'primary':
+        return `${baseClass} view-button`;
       case 'warning':
-        return 'text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 text-sm';
+        return `${baseClass} edit-button`;
       case 'danger':
-        return 'text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-sm';
+        return `${baseClass} delete-button`;
       default:
-        return 'text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm';
+        return baseClass;
     }
   }
 }
