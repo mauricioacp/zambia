@@ -14,7 +14,17 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ColumnTemplateDirective } from '../../directives/column-template.directive';
 import { TuiTable, TuiTablePagination, type TuiTablePaginationEvent } from '@taiga-ui/addon-table';
-import { TuiButton, TuiIcon, TuiTitle, TuiAutoColorPipe, TuiInitialsPipe, TuiDropdown, TuiTextfield, TuiLabel, TuiLoader } from '@taiga-ui/core';
+import {
+  TuiButton,
+  TuiIcon,
+  TuiTitle,
+  TuiAutoColorPipe,
+  TuiInitialsPipe,
+  TuiDropdown,
+  TuiTextfield,
+  TuiLabel,
+  TuiLoader,
+} from '@taiga-ui/core';
 import { TuiAvatar, TuiChevron } from '@taiga-ui/kit';
 import { TuiCell } from '@taiga-ui/layout';
 import { TuiLet, TUI_DEFAULT_MATCHER } from '@taiga-ui/cdk';
@@ -98,11 +108,8 @@ export interface TableColumn {
           <!-- Search and Filters -->
           <div class="filters flex flex-wrap items-center gap-4">
             @if (enableFiltering()) {
-              <div class="input flex-1 min-w-64">
-                <tui-textfield
-                  iconStart="@tui.search"
-                  tuiTextfieldSize="m"
-                >
+              <div class="input min-w-64 flex-1">
+                <tui-textfield iconStart="@tui.search" tuiTextfieldSize="m">
                   <input
                     id="table-search"
                     tuiTextfield
@@ -114,7 +121,7 @@ export interface TableColumn {
                 </tui-textfield>
               </div>
             }
-            
+
             @if (enableColumnVisibility()) {
               <button
                 tuiButton
@@ -126,12 +133,12 @@ export interface TableColumn {
               >
                 Columns
               </button>
-              
+
               <ng-template #columnDropdown>
-                <div class="columns p-4 w-48">
-                  <h4 class="text-sm font-medium mb-2 text-gray-800 dark:text-white">Show Columns</h4>
+                <div class="columns w-48 p-4">
+                  <h4 class="mb-2 text-sm font-medium text-gray-800 dark:text-white">Show Columns</h4>
                   @for (column of allAvailableColumns(); track column; let i = $index) {
-                    <label class="flex items-center space-x-2 mb-2 text-sm" [for]="'column-' + i">
+                    <label class="mb-2 flex items-center space-x-2 text-sm" [for]="'column-' + i">
                       <input
                         [id]="'column-' + i"
                         type="checkbox"
@@ -163,18 +170,13 @@ export interface TableColumn {
         <tui-loader [overlay]="true" [showLoader]="loading()">
           @if (paginatedItems().length > 0) {
             <div class="overflow-x-auto">
-              <table
-                tuiTable
-                class="min-w-full bg-white dark:bg-gray-800"
-                [columns]="displayHeaders()"
-                size="m"
-              >
+              <table tuiTable class="min-w-full bg-white dark:bg-gray-800" [columns]="displayHeaders()" size="m">
                 <thead class="bg-gray-50 dark:bg-gray-700">
                   <tr>
                     @for (column of displayColumns(); track column.key) {
-                      <th 
-                        tuiTh 
-                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                      <th
+                        tuiTh
+                        class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-300"
                         [style.width.px]="column.width"
                       >
                         {{ column.label }}
@@ -182,21 +184,21 @@ export interface TableColumn {
                     }
                   </tr>
                 </thead>
-                <tbody 
-                  tuiTbody 
-                  *tuiLet="paginatedItems() as items" 
+                <tbody
+                  tuiTbody
+                  *tuiLet="paginatedItems() as items"
                   [data]="items"
-                  class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"
+                  class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800"
                 >
                   @for (item of items; track getTrackBy(item)) {
-                    <tr 
-                      class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 cursor-pointer"
+                    <tr
+                      class="cursor-pointer transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700"
                       (click)="onRowClick(item)"
                     >
                       @for (column of displayColumns(); track column.key) {
-                        <td 
-                          tuiTd 
-                          class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100"
+                        <td
+                          tuiTd
+                          class="px-6 py-4 text-sm whitespace-nowrap text-gray-900 dark:text-gray-100"
                           [class]="getCellClasses(column)"
                         >
                           @switch (column.type) {
@@ -221,7 +223,7 @@ export interface TableColumn {
                               </span>
                             }
                             @case ('status') {
-                              <span 
+                              <span
                                 class="rounded px-2 py-1 text-sm font-medium"
                                 [class]="getStatusClasses(item, column.key)"
                               >
@@ -266,17 +268,16 @@ export interface TableColumn {
                     </tr>
                   }
                 </tbody>
-                
+
                 <!-- Pagination Footer -->
                 @if (enablePagination() && totalItems() > pageSize()) {
                   <tfoot>
                     <tr>
                       <td [colSpan]="displayColumns().length" class="bg-gray-50 dark:bg-gray-700">
-                        <div class="px-6 py-3 flex items-center justify-between">
+                        <div class="flex items-center justify-between px-6 py-3">
                           <div class="text-sm text-gray-700 dark:text-gray-300">
-                            Showing {{ currentPage() * pageSize() + 1 }} to 
-                            {{ Math.min((currentPage() + 1) * pageSize(), totalItems()) }} of 
-                            {{ totalItems() }} results
+                            Showing {{ currentPage() * pageSize() + 1 }} to
+                            {{ Math.min((currentPage() + 1) * pageSize(), totalItems()) }} of {{ totalItems() }} results
                           </div>
                           <tui-table-pagination
                             [total]="totalItems()"
@@ -294,15 +295,15 @@ export interface TableColumn {
             </div>
           } @else {
             <!-- Empty State -->
-            <div class="text-center py-16 bg-white dark:bg-gray-800">
-              <tui-icon 
-                [icon]="emptyStateIcon()" 
-                class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500 mb-4"
+            <div class="bg-white py-16 text-center dark:bg-gray-800">
+              <tui-icon
+                [icon]="emptyStateIcon()"
+                class="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-gray-500"
               ></tui-icon>
-              <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              <h3 class="mb-2 text-lg font-medium text-gray-900 dark:text-white">
                 {{ emptyStateTitle() }}
               </h3>
-              <p class="text-gray-500 dark:text-gray-400 mb-6">
+              <p class="mb-6 text-gray-500 dark:text-gray-400">
                 {{ emptyStateDescription() }}
               </p>
               @if (showCreateButton() && showEmptyStateAction()) {
@@ -337,29 +338,29 @@ export interface TableColumn {
       width: 100%;
       min-height: 100%;
     }
-    
+
     .filters {
       display: flex;
       gap: 1rem;
       align-items: center;
       flex-wrap: wrap;
     }
-    
+
     .input {
       flex: 1;
       min-width: 16rem;
     }
-    
+
     .columns {
       width: 12rem;
     }
-    
+
     [tuiTh],
     [tuiTd] {
       border-inline-start: none;
       border-inline-end: none;
     }
-    
+
     [tuiTable][data-size='m'] [tuiTitle] {
       flex-direction: row;
       gap: 0.75rem;
@@ -377,15 +378,15 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
   // Display Configuration
   title = input<string>('');
   description = input<string>('');
-  
+
   // Create Button Configuration
   showCreateButton = input<boolean>(false);
   createButtonLabel = input<string>('Create');
   createButtonIcon = input<string>('@tui.plus');
-  
+
   // Loading State
   loadingText = input<string>('Loading...');
-  
+
   // Empty State Configuration
   emptyStateTitle = input<string>('No data found');
   emptyStateDescription = input<string>('There are no items to display.');
@@ -399,28 +400,28 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
   enablePagination = input<boolean>(true);
   enableFiltering = input<boolean>(true);
   enableColumnVisibility = input<boolean>(true);
-  
+
   // Pagination Configuration
   pageSize = input<number>(10);
   pageSizeOptions = input<number[]>([5, 10, 20, 50, 100]);
-  
+
   // Search Configuration
   searchableColumns = input<string[]>([]);
-  
+
   // Outputs
   createClick = output<void>();
   rowClick = output<T>();
   paginationChange = output<TuiTablePaginationEvent>();
-  
+
   // Internal State
   currentPage = signal(0);
   searchInputValue = signal('');
   visibleColumns = signal<string[]>([]);
   showColumnDropdown = signal(false);
-  
+
   // Helper for template access to Math
   Math = Math;
-  
+
   // Debounced search term using RxJS interop
   searchTerm = toSignal(
     toObservable(this.searchInputValue).pipe(
@@ -434,62 +435,62 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
   @ContentChildren(ColumnTemplateDirective) columnTemplates?: QueryList<ColumnTemplateDirective<T>>;
 
   allAvailableColumns = computed(() => {
-    return this.columns().map(col => col.key);
+    return this.columns().map((col) => col.key);
   });
-  
+
   displayColumns = computed(() => {
     const allColumns = this.columns();
     const visibleCols = this.visibleColumns();
-    
+
     if (visibleCols.length === 0) {
       return allColumns;
     }
-    
-    return allColumns.filter(col => visibleCols.includes(col.key));
+
+    return allColumns.filter((col) => visibleCols.includes(col.key));
   });
-  
+
   displayHeaders = computed(() => {
-    return this.displayColumns().map(col => col.key);
+    return this.displayColumns().map((col) => col.key);
   });
-  
+
   displayLabels = computed(() => {
     const labels: Record<string, string> = {};
-    this.columns().forEach(col => {
+    this.columns().forEach((col) => {
       labels[col.key] = col.label;
     });
     return labels;
   });
-  
+
   filteredItems = computed(() => {
     const items = this.items();
     const searchTerm = this.searchTerm();
-    
+
     if (!searchTerm) return items;
-    
+
     const searchableColumns = this.searchableColumns();
     const allColumns = this.allAvailableColumns();
-    
+
     const columnsToSearch = searchableColumns.length > 0 ? searchableColumns : allColumns;
-    
+
     return items.filter((item) =>
       columnsToSearch.some((column) => {
         const value = this.getSearchableValueForColumn(item, column);
         if (value === null || value === undefined) return false;
-        
+
         return TUI_DEFAULT_MATCHER(String(value), searchTerm);
       })
     );
   });
-  
+
   totalItems = computed(() => this.filteredItems().length);
-  
+
   paginatedItems = computed(() => {
     const filtered = this.filteredItems();
-    
+
     if (!this.enablePagination()) {
       return filtered;
     }
-    
+
     const start = this.currentPage() * this.pageSize();
     const end = start + this.pageSize();
     return filtered.slice(start, end);
@@ -497,15 +498,15 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
 
   getTrackBy(item: T): unknown {
     const trackByProp = this.trackBy();
-    
+
     if (trackByProp && trackByProp in item) {
       return item[trackByProp];
     }
-    
+
     if ('id' in item) {
       return item['id'];
     }
-    
+
     return JSON.stringify(item);
   }
 
@@ -520,19 +521,19 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
 
   getDisplayValue(item: T, key: string): string {
     const value = item[key];
-    
+
     if (value === null || value === undefined) {
       return '-';
     }
-    
+
     if (typeof value === 'boolean') {
       return value ? 'Yes' : 'No';
     }
-    
+
     if (typeof value === 'number') {
       return value.toLocaleString();
     }
-    
+
     return String(value);
   }
 
@@ -545,11 +546,11 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
     if (key === 'name' && item['code']) {
       return `Code: ${item['code']}`;
     }
-    
+
     if (key === 'name' && item['status']) {
       return `Status: ${item['status']}`;
     }
-    
+
     return null;
   }
 
@@ -570,9 +571,7 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
   }
 
   getVisibleActions(item: T): TableAction<T>[] {
-    return this.actions().filter(action => 
-      !action.visible || action.visible(item)
-    );
+    return this.actions().filter((action) => !action.visible || action.visible(item));
   }
 
   isActionDisabled(action: TableAction<T>, item: T): boolean {
@@ -581,25 +580,25 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
 
   getActionClasses(action: TableAction<T>): string {
     const classes = ['action-button'];
-    
+
     if (action.color === 'warning') {
       classes.push('action-warning');
     } else if (action.color === 'danger') {
       classes.push('action-danger');
     }
-    
+
     return classes.join(' ');
   }
 
   getCellClasses(column: TableColumn): string {
     const classes: string[] = [];
-    
+
     if (column.align === 'center') {
       classes.push('text-center');
     } else if (column.align === 'right') {
       classes.push('text-right');
     }
-    
+
     return classes.join(' ');
   }
 
@@ -610,14 +609,14 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
   onRowClick(item: T): void {
     this.rowClick.emit(item);
   }
-  
+
   // Search functionality
   onSearchChange(event: Event): void {
     const target = event.target as HTMLInputElement;
     this.searchInputValue.set(target.value);
     this.currentPage.set(0); // Reset to first page when searching
   }
-  
+
   getSearchPlaceholder(): string {
     const searchableColumns = this.searchableColumns();
     if (searchableColumns.length === 0) {
@@ -625,10 +624,10 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
     }
     return `Search in ${searchableColumns.length} column${searchableColumns.length > 1 ? 's' : ''}...`;
   }
-  
+
   getSearchableValueForColumn(item: T, column: string): unknown {
     const value = item[column];
-    
+
     if (value && typeof value === 'object') {
       const obj = value as any;
       if (obj.name) return obj.name;
@@ -636,32 +635,32 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
       if (obj.label) return obj.label;
       return JSON.stringify(value);
     }
-    
+
     return value;
   }
-  
+
   clearSearch(): void {
     this.searchInputValue.set('');
   }
-  
+
   // Pagination functionality
   onPaginationChange(event: TuiTablePaginationEvent): void {
     this.currentPage.set(event.page);
     this.paginationChange.emit(event);
   }
-  
+
   // Column visibility functionality
   isColumnVisible(column: string): boolean {
     const visible = this.visibleColumns();
     return visible.length === 0 || visible.includes(column);
   }
-  
+
   onColumnVisibilityChange(column: string, event: Event): void {
     const target = event.target as HTMLInputElement;
     const isChecked = target.checked;
     const currentVisible = this.visibleColumns();
     const allColumns = this.allAvailableColumns();
-    
+
     if (isChecked) {
       if (!currentVisible.includes(column)) {
         const newVisible = currentVisible.length === 0 ? [...allColumns] : [...currentVisible, column];
@@ -675,12 +674,12 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
       }
     }
   }
-  
+
   resetColumnVisibility(): void {
     this.visibleColumns.set([]);
     this.showColumnDropdown.set(false);
   }
-  
+
   // Enhanced status styling following style guide
   getStatusClasses(item: T, key: string): string {
     const status = item[key];
@@ -691,7 +690,7 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
     }
     return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
   }
-  
+
   getActionLinkClasses(action: TableAction<T>): string {
     switch (action.color) {
       case 'warning':

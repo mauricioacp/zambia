@@ -14,13 +14,7 @@ import { EnhancedTableUiComponent, type TableColumn, type TableAction } from '@z
 @Component({
   selector: 'z-countries-list',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    TranslatePipe,
-    WelcomeMessageUiComponent,
-    EnhancedTableUiComponent,
-  ],
+  imports: [CommonModule, RouterModule, TranslatePipe, WelcomeMessageUiComponent, EnhancedTableUiComponent],
   template: `
     <div class="countries-wrapper">
       <z-welcome-message [welcomeText]="welcomeText()"></z-welcome-message>

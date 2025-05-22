@@ -30,7 +30,7 @@ The Enhanced Table component (`z-enhanced-table`) is a modern, reusable table co
       (createClick)="onCreateNew()"
       (rowClick)="onRowClick($event)"
     />
-  `
+  `,
 })
 export class MyComponent {
   data = signal<MyData[]>([]);
@@ -89,6 +89,7 @@ export class MyComponent {
 ## Column Types
 
 ### Avatar Column
+
 ```typescript
 {
   key: 'name',
@@ -100,6 +101,7 @@ export class MyComponent {
 ```
 
 ### Badge Column
+
 ```typescript
 {
   key: 'code',
@@ -110,6 +112,7 @@ export class MyComponent {
 ```
 
 ### Status Column
+
 ```typescript
 {
   key: 'status',
@@ -121,6 +124,7 @@ export class MyComponent {
 ```
 
 ### Actions Column
+
 ```typescript
 {
   key: 'actions',
@@ -132,6 +136,7 @@ export class MyComponent {
 ```
 
 ### Custom Column
+
 ```typescript
 {
   key: 'custom',
@@ -186,6 +191,7 @@ For complex column content, use custom templates:
 ## Configuration Options
 
 ### Basic Configuration
+
 - `items` - Array of data objects to display
 - `columns` - Column configuration array
 - `actions` - Action buttons configuration
@@ -193,6 +199,7 @@ For complex column content, use custom templates:
 - `trackBy` - Property name for tracking (default: 'id')
 
 ### Display Configuration
+
 - `title` - Table title
 - `description` - Description text below title
 - `showCreateButton` - Show create button in header
@@ -200,12 +207,14 @@ For complex column content, use custom templates:
 - `createButtonIcon` - Create button icon
 
 ### Empty/Loading States
+
 - `emptyStateTitle` - Title for empty state
 - `emptyStateDescription` - Description for empty state
 - `emptyStateIcon` - Icon for empty state
 - `loadingText` - Loading state text
 
 ### Events
+
 - `createClick` - Fired when create button is clicked
 - `rowClick` - Fired when a row is clicked
 
