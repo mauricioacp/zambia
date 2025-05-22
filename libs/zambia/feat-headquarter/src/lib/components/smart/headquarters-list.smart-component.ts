@@ -104,7 +104,7 @@ export class HeadquartersListSmartComponent {
       if (value && value.name) return value.name;
       if (value && value.code) return value.code;
       return '';
-    }
+    },
   };
 
   constructor() {

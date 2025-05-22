@@ -43,12 +43,13 @@ import { TuiLabel, TuiTextfieldComponent, TuiTextfieldDirective, TuiTextfieldOpt
     TuiLabel,
     TuiTextfieldOptionsDirective,
   ],
+  styleUrls: ['./generic-table.ui-component.less'],
   template: `
-    <div class="rounded-lg bg-white shadow-md dark:bg-slate-800 dark:shadow-gray-900/30">
+    <div class="z-table-container overflow-hidden rounded-lg shadow-md ring-1 ring-gray-200 dark:ring-gray-700">
       <!-- Table Configuration Controls -->
       @if (showTableControls()) {
-        <div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
-          <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="z-table-controls border-b border-gray-200 dark:border-gray-700">
+          <div class="z-controls-wrapper">
             <!-- Column Visibility -->
             @if (enableColumnVisibility()) {
               <div class="relative">
@@ -56,41 +57,40 @@ import { TuiLabel, TuiTextfieldComponent, TuiTextfieldDirective, TuiTextfieldOpt
                   tuiButton
                   type="button"
                   appearance="outline"
-                  size="s"
+                  [size]="'s'"
                   [tuiDropdown]="columnDropdown"
                   [(tuiDropdownOpen)]="showColumnDropdown"
-                  class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                  class="z-column-button"
                 >
-                  <tui-icon icon="@tui.eye" class="mr-2" />
-                  Show/Hide Columns
+                  <tui-icon icon="@tui.eye" class="h-4 w-4" />
+                  <span>Columnas</span>
                 </button>
 
                 <ng-template #columnDropdown>
-                  <tui-data-list class="w-64" role="menu">
-                    <div class="p-3">
-                      <h4 class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">Column Visibility</h4>
+                  <tui-data-list class="z-dropdown" role="menu">
+                    <div class="z-dropdown-content">
+                      <h4 class="z-dropdown-title">Visibilidad de Columnas</h4>
                       @for (column of allAvailableColumns(); track column) {
-                        <div>
+                        <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -->
+                        <label class="z-column-option">
                           <input
-                            id="{{ column }}"
                             type="checkbox"
                             [checked]="isColumnVisible(column)"
                             (change)="onColumnVisibilityChange(column, $event)"
-                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
                           />
-                          <span class="text-sm text-gray-700 dark:text-gray-300">
+                          <span>
                             {{ displayLabels()[column] || column }}
                           </span>
-                        </div>
+                        </label>
                       }
 
-                      <div class="mt-3 border-t border-gray-200 pt-3 dark:border-gray-600">
+                      <div class="z-dropdown-footer">
                         <button
                           type="button"
                           (click)="resetColumnVisibility()"
-                          class="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                          class="z-reset-button"
                         >
-                          Mostrar todo
+                          Mostrar todas las columnas
                         </button>
                       </div>
                     </div>
@@ -101,14 +101,26 @@ import { TuiLabel, TuiTextfieldComponent, TuiTextfieldDirective, TuiTextfieldOpt
 
             <!-- Search/Filter -->
             @if (enableFiltering()) {
-              <div class="max-w-sm flex-1">
-                <tui-textfield [tuiTextfieldSize]="'m'">
-                  <label for="search" tuiLabel>{{ getSearchPlaceholder() }}</label>
-                  <input tuiTextfield [value]="searchInputValue()" (input)="onSearchChange($event)" />
-                </tui-textfield>
+              <div class="z-search-container">
+                <div class="relative">
+                  <tui-textfield [tuiTextfieldSize]="'m'" class="z-search-input">
+                    <label for="search" tuiLabel>{{ getSearchPlaceholder() }}</label>
+                    <input
+                      id="search"
+                      tuiTextfield
+                      [value]="searchInputValue()"
+                      (input)="onSearchChange($event)"
+                      class="pr-10"
+                    />
+                    <tui-icon
+                      icon="@tui.search"
+                    />
+                  </tui-textfield>
+                </div>
                 @if (searchableColumns().length > 0) {
-                  <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Buscando en: {{ getSearchableColumnsDisplay() }}
+                  <div class="z-search-info">
+                    <tui-icon icon="@tui.filter" class="h-3 w-3" />
+                    <span>Buscando en: {{ getSearchableColumnsDisplay() }}</span>
                   </div>
                 }
               </div>
@@ -122,28 +134,27 @@ import { TuiLabel, TuiTextfieldComponent, TuiTextfieldDirective, TuiTextfieldOpt
         <div class="overflow-x-auto">
           <table
             [tuiSkeleton]="loading()"
-            class="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
+            class="z-table min-w-full"
             tuiTable
             [size]="tableSize()"
             [columns]="displayHeaders()"
-            tuiTheme="dark"
           >
-            <thead class="bg-gray-50 dark:bg-gray-900" tuiThead>
-              <tr tuiThGroup>
-                @for (header of displayHeaders(); track header) {
-                  <th
-                    tuiTh
-                    scope="col"
-                    class="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase sm:px-6 dark:text-gray-300"
-                    [style.min-width.px]="getColumnWidth(header)"
-                  >
-                    {{ displayLabels()[header] || header }}
-                  </th>
-                }
-              </tr>
+            <thead tuiThead>
+            <tr tuiThGroup>
+              @for (header of displayHeaders(); track header) {
+                <th
+                  tuiTh
+                  scope="col"
+                  [style.min-width.px]="getColumnWidth(header)"
+                >
+                  <div class="z-header-content">
+                    <span>{{ displayLabels()[header] || header }}</span>
+                  </div>
+                </th>
+              }
+            </tr>
             </thead>
             <tbody
-              class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-slate-800"
               tuiTbody
               *tuiLet="paginatedItems() | tuiTableSort as sortedItems"
               [data]="sortedItems"
@@ -151,34 +162,31 @@ import { TuiLabel, TuiTextfieldComponent, TuiTextfieldDirective, TuiTextfieldOpt
               @for (item of sortedItems; track getTrackBy(item)) {
                 <tr
                   tuiTr
-                  class="transition-colors hover:bg-gray-50 dark:hover:bg-slate-700"
-                  [class.bg-blue-50]="isSelected(item)"
-                  [ngClass]="isSelected(item) ? 'dark:bg-blue-[900/20]' : ''"
+                  [ngClass]="getRowClasses(item)"
                   (click)="onRowClick(item)"
                 >
-                  @for (header of displayHeaders(); track header) {
-                    <td
-                      class="px-4 py-4 text-sm text-gray-700 sm:px-6 dark:text-gray-300"
-                      [class.whitespace-nowrap]="!isTextColumn(header)"
-                      tuiTd
-                      *tuiCell="header"
-                    >
-                      @if (getColumnTemplate(header); as template) {
-                        <ng-container *ngTemplateOutlet="template; context: { $implicit: item, item: item }" />
-                      } @else if (header === 'status') {
-                        @let status = getStatusDisplay(item[header]);
-                        @let statusColor = getStatusColor(item[header]);
-                        <span
-                          class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
-                          [class]="getStatusClasses(item[header])"
-                        >
-                          {{ status }}
-                        </span>
-                      } @else {
-                        {{ formatCellValue(item[header]) }}
-                      }
-                    </td>
-                  }
+                @for (header of displayHeaders(); track header) {
+                  <td
+                    [ngClass]="getCellClasses(header)"
+                    tuiTd
+                    *tuiCell="header"
+                  >
+                    @if (getColumnTemplate(header); as template) {
+                      <ng-container *ngTemplateOutlet="template; context: { $implicit: item, item: item }" />
+                    } @else if (header === 'status') {
+                      @let status = getStatusDisplay(item[header]);
+                      <span
+                        class="z-status-badge"
+                        [ngClass]="getStatusComponentClasses(item[header])"
+                      >
+                        <span class="z-status-dot"></span>
+                        {{ status }}
+                      </span>
+                    } @else {
+                      <span class="z-cell-content">{{ formatCellValue(item[header]) }}</span>
+                    }
+                  </td>
+                }
                 </tr>
               }
             </tbody>
@@ -187,26 +195,40 @@ import { TuiLabel, TuiTextfieldComponent, TuiTextfieldDirective, TuiTextfieldOpt
 
         <!-- Pagination -->
         @if (enablePagination() && totalItems() > pageSize()) {
-          <div class="border-t border-gray-200 bg-gray-50 px-4 py-3 sm:px-6 dark:border-gray-700 dark:bg-gray-900">
-            <tui-table-pagination
-              [total]="totalItems()"
-              [page]="currentPage()"
-              [size]="pageSize()"
-              [items]="pageSizeOptions()"
-              (paginationChange)="onPaginationChange($event)"
-            />
+          <div class="z-pagination border-t border-gray-200 dark:border-gray-700">
+            <div class="z-pagination-wrapper">
+              <div class="z-pagination-info">
+                Mostrando {{ (currentPage() * pageSize()) + 1 }}
+                - {{ Math.min((currentPage() + 1) * pageSize(), totalItems()) }} de {{ totalItems() }} resultados
+              </div>
+              <tui-table-pagination
+                [total]="totalItems()"
+                [page]="currentPage()"
+                [size]="pageSize()"
+                [items]="pageSizeOptions()"
+                (paginationChange)="onPaginationChange($event)"
+                class="flex items-center gap-4"
+              />
+            </div>
           </div>
         }
       } @else {
-        <div class="px-6 py-8">
-          <div
-            class="rounded-md border-l-4 border-yellow-400 bg-yellow-50 p-4 dark:border-yellow-500 dark:bg-yellow-900/30"
-          >
-            <div class="flex items-center">
-              <tui-icon icon="@tui.alert-triangle" class="h-5 w-5 text-yellow-400 dark:text-yellow-300" />
-              <p class="ml-3 text-sm text-yellow-700 dark:text-yellow-300">{{ emptyMessage() }}</p>
-            </div>
+        <div class="z-empty-state">
+          <div class="z-empty-icon">
+            <tui-icon icon="@tui.database" class="h-8 w-8 text-gray-400 dark:text-gray-500" />
           </div>
+          <h3 class="z-empty-title">No hay datos disponibles</h3>
+          <p class="z-empty-description">{{ emptyMessage() }}</p>
+          @if (searchTerm()) {
+            <button
+              type="button"
+              (click)="clearSearch()"
+              class="z-clear-search"
+            >
+              <tui-icon icon="@tui.x" class="h-4 w-4" />
+              Limpiar búsqueda
+            </button>
+          }
         </div>
       }
     </div>
@@ -393,6 +415,31 @@ export class GenericTableUiComponent<T extends Record<string, unknown>> {
     return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
   }
 
+  getEnhancedStatusClasses(status: unknown): string {
+    if (typeof status === 'string') {
+      return status === 'active'
+        ? 'bg-green-50 text-green-700 ring-1 ring-green-600/20 dark:bg-green-900/30 dark:text-green-400 dark:ring-green-400/30'
+        : 'bg-red-50 text-red-700 ring-1 ring-red-600/20 dark:bg-red-900/30 dark:text-red-400 dark:ring-red-400/30';
+    }
+    return 'bg-gray-50 text-gray-700 ring-1 ring-gray-600/20 dark:bg-gray-900/30 dark:text-gray-400 dark:ring-gray-400/30';
+  }
+
+  getStatusDotClasses(status: unknown): string {
+    if (typeof status === 'string') {
+      return status === 'active'
+        ? 'bg-green-500 dark:bg-green-400'
+        : 'bg-red-500 dark:bg-red-400';
+    }
+    return 'bg-gray-500 dark:bg-gray-400';
+  }
+
+  clearSearch(): void {
+    this.searchInputValue.set('');
+  }
+
+  // Helper for template access to Math
+  Math = Math;
+
   formatCellValue(value: unknown): string {
     if (value === null || value === undefined) {
       return '-';
@@ -427,9 +474,7 @@ export class GenericTableUiComponent<T extends Record<string, unknown>> {
     const searchableColumns = this.searchableColumns();
     const labels = this.displayLabels();
 
-    return searchableColumns
-      .map(column => labels[column] || column)
-      .join(', ');
+    return searchableColumns.map((column) => labels[column] || column).join(', ');
   }
 
   getSearchableValueForColumn(item: T, column: string): unknown {
@@ -456,7 +501,7 @@ export class GenericTableUiComponent<T extends Record<string, unknown>> {
       if (obj.description) return obj.description;
       if (obj.label) return obj.label;
 
-      const stringProps = Object.values(obj).filter(v => typeof v === 'string');
+      const stringProps = Object.values(obj).filter((v) => typeof v === 'string');
       if (stringProps.length > 0) {
         return stringProps.join(' ');
       }
@@ -526,27 +571,41 @@ export class GenericTableUiComponent<T extends Record<string, unknown>> {
     this.showColumnDropdown.set(false);
   }
 
-  // Legacy selection methods (for backward compatibility)
-  protected get checked(): boolean | null {
-    const items = this.items();
-    const every = items.every((item: any) => item.selected);
-    const some = items.some((item: any) => item.selected);
+  getRowClasses(item: T): string[] {
+    const classes: string[] = [];
 
-    return every || (some && null);
+    if (this.isSelected(item)) {
+      classes.push('z-row-selected');
+    }
+
+    return classes;
   }
 
-  protected onCheck(checked: boolean): void {
-    const updatedItems = this.items().map((item: any) => ({
-      ...item,
-      selected: checked,
-    }));
-    this.itemsSelectionChange.emit(updatedItems);
+  getCellClasses(header: string): string[] {
+    const classes: string[] = [];
+
+    if (!this.isTextColumn(header)) {
+      classes.push('whitespace-nowrap');
+    }
+
+    return classes;
   }
 
-  protected onItemCheck(item: T, checked: boolean): void {
-    const updatedItems = this.items().map((currentItem) =>
-      this.getTrackBy(currentItem) === this.getTrackBy(item) ? { ...currentItem, selected: checked } : currentItem
-    );
-    this.itemsSelectionChange.emit(updatedItems);
+  getStatusComponentClasses(status: unknown): string[] {
+    const classes: string[] = [];
+
+    if (typeof status === 'string') {
+      if (status === 'active') {
+        classes.push('z-status-active');
+      } else if (status === 'inactive') {
+        classes.push('z-status-inactive');
+      } else {
+        classes.push('z-status-neutral');
+      }
+    } else {
+      classes.push('z-status-neutral');
+    }
+
+    return classes;
   }
 }
