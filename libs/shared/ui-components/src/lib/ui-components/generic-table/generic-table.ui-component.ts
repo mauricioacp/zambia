@@ -3,7 +3,6 @@ import {
   Component,
   computed,
   ContentChildren,
-  effect,
   input,
   output,
   QueryList,
@@ -14,19 +13,14 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ColumnTemplateDirective } from '../../directives/column-template.directive';
-import {
-  TuiTable,
-  TuiTablePagination,
-  type TuiTablePaginationEvent,
-  type TuiSortChange,
-} from '@taiga-ui/addon-table';
+import { TuiTable, TuiTablePagination, type TuiTablePaginationEvent, type TuiSortChange } from '@taiga-ui/addon-table';
 import { TUI_DEFAULT_MATCHER, TuiLet } from '@taiga-ui/cdk';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs';
 import { TuiButton } from '@taiga-ui/core/components/button';
 import { TuiIcon } from '@taiga-ui/core/components/icon';
 import { TuiDropdownDirective, TuiDropdownOpen } from '@taiga-ui/core/directives/dropdown';
 import { TuiDataList } from '@taiga-ui/core/components/data-list';
-import {  TuiSkeleton } from '@taiga-ui/kit';
+import { TuiSkeleton } from '@taiga-ui/kit';
 import { TuiLabel, TuiTextfieldComponent, TuiTextfieldDirective, TuiTextfieldOptionsDirective } from '@taiga-ui/core';
 
 @Component({
@@ -232,7 +226,7 @@ export class GenericTableUiComponent<T extends Record<string, unknown>> {
 
   pageSize = input<number>(10);
   pageSizeOptions = input<number[]>([5, 10, 20, 50, 100]);
-  
+
   // Search configuration
   searchDebounceTime = input<number>(300);
 
@@ -256,21 +250,12 @@ export class GenericTableUiComponent<T extends Record<string, unknown>> {
     toObservable(this.searchInputValue).pipe(
       debounceTime(300), // Use default 300ms for now, can be made configurable later
       distinctUntilChanged(),
-      map(term => term.toLowerCase().trim())
+      map((term) => term.toLowerCase().trim())
     ),
     { initialValue: '' }
   );
 
   @ContentChildren(ColumnTemplateDirective) columnTemplates?: QueryList<ColumnTemplateDirective<T>>;
-
-  // Effects
-  private searchPageResetEffect = effect(() => {
-    // Watch for changes in searchTerm and reset page
-    const currentSearch = this.searchTerm();
-    if (currentSearch !== '') {
-      this.currentPage.set(0);
-    }
-  });
 
   allAvailableColumns = computed(() => {
     const providedHeaders = this.headers();
@@ -309,7 +294,7 @@ export class GenericTableUiComponent<T extends Record<string, unknown>> {
     return items.filter((item) =>
       Object.values(item).some((value) => {
         if (value === null || value === undefined) return false;
-        
+
         // Use TUI_DEFAULT_MATCHER for better matching (handles accents, special chars, etc.)
         return TUI_DEFAULT_MATCHER(value, searchTerm);
       })

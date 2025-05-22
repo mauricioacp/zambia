@@ -11,7 +11,7 @@ import { provideEventPlugins } from '@taiga-ui/event-plugins';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { USER_ROLE_TOKEN } from '@zambia/util-roles-permissions';
 import { RolesService } from '@zambia/data-access-roles-permissions';
-import {TUI_LANGUAGE, TUI_SPANISH_LANGUAGE} from '@taiga-ui/i18n';
+import { TUI_LANGUAGE, TUI_SPANISH_LANGUAGE } from '@taiga-ui/i18n';
 import { of } from 'rxjs';
 
 export const appConfig: ApplicationConfig = {
