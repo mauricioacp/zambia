@@ -39,6 +39,7 @@ The `GenericTableUiComponent` is a reusable table component that automatically a
 ## Core Features
 
 ### 🔍 Advanced Search
+
 - **Debounced search** with 300ms delay for optimal performance
 - **Multi-column search** with configurable searchable columns
 - **Custom search transformers** for complex object filtering
@@ -46,6 +47,7 @@ The `GenericTableUiComponent` is a reusable table component that automatically a
 - **TUI_DEFAULT_MATCHER** integration for accent-insensitive search
 
 ### 📊 Flexible Data Display
+
 - **Automatic column detection** from data structure
 - **Custom column templates** via content projection
 - **Built-in status badge rendering** with style guide colors
@@ -53,6 +55,7 @@ The `GenericTableUiComponent` is a reusable table component that automatically a
 - **Smart cell value formatting** (numbers, booleans, null handling)
 
 ### 🎛️ Table Controls
+
 - **Column visibility management** with dropdown interface
 - **Interactive search bar** with visual feedback
 - **Sortable columns** with Taiga UI integration
@@ -60,6 +63,7 @@ The `GenericTableUiComponent` is a reusable table component that automatically a
 - **Row selection** with multi-select support
 
 ### 🎨 Theme Integration
+
 - **Zambia style guide compliance** with exact color mappings
 - **Automatic light/dark theme switching** via CSS custom properties
 - **Taiga UI variable overrides** for seamless integration
@@ -68,46 +72,52 @@ The `GenericTableUiComponent` is a reusable table component that automatically a
 ## Input Properties
 
 ### Data Configuration
+
 ```typescript
-items = input<T[]>([]);                    // Array of data objects
-headers = input<string[]>([]);             // Column keys to display
+items = input<T[]>([]); // Array of data objects
+headers = input<string[]>([]); // Column keys to display
 headerLabels = input<Record<string, string>>({}); // Display labels for headers
 emptyMessage = input<string>('No data available'); // Empty state message
-trackBy = input<string>('id');             // Property for change tracking
+trackBy = input<string>('id'); // Property for change tracking
 ```
 
 ### Feature Toggles
+
 ```typescript
 enablePagination = input<boolean>(true);
 enableSorting = input<boolean>(true);
 enableFiltering = input<boolean>(true);
 enableColumnVisibility = input<boolean>(true);
 enableRowSelection = input<boolean>(false);
-showTableControls = input<boolean>(false);  // Shows search and column controls
+showTableControls = input<boolean>(false); // Shows search and column controls
 ```
 
 ### Display Options
+
 ```typescript
-tableSize = input<'s' | 'm' | 'l'>('m');   // Taiga UI table size
-loading = input<boolean>(false);            // Shows skeleton loader
+tableSize = input<'s' | 'm' | 'l'>('m'); // Taiga UI table size
+loading = input<boolean>(false); // Shows skeleton loader
 ```
 
 ### Pagination
+
 ```typescript
 pageSize = input<number>(10);
 pageSizeOptions = input<number[]>([5, 10, 20, 50, 100]);
 ```
 
 ### Search Configuration
+
 ```typescript
 searchDebounceTime = input<number>(300);
-searchableColumns = input<string[]>([]);    // Specific columns to search
+searchableColumns = input<string[]>([]); // Specific columns to search
 searchTransformers = input<Record<string, (value: any) => string>>({}); // Custom search logic
 ```
 
 ### Layout Customization
+
 ```typescript
-sortableColumns = input<string[]>([]);      // Columns that can be sorted
+sortableColumns = input<string[]>([]); // Columns that can be sorted
 columnWidths = input<Record<string, number>>({}); // Min-width for columns
 textColumns = input<string[]>(['description', 'notes', 'comment']); // Text-wrap columns
 ```
@@ -115,15 +125,16 @@ textColumns = input<string[]>(['description', 'notes', 'comment']); // Text-wrap
 ## Output Events
 
 ```typescript
-itemsSelectionChange = output<T[]>();       // Row selection changes
-sortChange = output<TuiSortChange<T>>();    // Column sort changes
+itemsSelectionChange = output<T[]>(); // Row selection changes
+sortChange = output<TuiSortChange<T>>(); // Column sort changes
 paginationChange = output<TuiTablePaginationEvent>(); // Pagination changes
-rowClick = output<T>();                     // Row click events
+rowClick = output<T>(); // Row click events
 ```
 
 ## Advanced Usage Examples
 
 ### Custom Search Transformers
+
 ```typescript
 // For complex object searching (e.g., country objects)
 searchTransformers = {
@@ -132,11 +143,12 @@ searchTransformers = {
       return `${value.name} (${value.code}) ${value.name} ${value.code}`;
     }
     return value?.name || value?.code || '';
-  }
+  },
 };
 ```
 
 ### Custom Column Templates
+
 ```typescript
 // In your component template
 <z-generic-table [items]="items">
@@ -147,7 +159,7 @@ searchTransformers = {
       <span>{{ getStatusLabel(item.status) }}</span>
     </div>
   </ng-template>
-  
+
   <!-- Custom action column -->
   <ng-template columnTemplate="actions" let-item>
     <div class="flex gap-2">
@@ -159,6 +171,7 @@ searchTransformers = {
 ```
 
 ### Complete Configuration Example
+
 ```typescript
 @Component({
   template: `
@@ -181,30 +194,30 @@ searchTransformers = {
     >
       <ng-template columnTemplate="countries" let-item>
         <div class="flex items-center gap-2">
-          <img [src]="item.countries.flag" class="w-5 h-3" />
+          <img [src]="item.countries.flag" class="h-3 w-5" />
           <span>{{ item.countries.name }}</span>
         </div>
       </ng-template>
     </z-generic-table>
-  `
+  `,
 })
 export class ExampleComponent {
   tableHeaders = ['name', 'countries', 'status', 'created_at'];
-  
+
   headerLabels = {
     name: 'Headquarter Name',
     countries: 'Country',
     status: 'Status',
-    created_at: 'Created Date'
+    created_at: 'Created Date',
   };
-  
+
   searchTransformers = {
     countries: (value: any) => {
       if (value && value.name && value.code) {
         return `${value.name} (${value.code})`;
       }
       return value?.name || '';
-    }
+    },
   };
 }
 ```
@@ -212,12 +225,15 @@ export class ExampleComponent {
 ## Styling and Theming
 
 ### CSS Architecture
+
 The component uses a hybrid approach combining:
+
 - **Taiga UI variable overrides** for automatic theme integration
 - **Style guide color mappings** for brand consistency
 - **Component-specific classes** prefixed with `z-` for isolation
 
 ### Key CSS Classes
+
 ```less
 .z-table-container      // Main container with shadows and borders
 .z-table-controls       // Search and column controls section
@@ -225,23 +241,24 @@ The component uses a hybrid approach combining:
 .z-status-badge        // Status indicators with dot + text
 .z-pagination          // Bottom pagination area
 .z-empty-state         // No data state
-.z-dropdown            // Column visibility dropdown
+.z-dropdown            // Column visibility dropdown;
 ```
 
 ### Color System Integration
+
 The component automatically inherits your style guide colors through Taiga UI variable overrides:
 
 ```less
 :host {
   // Light theme colors (from style guide)
-  --tui-background-base: #ffffff;           // bg-white
-  --tui-text-primary: rgb(31 41 55);       // text-gray-800
+  --tui-background-base: #ffffff; // bg-white
+  --tui-text-primary: rgb(31 41 55); // text-gray-800
   --tui-background-accent-1: rgb(59 130 246); // bg-blue-500
-  
+
   // Dark theme colors
   :global(.dark) & {
-    --tui-background-base: rgb(30 41 59);   // dark:bg-slate-800
-    --tui-text-primary: #ffffff;           // dark:text-white
+    --tui-background-base: rgb(30 41 59); // dark:bg-slate-800
+    --tui-text-primary: #ffffff; // dark:text-white
   }
 }
 ```
@@ -249,6 +266,7 @@ The component automatically inherits your style guide colors through Taiga UI va
 ## Performance Considerations
 
 ### Optimizations
+
 - **OnPush change detection** for optimal performance
 - **Debounced search** to prevent excessive filtering
 - **Computed signals** for reactive data transformations
@@ -256,6 +274,7 @@ The component automatically inherits your style guide colors through Taiga UI va
 - **Lazy rendering** with Taiga UI table virtualization
 
 ### Memory Management
+
 - **RxJS interop** with proper cleanup
 - **Signal-based state** for automatic subscription management
 - **Content projection** for flexible templating without performance overhead
@@ -271,6 +290,7 @@ The component automatically inherits your style guide colors through Taiga UI va
 ## Browser Support
 
 Compatible with all modern browsers supporting:
+
 - ES2020+
 - CSS Custom Properties
 - Angular 19+
@@ -281,14 +301,17 @@ Compatible with all modern browsers supporting:
 ### Common Issues
 
 1. **Search not working on complex objects**
+
    - Use `searchTransformers` to define custom search logic
    - Ensure `searchableColumns` includes the correct property names
 
 2. **Columns not displaying correctly**
+
    - Check that `headers` array matches your data object keys
    - Verify `headerLabels` mapping for display names
 
 3. **Theming issues**
+
    - Ensure your app has the `.dark` class properly configured
    - Check that Taiga UI styles are loaded correctly
 

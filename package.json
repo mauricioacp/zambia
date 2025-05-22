@@ -8,6 +8,7 @@
     "config:dev": "cross-env NODE_ENV=development ts-node ./apps/zambia/set-env.ts",
     "config:prod": "cross-env NODE_ENV=production ts-node ./apps/zambia/set-env.ts",
     "serve": "npm run config:dev && npx nx run zambia:serve:development",
+    "build": "npx nx run zambia:build:development",
     "build:prod": "npm run config:prod && npx nx run zambia:build:production",
     "docker:dev": "docker-compose -f docker-compose.dev.yaml up",
     "docker:dev:build": "docker-compose -f docker-compose.dev.yaml up --build",

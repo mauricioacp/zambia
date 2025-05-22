@@ -88,7 +88,7 @@
   background: var(--tui-background-elevation-1);
   border-bottom: 1px solid var(--tui-border-normal);
   padding: 1.5rem;
-  
+
   .z-controls-wrapper {
     display: flex;
     flex-wrap: wrap;
@@ -100,7 +100,7 @@
 
 .z-column-button {
   .transition(all);
-  
+
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -112,12 +112,12 @@
   font-size: 0.875rem;
   font-weight: 500;
   box-shadow: var(--tui-shadow-small);
-  
+
   &:hover {
     background: var(--tui-background-accent-1-hover);
     transform: translateY(-1px);
   }
-  
+
   &:focus {
     outline: 2px solid var(--tui-border-focus);
     outline-offset: 2px;
@@ -127,11 +127,11 @@
 .z-search-container {
   flex: 1;
   max-width: 28rem;
-  
+
   .z-search-input {
     width: 100%;
   }
-  
+
   .z-search-info {
     margin-top: 0.5rem;
     display: flex;
@@ -147,7 +147,7 @@
   [tuiThead] {
     background: var(--tui-background-elevation-1);
     border-bottom: 1px solid var(--tui-border-normal);
-    
+
     [tuiTh] {
       padding: 1rem 1.5rem;
       font-size: 0.75rem;
@@ -155,7 +155,7 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: var(--tui-text-primary);
-      
+
       .z-header-content {
         display: flex;
         align-items: center;
@@ -163,38 +163,38 @@
       }
     }
   }
-  
+
   [tuiTbody] {
     background: var(--tui-background-base);
-    
+
     [tuiTr] {
       .transition(all);
       border-bottom: 1px solid var(--tui-border-normal);
-      
+
       &:nth-child(even) {
         background: var(--tui-background-neutral-1);
       }
-      
+
       &:hover {
         background: var(--tui-background-neutral-1-hover);
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       }
-      
+
       &.z-row-selected {
         background: var(--tui-background-accent-1);
         color: var(--tui-text-primary-on-accent-1);
-        
+
         &:hover {
           background: var(--tui-background-accent-1-hover);
         }
       }
-      
+
       [tuiTd] {
         .transition(color);
         padding: 1rem 1.5rem;
         font-size: 0.875rem;
         color: var(--tui-text-primary);
-        
+
         .z-cell-content {
           font-weight: 500;
         }
@@ -212,36 +212,36 @@
   font-size: 0.75rem;
   font-weight: 500;
   box-shadow: var(--tui-shadow-small);
-  
+
   .z-status-dot {
     width: 0.375rem;
     height: 0.375rem;
     border-radius: 50%;
     margin-right: 0.375rem;
   }
-  
+
   &.z-status-active {
     background: var(--tui-status-positive-pale);
     color: var(--tui-status-positive);
-    
+
     .z-status-dot {
       background: var(--tui-status-positive);
     }
   }
-  
+
   &.z-status-inactive {
     background: var(--tui-status-negative-pale);
     color: var(--tui-status-negative);
-    
+
     .z-status-dot {
       background: var(--tui-status-negative);
     }
   }
-  
+
   &.z-status-neutral {
     background: var(--tui-background-neutral-1);
     color: var(--tui-text-secondary);
-    
+
     .z-status-dot {
       background: var(--tui-text-tertiary);
     }
@@ -252,13 +252,13 @@
   background: var(--tui-background-elevation-1);
   border-top: 1px solid var(--tui-border-normal);
   padding: 1rem 1.5rem;
-  
+
   .z-pagination-wrapper {
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
-  
+
   .z-pagination-info {
     font-size: 0.875rem;
     color: var(--tui-text-secondary);
@@ -272,7 +272,7 @@
   justify-content: center;
   padding: 4rem 1.5rem;
   text-align: center;
-  
+
   .z-empty-icon {
     display: flex;
     align-items: center;
@@ -283,19 +283,19 @@
     border-radius: 50%;
     background: var(--tui-background-neutral-1);
   }
-  
+
   .z-empty-title {
     margin-bottom: 0.5rem;
     font-size: 1.125rem;
     font-weight: 600;
     color: var(--tui-text-primary);
   }
-  
+
   .z-empty-description {
     font-size: 0.875rem;
     color: var(--tui-text-secondary);
   }
-  
+
   .z-clear-search {
     .transition(all);
     margin-top: 1rem;
@@ -310,7 +310,7 @@
     font-weight: 500;
     border: none;
     cursor: pointer;
-    
+
     &:hover {
       background: var(--tui-background-accent-1-hover);
       transform: translateY(-1px);
@@ -324,18 +324,18 @@
   box-shadow: var(--tui-shadow-popup);
   background: var(--tui-background-base);
   border: 1px solid var(--tui-border-normal);
-  
+
   .z-dropdown-content {
     padding: 1rem;
   }
-  
+
   .z-dropdown-title {
     margin-bottom: 1rem;
     font-size: 0.875rem;
     font-weight: 600;
     color: var(--tui-text-primary);
   }
-  
+
   .z-column-option {
     .transition(background-color);
     display: flex;
@@ -345,37 +345,37 @@
     padding: 0.5rem;
     border-radius: 0.375rem; // rounded-md
     cursor: pointer;
-    
+
     &:hover {
       background: var(--tui-background-neutral-1-hover);
     }
-    
+
     input {
       width: 1rem;
       height: 1rem;
       border-radius: 0.25rem; // rounded
       border: 1px solid var(--tui-border-normal);
       accent-color: var(--tui-background-accent-1);
-      
+
       &:focus {
         outline: 2px solid var(--tui-border-focus);
         outline-offset: 2px;
       }
     }
-    
+
     span {
       font-size: 0.875rem;
       font-weight: 500;
       color: var(--tui-text-primary);
     }
   }
-  
+
   .z-dropdown-footer {
     margin-top: 1rem;
     padding-top: 1rem;
     border-top: 1px solid var(--tui-border-normal);
   }
-  
+
   .z-reset-button {
     .transition(all);
     padding: 0.5rem 0.75rem;
@@ -386,7 +386,7 @@
     font-weight: 500;
     border: none;
     cursor: pointer;
-    
+
     &:hover {
       background: var(--tui-background-neutral-1-hover);
       color: var(--tui-background-accent-1-hover);
