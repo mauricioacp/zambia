@@ -34,7 +34,7 @@ import { TuiIcon } from '@taiga-ui/core';
       <z-welcome-message [welcomeText]="welcomeText()"></z-welcome-message>
 
       <z-generic-table
-        [headers]="['name', 'last_name', 'email', 'headquarters.name', 'roles.code', 'status','actions']"
+        [headers]="['name', 'last_name', 'email', 'headquarters.name', 'roles.code', 'status', 'actions']"
         [headerLabels]="headerLabels"
         [items]="agreementsFacade.agreementsResource()"
         [loading]="agreementsFacade.isLoading()"

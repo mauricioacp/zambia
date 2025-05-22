@@ -34,7 +34,14 @@ import { TuiIcon } from '@taiga-ui/core';
       <z-welcome-message [welcomeText]="welcomeText()"></z-welcome-message>
 
       <z-generic-table
-        [headers]="['local_name', 'master_workshop_types.master_name', 'headquarters.name', 'start_datetime', 'status','actions']"
+        [headers]="[
+          'local_name',
+          'master_workshop_types.master_name',
+          'headquarters.name',
+          'start_datetime',
+          'status',
+          'actions',
+        ]"
         [headerLabels]="headerLabels"
         [items]="workshopsFacade.workshopsResource()"
         [loading]="workshopsFacade.isLoading()"

@@ -21,7 +21,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
       <h2 class="mb-6 text-2xl font-bold text-gray-800 dark:text-white">{{ 'countries' | translate }}</h2>
       <z-welcome-message [welcomeText]="welcomeText()"></z-welcome-message>
       <z-generic-table
-        [headers]="['name', 'code', 'status','actions']"
+        [headers]="['name', 'code', 'status', 'actions']"
         [headerLabels]="headerLabels"
         [items]="countriesFacade.countriesResource()"
         [loading]="countriesFacade.isLoading()"

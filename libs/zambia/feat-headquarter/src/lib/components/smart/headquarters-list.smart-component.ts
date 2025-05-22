@@ -23,7 +23,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
       <z-generic-table
         [items]="headquartersFacade.headquartersResourceValue()"
-        [headers]="['name', 'country', 'address', 'status','acciones']"
+        [headers]="['name', 'country', 'address', 'status', 'acciones']"
         [headerLabels]="headerLabels"
         [enablePagination]="true"
         [enableSorting]="true"

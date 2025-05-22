@@ -18,7 +18,7 @@ import {
   TuiTableFilters,
   TuiReorder,
   type TuiTablePaginationEvent,
-  type TuiSortChange
+  type TuiSortChange,
 } from '@taiga-ui/addon-table';
 import { TuiLet } from '@taiga-ui/cdk';
 import { TuiButton } from '@taiga-ui/core/components/button';
@@ -63,13 +63,13 @@ import { TuiSkeleton } from '@taiga-ui/kit';
 
             <!-- Search/Filter -->
             @if (enableFiltering()) {
-              <div class="flex-1 max-w-sm">
+              <div class="max-w-sm flex-1">
                 <input
                   type="text"
                   placeholder="Search..."
                   [value]="searchTerm()"
                   (input)="onSearchChange($event)"
-                  class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-400"
+                  class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm placeholder-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-400"
                 />
               </div>
             }
@@ -107,7 +107,7 @@ import { TuiSkeleton } from '@taiga-ui/kit';
                   <th
                     tuiTh
                     scope="col"
-                    class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300 sm:px-6"
+                    class="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase sm:px-6 dark:text-gray-300"
                     [style.min-width.px]="getColumnWidth(header)"
                   >
                     {{ displayLabels()[header] || header }}
@@ -126,20 +126,18 @@ import { TuiSkeleton } from '@taiga-ui/kit';
                   tuiTr
                   class="transition-colors hover:bg-gray-50 dark:hover:bg-slate-700"
                   [class.bg-blue-50]="isSelected(item)"
-                  [ngClass]="isSelected(item) ? 'dark:bg-blue-[900/20]': ''"
+                  [ngClass]="isSelected(item) ? 'dark:bg-blue-[900/20]' : ''"
                   (click)="onRowClick(item)"
                 >
                   @for (header of displayHeaders(); track header) {
                     <td
-                      class="px-4 py-4 text-sm text-gray-700 dark:text-gray-300 sm:px-6"
+                      class="px-4 py-4 text-sm text-gray-700 sm:px-6 dark:text-gray-300"
                       [class.whitespace-nowrap]="!isTextColumn(header)"
                       tuiTd
                       *tuiCell="header"
                     >
                       @if (getColumnTemplate(header); as template) {
-                        <ng-container
-                          *ngTemplateOutlet="template; context: { $implicit: item, item: item }"
-                        />
+                        <ng-container *ngTemplateOutlet="template; context: { $implicit: item, item: item }" />
                       } @else if (header === 'status') {
                         @let status = getStatusDisplay(item[header]);
                         @let statusColor = getStatusColor(item[header]);
@@ -162,7 +160,7 @@ import { TuiSkeleton } from '@taiga-ui/kit';
 
         <!-- Pagination -->
         @if (enablePagination() && totalItems() > pageSize()) {
-          <div class="border-t border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-900 sm:px-6">
+          <div class="border-t border-gray-200 bg-gray-50 px-4 py-3 sm:px-6 dark:border-gray-700 dark:bg-gray-900">
             <tui-table-pagination
               [total]="totalItems()"
               [page]="currentPage()"
@@ -174,7 +172,9 @@ import { TuiSkeleton } from '@taiga-ui/kit';
         }
       } @else {
         <div class="px-6 py-8">
-          <div class="rounded-md border-l-4 border-yellow-400 bg-yellow-50 p-4 dark:border-yellow-500 dark:bg-yellow-900/30">
+          <div
+            class="rounded-md border-l-4 border-yellow-400 bg-yellow-50 p-4 dark:border-yellow-500 dark:bg-yellow-900/30"
+          >
             <div class="flex items-center">
               <tui-icon icon="@tui.alert-triangle" class="h-5 w-5 text-yellow-400 dark:text-yellow-300" />
               <p class="ml-3 text-sm text-yellow-700 dark:text-yellow-300">{{ emptyMessage() }}</p>
@@ -187,7 +187,6 @@ import { TuiSkeleton } from '@taiga-ui/kit';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GenericTableUiComponent<T extends Record<string, unknown>> {
-
   loading = input<boolean>(false);
   items = input<T[]>([]);
   headers = input<string[]>([]);
