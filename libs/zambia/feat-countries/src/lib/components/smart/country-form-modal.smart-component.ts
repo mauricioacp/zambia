@@ -27,10 +27,7 @@ import { AsyncPipe } from '@angular/common';
   template: `
     <div class="country-form">
       <div class="form-header">
-        <tui-icon 
-          [icon]="isEditMode() ? '@tui.pencil' : '@tui.plus'" 
-          class="form-icon"
-        ></tui-icon>
+        <tui-icon [icon]="isEditMode() ? '@tui.pencil' : '@tui.plus'" class="form-icon"></tui-icon>
         <h3 class="heading">
           {{ isEditMode() ? ('edit_country' | translate) : ('create_country' | translate) }}
         </h3>
@@ -45,16 +42,8 @@ import { AsyncPipe } from '@angular/common';
             <tui-icon icon="@tui.map-pin" class="field-icon"></tui-icon>
             {{ 'country_name' | translate }}
           </label>
-          <tui-textfield 
-            tuiAutoFocus
-            tuiTextfieldSize="l"
-            class="form-input"
-          >
-            <input 
-              tuiTextfield 
-              formControlName="name" 
-              [placeholder]="'enter_country_name' | translate" 
-            />
+          <tui-textfield tuiAutoFocus tuiTextfieldSize="l" class="form-input">
+            <input tuiTextfield formControlName="name" [placeholder]="'enter_country_name' | translate" />
           </tui-textfield>
           <tui-error formControlName="name" [error]="[] | tuiFieldError | async"></tui-error>
         </div>
@@ -64,14 +53,11 @@ import { AsyncPipe } from '@angular/common';
             <tui-icon icon="@tui.code" class="field-icon"></tui-icon>
             {{ 'country_code' | translate }}
           </label>
-          <tui-textfield 
-            tuiTextfieldSize="l"
-            class="form-input"
-          >
-            <input 
-              tuiTextfield 
-              formControlName="code" 
-              [placeholder]="'enter_country_code' | translate" 
+          <tui-textfield tuiTextfieldSize="l" class="form-input">
+            <input
+              tuiTextfield
+              formControlName="code"
+              [placeholder]="'enter_country_code' | translate"
               maxlength="3"
               style="text-transform: uppercase"
             />
@@ -87,14 +73,8 @@ import { AsyncPipe } from '@angular/common';
             <tui-icon icon="@tui.toggle-on" class="field-icon"></tui-icon>
             {{ 'status' | translate }}
           </label>
-          <tui-textfield 
-            tuiTextfieldSize="l"
-            class="form-input"
-          >
-            <select 
-              tuiTextfield 
-              formControlName="status"
-            >
+          <tui-textfield tuiTextfieldSize="l" class="form-input">
+            <select tuiTextfield formControlName="status">
               <option value="" disabled>{{ 'select_status' | translate }}</option>
               <option value="active">{{ 'active' | translate }}</option>
               <option value="inactive">{{ 'inactive' | translate }}</option>
@@ -104,10 +84,10 @@ import { AsyncPipe } from '@angular/common';
         </div>
 
         <div class="form-actions">
-          <button 
-            tuiButton 
-            type="button" 
-            appearance="secondary" 
+          <button
+            tuiButton
+            type="button"
+            appearance="secondary"
             size="l"
             iconStart="@tui.x"
             (click)="onCancel()"
@@ -116,13 +96,13 @@ import { AsyncPipe } from '@angular/common';
           >
             {{ 'cancel' | translate }}
           </button>
-          <button 
-            tuiButton 
-            type="submit" 
+          <button
+            tuiButton
+            type="submit"
             appearance="primary"
             size="l"
             [iconStart]="isEditMode() ? '@tui.check' : '@tui.plus'"
-            [disabled]="form.invalid || isSubmitting()" 
+            [disabled]="form.invalid || isSubmitting()"
             [loading]="isSubmitting()"
             class="submit-button"
           >

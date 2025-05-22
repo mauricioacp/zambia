@@ -20,8 +20,8 @@ export interface ConfirmationData {
   template: `
     <div class="confirmation-modal">
       <div class="modal-header">
-        <tui-icon 
-          [icon]="context.data.danger ? '@tui.alert-triangle' : '@tui.help-circle'" 
+        <tui-icon
+          [icon]="context.data.danger ? '@tui.alert-triangle' : '@tui.help-circle'"
           [class]="context.data.danger ? 'danger-icon' : 'info-icon'"
         ></tui-icon>
         <h3 class="heading">{{ context.data.title }}</h3>
@@ -32,13 +32,13 @@ export interface ConfirmationData {
       </div>
 
       <div class="form-actions">
-        <button 
-          tuiButton 
-          type="button" 
-          appearance="secondary" 
+        <button
+          tuiButton
+          type="button"
+          appearance="secondary"
           size="l"
           iconStart="@tui.x"
-          (click)="onCancel()" 
+          (click)="onCancel()"
           [disabled]="isProcessing()"
           class="cancel-button"
         >

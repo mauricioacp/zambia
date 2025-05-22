@@ -120,11 +120,7 @@ export class CountriesFacadeService {
   }
 
   async deleteCountry(id: string): Promise<void> {
-    const { error } = await this.supabase
-      .getClient()
-      .from('countries')
-      .delete()
-      .eq('id', id);
+    const { error } = await this.supabase.getClient().from('countries').delete().eq('id', id);
 
     if (error) {
       console.error('Error deleting country:', error);

@@ -125,23 +125,20 @@ import { tryCatch } from '@zambia/data-access-generic';
             </tr>
           </tbody>
         </table>
-        
+
         <div *ngIf="countriesFacade.isLoading() || isProcessing()" class="loading-overlay">
           <tui-icon icon="@tui.loader" class="loading-spinner"></tui-icon>
           <span>{{ 'loading' | translate }}</span>
         </div>
-        
-        <div *ngIf="countriesFacade.countriesResource()?.length === 0 && !countriesFacade.isLoading()" class="empty-state">
+
+        <div
+          *ngIf="countriesFacade.countriesResource()?.length === 0 && !countriesFacade.isLoading()"
+          class="empty-state"
+        >
           <tui-icon icon="@tui.map-pin" class="empty-icon"></tui-icon>
           <h3>{{ 'no_countries_found' | translate }}</h3>
           <p>{{ 'no_countries_description' | translate }}</p>
-          <button
-            tuiButton
-            appearance="primary"
-            size="m"
-            iconStart="@tui.plus"
-            (click)="onCreateCountry()"
-          >
+          <button tuiButton appearance="primary" size="m" iconStart="@tui.plus" (click)="onCreateCountry()">
             {{ 'create_first_country' | translate }}
           </button>
         </div>
@@ -238,8 +235,12 @@ import { tryCatch } from '@zambia/data-access-generic';
     }
 
     @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     .empty-state {
@@ -323,14 +324,11 @@ export class CountriesListSmartComponent {
   }
 
   onCreateCountry(): void {
-    const dialog = this.dialogService.open<CountryFormData>(
-      new PolymorpheusComponent(CountryFormModalSmartComponent),
-      {
-        data: null,
-        dismissible: true,
-        size: 'm',
-      }
-    );
+    const dialog = this.dialogService.open<CountryFormData>(new PolymorpheusComponent(CountryFormModalSmartComponent), {
+      data: null,
+      dismissible: true,
+      size: 'm',
+    });
 
     dialog.subscribe({
       next: async (result) => {
@@ -340,19 +338,16 @@ export class CountriesListSmartComponent {
       },
       error: (error) => {
         console.error('Create country dialog error:', error);
-      }
+      },
     });
   }
 
   onEditCountry(country: Country): void {
-    const dialog = this.dialogService.open<CountryFormData>(
-      new PolymorpheusComponent(CountryFormModalSmartComponent),
-      {
-        data: country,
-        dismissible: true,
-        size: 'm',
-      }
-    );
+    const dialog = this.dialogService.open<CountryFormData>(new PolymorpheusComponent(CountryFormModalSmartComponent), {
+      data: country,
+      dismissible: true,
+      size: 'm',
+    });
 
     dialog.subscribe({
       next: async (result) => {
@@ -362,7 +357,7 @@ export class CountriesListSmartComponent {
       },
       error: (error) => {
         console.error('Edit country dialog error:', error);
-      }
+      },
     });
   }
 
@@ -374,14 +369,11 @@ export class CountriesListSmartComponent {
       danger: true,
     };
 
-    const dialog = this.dialogService.open<boolean>(
-      new PolymorpheusComponent(ConfirmationModalSmartComponent),
-      {
-        data: confirmationData,
-        dismissible: true,
-        size: 's',
-      }
-    );
+    const dialog = this.dialogService.open<boolean>(new PolymorpheusComponent(ConfirmationModalSmartComponent), {
+      data: confirmationData,
+      dismissible: true,
+      size: 's',
+    });
 
     dialog.subscribe({
       next: async (confirmed) => {
@@ -391,14 +383,14 @@ export class CountriesListSmartComponent {
       },
       error: (error) => {
         console.error('Delete country dialog error:', error);
-      }
+      },
     });
   }
 
   private async handleCountryCreate(countryData: CountryFormData): Promise<void> {
     this.isProcessing.set(true);
 
-    const {data, error} = await tryCatch(() => this.countriesFacade.createCountry(countryData));
+    const { data, error } = await tryCatch(() => this.countriesFacade.createCountry(countryData));
 
     if (error) {
       console.error('Failed to create country:', error);
@@ -414,7 +406,7 @@ export class CountriesListSmartComponent {
   private async handleCountryUpdate(id: string, countryData: CountryFormData): Promise<void> {
     this.isProcessing.set(true);
 
-    const {data, error} = await tryCatch(() => this.countriesFacade.updateCountry(id, countryData));
+    const { data, error } = await tryCatch(() => this.countriesFacade.updateCountry(id, countryData));
 
     if (error) {
       console.error('Failed to update country:', error);
@@ -430,7 +422,7 @@ export class CountriesListSmartComponent {
   private async handleCountryDelete(id: string): Promise<void> {
     this.isProcessing.set(true);
 
-    const {data, error} = await tryCatch(() => this.countriesFacade.deleteCountry(id));
+    const { data, error } = await tryCatch(() => this.countriesFacade.deleteCountry(id));
     console.log(data);
 
     if (error) {
