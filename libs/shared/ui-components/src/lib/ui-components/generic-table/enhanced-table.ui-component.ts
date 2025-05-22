@@ -25,7 +25,7 @@ import {
   TuiLabel,
   TuiLoader,
 } from '@taiga-ui/core';
-import { TuiAvatar, TuiChevron } from '@taiga-ui/kit';
+import { TuiAvatar, TuiBadge, TuiChevron } from '@taiga-ui/kit';
 import { TuiCell } from '@taiga-ui/layout';
 import { TuiLet, TUI_DEFAULT_MATCHER } from '@taiga-ui/cdk';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
@@ -73,9 +73,11 @@ export interface TableColumn {
     TuiLoader,
     TuiChevron,
     TuiLet,
+    TuiBadge,
   ],
+  styleUrls: ['./enhanced-table.ui-component.less'],
   template: `
-    <div class="h-full w-full overflow-auto bg-gray-50 p-6 dark:bg-gray-900">
+    <div class="h-full w-full overflow-auto bg-gray-900 p-6 dark:bg-gray-900">
       <!-- Header Section -->
       <div class="mb-6 flex items-center justify-between">
         @if (title()) {
@@ -166,11 +168,16 @@ export interface TableColumn {
       }
 
       <!-- Table Container -->
-      <div class="overflow-hidden rounded-lg shadow-md ring-1 ring-gray-200 dark:ring-gray-700">
+      <div class="overflow-hidden rounded-lg shadow-md ring-1 ring-gray-700 dark:ring-gray-700">
         <tui-loader [overlay]="true" [showLoader]="loading()">
           @if (paginatedItems().length > 0) {
             <div class="overflow-x-auto">
-              <table tuiTable class="min-w-full bg-white dark:bg-gray-800" [columns]="displayHeaders()" size="m">
+              <table
+                tuiTable
+                class="z-table min-w-full bg-white dark:bg-gray-800"
+                [columns]="displayHeaders()"
+                size="m"
+              >
                 <thead class="bg-gray-50 dark:bg-gray-700">
                   <tr>
                     @for (column of displayColumns(); track column.key) {
@@ -191,10 +198,7 @@ export interface TableColumn {
                   class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800"
                 >
                   @for (item of items; track getTrackBy(item)) {
-                    <tr
-                      class="cursor-pointer transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700"
-                      (click)="onRowClick(item)"
-                    >
+                    <tr class="table-row cursor-pointer transition-colors duration-200" (click)="onRowClick(item)">
                       @for (column of displayColumns(); track column.key) {
                         <td
                           tuiTd
@@ -218,9 +222,7 @@ export interface TableColumn {
                               </div>
                             }
                             @case ('badge') {
-                              <span class="rounded bg-gray-100 px-2 py-1 font-mono text-sm dark:bg-gray-800">
-                                {{ getDisplayValue(item, column.key) }}
-                              </span>
+                              <tui-badge>  {{ getDisplayValue(item, column.key) }}</tui-badge>
                             }
                             @case ('status') {
                               <span
@@ -364,6 +366,15 @@ export interface TableColumn {
     [tuiTable][data-size='m'] [tuiTitle] {
       flex-direction: row;
       gap: 0.75rem;
+    }
+
+    .table-row:hover {
+      background: rgb(249 250 251) !important;
+    }
+
+    :host(.dark) .table-row:hover,
+    .dark .table-row:hover {
+      background: rgb(55 65 81) !important;
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
