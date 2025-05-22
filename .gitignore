@@ -58,3 +58,5 @@ apps/zambia/src/environments/environment.*.ts
 /.cursor/mcp.json
 /.cursor/rules/nx-rules.mdc
 /.vscode/settings.json
+CLAUDE.md
+ai/*

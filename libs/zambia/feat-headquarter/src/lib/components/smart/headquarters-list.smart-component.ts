@@ -22,10 +22,16 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
       <z-welcome-message [welcomeText]="welcomeText()"></z-welcome-message>
 
       <z-generic-table
-        [headers]="['name', 'country', 'address', 'status']"
+        [items]="headquartersFacade.headquartersResourceValue()"
+        [headers]="['name', 'country', 'address', 'status','acciones']"
         [headerLabels]="headerLabels"
-        [actions]="['actions']"
-        [items]="headquartersFacade.headquartersResource()"
+        [enablePagination]="true"
+        [enableSorting]="true"
+        [showTableControls]="true"
+        [enableFiltering]="true"
+        [enableColumnReordering]="true"
+        [pageSize]="10"
+        [pageSizeOptions]="[5, 10, 20, 50]"
         [loading]="headquartersFacade.isLoading()"
         [emptyMessage]="'no.headquarters.found' | translate"
       >
@@ -45,7 +51,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
         </ng-template>
 
         <!-- Columna de acciones -->
-        <ng-template zColumnTemplate="actions" let-hq>
+        <ng-template zColumnTemplate="acciones" let-hq>
           <a
             [routerLink]="['/dashboard/headquarters', hq.id]"
             class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"

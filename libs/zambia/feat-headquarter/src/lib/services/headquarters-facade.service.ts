@@ -25,7 +25,7 @@ export interface HeadquarterWithRelations extends Headquarter {
 export class HeadquartersFacadeService {
   private supabase = inject(SupabaseService);
   headquarterId: WritableSignal<string> = signal('');
-  headquartersResource = linkedSignal(() => this.headquarters.value() ?? []);
+  headquartersResourceValue = linkedSignal(() => this.headquarters.value() ?? []);
   headquarterByIdResource = linkedSignal(() => this.headquarterById.value() ?? null);
 
   headquarters = resource({
