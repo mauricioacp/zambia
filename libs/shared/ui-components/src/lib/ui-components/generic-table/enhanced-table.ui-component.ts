@@ -222,7 +222,7 @@ export interface TableColumn {
                               </div>
                             }
                             @case ('badge') {
-                              <tui-badge>  {{ getDisplayValue(item, column.key) }}</tui-badge>
+                              <tui-badge> {{ getDisplayValue(item, column.key) }}</tui-badge>
                             }
                             @case ('status') {
                               <span
