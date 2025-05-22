@@ -105,5 +105,15 @@
   "confirm": "Confirmar",
   "loading": "Cargando...",
   "no_countries_found": "No se encontraron países",
-  "no_countries_description": "Comienza agregando el primer país a tu organización"
+  "no_countries_description": "Comienza agregando el primer país a tu organización",
+  
+  "dashboard": "Panel",
+  "headquarters_count": "Cantidad de Sedes",
+  "city": "Ciudad",
+  "no_headquarters_description": "No hay sedes registradas para este país",
+  "duplicate": "Duplicar",
+  "error_loading_country": "Error al cargar el país",
+  "retry": "Reintentar",
+  "country_not_found_description": "El país que buscas no existe o fue eliminado",
+  "country_detail_subtitle": "Información detallada del país"
 }

@@ -43,11 +43,11 @@ import { AsyncPipe } from '@angular/common';
             {{ 'country_name' | translate }}
           </label>
           <tui-textfield tuiAutoFocus tuiTextfieldSize="l" class="form-input">
-            <input 
-              tuiTextfield 
+            <input
+              tuiTextfield
               id="country-name"
-              formControlName="name" 
-              [placeholder]="'enter_country_name' | translate" 
+              formControlName="name"
+              [placeholder]="'enter_country_name' | translate"
             />
           </tui-textfield>
           <tui-error formControlName="name" [error]="[] | tuiFieldError | async"></tui-error>
@@ -80,11 +80,7 @@ import { AsyncPipe } from '@angular/common';
             {{ 'status' | translate }}
           </label>
           <tui-textfield tuiTextfieldSize="l" class="form-input">
-            <select 
-              tuiTextfield 
-              id="country-status"
-              formControlName="status"
-            >
+            <select tuiTextfield id="country-status" formControlName="status">
               <option value="" disabled>{{ 'select_status' | translate }}</option>
               <option value="active">{{ 'active' | translate }}</option>
               <option value="inactive">{{ 'inactive' | translate }}</option>

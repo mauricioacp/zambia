@@ -72,10 +72,10 @@ export class CountriesFacadeService {
   }
 
   isLoading = computed(() => this.countries.isLoading());
-  countriesLoadingError = computed(() => this.countries.error);
+  countriesLoadingError = computed(() => this.countries.error());
 
   isDetailLoading = computed(() => this.countryById.isLoading());
-  detailLoadingError = computed(() => this.countryById.error);
+  detailLoadingError = computed(() => this.countryById.error());
 
   async createCountry(countryData: CountryFormData): Promise<Country> {
     const { data, error } = await this.supabase
