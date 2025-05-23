@@ -128,5 +128,19 @@
   "rows": "filas",
   "items_per_page": "elementos por página",
   "showing_results": "Mostrando {{start}} a {{end}} de {{total}} resultados",
-  "page_size_hint": "Seleccionar número de elementos a mostrar por página"
+  "page_size_hint": "Seleccionar número de elementos a mostrar por página",
+  "notification": {
+    "success": "Éxito",
+    "error": "Error",
+    "warning": "Advertencia",
+    "info": "Información"
+  },
+  "country_created_success": "El país '{{name}}' ha sido creado exitosamente",
+  "country_updated_success": "El país '{{name}}' ha sido actualizado exitosamente",
+  "country_deleted_success": "El país '{{name}}' ha sido eliminado exitosamente",
+  "country_create_error": "Error al crear el país. Por favor, inténtalo de nuevo.",
+  "country_update_error": "Error al actualizar el país. Por favor, inténtalo de nuevo.",
+  "country_delete_error": "Error al eliminar el país. Por favor, inténtalo de nuevo.",
+  "country_delete_has_headquarters": "No se puede eliminar el país '{{name}}' porque tiene {{count}} sedes. Por favor, elimina o reasigna las sedes primero.",
+  "dialog_error": "Ocurrió un error con el diálogo. Por favor, inténtalo de nuevo."
 }

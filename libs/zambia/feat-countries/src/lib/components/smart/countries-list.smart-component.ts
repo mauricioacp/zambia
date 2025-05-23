@@ -2,12 +2,18 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CountriesFacadeService, Country, CountryFormData } from '../../services/countries-facade.service';
+import { SupabaseService } from '@zambia/data-access-supabase';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TuiButton, TuiDialogService, TuiIcon } from '@taiga-ui/core';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { CountryFormModalSmartComponent } from './country-form-modal.smart-component';
 import { ConfirmationModalSmartComponent, ConfirmationData } from './confirmation-modal.smart-component';
-import { tryCatch } from '@zambia/data-access-generic';
+import {
+  tryCatch,
+  NotificationService,
+  isDatabaseConstraintError,
+  parseConstraintError,
+} from '@zambia/data-access-generic';
 import { EnhancedTableUiComponent, type TableColumn, type TableAction } from '@zambia/ui-components';
 import { ICONS } from '@zambia/util-constants';
 import { injectCurrentTheme } from '@zambia/ui-components';
@@ -155,6 +161,8 @@ export class CountriesListSmartComponent {
   private translate = inject(TranslateService);
   private dialogService = inject(TuiDialogService);
   private router = inject(Router);
+  private notificationService = inject(NotificationService);
+  private supabaseService = inject(SupabaseService);
 
   isProcessing = signal(false);
   currentTheme = injectCurrentTheme();
@@ -253,7 +261,7 @@ export class CountriesListSmartComponent {
       },
       error: (error) => {
         console.error('Create country dialog error:', error);
-        // TODO: Show error notification
+        this.notificationService.showError('dialog_error').subscribe();
       },
     });
   }
@@ -273,7 +281,7 @@ export class CountriesListSmartComponent {
       },
       error: (error) => {
         console.error('Edit country dialog error:', error);
-        // TODO: Show error notification
+        this.notificationService.showError('dialog_error').subscribe();
       },
     });
   }
@@ -295,12 +303,12 @@ export class CountriesListSmartComponent {
     dialog.subscribe({
       next: async (confirmed) => {
         if (confirmed) {
-          await this.handleCountryDelete(country.id);
+          await this.handleCountryDelete(country);
         }
       },
       error: (error) => {
         console.error('Delete country dialog error:', error);
-        // TODO: Show error notification
+        this.notificationService.showError('dialog_error').subscribe();
       },
     });
   }
@@ -312,9 +320,13 @@ export class CountriesListSmartComponent {
 
     if (error) {
       console.error('Failed to create country:', error);
-      // TODO: Show error notification
+      this.notificationService.showError('country_create_error').subscribe();
     } else {
-      // TODO: Show success notification
+      this.notificationService
+        .showSuccess('country_created_success', {
+          translateParams: { name: countryData.name },
+        })
+        .subscribe();
       this.countriesFacade.countries.reload();
     }
 
@@ -329,29 +341,88 @@ export class CountriesListSmartComponent {
 
     if (error) {
       console.error('Failed to update country:', error);
-      // TODO: Show error notification
+      this.notificationService.showError('country_update_error').subscribe();
     } else {
-      // TODO: Show success notification
+      this.notificationService
+        .showSuccess('country_updated_success', {
+          translateParams: { name: countryData.name },
+        })
+        .subscribe();
       this.countriesFacade.countries.reload();
     }
 
     this.isProcessing.set(false);
   }
 
-  private async handleCountryDelete(id: string): Promise<void> {
+  private async handleCountryDelete(country: Country): Promise<void> {
     this.isProcessing.set(true);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { data, error } = await tryCatch(() => this.countriesFacade.deleteCountry(id));
+    const { data, error } = await tryCatch(() => this.countriesFacade.deleteCountry(country.id));
 
     if (error) {
       console.error('Failed to delete country:', error);
-      // TODO: Show error notification
+
+      // Check if it's a database constraint error
+      if (isDatabaseConstraintError(error)) {
+        const constraintInfo = parseConstraintError(error);
+
+        if (constraintInfo.type === 'foreign_key' && constraintInfo.referencedTable === 'headquarters') {
+          // Try to get headquarters count, fallback to "some" if we can't get exact count
+          this.getHeadquartersCount(country.id)
+            .then((count) => {
+              this.notificationService
+                .showWarning('country_delete_has_headquarters', {
+                  translateParams: {
+                    name: country.name,
+                    count: count || 'some',
+                  },
+                })
+                .subscribe();
+            })
+            .catch(() => {
+              // Fallback if we can't get count
+              this.notificationService
+                .showWarning('country_delete_has_headquarters', {
+                  translateParams: {
+                    name: country.name,
+                    count: 'some',
+                  },
+                })
+                .subscribe();
+            });
+        } else {
+          // Other constraint errors
+          this.notificationService.showError('country_delete_error').subscribe();
+        }
+      } else {
+        // Generic error
+        this.notificationService.showError('country_delete_error').subscribe();
+      }
     } else {
-      // TODO: Show success notification
+      this.notificationService
+        .showSuccess('country_deleted_success', {
+          translateParams: { name: country.name },
+        })
+        .subscribe();
       this.countriesFacade.countries.reload();
     }
 
     this.isProcessing.set(false);
+  }
+
+  private async getHeadquartersCount(countryId: string): Promise<number> {
+    const { count, error } = await this.supabaseService
+      .getClient()
+      .from('headquarters')
+      .select('*', { count: 'exact', head: true })
+      .eq('country_id', countryId);
+
+    if (error) {
+      console.warn('Failed to get headquarters count:', error);
+      return 1; // Fallback to at least 1 since constraint failed
+    }
+
+    return count || 1;
   }
 }
