@@ -142,5 +142,12 @@
   "country_update_error": "Error al actualizar el país. Por favor, inténtalo de nuevo.",
   "country_delete_error": "Error al eliminar el país. Por favor, inténtalo de nuevo.",
   "country_delete_has_headquarters": "No se puede eliminar el país '{{name}}' porque tiene {{count}} sedes. Por favor, elimina o reasigna las sedes primero.",
-  "dialog_error": "Ocurrió un error con el diálogo. Por favor, inténtalo de nuevo."
+  "dialog_error": "Ocurrió un error con el diálogo. Por favor, inténtalo de nuevo.",
+  "export": "Exportar",
+  "no_data_to_export": "No hay datos disponibles para exportar",
+  "export_success": "Se exportaron exitosamente {{count}} registros en formato {{format}}",
+  "export_data": "Exportar Datos",
+  "export_format": "Formato de Exportación",
+  "comma_separated_values": "Valores Separados por Comas",
+  "include_column_headers": "Incluir encabezados de columna"
 }

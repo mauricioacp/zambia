@@ -37,5 +37,13 @@
   "country_update_error": "Failed to update country. Please try again.",
   "country_delete_error": "Failed to delete country. Please try again.",
   "country_delete_has_headquarters": "Cannot delete country '{{name}}' because it has {{count}} headquarters. Please delete or reassign the headquarters first.",
-  "dialog_error": "An error occurred with the dialog. Please try again."
+  "dialog_error": "An error occurred with the dialog. Please try again.",
+  "export": "Export",
+  "no_data_to_export": "No data available to export",
+  "export_success": "Successfully exported {{count}} records to {{format}} format",
+  "export_data": "Export Data",
+  "export_format": "Export Format",
+  "comma_separated_values": "Comma Separated Values",
+  "include_column_headers": "Include column headers",
+  "dashboard": "Dashboard"
 }

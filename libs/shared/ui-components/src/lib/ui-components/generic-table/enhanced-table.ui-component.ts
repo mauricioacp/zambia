@@ -90,7 +90,7 @@ export interface TableColumn {
     TranslatePipe,
   ],
   template: `
-    <div class="h-full w-full overflow-auto bg-gray-900 p-6 dark:bg-gray-900">
+    <div class="h-full w-full overflow-auto p-6 dark:bg-gray-900">
       <!-- Header Section -->
       <div class="mb-6 flex items-center justify-between">
         @if (title()) {
