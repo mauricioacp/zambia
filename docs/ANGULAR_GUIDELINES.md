@@ -248,3 +248,71 @@ export class UserCardComponent {
 - **Scope `@let` variables** to current view and descendants
 - **Cannot reassign `@let` variables** after declaration
 - **Use descriptive variable names** that indicate their purpose
+
+## Theme Integration
+
+### Using Theme Signals
+
+The Zambia project provides convenient theme signals that can be injected anywhere in your components without needing to inject the full ThemeService:
+
+```typescript
+import { injectCurrentTheme, injectIsDarkTheme, themeClass, themeValue } from '@zambia/ui-components';
+
+export class MyComponent {
+  // Direct injection of theme signals
+  currentTheme = injectCurrentTheme();
+  isDarkTheme = injectIsDarkTheme();
+
+  // Theme-specific CSS classes
+  buttonClass = themeClass(
+    'bg-blue-600 text-white', // light theme
+    'bg-blue-500 text-white' // dark theme
+  );
+
+  // Theme-specific values
+  iconSize = themeValue(20, 24); // smaller in light, larger in dark
+}
+```
+
+### Template Usage
+
+```html
+<!-- Use theme signal directly -->
+<tui-icon [tuiTheme]="currentTheme()" [icon]="'menu'" />
+
+<!-- Conditional rendering based on theme -->
+@if (isDarkTheme()) {
+<div class="dark-specific-content">Dark mode content</div>
+} @else {
+<div class="light-specific-content">Light mode content</div>
+}
+
+<!-- Theme-specific classes -->
+<button [class]="buttonClass()">Click me</button>
+```
+
+### Advanced Theme Utilities
+
+```typescript
+import { isTheme, oppositeTheme, AppTheme } from '@zambia/ui-components';
+
+export class AdvancedComponent {
+  // Check for specific theme
+  isLightTheme = isTheme(AppTheme.LIGHT);
+
+  // Get opposite theme
+  toggleToTheme = oppositeTheme();
+
+  // Complex theme-based logic
+  complexClass = computed(() => {
+    if (this.isDarkTheme()) {
+      return 'dark:bg-slate-800 dark:text-white dark:border-slate-600';
+    }
+    return 'bg-white text-gray-800 border-gray-200';
+  });
+}
+```
+
+### Setup Requirements
+
+The theme signals are provided at the app level in `app.component.ts`. No additional setup is required in child components - just inject and use!

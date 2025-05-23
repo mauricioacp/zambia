@@ -1,4 +1,4 @@
-import { afterNextRender, computed, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
+import { afterNextRender, computed, inject, Injectable, InjectionToken, PLATFORM_ID, signal } from '@angular/core';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { TUI_DARK_MODE } from '@taiga-ui/core';
 
@@ -8,6 +8,17 @@ export const enum AppTheme {
 }
 
 const APP_THEME = 'theme';
+
+export const CURRENT_THEME = new InjectionToken<() => AppTheme>('Current Theme Signal');
+export const IS_DARK_THEME = new InjectionToken<() => boolean>('Is Dark Theme Signal');
+
+export function injectCurrentTheme() {
+  return inject(CURRENT_THEME);
+}
+
+export function injectIsDarkTheme() {
+  return inject(IS_DARK_THEME);
+}
 
 function getStoredTheme(platformId: object): AppTheme | null {
   if (isPlatformBrowser(platformId)) {
