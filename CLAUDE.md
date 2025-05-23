@@ -53,48 +53,6 @@ The project follows Nx's monorepo architecture with the following structure:
 - **Smart/Presentational Pattern**: Components are organized into smart (container) and presentational components
 - **Facade Pattern**: Services often use facades to simplify access to complex subsystems
 
-### Role-Based Access Control
-
-The application uses a sophisticated role-based access control system with hierarchical roles, each with specific permission levels (numbers in comments indicate hierarchy level):
-
-- **Administration (100)**: Superadmin
-- **Top Management (90)**: General Director, Executive Leader
-- **Leadership Team (80)**: Various leader roles (Pedagogical, Innovation, Communication, Community, Coordination, Legal Advisor)
-- **Coordination Team (70)**: Coordinator, Konsejo Member
-- **Headquarters Management (50)**: Headquarter Manager
-- **Local Management (40)**: Pedagogical Manager, Communication Manager, Companion Director
-- **Assistants (30)**: Manager Assistant
-- **Field Staff (20)**: Companion, Facilitator
-- **Students (1)**: Student role
-
-Roles are organized into groups that determine access to features and data throughout the application. The role system is implemented with guards and directives for UI elements.
-
-### Code Generation
-
-```bash
-# Generate a new feature library
-npx nx g @nx/angular:library --name=feat-example --tags=scope:zambia,type:feat --directory=libs/zambia/feat-example
-
-# Generate a smart component
-nx g @nx/angular:component --path=libs/zambia/feat-example/src/lib/components/smart/example --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=example --type=smart-component
-
-# Generate a UI component
-nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/example --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=example --type=ui-component
-```
-
-### Other Utilities
-
-```bash
-# Generate Supabase types
-npm run supabase:gen:types:local
-
-# View dependency graph
-npm run graph
-
-# Use Commitizen for standardized commits
-npm run cm
-```
-
 ## Environment Configuration
 
 The project uses environment files for configuration:
@@ -109,55 +67,6 @@ API_URL=https://api.yourdomain.com
 API_PUBLIC_KEY=your-api-key
 PROD=true/false
 ```
-
-## Database Schema
-
-The application uses Supabase as its backend with the following main entities:
-
-### Core Entities
-
-1. **agreements** - Stores participant agreements with personal info
-
-   - Links to headquarters, roles, and seasons
-   - Tracks various agreement statuses and permissions
-
-2. **headquarters** - Regional/local centers of the organization
-
-   - Connected to countries
-   - Contains address and contact information
-
-3. **roles** - Defines user roles and permissions
-
-   - Includes code, name, description, and permission levels
-   - Contains JSON permissions field for access control
-
-4. **seasons** - Program cycles or academic periods
-
-   - Connected to headquarters
-   - Has start and end dates
-
-5. **collaborators** - Staff members with specific roles
-
-   - Connected to headquarters and roles
-   - Tracks status (active, inactive, standby)
-
-6. **students** - Program participants
-
-   - Connected to headquarters and seasons
-   - Tracks enrollment status and progress
-
-7. **workshops** - Educational sessions
-   - Connected to facilitators, headquarters, and seasons
-   - Has scheduling information and attendance tracking
-
-### Key Relationships
-
-- Headquarters belong to countries
-- Seasons operate within headquarters
-- Agreements are linked to specific roles and headquarters
-- Collaborators are assigned to headquarters with specific roles
-- Students are associated with headquarters and seasons
-- Workshops are led by facilitator collaborators at headquarters
 
 ## Main Features and UI Structure
 
@@ -198,50 +107,29 @@ The application supports multiple languages using ngx-translate:
 
 ## Angular Development Guidelines
 
-### Modern Angular Practices
+### Key Principles
 
-This project uses Angular v19 with modern patterns and syntax. Always follow these guidelines:
+- **Use Angular v19 modern patterns**: New control flow syntax (@if, @for, @switch)
+- **Standalone components only**: No NgModules
+- **Signals for state management**: Prefer signals over observables
+- **OnPush change detection**: For all components
+- **TaigaUI + Tailwind**: Follow established design system
 
-#### Template Syntax
+### Template Syntax
 
-- **ALWAYS use new control flow syntax** instead of structural directives:
+```html
+<!-- ✅ Use new control flow -->
+@if (condition) {
+<div>Content</div>
+} @for (item of items; track item.id) {
+<div>{{ item.name }}</div>
+}
 
-  ```html
-  <!-- ✅ Use new control flow -->
-  @if (condition) {
-  <div>Content</div>
-  } @for (item of items; track item.id) {
-  <div>{{ item.name }}</div>
-  } @switch (status) { @case ('active') { <span>Active</span> } @case ('inactive') { <span>Inactive</span> } @default {
-  <span>Unknown</span> } }
+<!-- ❌ Don't use old structural directives -->
+<div *ngIf="condition">Content</div>
+```
 
-  <!-- ❌ Don't use old structural directives -->
-  <div *ngIf="condition">Content</div>
-  <div *ngFor="let item of items; trackBy: trackByFn">{{ item.name }}</div>
-  ```
-
-- **Use template variables with new syntax**:
-  ```html
-  @let user = userService.currentUser(); @let isAdmin = user?.role === 'admin';
-  ```
-
-#### Component Architecture
-
-- **Use OnPush change detection strategy** for all components
-- **Use standalone components** exclusively (no NgModules)
-- **Use signals** for reactive state management
-- **Use computed signals** for derived state
-- **Use effect()** for side effects, sparingly
-
-#### Signals and Reactivity
-
-- **Prefer signals over observables** for local component state
-- **Use linkedSignal()** for dependent state that needs to be writable
-- **Use resource()** for async data loading
-- **Use computed()** for derived values
-- **Avoid effect()** unless absolutely necessary for DOM manipulation or external APIs
-
-Example patterns:
+### Component Patterns
 
 ```typescript
 export class ExampleComponent {
@@ -250,204 +138,122 @@ export class ExampleComponent {
 
   // State signals
   isLoading = signal(false);
-  selectedItem = signal<Item | null>(null);
 
   // Computed signals
-  filteredItems = computed(() => this.items().filter((item) => item.status === this.selectedStatus()));
-
-  // Linked signals for dependent state
-  processedData = linkedSignal(() => this.processData(this.data()));
-
-  // Resource for async data
-  users = resource({
-    loader: () => this.userService.getUsers(),
-  });
+  filteredItems = computed(() => this.items().filter((item) => item.status === 'active'));
 
   // Output signals
   itemSelected = output<Item>();
 }
 ```
 
-#### Component Styling
+**📖 For detailed Angular guidelines, see: [docs/ANGULAR_GUIDELINES.md](docs/ANGULAR_GUIDELINES.md)**
 
-- **Use inline styles with template literals** for component-specific styles
-- **Leverage CSS custom properties** for theming
-- **Use :host selector** for component root styling
-- **Follow the established design system** (TaigaUI + Tailwind CSS)
+## Essential Development Commands
 
-#### Custom Events and Outputs
+### Quick Start
 
-- **Use output()** function for component events
-- **Use descriptive event names** that indicate the action
-- **Emit minimal, focused data** in events
+```bash
+# Start development server
+npm run serve
 
-Example:
+# Run tests
+npm test
 
-```typescript
-export class UserCardComponent {
-  userSelected = output<User>();
-  userDeleted = output<string>(); // Just emit the ID
+# Lint specific library
+npx nx run feat-countries:lint
 
-  onUserClick(user: User): void {
-    this.userSelected.emit(user);
-  }
+# Format staged files (runs in pre-commit hook)
+npm run prettier:staged
+
+# Use standardized commits
+npm run cm
+```
+
+### Project-Specific Commands
+
+```bash
+# Lint all projects
+npm run lint:all
+
+# Test affected projects only
+npm run test:affected
+
+# Generate Supabase types
+npm run supabase:gen:types:local
+```
+
+**📖 For comprehensive development commands, see: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)**
+
+## Code Generation
+
+```bash
+# Generate a new feature library
+npx nx g @nx/angular:library --name=feat-example --tags=scope:zambia,type:feat --directory=libs/zambia/feat-example
+
+# Generate a smart component
+nx g @nx/angular:component --path=libs/zambia/feat-example/src/lib/components/smart/example --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=example --type=smart-component
+
+# Generate a UI component
+nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-components/example --export=true --changeDetection=OnPush --inlineStyle=true --inlineTemplate=true --name=example --type=ui-component
+```
+
+## Common Issues & Quick Fixes
+
+### ESLint Errors
+
+**Issue**: "ESLint was configured to run on X file but none of the TSConfigs include this file"
+
+**Fix**: Add missing files to `tsconfig.app.json`:
+
+```json
+{
+  "include": ["src/**/*.d.ts", "src/environments/*.ts", "set-env.ts"]
 }
 ```
 
-#### Content Projection
+### Pre-commit Hook Not Running
 
-- **Use ng-content** with select attributes for multiple slots
-- **Use ng-template** for conditional content projection
-- **Provide fallback content** when appropriate
+**Issue**: Prettier runs after commit instead of before
 
-#### Component Lifecycle
+**Fix**: Ensure correct script syntax:
 
-- **Use lifecycle hooks judiciously** with OnPush strategy
-- **Prefer signals and computed values** over lifecycle hooks for reactive updates
-- **Use afterNextRender()** for DOM manipulations
-- **Use afterRender()** for cleanup that needs to happen after every render
+```json
+{
+  "prettier:staged": "npx pretty-quick --staged"
+}
+```
 
-### Code Style Guidelines
+### Manual Pre-commit Testing
 
-- **Use consistent naming conventions** following the style guide
-- **Write descriptive component and method names**
-- **Keep components focused and single-purpose**
-- **Extract complex logic into services**
-- **Use TypeScript strict mode features**
-- **Leverage type inference** where possible
+```bash
+# Test pre-commit hook manually
+./.husky/pre-commit
+```
 
-### Testing Patterns
+## Quick Reference
 
-- **Test component behavior**, not implementation details
-- **Use component harnesses** for complex component testing
-- **Mock external dependencies** properly
-- **Write integration tests** for critical user flows
+### Nx Commands
 
-## Angular Template Best Practices
+- `npx nx run [project]:[target]` - Run specific target for project
+- `npm run graph` - View dependency graph
+- `npx nx show projects` - List all projects
 
-### Data Binding
+### Git Workflow
 
-#### Text Interpolation and Property Binding
+- `npm run cm` - Commitizen for standardized commits
+- Pre-commit hooks automatically format and lint
 
-- **Use interpolation `{{ }}` for dynamic text** - values are automatically converted to strings
-- **Use property binding `[property]="expression"`** for DOM properties, component inputs, and directive properties
-- **Use attribute binding `[attr.attributeName]="value"`** for HTML attributes
-- **Use class binding `[class.className]="condition"`** for conditional CSS classes
-- **Use style binding `[style.property]="value"`** or `[style.property.unit]="value"` for dynamic styles
-- **Create new object/array instances** to trigger change detection when needed
+**📖 For detailed troubleshooting, see: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)**
 
-#### Event Handling
+## Database & Backend
 
-- **Use event binding `(eventName)="handler()"`** syntax consistently
-- **Access native events with `$event`** parameter when needed
-- **Use key modifiers** like `(keyup.enter)="handler()"` for keyboard interactions
-- **Call `preventDefault()` explicitly** instead of returning `false`
-- **Use descriptive method names** that indicate the action being performed
+The application uses Supabase with a sophisticated role-based access control system. Key entities include countries, headquarters, agreements, collaborators, students, and workshops.
 
-#### Two-Way Binding
+**📖 For complete database schema, see: [docs/DATABASE.md](docs/DATABASE.md)**
 
-- **Prefer reactive forms** with `[formControl]`, `[formGroup]`, and `formControlName` directives
-- **Use `FormBuilder` service** for cleaner reactive form code
-- **Use `patchValue()` for partial updates**, `setValue()` for complete replacements
-- **Use `[(ngModel)]` sparingly** - only for simple template-driven forms
+## Additional Documentation
 
-### Template Structure
-
-#### Content Projection
-
-- **Use `ng-content` with select attributes** for multi-slot projection:
-  ```html
-  <ng-content select="header"></ng-content>
-  <ng-content select=".content"></ng-content>
-  <ng-content></ng-content>
-  <!-- Default slot -->
-  ```
-- **Provide fallback content** inside `<ng-content>` tags when appropriate
-- **Avoid conditional `ng-content`** with control flow blocks
-- **Use `ngProjectAs`** for content aliasing when needed
-
-#### Template Organization
-
-- **Use `ng-template` for reusable template fragments**:
-  ```html
-  <ng-template #templateRef let-data="data">
-    <div>{{ data.name }}</div>
-  </ng-template>
-  ```
-- **Use `ng-container`** for grouping elements without extra DOM nodes
-- **Use `@let` variables** for complex expressions to improve readability:
-  ```html
-  @let userName = user.name; @let greeting = 'Hello, ' + userName;
-  ```
-
-#### Template Reference Variables
-
-- **Use template references** for direct element/component access:
-  ```html
-  <input #inputRef placeholder="Enter text" /> <button (click)="handleClick(inputRef.value)">Submit</button>
-  ```
-
-### Performance Optimization
-
-#### Deferred Loading
-
-- **Use `@defer` strategically** for components not visible on initial load:
-  ```html
-  @defer (on viewport) {
-  <heavy-component />
-  } @placeholder {
-  <div>Loading...</div>
-  } @loading {
-  <spinner />
-  }
-  ```
-- **Choose appropriate triggers**: `idle`, `viewport`, `interaction`, `hover`, `timer`
-- **Implement `@placeholder` and `@loading` blocks** for smooth UX
-- **Use `prefetch` option** for improved perceived performance
-- **Avoid deferring above-the-fold content** to prevent layout shifts
-
-#### Pipes and Transformations
-
-- **Use built-in pipes** for common transformations: `currency`, `date`, `titlecase`
-- **Chain pipes** for multiple transformations: `{{ value | pipe1 | pipe2 }}`
-- **Use pipe parameters** for customization: `{{ date | date:'hh:mm':'UTC' }}`
-- **Create custom pipes** for reusable transformations
-- **Prefer pure pipes** for better performance (default behavior)
-
-### Expression Guidelines
-
-#### Safe Practices
-
-- **Use optional chaining `?.`** for safe property access
-- **Keep expressions simple** and focused on data transformation
-- **Avoid complex logic** in template expressions
-- **Use computed signals** for complex derived values instead of template expressions
-- **Use `this.` explicitly** when template variables might shadow class members
-
-#### Expression Syntax
-
-- **Use supported literals**: strings, numbers, booleans, objects, arrays
-- **Avoid function calls** in expressions for performance
-- **Prefer component properties** over method calls in templates
-
-### Code Organization
-
-#### Whitespace and Formatting
-
-- **Use proper indentation** for template readability
-- **Consider `preserveWhitespaces: false`** in component metadata for optimization
-- **Be mindful of significant whitespace** in inline text content
-- **Angular automatically collapses** unnecessary whitespace
-
-#### Template Variables
-
-- **Scope `@let` variables** to current view and descendants
-- **Cannot reassign `@let` variables** after declaration
-- **Use descriptive variable names** that indicate their purpose
-
-## Working with Docker
-
-The project includes Docker configurations for both development and production:
-
-- `docker-compose.dev.yaml`: Development with hot reloading
-- `docker-compose.yaml`: Production setup with Nginx
+- **[docs/ANGULAR_GUIDELINES.md](docs/ANGULAR_GUIDELINES.md)** - Comprehensive Angular development patterns
+- **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** - Complete development commands and workflows
+- **[docs/DATABASE.md](docs/DATABASE.md)** - Database schema and relationships

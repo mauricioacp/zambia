@@ -1,7 +1,177 @@
 @import '@taiga-ui/core/styles/taiga-ui-local.less';
 
+// Zambia Design System - Taiga UI Theme Overrides
+:root {
+  // === LIGHT THEME OVERRIDES ===
+
+  // Background Variables
+  --tui-background-base: #ffffff; // bg-white
+  --tui-background-base-alt: #f9fafb; // bg-gray-50
+  --tui-background-neutral-1: rgba(0, 0, 0, 0.04); // bg-gray-50 equivalent
+  --tui-background-neutral-1-hover: rgba(0, 0, 0, 0.08); // bg-gray-100 equivalent
+  --tui-background-neutral-1-pressed: rgba(0, 0, 0, 0.12);
+  --tui-background-neutral-2: rgba(0, 0, 0, 0.08); // bg-gray-100 equivalent
+  --tui-background-neutral-2-hover: rgba(0, 0, 0, 0.1);
+  --tui-background-neutral-2-pressed: rgba(0, 0, 0, 0.14);
+
+  // Primary Accent (Blue - matching style guide)
+  --tui-background-accent-1: #2563eb; // bg-blue-600
+  --tui-background-accent-1-hover: #1d4ed8; // bg-blue-700
+  --tui-background-accent-1-pressed: #1e40af; // bg-blue-800
+
+  // Secondary Accent (Green)
+  --tui-background-accent-2: #059669; // bg-emerald-600
+  --tui-background-accent-2-hover: #047857; // bg-emerald-700
+  --tui-background-accent-2-pressed: #065f46; // bg-emerald-800
+
+  // Elevation/Cards
+  --tui-background-elevation-1: #ffffff; // bg-white
+  --tui-background-elevation-2: #ffffff; // bg-white
+  --tui-background-elevation-3: #ffffff; // bg-white
+
+  // Text Variables
+  --tui-text-primary: #1f2937; // text-gray-800
+  --tui-text-secondary: rgba(107, 114, 128, 1); // text-gray-500
+  --tui-text-tertiary: rgba(156, 163, 175, 1); // text-gray-400
+  --tui-text-action: #2563eb; // text-blue-600
+  --tui-text-action-hover: #1d4ed8; // text-blue-700
+
+  // Status Colors (matching style guide)
+  --tui-status-positive: #059669; // text-green-600
+  --tui-status-positive-pale: rgba(5, 150, 105, 0.12); // bg-green-50 equivalent
+  --tui-status-positive-pale-hover: rgba(5, 150, 105, 0.24);
+
+  --tui-status-negative: #dc2626; // text-red-600
+  --tui-status-negative-pale: rgba(220, 38, 38, 0.12); // bg-red-50 equivalent
+  --tui-status-negative-pale-hover: rgba(220, 38, 38, 0.24);
+
+  --tui-status-warning: #d97706; // text-yellow-600
+  --tui-status-warning-pale: rgba(217, 119, 6, 0.12); // bg-yellow-50 equivalent
+  --tui-status-warning-pale-hover: rgba(217, 119, 6, 0.24);
+
+  --tui-status-info: #2563eb; // text-blue-600
+  --tui-status-info-pale: rgba(37, 99, 235, 0.12); // bg-blue-50 equivalent
+  --tui-status-info-pale-hover: rgba(37, 99, 235, 0.24);
+
+  --tui-status-neutral: #6b7280; // text-gray-500
+
+  // Border Variables
+  --tui-border-normal: rgba(0, 0, 0, 0.1); // border-gray-200 equivalent
+  --tui-border-hover: rgba(0, 0, 0, 0.16);
+  --tui-border-focus: rgba(37, 99, 235, 0.64); // ring-blue-500 equivalent
+
+  // Service Variables
+  --tui-service-backdrop: rgba(0, 0, 0, 0.75);
+  --tui-service-selection-background: rgba(37, 99, 235, 0.12);
+}
+
+// === DARK THEME OVERRIDES ===
+[tuiTheme='dark'] {
+  // Background Variables
+  --tui-background-base: #1e293b; // bg-slate-800
+  --tui-background-base-alt: #0f172a; // bg-slate-900
+  --tui-background-neutral-1: rgba(255, 255, 255, 0.08);
+  --tui-background-neutral-1-hover: rgba(255, 255, 255, 0.16);
+  --tui-background-neutral-1-pressed: rgba(255, 255, 255, 0.24);
+  --tui-background-neutral-2: rgba(255, 255, 255, 0.16); // bg-gray-700 equivalent
+  --tui-background-neutral-2-hover: rgba(255, 255, 255, 0.24);
+  --tui-background-neutral-2-pressed: rgba(255, 255, 255, 0.32);
+
+  // Primary Accent (Blue - adjusted for dark theme)
+  --tui-background-accent-1: #3b82f6; // bg-blue-500
+  --tui-background-accent-1-hover: #2563eb; // bg-blue-600
+  --tui-background-accent-1-pressed: #1d4ed8; // bg-blue-700
+
+  // Secondary Accent (Green - adjusted for dark theme)
+  --tui-background-accent-2: #10b981; // bg-emerald-500
+  --tui-background-accent-2-hover: #059669; // bg-emerald-600
+  --tui-background-accent-2-pressed: #047857; // bg-emerald-700
+
+  // Elevation/Cards (slate colors for dark theme)
+  --tui-background-elevation-1: #334155; // bg-slate-700
+  --tui-background-elevation-2: #475569; // bg-slate-600
+  --tui-background-elevation-3: #64748b; // bg-slate-500
+
+  // Text Variables
+  --tui-text-primary: rgba(255, 255, 255, 1); // text-white
+  --tui-text-secondary: rgba(203, 213, 225, 1); // text-slate-300
+  --tui-text-tertiary: rgba(148, 163, 184, 1); // text-slate-400
+  --tui-text-action: #60a5fa; // text-blue-400
+  --tui-text-action-hover: #93c5fd; // text-blue-300
+
+  // Status Colors (dark theme variants)
+  --tui-status-positive: #34d399; // text-green-400
+  --tui-status-positive-pale: rgba(5, 150, 105, 0.32); // bg-green-900/30 equivalent
+  --tui-status-positive-pale-hover: rgba(5, 150, 105, 0.4);
+
+  --tui-status-negative: #f87171; // text-red-400
+  --tui-status-negative-pale: rgba(220, 38, 38, 0.32); // bg-red-900/30 equivalent
+  --tui-status-negative-pale-hover: rgba(220, 38, 38, 0.4);
+
+  --tui-status-warning: #fbbf24; // text-yellow-400
+  --tui-status-warning-pale: rgba(217, 119, 6, 0.32); // bg-yellow-900/30 equivalent
+  --tui-status-warning-pale-hover: rgba(217, 119, 6, 0.4);
+
+  --tui-status-info: #60a5fa; // text-blue-400
+  --tui-status-info-pale: rgba(37, 99, 235, 0.32); // bg-blue-900/30 equivalent
+  --tui-status-info-pale-hover: rgba(37, 99, 235, 0.4);
+
+  --tui-status-neutral: #94a3b8; // text-slate-400
+
+  // Border Variables
+  --tui-border-normal: rgba(255, 255, 255, 0.14); // border-gray-700 equivalent
+  --tui-border-hover: rgba(255, 255, 255, 0.6);
+  --tui-border-focus: rgba(96, 165, 250, 0.64); // ring-blue-400 equivalent for dark
+
+  // Service Variables
+  --tui-service-backdrop: rgba(0, 0, 0, 0.75);
+  --tui-service-selection-background: rgba(96, 165, 250, 0.12);
+  --tui-service-autofill-background: rgba(51, 65, 85, 1); // slate-700 for autofill
+}
+
+// === TYPOGRAPHY OVERRIDES ===
+:root {
+  // Font family (if you want to override Taiga's defaults)
+  --tui-font-text: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --tui-font-heading: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  // Custom typography sizes to match your style guide
+  --tui-font-text-xl: normal 1.25rem var(--tui-font-text); // text-xl
+  --tui-font-text-2xl: bold 1.5rem var(--tui-font-heading); // text-2xl font-bold for H1
+  --tui-font-text-lg: 600 1.125rem var(--tui-font-heading); // text-lg font-semibold for H3
+}
+
+// === COMPONENT-SPECIFIC OVERRIDES ===
 :host {
   display: block;
   width: 100%;
   min-height: 100%;
+
+  // Ensure smooth theme transitions
+  * {
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  // Override any specific Taiga components that need special handling
+  tui-root {
+    // Custom height and radius for inputs to match your style guide
+    --tui-height-l: 3rem; // Larger input height
+    --tui-radius-m: 0.5rem; // 8px border radius (rounded-lg equivalent)
+    --tui-radius-l: 0.75rem; // 12px border radius
+
+    // Custom shadow to match your style guide
+    --tui-shadow-small: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); // shadow-md equivalent
+    --tui-shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  // Dark theme shadow adjustments
+  [tuiTheme='dark'] & {
+    tui-root {
+      --tui-shadow-small: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+      --tui-shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    }
+  }
 }
