@@ -30,6 +30,8 @@ import { TuiCell } from '@taiga-ui/layout';
 import { TuiLet, TUI_DEFAULT_MATCHER } from '@taiga-ui/cdk';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs';
+import { injectCurrentTheme } from '../../layout/theme.service';
+import { TranslatePipe } from '@ngx-translate/core';
 
 export interface TableAction<T = any> {
   label: string;
@@ -75,6 +77,7 @@ export interface TableColumn {
     TuiLet,
     TuiBadge,
     TuiStatus,
+    TranslatePipe,
   ],
   template: `
     <div class="h-full w-full overflow-auto bg-gray-900 p-6 dark:bg-gray-900">
@@ -119,7 +122,7 @@ export interface TableColumn {
                     (input)="onSearchChange($event)"
                     [placeholder]="getSearchPlaceholder()"
                   />
-                  <label tuiLabel for="table-search">Find on page</label>
+                  <label tuiLabel for="table-search">{{ 'find' | translate }}</label>
                 </tui-textfield>
               </div>
             }
@@ -133,7 +136,7 @@ export interface TableColumn {
                 [tuiDropdown]="columnDropdown"
                 [(tuiDropdownOpen)]="showColumnDropdown"
               >
-                Columns
+                {{ 'Columns' | translate }}
               </button>
 
               <ng-template #columnDropdown>
@@ -173,7 +176,7 @@ export interface TableColumn {
           @if (paginatedItems().length > 0) {
             <div class="overflow-x-auto">
               <table
-                tuiTheme="dark'"
+                [attr.tuiTheme]="currentTheme()"
                 tuiTable
                 class="min-w-full bg-white dark:bg-gray-800"
                 [columns]="displayHeaders()"
@@ -346,7 +349,6 @@ export interface TableColumn {
       display: block;
       width: 100%;
       min-height: 100%;
-      --tui-background-base: var(--color-slate-800);
     }
 
     .filters {
@@ -417,6 +419,7 @@ export interface TableColumn {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EnhancedTableUiComponent<T extends Record<string, any>> {
+  currentTheme = injectCurrentTheme();
   items = input.required<T[]>();
   columns = input.required<TableColumn[]>();
   loading = input<boolean>(false);

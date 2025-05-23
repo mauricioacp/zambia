@@ -10,15 +10,16 @@ import { ConfirmationModalSmartComponent, ConfirmationData } from './confirmatio
 import { tryCatch } from '@zambia/data-access-generic';
 import { EnhancedTableUiComponent, type TableColumn, type TableAction } from '@zambia/ui-components';
 import { ICONS } from '@zambia/util-constants';
+import { injectCurrentTheme } from '@zambia/ui-components';
 
 @Component({
   selector: 'z-countries-list',
   standalone: true,
   imports: [CommonModule, TranslatePipe, EnhancedTableUiComponent, TuiIcon, TuiButton],
   template: `
-    <div class="min-h-screen bg-slate-800">
+    <div class="min-h-screen bg-gray-50 dark:bg-slate-800">
       <!-- Header Section -->
-      <div class="bg-slate-900 shadow-xl">
+      <div class="border-b border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900">
         <div class="container mx-auto px-6 py-6">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-4">
@@ -26,10 +27,10 @@ import { ICONS } from '@zambia/util-constants';
                 <tui-icon [icon]="ICONS.COUNTRIES" class="text-3xl text-white"></tui-icon>
               </div>
               <div>
-                <h1 class="mb-1 text-3xl font-bold text-white">
+                <h1 class="mb-1 text-3xl font-bold text-gray-800 dark:text-white">
                   {{ 'countries' | translate }}
                 </h1>
-                <p class="text-slate-400">{{ 'countries_description' | translate }}</p>
+                <p class="text-gray-600 dark:text-slate-400">{{ 'countries_description' | translate }}</p>
               </div>
             </div>
             <button
@@ -37,6 +38,7 @@ import { ICONS } from '@zambia/util-constants';
               appearance="primary"
               size="l"
               iconStart="@tui.plus"
+              [attr.tuiTheme]="currentTheme()"
               (click)="onCreateCountry()"
               [disabled]="isProcessing()"
               class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
@@ -53,60 +55,60 @@ import { ICONS } from '@zambia/util-constants';
           <div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
             <!-- Total Countries -->
             <div
-              class="rounded-xl border border-slate-700 bg-slate-900 p-6 transition-all duration-300 hover:border-slate-600 hover:shadow-lg"
+              class="rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
             >
               <div class="mb-3 flex items-center justify-between">
-                <span class="text-sm font-medium tracking-wider text-slate-400 uppercase">
+                <span class="text-sm font-medium tracking-wider text-gray-500 uppercase dark:text-slate-400">
                   {{ 'total_countries' | translate }}
                 </span>
                 <tui-icon icon="@tui.globe" class="text-emerald-500"></tui-icon>
               </div>
-              <p class="text-2xl font-bold text-white">
+              <p class="text-2xl font-bold text-gray-800 dark:text-white">
                 {{ statsData()!.total }}
               </p>
             </div>
 
             <!-- Active Countries -->
             <div
-              class="rounded-xl border border-slate-700 bg-slate-900 p-6 transition-all duration-300 hover:border-slate-600 hover:shadow-lg"
+              class="rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
             >
               <div class="mb-3 flex items-center justify-between">
-                <span class="text-sm font-medium tracking-wider text-slate-400 uppercase">
+                <span class="text-sm font-medium tracking-wider text-gray-500 uppercase dark:text-slate-400">
                   {{ 'active_countries' | translate }}
                 </span>
-                <tui-icon icon="@tui.check-circle" class="text-green-500"></tui-icon>
+                <tui-icon icon="@tui.check" class="text-green-500"></tui-icon>
               </div>
-              <p class="text-2xl font-bold text-white">
+              <p class="text-2xl font-bold text-gray-800 dark:text-white">
                 {{ statsData()!.active }}
               </p>
             </div>
 
             <!-- Inactive Countries -->
             <div
-              class="rounded-xl border border-slate-700 bg-slate-900 p-6 transition-all duration-300 hover:border-slate-600 hover:shadow-lg"
+              class="rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
             >
               <div class="mb-3 flex items-center justify-between">
-                <span class="text-sm font-medium tracking-wider text-slate-400 uppercase">
+                <span class="text-sm font-medium tracking-wider text-gray-500 uppercase dark:text-slate-400">
                   {{ 'inactive_countries' | translate }}
                 </span>
-                <tui-icon icon="@tui.x-circle" class="text-red-500"></tui-icon>
+                <tui-icon icon="@tui.x" class="text-red-500"></tui-icon>
               </div>
-              <p class="text-2xl font-bold text-white">
+              <p class="text-2xl font-bold text-gray-800 dark:text-white">
                 {{ statsData()!.inactive }}
               </p>
             </div>
 
             <!-- Countries with Data -->
             <div
-              class="rounded-xl border border-slate-700 bg-slate-900 p-6 transition-all duration-300 hover:border-slate-600 hover:shadow-lg"
+              class="rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
             >
               <div class="mb-3 flex items-center justify-between">
-                <span class="text-sm font-medium tracking-wider text-slate-400 uppercase">
+                <span class="text-sm font-medium tracking-wider text-gray-500 uppercase dark:text-slate-400">
                   {{ 'last_updated' | translate }}
                 </span>
                 <tui-icon icon="@tui.refresh-cw" class="text-blue-500"></tui-icon>
               </div>
-              <p class="text-lg font-semibold text-white">
+              <p class="text-lg font-semibold text-gray-800 dark:text-white">
                 {{ 'today' | translate }}
               </p>
             </div>
@@ -114,8 +116,11 @@ import { ICONS } from '@zambia/util-constants';
         }
 
         <!-- Countries Table -->
-        <div class="overflow-hidden rounded-xl bg-slate-900 shadow-xl">
+        <div
+          class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+        >
           <z-enhanced-table
+            [attr.tuiTheme]="currentTheme()"
             [items]="countriesFacade.countriesResource()"
             [columns]="tableColumns()"
             [actions]="tableActions()"
@@ -152,6 +157,7 @@ export class CountriesListSmartComponent {
   private router = inject(Router);
 
   isProcessing = signal(false);
+  currentTheme = injectCurrentTheme();
 
   ICONS = ICONS;
 

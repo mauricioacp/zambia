@@ -42,7 +42,7 @@ import { AsyncPipe } from '@angular/common';
             <tui-icon icon="@tui.map-pin" class="field-icon"></tui-icon>
             {{ 'country_name' | translate }}
           </label>
-          <tui-textfield tuiAutoFocus tuiTextfieldSize="l" class="form-input">
+          <tui-textfield tuiAutoFocus tuiTextfieldSize="m" class="form-input">
             <input
               tuiTextfield
               id="country-name"
@@ -58,7 +58,7 @@ import { AsyncPipe } from '@angular/common';
             <tui-icon icon="@tui.code" class="field-icon"></tui-icon>
             {{ 'country_code' | translate }}
           </label>
-          <tui-textfield tuiTextfieldSize="l" class="form-input">
+          <tui-textfield tuiTextfieldSize="m" class="form-input">
             <input
               tuiTextfield
               id="country-code"
@@ -79,7 +79,7 @@ import { AsyncPipe } from '@angular/common';
             <tui-icon icon="@tui.toggle-on" class="field-icon"></tui-icon>
             {{ 'status' | translate }}
           </label>
-          <tui-textfield tuiTextfieldSize="l" class="form-input">
+          <tui-textfield tuiTextfieldSize="m" class="form-input">
             <select tuiTextfield id="country-status" formControlName="status">
               <option value="" disabled>{{ 'select_status' | translate }}</option>
               <option value="active">{{ 'active' | translate }}</option>
