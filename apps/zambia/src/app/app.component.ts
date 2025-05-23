@@ -42,10 +42,8 @@ export class AppComponent {
     this.#translate.setDefaultLang('es');
     // eslint-disable-next-line rxjs/no-ignored-observable
     this.#translate.use('es');
-    this.#translate.setTranslation('es', {
-      ...translationsEs,
-      ...translationsEn,
-    });
+    this.#translate.setTranslation('es', translationsEs);
+    this.#translate.setTranslation('en', translationsEn);
 
     console.log(this.config.PROD ? 'PROD' : 'DEV');
   }
