@@ -44,8 +44,10 @@ export class CountriesFacadeService {
   });
 
   countryById = resource({
-    request: () => ({ countryId: this.countryId() }),
+    request: () => (this.countryId() ? { countryId: this.countryId() } : undefined),
     loader: async ({ request }) => {
+      if (!request) return null; // This shouldn't happen due to request function, but TypeScript safety
+
       const { data, error } = await this.supabase
         .getClient()
         .from('countries')
