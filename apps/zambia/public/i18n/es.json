@@ -123,5 +123,10 @@
   "today": "Hoy",
 
   "Columns": "Columnas",
-  "find": "Buscar.."
+  "find": "Buscar..",
+  "row": "fila",
+  "rows": "filas",
+  "items_per_page": "elementos por página",
+  "showing_results": "Mostrando {{start}} a {{end}} de {{total}} resultados",
+  "page_size_hint": "Seleccionar número de elementos a mostrar por página"
 }

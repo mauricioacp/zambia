@@ -1,1 +1,7 @@
-{}
+{
+  "row": "row",
+  "rows": "rows",
+  "items_per_page": "items per page",
+  "showing_results": "Showing {{start}} to {{end}} of {{total}} results",
+  "page_size_hint": "Select number of items to display per page"
+}

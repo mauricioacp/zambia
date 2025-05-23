@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ColumnTemplateDirective } from '../../directives/column-template.directive';
-import { TuiTable, TuiTablePagination, type TuiTablePaginationEvent } from '@taiga-ui/addon-table';
+import { TuiTable, type TuiTablePaginationEvent } from '@taiga-ui/addon-table';
 import {
   TuiButton,
   TuiIcon,
@@ -25,7 +25,15 @@ import {
   TuiLabel,
   TuiLoader,
 } from '@taiga-ui/core';
-import { TuiAvatar, TuiBadge, TuiChevron, TuiStatus } from '@taiga-ui/kit';
+import {
+  TuiAvatar,
+  TuiBadge,
+  TuiChevron,
+  TuiStatus,
+  TuiButtonSelect,
+  TuiDataListWrapper,
+  TuiPagination,
+} from '@taiga-ui/kit';
 import { TuiCell } from '@taiga-ui/layout';
 import { TuiLet, TUI_DEFAULT_MATCHER } from '@taiga-ui/cdk';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
@@ -61,7 +69,6 @@ export interface TableColumn {
     RouterModule,
     FormsModule,
     TuiTable,
-    TuiTablePagination,
     TuiCell,
     TuiTitle,
     TuiIcon,
@@ -77,6 +84,9 @@ export interface TableColumn {
     TuiLet,
     TuiBadge,
     TuiStatus,
+    TuiButtonSelect,
+    TuiDataListWrapper,
+    TuiPagination,
     TranslatePipe,
   ],
   template: `
@@ -281,27 +291,41 @@ export interface TableColumn {
                   }
                 </tbody>
 
-                <!-- Pagination Footer -->
-                @if (enablePagination() && totalItems() > pageSize()) {
-                  <tfoot>
-                    <tr>
-                      <td [colSpan]="displayColumns().length" class="bg-gray-50 dark:bg-gray-700">
-                        <div class="flex items-center justify-between px-6 py-3">
-                          <div class="text-sm text-gray-700 dark:text-gray-300">
-                            Showing {{ currentPage() * pageSize() + 1 }} to
-                            {{ Math.min((currentPage() + 1) * pageSize(), totalItems()) }} of {{ totalItems() }} results
-                          </div>
-                          <tui-table-pagination
-                            [total]="totalItems()"
-                            [page]="currentPage()"
-                            [size]="pageSize()"
-                            [items]="pageSizeOptions()"
-                            (paginationChange)="onPaginationChange($event)"
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                  </tfoot>
+                <!-- Enhanced Pagination Caption -->
+                @if (enablePagination() && totalItems() > 0) {
+                  <caption tuiCaption class="bg-gray-50 dark:bg-gray-700">
+                    <div class="flex items-center justify-between px-6 py-4">
+                      <!-- Total rows display -->
+                      <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {{ totalItems() }} {{ totalItems() === 1 ? ('row' | translate) : ('rows' | translate) }}
+                      </span>
+
+                      <!-- Page size selector -->
+                      <button
+                        appearance="flat"
+                        tuiButton
+                        tuiButtonSelect
+                        type="button"
+                        [(ngModel)]="currentPageSize"
+                        class="mx-4 text-sm"
+                      >
+                        {{ startIndex() }}-{{ endIndex() }} {{ 'rows' | translate }}
+                        <tui-data-list-wrapper
+                          *tuiTextfieldDropdown
+                          [itemContent]="pageSizeContent"
+                          [items]="pageSizeOptions()"
+                        />
+                      </button>
+
+                      <!-- Pagination controls -->
+                      @if (totalPages() > 1) {
+                        <tui-pagination [length]="totalPages()" [(index)]="currentPageIndex" class="float-right" />
+                      }
+                    </div>
+
+                    <!-- Page size content template -->
+                    <ng-template #pageSizeContent let-size> {{ size }} {{ 'items_per_page' | translate }} </ng-template>
+                  </caption>
                 }
               </table>
             </div>
@@ -446,7 +470,11 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
   enableColumnVisibility = input<boolean>(true);
 
   pageSize = input<number>(10);
-  pageSizeOptions = input<number[]>([5, 10, 20, 50, 100]);
+  pageSizeOptions = input<number[]>([10, 25, 50, 100]);
+
+  // Enhanced pagination signals
+  currentPageSize = signal(10);
+  currentPageIndex = signal(0);
 
   searchableColumns = input<string[]>([]);
 
@@ -455,6 +483,11 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
   paginationChange = output<TuiTablePaginationEvent>();
 
   currentPage = signal(0);
+
+  // Computed pagination properties
+  totalPages = computed(() => Math.ceil(this.totalItems() / this.currentPageSize()));
+  startIndex = computed(() => this.currentPageIndex() * this.currentPageSize() + 1);
+  endIndex = computed(() => Math.min((this.currentPageIndex() + 1) * this.currentPageSize(), this.totalItems()));
   searchInputValue = signal('');
   visibleColumns = signal<string[]>([]);
   showColumnDropdown = signal(false);
@@ -529,8 +562,8 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
       return filtered;
     }
 
-    const start = this.currentPage() * this.pageSize();
-    const end = start + this.pageSize();
+    const start = this.currentPageIndex() * this.currentPageSize();
+    const end = start + this.currentPageSize();
     return filtered.slice(start, end);
   });
 
@@ -640,6 +673,12 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
     const target = event.target as HTMLInputElement;
     this.searchInputValue.set(target.value);
     this.currentPage.set(0);
+    this.currentPageIndex.set(0); // Reset pagination on search
+  }
+
+  // Initialize page size from input
+  constructor() {
+    this.currentPageSize.set(this.pageSize());
   }
 
   getSearchPlaceholder(): string {
@@ -668,10 +707,24 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
     this.searchInputValue.set('');
   }
 
-  // Pagination functionality
+  // Enhanced pagination functionality
   onPaginationChange(event: TuiTablePaginationEvent): void {
     this.currentPage.set(event.page);
+    this.currentPageIndex.set(event.page);
     this.paginationChange.emit(event);
+  }
+
+  // Handle page size changes
+  onPageSizeChange(newSize: number): void {
+    this.currentPageSize.set(newSize);
+    this.currentPageIndex.set(0); // Reset to first page when changing page size
+    this.currentPage.set(0);
+
+    // Emit pagination change event
+    this.paginationChange.emit({
+      page: 0,
+      size: newSize,
+    });
   }
 
   // Column visibility functionality
