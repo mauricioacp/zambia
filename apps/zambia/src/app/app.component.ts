@@ -7,6 +7,7 @@ import translationsEs from '../../public/i18n/es.json';
 import translationsEn from '../../public/i18n/en.json';
 import { APP_CONFIG } from '@zambia/util-config';
 import { TuiRoot } from '@taiga-ui/core';
+import { ThemeService } from '@zambia/ui-components';
 
 @Component({
   imports: [RouterModule, TuiRoot],
@@ -18,6 +19,7 @@ import { TuiRoot } from '@taiga-ui/core';
 export class AppComponent {
   readonly #translate = inject(TranslateService);
   readonly config = inject(APP_CONFIG);
+  readonly themeService = inject(ThemeService);
 
   constructor() {
     this.#translate.addLangs(['es', 'en']);
