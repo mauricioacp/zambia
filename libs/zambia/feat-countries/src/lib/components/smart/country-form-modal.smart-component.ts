@@ -79,7 +79,7 @@ import { AsyncPipe } from '@angular/common';
 
         <div class="form-field">
           <label class="field-label" for="country-status">
-            <tui-icon icon="@tui.toggle-on" class="field-icon"></tui-icon>
+            <tui-icon icon="@tui.power" class="field-icon"></tui-icon>
             {{ 'status' | translate }}
           </label>
           <tui-textfield tuiChevron tuiTextfieldSize="m" class="form-input">
@@ -135,14 +135,12 @@ import { AsyncPipe } from '@angular/common';
       justify-content: center;
       text-align: center;
       padding: 2.5rem 2rem 1.5rem;
-      background: var(--tui-base-02);
       border-bottom: 1px solid var(--tui-border-normal);
     }
 
     .form-icon {
       display: block;
       font-size: 3.5rem;
-      color: var(--tui-primary);
       margin-bottom: 1.5rem;
     }
 
@@ -163,7 +161,6 @@ import { AsyncPipe } from '@angular/common';
 
     .form-content {
       padding: 2rem 2.5rem;
-      background: var(--tui-base-01);
     }
 
     .form-field {
@@ -187,7 +184,7 @@ import { AsyncPipe } from '@angular/common';
 
     .field-icon {
       font-size: 1.125rem;
-      color: var(--tui-primary);
+      color: var(--tui-background-accent-1);
       opacity: 0.8;
     }
 
@@ -209,7 +206,6 @@ import { AsyncPipe } from '@angular/common';
       align-items: center;
       padding: 1.5rem 2rem 2rem;
       border-top: 1px solid var(--tui-border-normal);
-      background: var(--tui-base-02);
     }
 
     .cancel-button {

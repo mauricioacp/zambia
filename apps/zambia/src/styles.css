@@ -485,10 +485,10 @@ body {
   --tui-background-neutral-2-hover: rgba(0, 0, 0, 0.1) !important;
   --tui-background-neutral-2-pressed: rgba(0, 0, 0, 0.14) !important;
 
-  /* Primary Accent (Blue) */
-  --tui-background-accent-1: #2563eb !important; /* bg-blue-600 */
-  --tui-background-accent-1-hover: #1d4ed8 !important; /* bg-blue-700 */
-  --tui-background-accent-1-pressed: #1e40af !important; /* bg-blue-800 */
+  /* Primary Accent (Sky - vibrant and professional) */
+  --tui-background-accent-1: oklch(0.588 0.158 241.966) !important; /* sky-600 */
+  --tui-background-accent-1-hover: oklch(0.5 0.134 242.749) !important; /* sky-700 */
+  --tui-background-accent-1-pressed: oklch(0.443 0.11 240.79) !important; /* sky-800 */
 
   /* Secondary Accent (Green) */
   --tui-background-accent-2: #059669 !important; /* bg-emerald-600 */
@@ -504,8 +504,8 @@ body {
   --tui-text-primary: #1f2937 !important; /* text-gray-800 */
   --tui-text-secondary: rgba(107, 114, 128, 1) !important; /* text-gray-500 */
   --tui-text-tertiary: rgba(156, 163, 175, 1) !important; /* text-gray-400 */
-  --tui-text-action: #2563eb !important; /* text-blue-600 */
-  --tui-text-action-hover: #1d4ed8 !important; /* text-blue-700 */
+  --tui-text-action: oklch(0.588 0.158 241.966) !important; /* sky-600 */
+  --tui-text-action-hover: oklch(0.5 0.134 242.749) !important; /* sky-700 */
 
   /* Status Colors */
   --tui-status-positive: #059669 !important; /* text-green-600 */
@@ -520,20 +520,20 @@ body {
   --tui-status-warning-pale: rgba(217, 119, 6, 0.12) !important;
   --tui-status-warning-pale-hover: rgba(217, 119, 6, 0.24) !important;
 
-  --tui-status-info: #2563eb !important; /* text-blue-600 */
-  --tui-status-info-pale: rgba(37, 99, 235, 0.12) !important;
-  --tui-status-info-pale-hover: rgba(37, 99, 235, 0.24) !important;
+  --tui-status-info: oklch(0.588 0.158 241.966) !important; /* sky-600 */
+  --tui-status-info-pale: oklch(0.588 0.158 241.966 / 0.12) !important;
+  --tui-status-info-pale-hover: oklch(0.588 0.158 241.966 / 0.24) !important;
 
   --tui-status-neutral: #6b7280 !important; /* text-gray-500 */
 
   /* Border Variables */
   --tui-border-normal: rgba(0, 0, 0, 0.1) !important;
   --tui-border-hover: rgba(0, 0, 0, 0.16) !important;
-  --tui-border-focus: rgba(37, 99, 235, 0.64) !important;
+  --tui-border-focus: oklch(0.588 0.158 241.966 / 0.64) !important;
 
   /* Service Variables */
   --tui-service-backdrop: rgba(0, 0, 0, 0.75) !important;
-  --tui-service-selection-background: rgba(37, 99, 235, 0.12) !important;
+  --tui-service-selection-background: oklch(0.588 0.158 241.966 / 0.12) !important;
 }
 
 /* Dark Theme Overrides - Higher specificity to override Taiga's defaults */
@@ -550,10 +550,10 @@ tui-root[tuiTheme='dark'],
   --tui-background-neutral-2-hover: rgba(255, 255, 255, 0.24) !important;
   --tui-background-neutral-2-pressed: rgba(255, 255, 255, 0.32) !important;
 
-  /* Primary Accent (Blue - adjusted for dark theme) */
-  --tui-background-accent-1: #3b82f6 !important; /* bg-blue-500 */
-  --tui-background-accent-1-hover: #2563eb !important; /* bg-blue-600 */
-  --tui-background-accent-1-pressed: #1d4ed8 !important; /* bg-blue-700 */
+  /* Primary Accent (Sky - vibrant and professional) */
+  --tui-background-accent-1: oklch(0.685 0.169 237.323) !important; /* sky-500 */
+  --tui-background-accent-1-hover: oklch(0.588 0.158 241.966) !important; /* sky-600 */
+  --tui-background-accent-1-pressed: oklch(0.5 0.134 242.749) !important; /* sky-700 */
 
   /* Secondary Accent (Green - adjusted for dark theme) */
   --tui-background-accent-2: #10b981 !important; /* bg-emerald-500 */
@@ -569,8 +569,8 @@ tui-root[tuiTheme='dark'],
   --tui-text-primary: rgba(255, 255, 255, 1) !important; /* text-white */
   --tui-text-secondary: rgba(203, 213, 225, 1) !important; /* text-slate-300 */
   --tui-text-tertiary: rgba(148, 163, 184, 1) !important; /* text-slate-400 */
-  --tui-text-action: #60a5fa !important; /* text-blue-400 */
-  --tui-text-action-hover: #93c5fd !important; /* text-blue-300 */
+  --tui-text-action: oklch(0.746 0.16 232.661) !important; /* sky-400 */
+  --tui-text-action-hover: oklch(0.828 0.111 230.318) !important; /* sky-300 */
 
   /* Status Colors (dark theme variants) */
   --tui-status-positive: #34d399 !important; /* text-green-400 */
@@ -585,19 +585,19 @@ tui-root[tuiTheme='dark'],
   --tui-status-warning-pale: rgba(217, 119, 6, 0.32) !important;
   --tui-status-warning-pale-hover: rgba(217, 119, 6, 0.4) !important;
 
-  --tui-status-info: #60a5fa !important; /* text-blue-400 */
-  --tui-status-info-pale: rgba(37, 99, 235, 0.32) !important;
-  --tui-status-info-pale-hover: rgba(37, 99, 235, 0.4) !important;
+  --tui-status-info: oklch(0.746 0.16 232.661) !important; /* sky-400 */
+  --tui-status-info-pale: oklch(0.746 0.16 232.661 / 0.32) !important;
+  --tui-status-info-pale-hover: oklch(0.746 0.16 232.661 / 0.4) !important;
 
   --tui-status-neutral: #94a3b8 !important; /* text-slate-400 */
 
   /* Border Variables */
   --tui-border-normal: rgba(255, 255, 255, 0.14) !important;
   --tui-border-hover: rgba(255, 255, 255, 0.6) !important;
-  --tui-border-focus: rgba(96, 165, 250, 0.64) !important;
+  --tui-border-focus: oklch(0.746 0.16 232.661 / 0.64) !important;
 
   /* Service Variables */
   --tui-service-backdrop: rgba(0, 0, 0, 0.75) !important;
-  --tui-service-selection-background: rgba(96, 165, 250, 0.12) !important;
+  --tui-service-selection-background: oklch(0.746 0.16 232.661 / 0.12) !important;
   --tui-service-autofill-background: rgba(51, 65, 85, 1) !important;
 }
