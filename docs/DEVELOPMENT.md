@@ -5,8 +5,7 @@ Comprehensive development commands and workflows for the Zambia project.
 ## Running the Application
 
 ```bash
-# Start development server with hot reloading
-npm run serve
+npx nx build zambia
 # or directly
 npm run dev
 
@@ -68,8 +67,8 @@ npx nx show projects
 # Run any target for a specific project
 npx nx run [project]:[target]
 
-# Example: Run serve for a specific library
-npx nx run feat-countries:serve
+# Example: build for a specific library
+npx nx run feat-countries:build
 ```
 
 ## Git Workflow

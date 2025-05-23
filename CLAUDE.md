@@ -154,8 +154,7 @@ export class ExampleComponent {
 ### Quick Start
 
 ```bash
-# Start development server
-npm run serve
+npx nx build zambia
 
 # Run tests
 npm test

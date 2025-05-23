@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TuiButton, TuiError, TuiTextfield, TuiIcon } from '@taiga-ui/core';
-import { TuiButtonLoading, TuiFieldErrorPipe } from '@taiga-ui/kit';
+import { TuiButton, TuiError, TuiTextfield, TuiIcon, tuiItemsHandlersProvider } from '@taiga-ui/core';
+import { TuiButtonLoading, TuiFieldErrorPipe, TuiDataListWrapper, TuiSelect, TuiChevron } from '@taiga-ui/kit';
 import { TuiAutoFocus } from '@taiga-ui/cdk';
 import { injectContext } from '@taiga-ui/polymorpheus';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -23,6 +23,9 @@ import { AsyncPipe } from '@angular/common';
     AsyncPipe,
     TuiAutoFocus,
     TuiIcon,
+    TuiSelect,
+    TuiChevron,
+    TuiDataListWrapper,
   ],
   template: `
     <div class="country-form">
@@ -79,12 +82,9 @@ import { AsyncPipe } from '@angular/common';
             <tui-icon icon="@tui.toggle-on" class="field-icon"></tui-icon>
             {{ 'status' | translate }}
           </label>
-          <tui-textfield tuiTextfieldSize="m" class="form-input">
-            <select tuiTextfield id="country-status" formControlName="status">
-              <option value="" disabled>{{ 'select_status' | translate }}</option>
-              <option value="active">{{ 'active' | translate }}</option>
-              <option value="inactive">{{ 'inactive' | translate }}</option>
-            </select>
+          <tui-textfield tuiChevron tuiTextfieldSize="m" class="form-input">
+            <input tuiSelect id="country-status" formControlName="status" [placeholder]="'select_status' | translate" />
+            <tui-data-list-wrapper *tuiTextfieldDropdown new [items]="statusOptions" />
           </tui-textfield>
           <tui-error formControlName="status" [error]="[] | tuiFieldError | async"></tui-error>
         </div>
@@ -241,6 +241,14 @@ import { AsyncPipe } from '@angular/common';
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    tuiItemsHandlersProvider({
+      stringify: signal((status: string) => {
+        // This will be called when displaying the selected value
+        return status === 'active' ? '✓ Active' : '✗ Inactive';
+      }),
+    }),
+  ],
 })
 export class CountryFormModalSmartComponent {
   private readonly fb = inject(FormBuilder);
@@ -250,6 +258,8 @@ export class CountryFormModalSmartComponent {
   isEditMode = signal(false);
 
   form: FormGroup;
+
+  readonly statusOptions = ['active', 'inactive'] as const;
 
   constructor() {
     const country = this.context.data;
@@ -267,7 +277,11 @@ export class CountryFormModalSmartComponent {
       this.isSubmitting.set(true);
 
       try {
-        const formData: CountryFormData = this.form.value;
+        const formData: CountryFormData = {
+          name: this.form.value.name,
+          code: this.form.value.code.toUpperCase(),
+          status: this.form.value.status,
+        };
         this.context.completeWith(formData);
       } catch (error) {
         console.error('Form submission error:', error);
