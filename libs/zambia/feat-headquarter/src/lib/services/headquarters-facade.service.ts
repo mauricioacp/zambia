@@ -87,7 +87,7 @@ export class HeadquartersFacadeService {
           `
           *,
           countries(name, code),
-          scheduled_workshops:scheduled_workshops!scheduled_workshops_headquarter_id_fkey(*),
+          scheduled_workshops!scheduled_workshops_headquarter_id_fkey(*),
           seasons:seasons!seasons_headquarter_id_fkey(*),
           agreement_with_role(*)
         `
