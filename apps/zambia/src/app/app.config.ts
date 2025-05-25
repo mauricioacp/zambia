@@ -1,6 +1,6 @@
 import type { ApplicationConfig } from '@angular/core';
 import { provideExperimentalZonelessChangeDetection } from '@angular/core';
-import { provideRouter, withComponentInputBinding, withViewTransitions } from '@angular/router';
+import { provideRouter, withComponentInputBinding, withViewTransitions, withInMemoryScrolling } from '@angular/router';
 import { appRoutes } from './app.routes';
 import { provideClientHydration, withIncrementalHydration } from '@angular/platform-browser';
 import { provideTranslateService } from '@ngx-translate/core';
@@ -17,7 +17,15 @@ import { of } from 'rxjs';
 export const appConfig: ApplicationConfig = {
   providers: [
     { provide: APP_CONFIG, useValue: environment },
-    provideRouter(appRoutes, withComponentInputBinding(), withViewTransitions()),
+    provideRouter(
+      appRoutes, 
+      withComponentInputBinding(), 
+      withViewTransitions(),
+      withInMemoryScrolling({
+        scrollPositionRestoration: 'enabled',
+        anchorScrolling: 'enabled'
+      })
+    ),
     provideClientHydration(withIncrementalHydration()),
     provideHttpClient(withFetch()),
     provideExperimentalZonelessChangeDetection(),
