@@ -147,7 +147,7 @@ export class ExampleComponent {
 }
 ```
 
-**📖 For detailed Angular guidelines, see: [docs/ANGULAR_GUIDELINES.md](CLAUDE/ANGULAR_GUIDELINES.md)**
+**📖 For detailed Angular guidelines, see: [docs/ANGULAR_GUIDELINES.md](docs/ANGULAR_GUIDELINES.md)**
 
 ## Essential Development Commands
 
@@ -182,7 +182,7 @@ npm run test:affected
 npm run supabase:gen:types:local
 ```
 
-**📖 For comprehensive development commands, see: [docs/DEVELOPMENT.md](CLAUDE/DEVELOPMENT.md)**
+**📖 For comprehensive development commands, see: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)**
 
 ## Code Generation
 
@@ -243,16 +243,105 @@ nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-component
 - `npm run cm` - Commitizen for standardized commits
 - Pre-commit hooks automatically format and lint
 
-**📖 For detailed troubleshooting, see: [docs/DEVELOPMENT.md](CLAUDE/DEVELOPMENT.md)**
+**📖 For detailed troubleshooting, see: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)**
+
+## Role-Based Access Control (RBAC)
+
+The application implements a sophisticated role-based access control system with role groups and navigation management.
+
+### Navigation System
+
+Navigation items are managed through a centralized configuration system:
+
+- **Location**: `libs/shared/util-roles-definitions/src/lib/ROLES_CONSTANTS.ts`
+- **Navigation Config**: Defines routes, icons, translations, and role permissions
+- **Navigation Sections**: Groups navigation items with optional headers
+
+#### Adding New Navigation Items
+
+1. **Add to NAVIGATION_CONFIG**:
+
+```typescript
+export const NAVIGATION_CONFIG = {
+  newFeature: {
+    route: '/dashboard/new-feature',
+    icon: 'icon-name', // Use lucide icon names
+    translationKey: 'nav.new_feature',
+    allowedGroups: ['ADMINISTRATION', 'TOP_MANAGEMENT'] as const, // Optional
+  },
+  // ... existing items
+} as const;
+```
+
+2. **Add to NAVIGATION_SECTIONS**:
+
+```typescript
+export const NAVIGATION_SECTIONS = [
+  {
+    items: ['panel'] as const,
+  },
+  {
+    headerKey: 'nav.management' as const,
+    items: ['countries', 'headquarters', 'newFeature'] as const, // Add here
+  },
+] as const;
+```
+
+3. **Add translations** to both language files:
+
+```json
+// apps/zambia/public/i18n/en.json
+{
+  "nav.new_feature": "New Feature",
+  "nav.management": "Management"
+}
+
+// apps/zambia/public/i18n/es.json
+{
+  "nav.new_feature": "Nueva Funcionalidad",
+  "nav.management": "Administración"
+}
+```
+
+4. **Types are automatically inferred** - No manual type updates needed
+
+#### Role Groups and Access Control
+
+- **Role Groups**: Defined in `ROLE_GROUPS` constant
+- **Navigation Access**: Use `allowedGroups` property (omit for all authenticated users)
+- **Route Protection**: Use `roleGuard` in route configuration
+
+Example route with role protection:
+
+```typescript
+{
+  path: 'new-feature',
+  loadComponent: () => import('./new-feature.component'),
+  canActivate: [roleGuard],
+  data: {
+    groups: ['ADMINISTRATION', 'TOP_MANAGEMENT'] // Must match navigation config
+  }
+}
+```
+
+### RoleService Methods
+
+- `userRole()` - Current user's role (signal)
+- `hasRole(role)` - Check specific role
+- `hasAnyRole(roles[])` - Check multiple roles
+- `isInGroup(group)` - Check role group membership
+- `isInAnyGroup(groups[])` - Check multiple groups
+- `getNavigationItems()` - Get filtered navigation (computed signal)
+- `getWelcomeText()` - Role-based welcome message
 
 ## Database & Backend
 
 The application uses Supabase with a sophisticated role-based access control system. Key entities include countries, headquarters, agreements, collaborators, students, and workshops.
 
-**📖 For complete database schema, see: [docs/DATABASE.md](CLAUDE/DATABASE.md)**
+**📖 For complete database schema, see: [docs/DATABASE.md](docs/DATABASE.md)**
 
 ## Additional Documentation
 
-- **[docs/ANGULAR_GUIDELINES.md](CLAUDE/ANGULAR_GUIDELINES.md)** - Comprehensive Angular development patterns
-- **[docs/DEVELOPMENT.md](CLAUDE/DEVELOPMENT.md)** - Complete development commands and workflows
-- **[docs/DATABASE.md](CLAUDE/DATABASE.md)** - Database schema and relationships
+- **[docs/ANGULAR_GUIDELINES.md](docs/ANGULAR_GUIDELINES.md)** - Comprehensive Angular development patterns
+- **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** - Complete development commands and workflows
+- **[docs/DATABASE.md](docs/DATABASE.md)** - Database schema and relationships
