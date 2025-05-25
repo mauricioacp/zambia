@@ -56,7 +56,7 @@ export class WorkshopsFacadeService {
           `
           *,
           master_workshop_types(master_name, master_description),
-          headquarters(name),
+          headquarters!scheduled_workshops_headquarter_id_fkey(name),
           seasons(name)
         `
         )
@@ -81,7 +81,7 @@ export class WorkshopsFacadeService {
           `
           *,
           master_workshop_types(master_name, master_description),
-          headquarters(name, address, contact_info),
+          headquarters!scheduled_workshops_headquarter_id_fkey(name, address, contact_info),
           seasons(name, start_date, end_date),
           facilitator_workshop_map(
             facilitator_id,
