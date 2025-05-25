@@ -21,9 +21,9 @@ import {
 import { EnhancedTableUiComponent, type TableColumn, type TableAction } from '@zambia/ui-components';
 import { ICONS } from '@zambia/util-constants';
 import { injectCurrentTheme } from '@zambia/ui-components';
-import { HasAnyRoleDirective } from '@zambia/util-roles-permissions';
+import { HasRoleDirective } from '@zambia/util-roles-permissions';
 import { ROLE, ROLE_GROUPS } from '@zambia/util-roles-definitions';
-import { RolesService } from '@zambia/data-access-roles-permissions';
+import { RoleService } from '@zambia/data-access-roles-permissions';
 
 @Component({
   selector: 'z-countries-list',
@@ -39,7 +39,7 @@ import { RolesService } from '@zambia/data-access-roles-permissions';
     TuiBreadcrumbs,
     TuiItem,
     TuiSkeleton,
-    HasAnyRoleDirective,
+    HasRoleDirective,
   ],
   template: `
     <div class="min-h-screen bg-gray-50 dark:bg-slate-800">
@@ -82,7 +82,7 @@ import { RolesService } from '@zambia/data-access-roles-permissions';
                 {{ 'export' | translate }}
               </button>
               <button
-                *zHasAnyRole="allowedRolesForCountryCreation()"
+                *zHasRole="allowedRolesForCountryCreation()"
                 tuiButton
                 appearance="primary"
                 size="l"
@@ -257,7 +257,7 @@ export class CountriesListSmartComponent {
   private notificationService = inject(NotificationService);
   private supabaseService = inject(SupabaseService);
   private exportService = inject(ExportService);
-  private rolesService = inject(RolesService);
+  private roleService = inject(RoleService);
 
   isProcessing = signal(false);
   currentTheme = injectCurrentTheme();
@@ -331,11 +331,10 @@ export class CountriesListSmartComponent {
 
   searchableColumns = computed(() => ['name', 'code']);
 
-  // Role-based access control
   allowedRolesForCountryCreation = computed(() => [ROLE.SUPERADMIN, ...ROLE_GROUPS.TOP_MANAGEMENT]);
 
   hasTopManagementAccess = computed(() =>
-    this.rolesService.hasAnyRole([ROLE.SUPERADMIN, ...ROLE_GROUPS.TOP_MANAGEMENT])
+    this.roleService.hasAnyRole([ROLE.SUPERADMIN, ...ROLE_GROUPS.TOP_MANAGEMENT])
   );
 
   constructor() {

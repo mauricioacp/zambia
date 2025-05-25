@@ -149,5 +149,11 @@
   "export_data": "Exportar Datos",
   "export_format": "Formato de Exportación",
   "comma_separated_values": "Valores Separados por Comas",
-  "include_column_headers": "Incluir encabezados de columna"
+  "include_column_headers": "Incluir encabezados de columna",
+  "nav.main_panel": "Vista general",
+  "nav.management": "Administración",
+  "nav.countries": "Países",
+  "nav.headquarters": "Sedes",
+  "nav.workshops": "Talleres",
+  "nav.agreements": "Acuerdos"
 }

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RolesService } from '@zambia/data-access-roles-permissions';
+import { RoleService } from '@zambia/data-access-roles-permissions';
 import { CardColumnData, CardComponent, DataBadgeUiComponent, WelcomeMessageUiComponent } from '@zambia/ui-components';
 import { DashboardFacadeService, ReviewStat } from '@zambia/data-access-dashboard';
 import { TuiSkeleton } from '@taiga-ui/kit';
@@ -122,8 +122,8 @@ import { TuiSkeleton } from '@taiga-ui/kit';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PanelSmartComponent {
-  protected rolesService = inject(RolesService);
-  protected welcomeText = computed(() => this.rolesService.getWelcomeText());
+  protected roleService = inject(RoleService);
+  protected welcomeText = computed(() => this.roleService.getWelcomeText());
   protected dashboardFacade = inject(DashboardFacadeService);
 
   protected reviewStatsLoading = computed(() => this.dashboardFacade.reviewStatsLoading());

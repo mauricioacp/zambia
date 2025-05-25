@@ -95,3 +95,49 @@ export function filterRoleGroups<T extends ROLE_GROUP[]>(
 
   return result as Record<Exclude<ROLE_GROUP, T[number]>, RoleCode[]>;
 }
+
+export const NAVIGATION_CONFIG = {
+  panel: {
+    route: '/dashboard/panel',
+    icon: 'newspaper',
+    translationKey: 'nav.main_panel',
+    // No allowedGroups means all authenticated users
+  },
+  countries: {
+    route: '/dashboard/countries',
+    icon: 'globe',
+    translationKey: 'nav.countries',
+    allowedGroups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM', 'HEADQUARTERS_MANAGEMENT'] as const,
+  },
+  headquarters: {
+    route: '/dashboard/headquarters',
+    icon: 'building',
+    translationKey: 'nav.headquarters',
+    allowedGroups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM', 'HEADQUARTERS_MANAGEMENT'] as const,
+  },
+  workshops: {
+    route: '/dashboard/workshops',
+    icon: 'academic-cap',
+    translationKey: 'nav.workshops',
+    allowedGroups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM', 'HEADQUARTERS_MANAGEMENT'] as const,
+  },
+  agreements: {
+    route: '/dashboard/agreements',
+    icon: 'document-text',
+    translationKey: 'nav.agreements',
+    allowedGroups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM', 'HEADQUARTERS_MANAGEMENT'] as const,
+  },
+} as const;
+
+export const NAVIGATION_SECTIONS = [
+  {
+    items: ['panel'] as const,
+  },
+  {
+    headerKey: 'nav.management' as const,
+    items: ['countries', 'headquarters', 'workshops', 'agreements'] as const,
+  },
+] as const;
+
+export type NavigationItemKey = keyof typeof NAVIGATION_CONFIG;
+export type NavigationConfig = (typeof NAVIGATION_CONFIG)[NavigationItemKey];
