@@ -10,6 +10,7 @@
     "serve": "npm run config:dev && npx nx run zambia:serve:development",
     "build": "npx nx run zambia:build:development",
     "build:prod": "npm run config:prod && npx nx run zambia:build:production",
+    "build:analyze": "npx nx run zambia:build:production --stats-json && npx webpack-bundle-analyzer dist/apps/zambia/stats.json",
     "docker:dev": "docker-compose -f docker-compose.dev.yaml up",
     "docker:dev:build": "docker-compose -f docker-compose.dev.yaml up --build",
     "docker:prod": "docker-compose up -d",
@@ -46,8 +47,6 @@
     "@angular/ssr": "19.2.1",
     "@ngx-translate/core": "^16.0.4",
     "@supabase/supabase-js": "^2.49.4",
-    "@taiga-ui/addon-charts": "^4.35.0",
-    "@taiga-ui/addon-mobile": "^4.35.0",
     "@taiga-ui/addon-table": "^4.35.0",
     "@taiga-ui/cdk": "^4.35.0",
     "@taiga-ui/core": "^4.35.0",
@@ -127,7 +126,8 @@
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",
     "typescript": "~5.8.2",
-    "typescript-eslint": "^8.19.0"
+    "typescript-eslint": "^8.19.0",
+    "webpack-bundle-analyzer": "^4.10.2"
   },
   "config": {
     "commitizen": {

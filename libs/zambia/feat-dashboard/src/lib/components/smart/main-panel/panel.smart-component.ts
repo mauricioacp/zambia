@@ -20,11 +20,25 @@ import { TuiSkeleton } from '@taiga-ui/kit';
           <p class="text-gray-600 dark:text-gray-300">Acuerdos que ya han sido revisados por un responsable</p>
         </div>
 
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          @for (stat of dashboardFacade.dashboardStats(); track stat.label) {
-            <z-data-badge [loading]="dashboardFacade.globalDataLoading()" [stat]="stat" />
-          }
-        </div>
+        @defer (on viewport; prefetch on idle) {
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            @for (stat of dashboardFacade.dashboardStats(); track stat.label) {
+              <z-data-badge [loading]="dashboardFacade.globalDataLoading()" [stat]="stat" />
+            }
+          </div>
+        } @placeholder {
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            @for (i of [1, 2, 3, 4]; track i) {
+              <div [tuiSkeleton]="true" class="h-24 w-full rounded-lg"></div>
+            }
+          </div>
+        } @loading {
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            @for (i of [1, 2, 3, 4]; track i) {
+              <div [tuiSkeleton]="true" class="h-24 w-full animate-pulse rounded-lg"></div>
+            }
+          </div>
+        }
       </div>
 
       <div class="w-full space-y-6">
@@ -36,46 +50,66 @@ import { TuiSkeleton } from '@taiga-ui/kit';
             </p>
           </div>
 
-          <!-- Overall stat card with skeleton loading -->
-          <div [tuiSkeleton]="reviewStatsLoading()" class="w-full">
-            @if (overallStat()) {
-              <z-card
-                [mainTitle]="overallStat()!.title"
-                [mainSubtitle]="overallStat()!.total + ' Acuerdos Totales'"
-                [colData]="getCardColData(overallStat()!)"
-                [progressPercentage]="overallStat()!.percentage_reviewed"
-                [progressBarColor]="'bg-sky-500'"
-                [progressTextColor]="overallStat()!.textColor"
-                [staticBorderColor]="'ring-sky-500'"
-                [applyAnimatedBorder]="true"
-                [icon]="overallStat()!.iconSvg!"
-              ></z-card>
-            }
-          </div>
+          @defer (on viewport; prefetch on idle) {
+            <!-- Overall stat card with skeleton loading -->
+            <div [tuiSkeleton]="reviewStatsLoading()" class="w-full">
+              @if (overallStat()) {
+                <z-card
+                  [mainTitle]="overallStat()!.title"
+                  [mainSubtitle]="overallStat()!.total + ' Acuerdos Totales'"
+                  [colData]="getCardColData(overallStat()!)"
+                  [progressPercentage]="overallStat()!.percentage_reviewed"
+                  [progressBarColor]="'bg-sky-500'"
+                  [progressTextColor]="overallStat()!.textColor"
+                  [staticBorderColor]="'ring-sky-500'"
+                  [applyAnimatedBorder]="true"
+                  [icon]="overallStat()!.iconSvg!"
+                ></z-card>
+              }
+            </div>
+          } @placeholder {
+            <div [tuiSkeleton]="true" class="h-32 w-full rounded-lg"></div>
+          } @loading {
+            <div [tuiSkeleton]="true" class="h-32 w-full animate-pulse rounded-lg"></div>
+          }
         </div>
       </div>
 
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        @if (reviewStatsLoading()) {
+      @defer (on viewport; prefetch on idle) {
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          @if (reviewStatsLoading()) {
+            @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+              <div [tuiSkeleton]="true" class="h-40 w-full"></div>
+            }
+          } @else {
+            @for (stat of otherStats(); track stat.title) {
+              <z-card
+                [mainTitle]="stat.title"
+                [mainSubtitle]="stat.total + ' Acuerdos Totales'"
+                [colData]="getCardColData(stat)"
+                [progressPercentage]="stat.percentage_reviewed"
+                [progressBarColor]="stat.color"
+                [progressTextColor]="stat.textColor"
+                [applyAnimatedBorder]="true"
+                [icon]="stat.iconSvg!"
+              >
+              </z-card>
+            }
+          }
+        </div>
+      } @placeholder {
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           @for (i of [1, 2, 3, 4, 5, 6]; track i) {
-            <div [tuiSkeleton]="true" class="h-40 w-full"></div>
+            <div [tuiSkeleton]="true" class="h-40 w-full rounded-lg"></div>
           }
-        } @else {
-          @for (stat of otherStats(); track stat.title) {
-            <z-card
-              [mainTitle]="stat.title"
-              [mainSubtitle]="stat.total + ' Acuerdos Totales'"
-              [colData]="getCardColData(stat)"
-              [progressPercentage]="stat.percentage_reviewed"
-              [progressBarColor]="stat.color"
-              [progressTextColor]="stat.textColor"
-              [applyAnimatedBorder]="true"
-              [icon]="stat.iconSvg!"
-            >
-            </z-card>
+        </div>
+      } @loading {
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+            <div [tuiSkeleton]="true" class="h-40 w-full animate-pulse rounded-lg"></div>
           }
-        }
-      </div>
+        </div>
+      }
     </div>
   `,
   styles: `

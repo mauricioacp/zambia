@@ -5,6 +5,7 @@ import { WorkshopsFacadeService } from '../../services/workshops-facade.service'
 import { ColumnTemplateDirective, GenericTableUiComponent, WelcomeMessageUiComponent } from '@zambia/ui-components';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TuiIcon } from '@taiga-ui/core';
+import { TuiSkeleton } from '@taiga-ui/kit';
 
 @Component({
   selector: 'z-workshops-list',
@@ -17,6 +18,7 @@ import { TuiIcon } from '@taiga-ui/core';
     TranslatePipe,
     ColumnTemplateDirective,
     TuiIcon,
+    TuiSkeleton,
   ],
   template: `
     <div class="h-full w-full overflow-auto bg-gray-50 p-6 dark:bg-gray-900">
@@ -31,63 +33,95 @@ import { TuiIcon } from '@taiga-ui/core';
         </button>
       </div>
 
-      <z-welcome-message [welcomeText]="welcomeText()"></z-welcome-message>
+      @defer (on viewport; prefetch on idle) {
+        <z-welcome-message [welcomeText]="welcomeText()"></z-welcome-message>
+      } @placeholder {
+        <div [tuiSkeleton]="true" class="mb-6 h-16 w-full rounded-lg"></div>
+      }
 
-      <z-generic-table
-        [headers]="[
-          'local_name',
-          'master_workshop_types.master_name',
-          'headquarters.name',
-          'start_datetime',
-          'status',
-          'actions',
-        ]"
-        [headerLabels]="headerLabels"
-        [items]="workshopsFacade.workshopsResource()"
-        [loading]="workshopsFacade.isLoading()"
-        [emptyMessage]="'no.workshops.found' | translate"
-      >
-        <!-- Error message -->
-        @if (workshopsFacade.loadingError()) {
-          <ng-container *ngTemplateOutlet="errorTemplate"></ng-container>
-        }
+      @defer (on viewport; prefetch on hover) {
+        <z-generic-table
+          [headers]="[
+            'local_name',
+            'master_workshop_types.master_name',
+            'headquarters.name',
+            'start_datetime',
+            'status',
+            'actions',
+          ]"
+          [headerLabels]="headerLabels"
+          [items]="workshopsFacade.workshopsResource()"
+          [loading]="workshopsFacade.isLoading()"
+          [emptyMessage]="'no.workshops.found' | translate"
+        >
+          <!-- Error message -->
+          @if (workshopsFacade.loadingError()) {
+            <ng-container *ngTemplateOutlet="errorTemplate"></ng-container>
+          }
 
-        <!-- Column templates -->
-        <ng-template zColumnTemplate="master_workshop_types.master_name" let-workshop>
-          {{ workshop.master_workshop_types?.master_name || '-' }}
-        </ng-template>
+          <!-- Column templates -->
+          <ng-template zColumnTemplate="master_workshop_types.master_name" let-workshop>
+            {{ workshop.master_workshop_types?.master_name || '-' }}
+          </ng-template>
 
-        <ng-template zColumnTemplate="headquarters.name" let-workshop>
-          {{ workshop.headquarters?.name || '-' }}
-        </ng-template>
+          <ng-template zColumnTemplate="headquarters.name" let-workshop>
+            {{ workshop.headquarters?.name || '-' }}
+          </ng-template>
 
-        <ng-template zColumnTemplate="start_datetime" let-workshop>
-          {{ workshop.start_datetime | date: 'medium' }}
-        </ng-template>
+          <ng-template zColumnTemplate="start_datetime" let-workshop>
+            {{ workshop.start_datetime | date: 'medium' }}
+          </ng-template>
 
-        <ng-template zColumnTemplate="status" let-workshop>
-          <span
-            class="inline-flex rounded-full px-2 text-xs leading-5 font-semibold"
-            [ngClass]="
-              workshop.status === 'active'
-                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
-            "
-          >
-            {{ workshop.status }}
-          </span>
-        </ng-template>
+          <ng-template zColumnTemplate="status" let-workshop>
+            <span
+              class="inline-flex rounded-full px-2 text-xs leading-5 font-semibold"
+              [ngClass]="
+                workshop.status === 'active'
+                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                  : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+              "
+            >
+              {{ workshop.status }}
+            </span>
+          </ng-template>
 
-        <!-- Actions column -->
-        <ng-template zColumnTemplate="actions" let-workshop>
-          <a
-            [routerLink]="['/dashboard/workshops', workshop.id]"
-            class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-          >
-            {{ 'view' | translate }}
-          </a>
-        </ng-template>
-      </z-generic-table>
+          <!-- Actions column -->
+          <ng-template zColumnTemplate="actions" let-workshop>
+            <a
+              [routerLink]="['/dashboard/workshops', workshop.id]"
+              class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            >
+              {{ 'view' | translate }}
+            </a>
+          </ng-template>
+        </z-generic-table>
+      } @placeholder {
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <div [tuiSkeleton]="true" class="h-8 w-32 rounded"></div>
+            <div [tuiSkeleton]="true" class="h-10 w-24 rounded"></div>
+          </div>
+          <div [tuiSkeleton]="true" class="h-10 w-64 rounded"></div>
+          <div class="space-y-3">
+            @for (i of [1, 2, 3, 4, 5]; track i) {
+              <div [tuiSkeleton]="true" class="h-12 w-full rounded"></div>
+            }
+          </div>
+        </div>
+      } @loading {
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <div [tuiSkeleton]="true" class="h-8 w-32 animate-pulse rounded"></div>
+            <div [tuiSkeleton]="true" class="h-10 w-24 animate-pulse rounded"></div>
+          </div>
+          <div [tuiSkeleton]="true" class="h-10 w-64 animate-pulse rounded"></div>
+          <div class="space-y-3">
+            @for (i of [1, 2, 3, 4, 5]; track i) {
+              <div [tuiSkeleton]="true" class="h-12 w-full animate-pulse rounded"></div>
+            }
+          </div>
+        </div>
+      }
 
       <!-- Error template -->
       <ng-template #errorTemplate>

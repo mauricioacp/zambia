@@ -5,7 +5,7 @@ import { CountriesFacadeService, Country, CountryFormData } from '../../services
 import { SupabaseService } from '@zambia/data-access-supabase';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TuiButton, TuiDialogService, TuiIcon, TuiLink } from '@taiga-ui/core';
-import { TuiBreadcrumbs } from '@taiga-ui/kit';
+import { TuiBreadcrumbs, TuiSkeleton } from '@taiga-ui/kit';
 import { TuiItem } from '@taiga-ui/cdk';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { CountryFormModalSmartComponent } from './country-form-modal.smart-component';
@@ -35,6 +35,7 @@ import { injectCurrentTheme } from '@zambia/ui-components';
     TuiLink,
     TuiBreadcrumbs,
     TuiItem,
+    TuiSkeleton,
   ],
   template: `
     <div class="min-h-screen bg-gray-50 dark:bg-slate-800">
@@ -95,93 +96,143 @@ import { injectCurrentTheme } from '@zambia/ui-components';
 
       <!-- Stats Cards -->
       <div class="container mx-auto px-6 py-8">
-        @if (statsData()) {
+        @defer (on viewport; prefetch on idle) {
+          @if (statsData()) {
+            <div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
+              <!-- Total Countries -->
+              <div
+                class="rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
+              >
+                <div class="mb-3 flex items-center justify-between">
+                  <span class="text-sm font-medium tracking-wider text-gray-500 uppercase dark:text-slate-400">
+                    {{ 'total_countries' | translate }}
+                  </span>
+                  <tui-icon icon="@tui.globe" class="text-emerald-500"></tui-icon>
+                </div>
+                <p class="text-2xl font-bold text-gray-800 dark:text-white">
+                  {{ statsData()!.total }}
+                </p>
+              </div>
+
+              <!-- Active Countries -->
+              <div
+                class="rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
+              >
+                <div class="mb-3 flex items-center justify-between">
+                  <span class="text-sm font-medium tracking-wider text-gray-500 uppercase dark:text-slate-400">
+                    {{ 'active_countries' | translate }}
+                  </span>
+                  <tui-icon icon="@tui.check" class="text-green-500"></tui-icon>
+                </div>
+                <p class="text-2xl font-bold text-gray-800 dark:text-white">
+                  {{ statsData()!.active }}
+                </p>
+              </div>
+
+              <!-- Inactive Countries -->
+              <div
+                class="rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
+              >
+                <div class="mb-3 flex items-center justify-between">
+                  <span class="text-sm font-medium tracking-wider text-gray-500 uppercase dark:text-slate-400">
+                    {{ 'inactive_countries' | translate }}
+                  </span>
+                  <tui-icon icon="@tui.x" class="text-red-500"></tui-icon>
+                </div>
+                <p class="text-2xl font-bold text-gray-800 dark:text-white">
+                  {{ statsData()!.inactive }}
+                </p>
+              </div>
+
+              <!-- Countries with Data -->
+              <div
+                class="rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
+              >
+                <div class="mb-3 flex items-center justify-between">
+                  <span class="text-sm font-medium tracking-wider text-gray-500 uppercase dark:text-slate-400">
+                    {{ 'last_updated' | translate }}
+                  </span>
+                  <tui-icon icon="@tui.refresh-cw" class="text-blue-500"></tui-icon>
+                </div>
+                <p class="text-lg font-semibold text-gray-800 dark:text-white">
+                  {{ 'today' | translate }}
+                </p>
+              </div>
+            </div>
+          }
+        } @placeholder {
           <div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
-            <!-- Total Countries -->
-            <div
-              class="rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
-            >
-              <div class="mb-3 flex items-center justify-between">
-                <span class="text-sm font-medium tracking-wider text-gray-500 uppercase dark:text-slate-400">
-                  {{ 'total_countries' | translate }}
-                </span>
-                <tui-icon icon="@tui.globe" class="text-emerald-500"></tui-icon>
-              </div>
-              <p class="text-2xl font-bold text-gray-800 dark:text-white">
-                {{ statsData()!.total }}
-              </p>
-            </div>
-
-            <!-- Active Countries -->
-            <div
-              class="rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
-            >
-              <div class="mb-3 flex items-center justify-between">
-                <span class="text-sm font-medium tracking-wider text-gray-500 uppercase dark:text-slate-400">
-                  {{ 'active_countries' | translate }}
-                </span>
-                <tui-icon icon="@tui.check" class="text-green-500"></tui-icon>
-              </div>
-              <p class="text-2xl font-bold text-gray-800 dark:text-white">
-                {{ statsData()!.active }}
-              </p>
-            </div>
-
-            <!-- Inactive Countries -->
-            <div
-              class="rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
-            >
-              <div class="mb-3 flex items-center justify-between">
-                <span class="text-sm font-medium tracking-wider text-gray-500 uppercase dark:text-slate-400">
-                  {{ 'inactive_countries' | translate }}
-                </span>
-                <tui-icon icon="@tui.x" class="text-red-500"></tui-icon>
-              </div>
-              <p class="text-2xl font-bold text-gray-800 dark:text-white">
-                {{ statsData()!.inactive }}
-              </p>
-            </div>
-
-            <!-- Countries with Data -->
-            <div
-              class="rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
-            >
-              <div class="mb-3 flex items-center justify-between">
-                <span class="text-sm font-medium tracking-wider text-gray-500 uppercase dark:text-slate-400">
-                  {{ 'last_updated' | translate }}
-                </span>
-                <tui-icon icon="@tui.refresh-cw" class="text-blue-500"></tui-icon>
-              </div>
-              <p class="text-lg font-semibold text-gray-800 dark:text-white">
-                {{ 'today' | translate }}
-              </p>
-            </div>
+            @for (i of [1, 2, 3, 4]; track i) {
+              <div [tuiSkeleton]="true" class="h-24 w-full rounded-xl"></div>
+            }
+          </div>
+        } @loading {
+          <div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
+            @for (i of [1, 2, 3, 4]; track i) {
+              <div [tuiSkeleton]="true" class="h-24 w-full animate-pulse rounded-xl"></div>
+            }
           </div>
         }
 
         <!-- Countries Table -->
-        <div
-          class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
-        >
-          <z-enhanced-table
-            [attr.tuiTheme]="currentTheme()"
-            [items]="countriesFacade.countriesResource()"
-            [columns]="tableColumns()"
-            [actions]="tableActions()"
-            [loading]="countriesFacade.isLoading() || isProcessing()"
-            [showCreateButton]="false"
-            [emptyStateTitle]="'no_countries_found' | translate"
-            [emptyStateDescription]="'no_countries_description' | translate"
-            [emptyStateIcon]="'@tui.map-pin'"
-            [loadingText]="'loading' | translate"
-            [enablePagination]="false"
-            [enableFiltering]="true"
-            [enableColumnVisibility]="true"
-            [pageSize]="10"
-            [searchableColumns]="searchableColumns()"
-            (rowClick)="onRowClick($event)"
-          />
-        </div>
+        @defer (on viewport; prefetch on hover) {
+          <div
+            class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+          >
+            <z-enhanced-table
+              [attr.tuiTheme]="currentTheme()"
+              [items]="countriesFacade.countriesResource()"
+              [columns]="tableColumns()"
+              [actions]="tableActions()"
+              [loading]="countriesFacade.isLoading() || isProcessing()"
+              [showCreateButton]="false"
+              [emptyStateTitle]="'no_countries_found' | translate"
+              [emptyStateDescription]="'no_countries_description' | translate"
+              [emptyStateIcon]="'@tui.map-pin'"
+              [loadingText]="'loading' | translate"
+              [enablePagination]="false"
+              [enableFiltering]="true"
+              [enableColumnVisibility]="true"
+              [pageSize]="10"
+              [searchableColumns]="searchableColumns()"
+              (rowClick)="onRowClick($event)"
+            />
+          </div>
+        } @placeholder {
+          <div
+            class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+          >
+            <div class="p-6">
+              <div class="mb-4 flex items-center justify-between">
+                <div [tuiSkeleton]="true" class="h-8 w-32 rounded"></div>
+                <div [tuiSkeleton]="true" class="h-10 w-24 rounded"></div>
+              </div>
+              <div [tuiSkeleton]="true" class="mb-4 h-10 w-64 rounded"></div>
+              <div class="space-y-3">
+                @for (i of [1, 2, 3, 4, 5]; track i) {
+                  <div [tuiSkeleton]="true" class="h-12 w-full rounded"></div>
+                }
+              </div>
+            </div>
+          </div>
+        } @loading {
+          <div
+            class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+          >
+            <div class="p-6">
+              <div class="mb-4 flex items-center justify-between">
+                <div [tuiSkeleton]="true" class="h-8 w-32 animate-pulse rounded"></div>
+                <div [tuiSkeleton]="true" class="h-10 w-24 animate-pulse rounded"></div>
+              </div>
+              <div [tuiSkeleton]="true" class="mb-4 h-10 w-64 animate-pulse rounded"></div>
+              <div class="space-y-3">
+                @for (i of [1, 2, 3, 4, 5]; track i) {
+                  <div [tuiSkeleton]="true" class="h-12 w-full animate-pulse rounded"></div>
+                }
+              </div>
+            </div>
+          </div>
+        }
       </div>
     </div>
   `,

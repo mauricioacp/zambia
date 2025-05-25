@@ -37,8 +37,6 @@ npx tsc --noEmit -p libs/zambia/feat-countries/tsconfig.lib.json
 npm run prettier:staged
 ```
 
-**Note**: There's no global lint command currently. You must run lint per library using the Nx command structure.
-
 ## Testing
 
 ```bash
@@ -117,13 +115,6 @@ npm run format:check
 npm run reset
 ```
 
-## Working with Docker
-
-The project includes Docker configurations for both development and production:
-
-- `docker-compose.dev.yaml`: Development with hot reloading
-- `docker-compose.yaml`: Production setup with Nginx
-
 ```bash
 # Run development environment in Docker
 npm run docker:dev
@@ -159,9 +150,6 @@ npm run supabase:gen:types:local
 
 # View dependency graph
 npm run graph
-
-# Use Commitizen for standardized commits
-npm run cm
 ```
 
 ## Debugging Tips
@@ -173,59 +161,3 @@ When debugging or working with the codebase:
 3. **Lint specific libraries**: Always lint per library, not globally
 4. **Type checking**: Use TypeScript compiler directly for type validation
 5. **Build to verify**: Run build commands to catch compilation errors
-
-## Common Issues and Solutions
-
-### ESLint Configuration Issues
-
-If you encounter errors like "ESLint was configured to run on X file but none of the TSConfigs include this file":
-
-1. **Environment files not included**: Add environment files to `tsconfig.app.json`:
-
-   ```json
-   {
-     "include": ["src/**/*.d.ts", "src/environments/*.ts", "set-env.ts"]
-   }
-   ```
-
-2. **Missing file patterns**: Ensure all TypeScript files in your project are included in at least one tsconfig file
-
-### Pre-commit Hook Issues
-
-If Prettier runs after commit instead of before:
-
-1. **Check the script syntax**: Ensure `--staged` flag is correct in package.json:
-
-   ```json
-   {
-     "prettier:staged": "npx pretty-quick --staged"
-   }
-   ```
-
-2. **Verify hook permissions**: Make sure the hook is executable:
-   ```bash
-   chmod +x .husky/pre-commit
-   ```
-
-### Manual Pre-commit Testing
-
-To manually run the pre-commit hook before committing (useful for testing):
-
-```bash
-# Run the pre-commit hook manually
-./.husky/pre-commit
-
-# Or run the prettier formatting directly on staged files
-npm run prettier:staged
-
-# Or format and lint affected files
-npm run prettier:staged && npm run lint:affected
-```
-
-### Skip Hooks Temporarily
-
-If you need to skip hooks temporarily (not recommended for regular use):
-
-```bash
-git commit --no-verify -m "your message"
-```

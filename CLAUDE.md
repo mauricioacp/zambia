@@ -147,7 +147,7 @@ export class ExampleComponent {
 }
 ```
 
-**📖 For detailed Angular guidelines, see: [docs/ANGULAR_GUIDELINES.md](docs/ANGULAR_GUIDELINES.md)**
+**📖 For detailed Angular guidelines, see: [docs/ANGULAR_GUIDELINES.md](CLAUDE/ANGULAR_GUIDELINES.md)**
 
 ## Essential Development Commands
 
@@ -182,7 +182,7 @@ npm run test:affected
 npm run supabase:gen:types:local
 ```
 
-**📖 For comprehensive development commands, see: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)**
+**📖 For comprehensive development commands, see: [docs/DEVELOPMENT.md](CLAUDE/DEVELOPMENT.md)**
 
 ## Code Generation
 
@@ -243,16 +243,16 @@ nx g @nx/angular:component --path=libs/shared/ui-components/src/lib/ui-component
 - `npm run cm` - Commitizen for standardized commits
 - Pre-commit hooks automatically format and lint
 
-**📖 For detailed troubleshooting, see: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)**
+**📖 For detailed troubleshooting, see: [docs/DEVELOPMENT.md](CLAUDE/DEVELOPMENT.md)**
 
 ## Database & Backend
 
 The application uses Supabase with a sophisticated role-based access control system. Key entities include countries, headquarters, agreements, collaborators, students, and workshops.
 
-**📖 For complete database schema, see: [docs/DATABASE.md](docs/DATABASE.md)**
+**📖 For complete database schema, see: [docs/DATABASE.md](CLAUDE/DATABASE.md)**
 
 ## Additional Documentation
 
-- **[docs/ANGULAR_GUIDELINES.md](docs/ANGULAR_GUIDELINES.md)** - Comprehensive Angular development patterns
-- **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)** - Complete development commands and workflows
-- **[docs/DATABASE.md](docs/DATABASE.md)** - Database schema and relationships
+- **[docs/ANGULAR_GUIDELINES.md](CLAUDE/ANGULAR_GUIDELINES.md)** - Comprehensive Angular development patterns
+- **[docs/DEVELOPMENT.md](CLAUDE/DEVELOPMENT.md)** - Complete development commands and workflows
+- **[docs/DATABASE.md](CLAUDE/DATABASE.md)** - Database schema and relationships

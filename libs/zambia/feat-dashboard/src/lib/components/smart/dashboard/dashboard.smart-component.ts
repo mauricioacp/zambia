@@ -99,9 +99,6 @@ interface NavSection {
       <z-page-container>
         <router-outlet />
       </z-page-container>
-      <!--      <section class="mt-auto">-->
-      <!--        <z-page-footer />-->
-      <!--      </section>-->
     </div>
   `,
   styles: ``,
