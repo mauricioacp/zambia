@@ -198,11 +198,35 @@ npx webpack-bundle-analyzer dist/apps/zambia/stats.json
 npx nx reset
 ```
 
+## 🤖 AI Integration (Nx MCP)
+
+**Nx MCP Server** provides deep workspace context to AI assistants:
+
+```bash
+# Enable MCP for enhanced AI capabilities
+npx nx-mcp@latest /home/mcpo/developer/zambia
+
+# Available AI tools via MCP:
+# - nx_workspace: Project graph and configuration
+# - nx_project_details: Specific project info
+# - nx_docs: Contextual Nx documentation
+# - nx_generators: Available code generators
+# - nx_visualize_graph: Interactive project graphs
+```
+
+**Enhanced AI Capabilities:**
+
+- Impact analysis across projects
+- Architecture-aware code generation
+- Workspace pattern recognition
+- Smart generator suggestions
+
 ## 📖 Documentation
 
 - **Angular Guidelines**: [`docs/ANGULAR_GUIDELINES.md`](docs/ANGULAR_GUIDELINES.md)
 - **Development**: [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md)
 - **Database Schema**: [`docs/DATABASE.md`](docs/DATABASE.md)
+- **Nx MCP Integration**: [`docs/NX_MCP.md`](docs/NX_MCP.md)
 
 ## ⚡ Performance Tips
 

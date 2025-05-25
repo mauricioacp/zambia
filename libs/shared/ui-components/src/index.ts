@@ -4,6 +4,7 @@ export * from './lib/layout/layout.service';
 export * from './lib/layout/window.service';
 export * from './lib/layout/theme.service';
 export * from './lib/layout/theme.utils';
+export * from './lib/layout/language.service';
 
 export * from './lib/ui-components/sidebar/sidebar.ui-component';
 
@@ -18,6 +19,7 @@ export * from './lib/ui-components/brand/brand-logo.component';
 export * from './lib/ui-components/page-header/notifications-button.component';
 export * from './lib/ui-components/page-header/sidebar-toggle.component';
 export * from './lib/ui-components/page-header/theme-toggle.component';
+export * from './lib/ui-components/page-header/language-toggle.component';
 
 export * from './lib/ui-components/form-field/form-field.ui-component';
 

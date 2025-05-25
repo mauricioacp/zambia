@@ -64,7 +64,7 @@ export const zambiaFeatDashboardRoutes: Route[] = [
       },
       {
         path: '**',
-        redirectTo: 'login',
+        redirectTo: 'panel',
       },
     ],
   },
