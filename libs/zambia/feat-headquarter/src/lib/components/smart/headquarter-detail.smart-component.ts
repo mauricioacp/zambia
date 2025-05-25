@@ -676,7 +676,7 @@ export class HeadquarterDetailSmartComponent {
     return agreements.filter((agreement) => agreement.status === 'graduated');
   });
 
-  // Enhanced student metrics
+
   studentMetrics = computed(() => {
     const agreements = this.headquarterData()?.agreements || [];
 
@@ -755,7 +755,7 @@ export class HeadquarterDetailSmartComponent {
   filteredAgreements = computed(() => {
     const agreements = this.headquarterData()?.agreements || [];
     const selectedDisplayText = this.roleFilter.value || '';
-    
+
     // Map the display text to the filter value
     const filter = this.roleFilterMap[selectedDisplayText] || 'all';
 
@@ -1002,7 +1002,7 @@ export class HeadquarterDetailSmartComponent {
       [this.translate.instant('coordinators')]: 'coordinator',
       [this.translate.instant('directors')]: 'director',
     };
-    
+
     // Set default value for role filter
     this.roleFilter.setValue(this.translate.instant('all_roles'));
 

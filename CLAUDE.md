@@ -243,7 +243,6 @@ npx nx-mcp@latest /home/mcpo/developer/zambia
 - **Always commit** completed work with semantic messages
 - **NEVER push** unless explicitly requested by user
 - **Include** detailed bullet points explaining changes
-- **Use** `--no-verify` when pre-commit hooks have environment issues
 
 ### **Commit Message Format**
 ```
