@@ -14,11 +14,27 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "paths": {
       "@zambia/data-access-auth": ["libs/shared/data-access-auth/src/index.ts"],
+      "@zambia/data-access-dashboard": ["libs/shared/data-access-dashboard/src/index.ts"],
+      "@zambia/data-access-generic": ["libs/shared/data-access-generic/src/index.ts"],
+      "@zambia/data-access-roles-permissions": ["libs/shared/data-access-roles-permissions/src/index.ts"],
+      "@zambia/data-access-supabase": ["libs/shared/data-access-supabase/src/index.ts"],
+      "@zambia/feat-agreements": ["libs/zambia/feat-agreements/src/index.ts"],
       "@zambia/feat-auth": ["libs/zambia/feat-auth/src/index.ts"],
+      "@zambia/feat-countries": ["libs/zambia/feat-countries/src/index.ts"],
+      "@zambia/feat-dashboard": ["libs/zambia/feat-dashboard/src/index.ts"],
+      "@zambia/feat-headquarter": ["libs/zambia/feat-headquarter/src/index.ts"],
       "@zambia/feat-shell": ["libs/zambia/feat-shell/src/index.ts"],
-      "@zambia/ui-components": ["libs/shared/ui-components/src/index.ts"]
+      "@zambia/feat-workshops": ["libs/zambia/feat-workshops/src/index.ts"],
+      "@zambia/types-supabase": ["libs/shared/types-supabase/src/index.ts"],
+      "@zambia/ui-components": ["libs/shared/ui-components/src/index.ts"],
+      "@zambia/util-config": ["libs/shared/util-config/src/index.ts"],
+      "@zambia/util-constants": ["libs/shared/util-constants/src/index.ts"],
+      "@zambia/util-roles-definitions": ["libs/shared/util-roles-definitions/src/index.ts"],
+      "@zambia/util-roles-permissions": ["libs/shared/util-guards/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

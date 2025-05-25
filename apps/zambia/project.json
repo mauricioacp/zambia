@@ -19,11 +19,17 @@
           {
             "glob": "**/*",
             "input": "apps/zambia/public"
+          },
+          {
+            "glob": "**/*",
+            "input": "node_modules/@taiga-ui/icons/src",
+            "output": "assets/taiga-ui/icons"
           }
         ],
         "styles": [
           "apps/zambia/src/styles.css",
-          "apps/zambia/src/custom-theme.scss"
+          "@taiga-ui/core/styles/taiga-ui-theme.less",
+          "@taiga-ui/core/styles/taiga-ui-fonts.less"
         ],
         "scripts": [],
         "server": "apps/zambia/src/main.server.ts",
@@ -36,7 +42,7 @@
             {
               "type": "initial",
               "maximumWarning": "500kb",
-              "maximumError": "1mb"
+              "maximumError": "2mb"
             },
             {
               "type": "anyComponentStyle",

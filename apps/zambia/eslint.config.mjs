@@ -15,11 +15,7 @@ export default [
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        project: [
-          './tsconfig.app.json',
-          './tsconfig.spec.json',
-          './.storybook/tsconfig.json',
-        ],
+        project: ['./tsconfig.app.json', './tsconfig.spec.json', './.storybook/tsconfig.json'],
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -88,11 +84,7 @@ export default [
     languageOptions: {
       parser: angularTemplateParser,
       parserOptions: {
-        project: [
-          './tsconfig.app.json',
-          './tsconfig.spec.json',
-          './.storybook/tsconfig.json',
-        ],
+        project: ['./tsconfig.app.json', './tsconfig.spec.json', './.storybook/tsconfig.json'],
         tsconfigRootDir: import.meta.dirname,
         parser: tsParser,
       },

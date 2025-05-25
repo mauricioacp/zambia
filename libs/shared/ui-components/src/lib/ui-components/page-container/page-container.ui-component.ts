@@ -1,24 +1,24 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LayoutService } from '../../layout/layout.service';
 
 @Component({
   selector: 'z-page-container',
   imports: [CommonModule],
   template: `
-    <div
-      class="mx-auto flex min-h-dvh w-full min-w-80 flex-col bg-gray-100 dark:bg-gray-900 dark:text-gray-100"
-      [class.lg:pl-72]="sidebarOpen()">
-      <ng-content select="z-sidebar"></ng-content>
-    </div>
+    <main id="page-content" class="flex max-w-full flex-auto flex-col pt-16">
+      <div class="max-w-10xl mx-auto w-full p-4 lg:p-8">
+        <ng-content />
+      </div>
+    </main>
   `,
-  host: {
-    '[attr.data-sidebar-state]': 'sidebarOpen() ? "open" : "closed"',
-  },
-  styles: ``,
+  host: {},
+  styles: `
+    :host {
+      display: block;
+      width: 100%;
+      min-height: 100%;
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PageContainerUiComponent {
-  layoutService = inject(LayoutService);
-  sidebarOpen = this.layoutService.sidebarOpen;
-}
+export class PageContainerUiComponent {}

@@ -17,7 +17,6 @@ export const decorators = [
   moduleMetadata({}),
   (storyFn: any, context: any) => {
     const isDarkMode = useDarkMode();
-    // Toggle dark mode based on Storybook toggle
     const documentElement = document.documentElement;
     const bodyElement = document.body;
     if (isDarkMode) {

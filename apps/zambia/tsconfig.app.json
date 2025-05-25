@@ -5,12 +5,6 @@
     "types": ["node"]
   },
   "files": ["src/main.ts", "src/main.server.ts", "src/server.ts"],
-  "include": ["src/**/*.d.ts", "set-env.ts"],
-  "exclude": [
-    "jest.config.ts",
-    "src/**/*.test.ts",
-    "src/**/*.spec.ts",
-    "**/*.stories.ts",
-    "**/*.stories.js"
-  ]
+  "include": ["src/**/*.d.ts", "src/environments/*.ts", "set-env.ts"],
+  "exclude": ["jest.config.ts", "src/**/*.test.ts", "src/**/*.spec.ts", "**/*.stories.ts", "**/*.stories.js"]
 }

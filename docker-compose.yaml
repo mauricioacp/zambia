@@ -1,0 +1,20 @@
+services:
+  zambia-app:
+    build:
+      context: .
+      dockerfile: dockerfile
+      args:
+        - NODE_ENV=production
+        - API_URL=${API_URL:-https://api.yourdomain.com}
+        - API_PUBLIC_KEY=${API_PUBLIC_KEY:-your-api-key}
+        - PROD=true
+    container_name: zambia_production_app
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - API_URL=${API_URL:-https://api.yourdomain.com}
+      - API_PUBLIC_KEY=${API_PUBLIC_KEY:-your-api-key}
+      - PROD=true
+    env_file:
+      - .env
+      - .env.production
