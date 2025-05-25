@@ -1,24 +1,18 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router, UrlTree } from '@angular/router';
 import { AuthService } from '@zambia/data-access-auth';
-import { map, Observable, take } from 'rxjs';
-import { toObservable } from '@angular/core/rxjs-interop';
 
-export const authGuard: CanActivateFn = (): Observable<boolean | UrlTree> => {
+export const authGuard: CanActivateFn = (): boolean | UrlTree => {
   const authService = inject(AuthService);
   const router = inject(Router);
   const loginPath = '/';
 
-  return toObservable(authService.session).pipe(
-    take(1),
-    map((session) => {
-      const isAuthenticated = !!session;
-      console.debug(`[AuthGuard] isAuthenticated: ${isAuthenticated}`);
-      if (isAuthenticated) {
-        return true;
-      } else {
-        return router.createUrlTree([loginPath]);
-      }
-    })
-  );
+  const isAuthenticated = authService.isAuthenticated();
+  console.debug(`[AuthGuard] isAuthenticated: ${isAuthenticated}`);
+
+  if (isAuthenticated) {
+    return true;
+  } else {
+    return router.createUrlTree([loginPath]);
+  }
 };

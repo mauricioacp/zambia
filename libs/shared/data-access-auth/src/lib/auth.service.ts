@@ -1,8 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { filter, Observable, shareReplay } from 'rxjs';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { Session } from '@supabase/supabase-js';
 import { SupabaseService } from '@zambia/data-access-supabase';
 import { tryCatch } from '@zambia/data-access-generic';
@@ -31,11 +29,6 @@ export class AuthService {
     const name = (session.user?.user_metadata?.['name'] as string) || '';
     return name || email.split('@')[0] || 'Usuario';
   });
-
-  readonly initialAuthCheckComplete$: Observable<boolean> = toObservable(this.loading).pipe(
-    filter((loading) => !loading),
-    shareReplay(1)
-  );
 
   constructor() {
     this.#supabase.auth
