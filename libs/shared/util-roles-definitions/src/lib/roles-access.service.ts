@@ -42,6 +42,7 @@ export class RolesAccessService {
       ...ROLE_GROUPS.ADMINISTRATION,
       ...ROLE_GROUPS.TOP_MANAGEMENT,
       ...ROLE_GROUPS.HEADQUARTERS_MANAGEMENT,
+      ...ROLE_GROUPS.LEADERSHIP_TEAM,
     ];
 
     return [
@@ -81,27 +82,27 @@ export class RolesAccessService {
       },*/
       {
         header: 'management',
-        roles: adminAndManagementRoles,
+        roles: [...adminAndManagementRoles],
         items: [
           {
             text: 'countries',
             route: 'countries',
-            roles: adminAndManagementRoles,
+            roles: [...adminAndManagementRoles],
           },
           {
             text: 'headquarters',
             route: 'headquarters',
-            roles: adminAndManagementRoles,
+            roles: [...adminAndManagementRoles],
           },
           {
             text: 'workshops',
             route: 'workshops',
-            roles: [...adminAndManagementRoles, ROLE.FACILITATOR],
+            roles: [...adminAndManagementRoles],
           },
           {
             text: 'agreements',
             route: 'agreements',
-            roles: adminAndManagementRoles,
+            roles: [...adminAndManagementRoles],
           },
         ],
       },

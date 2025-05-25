@@ -21,6 +21,9 @@ import {
 import { EnhancedTableUiComponent, type TableColumn, type TableAction } from '@zambia/ui-components';
 import { ICONS } from '@zambia/util-constants';
 import { injectCurrentTheme } from '@zambia/ui-components';
+import { HasAnyRoleDirective } from '@zambia/util-roles-permissions';
+import { ROLE, ROLE_GROUPS } from '@zambia/util-roles-definitions';
+import { RolesService } from '@zambia/data-access-roles-permissions';
 
 @Component({
   selector: 'z-countries-list',
@@ -36,6 +39,7 @@ import { injectCurrentTheme } from '@zambia/ui-components';
     TuiBreadcrumbs,
     TuiItem,
     TuiSkeleton,
+    HasAnyRoleDirective,
   ],
   template: `
     <div class="min-h-screen bg-gray-50 dark:bg-slate-800">
@@ -78,6 +82,7 @@ import { injectCurrentTheme } from '@zambia/ui-components';
                 {{ 'export' | translate }}
               </button>
               <button
+                *zHasAnyRole="allowedRolesForCountryCreation()"
                 tuiButton
                 appearance="primary"
                 size="l"
@@ -185,7 +190,6 @@ import { injectCurrentTheme } from '@zambia/ui-components';
               [columns]="tableColumns()"
               [actions]="tableActions()"
               [loading]="countriesFacade.isLoading() || isProcessing()"
-              [showCreateButton]="false"
               [emptyStateTitle]="'no_countries_found' | translate"
               [emptyStateDescription]="'no_countries_description' | translate"
               [emptyStateIcon]="'@tui.map-pin'"
@@ -253,6 +257,7 @@ export class CountriesListSmartComponent {
   private notificationService = inject(NotificationService);
   private supabaseService = inject(SupabaseService);
   private exportService = inject(ExportService);
+  private rolesService = inject(RolesService);
 
   isProcessing = signal(false);
   currentTheme = injectCurrentTheme();
@@ -312,6 +317,7 @@ export class CountriesListSmartComponent {
       color: 'warning',
       handler: (country: Country) => this.onEditCountry(country),
       disabled: () => this.isProcessing(),
+      visible: () => this.hasTopManagementAccess(),
     },
     {
       label: this.translate.instant('delete'),
@@ -319,10 +325,18 @@ export class CountriesListSmartComponent {
       color: 'danger',
       handler: (country: Country) => this.onDeleteCountry(country),
       disabled: () => this.isProcessing(),
+      visible: () => this.hasTopManagementAccess(),
     },
   ]);
 
   searchableColumns = computed(() => ['name', 'code']);
+
+  // Role-based access control
+  allowedRolesForCountryCreation = computed(() => [ROLE.SUPERADMIN, ...ROLE_GROUPS.TOP_MANAGEMENT]);
+
+  hasTopManagementAccess = computed(() =>
+    this.rolesService.hasAnyRole([ROLE.SUPERADMIN, ...ROLE_GROUPS.TOP_MANAGEMENT])
+  );
 
   constructor() {
     this.countriesFacade.countries.reload();
