@@ -236,13 +236,43 @@ npx nx-mcp@latest /home/mcpo/developer/zambia
 4. Lazy load feature modules
 5. Use computed() for derived state
 
+## 🔄 Git Workflow
+
+### **Commit Standards**
+- **Types**: feat, fix, docs, style, refactor, perf, test, chore, ci, build
+- **Always commit** completed work with semantic messages
+- **NEVER push** unless explicitly requested by user
+- **Include** detailed bullet points explaining changes
+- **Use** `--no-verify` when pre-commit hooks have environment issues
+
+### **Commit Message Format**
+```
+type(scope): brief description
+
+- Detailed explanation of changes and their impact
+- Focus on the "why" rather than the "what"
+- Include motivation and reasoning behind changes
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+### **Workflow Steps**
+1. Make and test changes
+2. Run linting/type checking if needed
+3. Stage files with `git add`
+4. Commit with semantic message
+5. **Wait for user instruction** before any `git push`
+
 ## 🚨 Critical Rules
 
 1. **NEVER** commit secrets or API keys
-2. **ALWAYS** use type safety (no `any`)
-3. **FOLLOW** existing patterns in codebase
-4. **TEST** before committing
-5. **USE** semantic commit messages
+2. **NEVER** push to remote without explicit user request
+3. **ALWAYS** use type safety (no `any`)
+4. **FOLLOW** existing patterns in codebase
+5. **TEST** before committing
+6. **USE** semantic commit messages
 
 ---
 
