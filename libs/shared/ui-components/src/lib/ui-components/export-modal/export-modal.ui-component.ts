@@ -73,7 +73,7 @@ export interface ExportOptions {
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ExportModalSmartComponent {
+export class ExportModalUiComponent {
   private readonly context = inject<TuiDialogContext<ExportOptions | undefined>>(POLYMORPHEUS_CONTEXT);
 
   formatControl = new FormControl<'csv' | 'excel'>('csv', { nonNullable: true });

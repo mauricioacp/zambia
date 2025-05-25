@@ -69,7 +69,6 @@ export class AuthService {
     this.#acting.set(true);
     return this.#supabase.auth.signOut().then((v) => {
       this.#acting.set(false);
-      this.router.navigate(['/']);
       return v;
     });
   }

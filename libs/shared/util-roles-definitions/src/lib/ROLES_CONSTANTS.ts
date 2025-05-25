@@ -117,13 +117,13 @@ export const NAVIGATION_CONFIG = {
   },
   workshops: {
     route: '/dashboard/workshops',
-    icon: 'academic-cap',
+    icon: 'graduation-cap',
     translationKey: 'nav.workshops',
     allowedGroups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM', 'HEADQUARTERS_MANAGEMENT'] as const,
   },
   agreements: {
     route: '/dashboard/agreements',
-    icon: 'document-text',
+    icon: 'handshake',
     translationKey: 'nav.agreements',
     allowedGroups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM', 'HEADQUARTERS_MANAGEMENT'] as const,
   },

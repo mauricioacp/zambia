@@ -22,7 +22,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ICONS } from '@zambia/util-constants';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { CountryFormModalSmartComponent } from './country-form-modal.smart-component';
-import { ConfirmationData, ConfirmationModalSmartComponent } from './confirmation-modal.smart-component';
+import { ConfirmationData } from '@zambia/ui-components';
 import { tryCatch } from '@zambia/data-access-generic';
 import { TuiItem } from '@taiga-ui/cdk';
 

@@ -56,3 +56,7 @@ export * from './lib/layout/masonry.component';
 export * from './lib/ui-components/generic-table/generic-table.ui-component';
 export * from './lib/ui-components/generic-table/enhanced-table.ui-component';
 export * from './lib/directives/column-template.directive';
+
+export * from './lib/ui-components/export-modal/export-modal.ui-component';
+
+export * from './lib/ui-components/confirmation-modal/confirmation-modal.ui-component';

@@ -9,8 +9,8 @@ import { TuiBreadcrumbs, TuiSkeleton } from '@taiga-ui/kit';
 import { TuiItem } from '@taiga-ui/cdk';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { CountryFormModalSmartComponent } from './country-form-modal.smart-component';
-import { ConfirmationModalSmartComponent, ConfirmationData } from './confirmation-modal.smart-component';
-import { ExportModalSmartComponent, ExportOptions } from './export-modal.smart-component';
+import { ConfirmationModalUiComponent, ConfirmationData } from '@zambia/ui-components';
+import { ExportModalUiComponent, ExportOptions } from '@zambia/ui-components';
 import {
   tryCatch,
   NotificationService,
@@ -357,7 +357,7 @@ export class CountriesListSmartComponent {
     }
 
     // Open export options modal
-    const dialog = this.dialogService.open<ExportOptions>(new PolymorpheusComponent(ExportModalSmartComponent), {
+    const dialog = this.dialogService.open<ExportOptions>(new PolymorpheusComponent(ExportModalUiComponent), {
       dismissible: true,
       size: 'm',
     });
@@ -449,7 +449,7 @@ export class CountriesListSmartComponent {
       danger: true,
     };
 
-    const dialog = this.dialogService.open<boolean>(new PolymorpheusComponent(ConfirmationModalSmartComponent), {
+    const dialog = this.dialogService.open<boolean>(new PolymorpheusComponent(ConfirmationModalUiComponent), {
       data: confirmationData,
       dismissible: true,
       size: 'm',

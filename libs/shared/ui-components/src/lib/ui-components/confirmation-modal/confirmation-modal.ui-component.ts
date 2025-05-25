@@ -151,7 +151,7 @@ export interface ConfirmationData {
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ConfirmationModalSmartComponent {
+export class ConfirmationModalUiComponent {
   readonly context = injectContext<TuiDialogContext<boolean, ConfirmationData>>();
 
   isProcessing = signal(false);

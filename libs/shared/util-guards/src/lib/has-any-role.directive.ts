@@ -1,4 +1,4 @@
-import { Directive, inject, Input, TemplateRef, ViewContainerRef, effect } from '@angular/core';
+import { Directive, inject, Input, TemplateRef, ViewContainerRef, effect, signal, computed } from '@angular/core';
 import { RoleService } from '@zambia/data-access-roles-permissions';
 import { RoleCode } from '@zambia/util-roles-definitions';
 
@@ -11,15 +11,25 @@ export class HasRoleDirective {
   private templateRef = inject(TemplateRef);
   private viewContainer = inject(ViewContainerRef);
 
-  @Input() set zHasRole(roles: RoleCode | RoleCode[]) {
-    const roleArray = Array.isArray(roles) ? roles : [roles];
+  private roles = signal<RoleCode[]>([]);
 
+  private hasAccess = computed(() => {
+    const roleArray = this.roles();
+    return roleArray.length > 0 ? this.roleService.hasAnyRole(roleArray) : false;
+  });
+
+  constructor() {
     effect(() => {
-      if (this.roleService.hasAnyRole(roleArray)) {
+      if (this.hasAccess()) {
         this.viewContainer.createEmbeddedView(this.templateRef);
       } else {
         this.viewContainer.clear();
       }
     });
+  }
+
+  @Input() set zHasRole(roles: RoleCode | RoleCode[]) {
+    const roleArray = Array.isArray(roles) ? roles : [roles];
+    this.roles.set(roleArray);
   }
 }
