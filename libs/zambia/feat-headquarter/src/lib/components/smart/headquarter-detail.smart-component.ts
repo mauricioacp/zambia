@@ -643,7 +643,7 @@ export class HeadquarterDetailSmartComponent {
   headquarterId = input.required<string>();
   headquarterData: WritableSignal<HeadquarterWithRelations | null> = signal(null);
   isProcessing = signal(false);
-  roleFilter = new FormControl('all');
+  roleFilter = new FormControl('');
 
   ICONS = ICONS;
 
@@ -738,20 +738,26 @@ export class HeadquarterDetailSmartComponent {
 
   // Role filter options
   roleFilterOptions = computed(() => [
-    { value: 'all', label: this.translate.instant('all_roles') },
-    { value: 'student', label: this.translate.instant('students') },
-    { value: 'facilitator', label: this.translate.instant('facilitators') },
-    { value: 'companion', label: this.translate.instant('companions') },
-    { value: 'manager', label: this.translate.instant('managers') },
-    { value: 'assistant', label: this.translate.instant('assistants') },
-    { value: 'coordinator', label: this.translate.instant('coordinators') },
-    { value: 'director', label: this.translate.instant('directors') },
+    this.translate.instant('all_roles'),
+    this.translate.instant('students'),
+    this.translate.instant('facilitators'),
+    this.translate.instant('companions'),
+    this.translate.instant('managers'),
+    this.translate.instant('assistants'),
+    this.translate.instant('coordinators'),
+    this.translate.instant('directors'),
   ]);
+
+  // Role filter values (will be initialized in constructor)
+  private roleFilterMap: Record<string, string> = {};
 
   // Filtered agreements based on role filter
   filteredAgreements = computed(() => {
     const agreements = this.headquarterData()?.agreements || [];
-    const filter = this.roleFilter.value;
+    const selectedDisplayText = this.roleFilter.value || '';
+    
+    // Map the display text to the filter value
+    const filter = this.roleFilterMap[selectedDisplayText] || 'all';
 
     if (!filter || filter === 'all') {
       return agreements;
@@ -985,6 +991,21 @@ export class HeadquarterDetailSmartComponent {
   ]);
 
   constructor() {
+    // Initialize role filter map and default value
+    this.roleFilterMap = {
+      [this.translate.instant('all_roles')]: 'all',
+      [this.translate.instant('students')]: 'student',
+      [this.translate.instant('facilitators')]: 'facilitator',
+      [this.translate.instant('companions')]: 'companion',
+      [this.translate.instant('managers')]: 'manager',
+      [this.translate.instant('assistants')]: 'assistant',
+      [this.translate.instant('coordinators')]: 'coordinator',
+      [this.translate.instant('directors')]: 'director',
+    };
+    
+    // Set default value for role filter
+    this.roleFilter.setValue(this.translate.instant('all_roles'));
+
     effect(() => {
       this.headquartersFacade.headquarterId.set(this.headquarterId());
       this.headquartersFacade.loadHeadquarterById();
