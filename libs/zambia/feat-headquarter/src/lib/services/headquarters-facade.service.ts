@@ -23,7 +23,6 @@ export interface HeadquarterWithRelations extends Omit<Headquarter, 'contact_inf
   agreements?: AgreementWithRole[];
 }
 
-// Enhanced contact_info structure for manager assignment
 export interface HeadquarterContactInfo {
   managerId?: string | null;
   managerName?: string | null;
@@ -135,9 +134,6 @@ export class HeadquartersFacadeService {
   isDetailLoading = computed(() => this.headquarterById.isLoading());
   detailLoadingError = computed(() => this.headquarterById.error());
 
-  /**
-   * Safely parse contact_info JSON to HeadquarterContactInfo structure
-   */
   private parseContactInfo(contactInfo: Json | null): HeadquarterContactInfo | null {
     if (!contactInfo || typeof contactInfo !== 'object') {
       return null;
@@ -151,9 +147,6 @@ export class HeadquartersFacadeService {
     }
   }
 
-  /**
-   * Create default contact_info structure
-   */
   createDefaultContactInfo(): HeadquarterContactInfo {
     return {
       managerId: null,
@@ -173,9 +166,6 @@ export class HeadquartersFacadeService {
     };
   }
 
-  /**
-   * Update manager information in headquarters contact_info
-   */
   async updateManagerInfo(
     headquarterId: string,
     managerId: string,
@@ -202,9 +192,6 @@ export class HeadquartersFacadeService {
     });
   }
 
-  /**
-   * Clear manager information from headquarters contact_info
-   */
   async clearManagerInfo(headquarterId: string): Promise<void> {
     const currentHeadquarter = this.headquarterByIdResource();
     if (!currentHeadquarter || currentHeadquarter.id !== headquarterId) {

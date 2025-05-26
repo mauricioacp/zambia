@@ -63,9 +63,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     TuiTextfieldOptionsDirective,
   ],
   template: `
-    <div class="min-h-screen bg-slate-800">
+    <div class="min-h-screen bg-gray-50 dark:bg-slate-800">
       <!-- Header Section -->
-      <div class="bg-slate-900 shadow-xl">
+      <div class="bg-white shadow-xl dark:bg-slate-900">
         <div class="container mx-auto px-6 py-4">
           <!-- Breadcrumbs -->
           <tui-breadcrumbs class="mb-6">
@@ -88,10 +88,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
                   <tui-icon [icon]="ICONS.HEADQUARTERS" class="text-3xl text-white"></tui-icon>
                 </div>
                 <div>
-                  <h1 class="mb-1 text-3xl font-bold text-white">
+                  <h1 class="mb-1 text-3xl font-bold text-gray-900 dark:text-white">
                     {{ headquarterData()!.name }}
                   </h1>
-                  <p class="text-slate-400">{{ 'headquarter_detail_subtitle' | translate }}</p>
+                  <p class="text-gray-600 dark:text-slate-400">{{ 'headquarter_detail_subtitle' | translate }}</p>
                 </div>
               </div>
               <button
@@ -113,147 +113,178 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
       <div class="container mx-auto px-6 py-8">
         @if (headquartersFacade.isDetailLoading()) {
           <!-- Loading State -->
-          <div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
-            @for (i of [1, 2, 3, 4]; track i) {
-              <div class="animate-pulse rounded-xl bg-slate-900 p-6">
-                <div class="mb-3 h-4 w-24 rounded bg-slate-700"></div>
-                <div class="h-8 w-32 rounded bg-slate-700"></div>
+          <div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-6">
+            @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+              <div
+                class="animate-pulse rounded-xl border border-gray-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-900"
+              >
+                <div class="mb-3 h-4 w-24 rounded bg-gray-200 dark:bg-slate-700"></div>
+                <div class="h-8 w-32 rounded bg-gray-200 dark:bg-slate-700"></div>
               </div>
             }
           </div>
-          <div class="animate-pulse rounded-xl bg-slate-900 p-6">
-            <div class="mb-4 h-6 w-48 rounded bg-slate-700"></div>
+          <div
+            class="animate-pulse rounded-xl border border-gray-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-900"
+          >
+            <div class="mb-4 h-6 w-48 rounded bg-gray-200 dark:bg-slate-700"></div>
             <div class="space-y-3">
               @for (i of [1, 2, 3]; track i) {
-                <div class="h-12 rounded bg-slate-700"></div>
+                <div class="h-12 rounded bg-gray-200 dark:bg-slate-700"></div>
               }
             </div>
           </div>
         } @else if (headquarterData()) {
           <!-- Enhanced Metrics Cards -->
-          <div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-6">
+          <div class="mb-8 grid grid-cols-1 items-stretch gap-6 md:grid-cols-3 lg:grid-cols-6">
             <!-- Country Card -->
             <div
-              class="rounded-xl border border-slate-700 bg-slate-900 p-6 transition-all duration-300 hover:border-slate-600 hover:shadow-lg"
+              class="flex h-full flex-col rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
             >
-              <div class="mb-3 flex items-center justify-between">
-                <span class="text-sm font-medium tracking-wider text-slate-400 uppercase">
+              <div class="flex h-8 items-center justify-between">
+                <span class="text-sm font-medium tracking-wider text-gray-600 uppercase dark:text-slate-400">
                   {{ 'country' | translate }}
                 </span>
                 <tui-icon [icon]="ICONS.COUNTRIES" class="text-emerald-500"></tui-icon>
               </div>
-              <p class="text-xl font-bold text-white">
-                {{ headquarterData()!.countries?.name || ('no_country' | translate) }}
-              </p>
-              @if (headquarterData()!.countries?.code) {
-                <p class="font-mono text-sm text-slate-400">
-                  {{ headquarterData()!.countries?.code }}
+              <div class="mt-3 flex flex-1 flex-col justify-end">
+                <p class="text-xl font-bold text-gray-900 dark:text-white">
+                  {{ headquarterData()!.countries?.name || ('no_country' | translate) }}
                 </p>
-              }
+                <div class="mt-1 h-6">
+                  @if (headquarterData()!.countries?.code) {
+                    <p class="font-mono text-sm text-gray-500 dark:text-slate-400">
+                      {{ headquarterData()!.countries?.code }}
+                    </p>
+                  }
+                </div>
+              </div>
             </div>
 
             <!-- Status Card -->
             <div
-              class="rounded-xl border border-slate-700 bg-slate-900 p-6 transition-all duration-300 hover:border-slate-600 hover:shadow-lg"
+              class="flex h-full flex-col rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
             >
-              <div class="mb-3 flex items-center justify-between">
-                <span class="text-sm font-medium tracking-wider text-slate-400 uppercase">
+              <div class="flex h-8 items-center justify-between">
+                <span class="text-sm font-medium tracking-wider text-gray-600 uppercase dark:text-slate-400">
                   {{ 'status' | translate }}
                 </span>
                 <tui-icon icon="@tui.activity" class="text-green-500"></tui-icon>
               </div>
-              <div
-                class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold"
-                [class]="
-                  headquarterData()!.status === 'active'
-                    ? 'bg-green-500/20 text-green-400'
-                    : 'bg-red-500/20 text-red-400'
-                "
-              >
-                <tui-icon
-                  [icon]="headquarterData()!.status === 'active' ? '@tui.check-circle' : '@tui.x-circle'"
-                  class="text-xs"
-                ></tui-icon>
-                {{ headquarterData()!.status || '' | translate }}
+              <div class="mt-3 flex flex-1 flex-col justify-end">
+                <div
+                  class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold"
+                  [class]="
+                    headquarterData()!.status === 'active'
+                      ? 'bg-green-500/20 text-green-600 dark:text-green-400'
+                      : 'bg-red-500/20 text-red-600 dark:text-red-400'
+                  "
+                >
+                  <tui-icon
+                    [icon]="headquarterData()!.status === 'active' ? '@tui.check-circle' : '@tui.x-circle'"
+                    class="text-xs"
+                  ></tui-icon>
+                  {{ headquarterData()!.status || '' | translate }}
+                </div>
+                <div class="mt-1 h-6"></div>
               </div>
             </div>
 
             <!-- Total Students Card -->
             <div
-              class="rounded-xl border border-slate-700 bg-slate-900 p-6 transition-all duration-300 hover:border-slate-600 hover:shadow-lg"
+              class="flex h-full flex-col rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
             >
-              <div class="mb-3 flex items-center justify-between">
-                <span class="text-sm font-medium tracking-wider text-slate-400 uppercase">
+              <div class="flex h-8 items-center justify-between">
+                <span class="text-sm font-medium tracking-wider text-gray-600 uppercase dark:text-slate-400">
                   {{ 'total_students' | translate }}
                 </span>
                 <tui-icon icon="@tui.users" class="text-blue-500"></tui-icon>
               </div>
-              <p class="text-2xl font-bold text-white">
-                {{ studentMetrics().total }}
-              </p>
-              <p class="text-xs text-slate-400">
-                Current: {{ studentMetrics().currentEdition }} | Graduated: {{ studentMetrics().graduated }}
-              </p>
+              <div class="mt-3 flex flex-1 flex-col justify-end">
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                  {{ studentMetrics().total }}
+                </p>
+                <div class="mt-1 h-6">
+                  <p class="text-xs text-gray-500 dark:text-slate-400">
+                    Current: {{ studentMetrics().currentEdition }} | Graduated: {{ studentMetrics().graduated }}
+                  </p>
+                </div>
+              </div>
             </div>
 
             <!-- Active Students Card -->
             <div
-              class="rounded-xl border border-slate-700 bg-slate-900 p-6 transition-all duration-300 hover:border-slate-600 hover:shadow-lg"
+              class="flex h-full flex-col rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
             >
-              <div class="mb-3 flex items-center justify-between">
-                <span class="text-sm font-medium tracking-wider text-slate-400 uppercase">
+              <div class="flex h-8 items-center justify-between">
+                <span class="text-sm font-medium tracking-wider text-gray-600 uppercase dark:text-slate-400">
                   {{ 'active_students' | translate }}
                 </span>
                 <tui-icon icon="@tui.check-circle" class="text-green-500"></tui-icon>
               </div>
-              <p class="text-2xl font-bold text-white">
-                {{ studentMetrics().active }}
-              </p>
-              <p class="text-xs text-slate-400">
-                Prospects: {{ studentMetrics().prospects }} | Inactive: {{ studentMetrics().inactive }}
-              </p>
+              <div class="mt-3 flex flex-1 flex-col justify-end">
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                  {{ studentMetrics().active }}
+                </p>
+                <div class="mt-1 h-6">
+                  <p class="text-xs text-gray-500 dark:text-slate-400">
+                    Prospects: {{ studentMetrics().prospects }} | Inactive: {{ studentMetrics().inactive }}
+                  </p>
+                </div>
+              </div>
             </div>
 
             <!-- Facilitators Card -->
             <div
-              class="rounded-xl border border-slate-700 bg-slate-900 p-6 transition-all duration-300 hover:border-slate-600 hover:shadow-lg"
+              class="flex h-full flex-col rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
             >
-              <div class="mb-3 flex items-center justify-between">
-                <span class="text-sm font-medium tracking-wider text-slate-400 uppercase">
+              <div class="flex h-8 items-center justify-between">
+                <span class="text-sm font-medium tracking-wider text-gray-600 uppercase dark:text-slate-400">
                   {{ 'facilitators' | translate }}
                 </span>
                 <tui-icon icon="@tui.presentation" class="text-purple-500"></tui-icon>
               </div>
-              <p class="text-2xl font-bold text-white">
-                {{ collaboratorMetrics().facilitators }}
-              </p>
-              <p class="text-xs text-slate-400">
-                {{ 'teaching_staff' | translate }}
-              </p>
+              <div class="mt-3 flex flex-1 flex-col justify-end">
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                  {{ collaboratorMetrics().facilitators }}
+                </p>
+                <div class="mt-1 h-6">
+                  <p class="text-xs text-gray-500 dark:text-slate-400">
+                    {{ 'teaching_staff' | translate }}
+                  </p>
+                </div>
+              </div>
             </div>
 
             <!-- Staff Overview Card -->
             <div
-              class="rounded-xl border border-slate-700 bg-slate-900 p-6 transition-all duration-300 hover:border-slate-600 hover:shadow-lg"
+              class="flex h-full flex-col rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600"
             >
-              <div class="mb-3 flex items-center justify-between">
-                <span class="text-sm font-medium tracking-wider text-slate-400 uppercase">
+              <div class="flex h-8 items-center justify-between">
+                <span class="text-sm font-medium tracking-wider text-gray-600 uppercase dark:text-slate-400">
                   {{ 'staff_overview' | translate }}
                 </span>
                 <tui-icon icon="@tui.users" class="text-orange-500"></tui-icon>
               </div>
-              <div class="space-y-1">
-                <div class="flex justify-between text-sm">
-                  <span class="text-slate-400">{{ 'companions' | translate }}</span>
-                  <span class="font-semibold text-white">{{ collaboratorMetrics().companions }}</span>
-                </div>
-                <div class="flex justify-between text-sm">
-                  <span class="text-slate-400">{{ 'managers' | translate }}</span>
-                  <span class="font-semibold text-white">{{ collaboratorMetrics().managers }}</span>
-                </div>
-                <div class="flex justify-between text-sm">
-                  <span class="text-slate-400">{{ 'assistants' | translate }}</span>
-                  <span class="font-semibold text-white">{{ collaboratorMetrics().assistants }}</span>
+              <div class="mt-3 flex flex-1 flex-col justify-end">
+                <div class="space-y-1">
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-500 dark:text-slate-400">{{ 'companions' | translate }}</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">{{
+                      collaboratorMetrics().companions
+                    }}</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-500 dark:text-slate-400">{{ 'managers' | translate }}</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">{{
+                      collaboratorMetrics().managers
+                    }}</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-500 dark:text-slate-400">{{ 'assistants' | translate }}</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">{{
+                      collaboratorMetrics().assistants
+                    }}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -264,33 +295,41 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
             <div class="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
               <!-- Manager Information -->
               @if (managerInfo()) {
-                <div class="overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-xl">
-                  <div class="border-b border-slate-700 px-6 py-4">
-                    <h3 class="flex items-center gap-3 text-lg font-bold text-white">
+                <div
+                  class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+                >
+                  <div class="border-b border-gray-200 px-6 py-4 dark:border-slate-700">
+                    <h3 class="flex items-center gap-3 text-lg font-bold text-gray-900 dark:text-white">
                       <tui-icon icon="@tui.user" class="text-blue-500"></tui-icon>
                       {{ 'headquarter_manager' | translate }}
                     </h3>
                   </div>
                   <div class="space-y-4 p-6">
                     <div class="flex items-center gap-3">
-                      <tui-icon icon="@tui.user" class="text-slate-400"></tui-icon>
+                      <tui-icon icon="@tui.user" class="text-gray-500 dark:text-slate-400"></tui-icon>
                       <div>
-                        <p class="font-semibold text-white">{{ managerInfo()!.name }}</p>
-                        <p class="text-sm text-slate-400">{{ 'manager' | translate }}</p>
+                        <p class="font-semibold text-gray-900 dark:text-white">{{ managerInfo()!.name }}</p>
+                        <p class="text-sm text-gray-600 dark:text-slate-400">{{ 'manager' | translate }}</p>
                       </div>
                     </div>
                     @if (managerInfo()!.email) {
                       <div class="flex items-center gap-3">
-                        <tui-icon icon="@tui.mail" class="text-slate-400"></tui-icon>
-                        <a href="mailto:{{ managerInfo()!.email }}" class="text-blue-400 hover:text-blue-300">
+                        <tui-icon icon="@tui.mail" class="text-gray-500 dark:text-slate-400"></tui-icon>
+                        <a
+                          href="mailto:{{ managerInfo()!.email }}"
+                          class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                        >
                           {{ managerInfo()!.email }}
                         </a>
                       </div>
                     }
                     @if (managerInfo()!.phone) {
                       <div class="flex items-center gap-3">
-                        <tui-icon icon="@tui.phone" class="text-slate-400"></tui-icon>
-                        <a href="tel:{{ managerInfo()!.phone }}" class="text-blue-400 hover:text-blue-300">
+                        <tui-icon icon="@tui.phone" class="text-gray-500 dark:text-slate-400"></tui-icon>
+                        <a
+                          href="tel:{{ managerInfo()!.phone }}"
+                          class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                        >
                           {{ managerInfo()!.phone }}
                         </a>
                       </div>
@@ -301,9 +340,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
               <!-- General Contact Information -->
               @if (generalContactInfo()) {
-                <div class="overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-xl">
-                  <div class="border-b border-slate-700 px-6 py-4">
-                    <h3 class="flex items-center gap-3 text-lg font-bold text-white">
+                <div
+                  class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+                >
+                  <div class="border-b border-gray-200 px-6 py-4 dark:border-slate-700">
+                    <h3 class="flex items-center gap-3 text-lg font-bold text-gray-900 dark:text-white">
                       <tui-icon icon="@tui.phone" class="text-green-500"></tui-icon>
                       {{ 'general_contact' | translate }}
                     </h3>
@@ -311,10 +352,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
                   <div class="space-y-4 p-6">
                     @if (generalContactInfo()!.generalEmail) {
                       <div class="flex items-center gap-3">
-                        <tui-icon icon="@tui.mail" class="text-slate-400"></tui-icon>
+                        <tui-icon icon="@tui.mail" class="text-gray-500 dark:text-slate-400"></tui-icon>
                         <a
                           href="mailto:{{ generalContactInfo()!.generalEmail }}"
-                          class="text-blue-400 hover:text-blue-300"
+                          class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                         >
                           {{ generalContactInfo()!.generalEmail }}
                         </a>
@@ -322,10 +363,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
                     }
                     @if (generalContactInfo()!.generalPhone) {
                       <div class="flex items-center gap-3">
-                        <tui-icon icon="@tui.phone" class="text-slate-400"></tui-icon>
+                        <tui-icon icon="@tui.phone" class="text-gray-500 dark:text-slate-400"></tui-icon>
                         <a
                           href="tel:{{ generalContactInfo()!.generalPhone }}"
-                          class="text-blue-400 hover:text-blue-300"
+                          class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                         >
                           {{ generalContactInfo()!.generalPhone }}
                         </a>
@@ -333,11 +374,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
                     }
                     @if (generalContactInfo()!.website) {
                       <div class="flex items-center gap-3">
-                        <tui-icon icon="@tui.globe" class="text-slate-400"></tui-icon>
+                        <tui-icon icon="@tui.globe" class="text-gray-500 dark:text-slate-400"></tui-icon>
                         <a
                           href="{{ generalContactInfo()!.website }}"
                           target="_blank"
-                          class="text-blue-400 hover:text-blue-300"
+                          class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                         >
                           {{ generalContactInfo()!.website }}
                         </a>
@@ -349,14 +390,16 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
                         generalContactInfo()!.socialMedia!.instagram ||
                         generalContactInfo()!.socialMedia!.twitter)
                     ) {
-                      <div class="border-t border-slate-700 pt-2">
-                        <p class="mb-2 text-sm font-semibold text-slate-400">{{ 'social_media' | translate }}</p>
+                      <div class="border-t border-gray-200 pt-2 dark:border-slate-700">
+                        <p class="mb-2 text-sm font-semibold text-gray-600 dark:text-slate-400">
+                          {{ 'social_media' | translate }}
+                        </p>
                         <div class="flex gap-3">
                           @if (generalContactInfo()!.socialMedia!.facebook) {
                             <a
                               href="{{ generalContactInfo()!.socialMedia!.facebook }}"
                               target="_blank"
-                              class="text-blue-400 hover:text-blue-300"
+                              class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                             >
                               <tui-icon icon="@tui.facebook" class="text-lg"></tui-icon>
                             </a>
@@ -365,7 +408,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
                             <a
                               href="{{ generalContactInfo()!.socialMedia!.instagram }}"
                               target="_blank"
-                              class="text-pink-400 hover:text-pink-300"
+                              class="text-pink-600 hover:text-pink-700 dark:text-pink-400 dark:hover:text-pink-300"
                             >
                               <tui-icon icon="@tui.instagram" class="text-lg"></tui-icon>
                             </a>
@@ -374,7 +417,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
                             <a
                               href="{{ generalContactInfo()!.socialMedia!.twitter }}"
                               target="_blank"
-                              class="text-blue-400 hover:text-blue-300"
+                              class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                             >
                               <tui-icon icon="@tui.twitter" class="text-lg"></tui-icon>
                             </a>
@@ -383,9 +426,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
                       </div>
                     }
                     @if (generalContactInfo()!.notes) {
-                      <div class="border-t border-slate-700 pt-2">
-                        <p class="mb-2 text-sm font-semibold text-slate-400">{{ 'notes' | translate }}</p>
-                        <p class="text-sm text-slate-300">{{ generalContactInfo()!.notes }}</p>
+                      <div class="border-t border-gray-200 pt-2 dark:border-slate-700">
+                        <p class="mb-2 text-sm font-semibold text-gray-600 dark:text-slate-400">
+                          {{ 'notes' | translate }}
+                        </p>
+                        <p class="text-sm text-gray-700 dark:text-slate-300">{{ generalContactInfo()!.notes }}</p>
                       </div>
                     }
                   </div>
@@ -396,24 +441,28 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
           <!-- Address Section -->
           @if (headquarterData()!.address) {
-            <div class="mb-8 overflow-hidden rounded-xl bg-slate-900 shadow-xl">
-              <div class="border-b border-slate-700 px-6 py-4">
-                <h2 class="flex items-center gap-3 text-xl font-bold text-white">
+            <div
+              class="mb-8 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+            >
+              <div class="border-b border-gray-200 px-6 py-4 dark:border-slate-700">
+                <h2 class="flex items-center gap-3 text-xl font-bold text-gray-900 dark:text-white">
                   <tui-icon icon="@tui.map-pin" class="text-red-500"></tui-icon>
                   {{ 'address' | translate }}
                 </h2>
               </div>
               <div class="p-6">
-                <p class="text-slate-300">{{ headquarterData()!.address }}</p>
+                <p class="text-gray-700 dark:text-slate-300">{{ headquarterData()!.address }}</p>
               </div>
             </div>
           }
 
           <!-- Workshops Section -->
           @if (headquarterData()!.scheduled_workshops?.length) {
-            <div class="mb-8 overflow-hidden rounded-xl bg-slate-900 shadow-xl">
-              <div class="border-b border-slate-700 px-6 py-4">
-                <h2 class="flex items-center gap-3 text-xl font-bold text-white">
+            <div
+              class="mb-8 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+            >
+              <div class="border-b border-gray-200 px-6 py-4 dark:border-slate-700">
+                <h2 class="flex items-center gap-3 text-xl font-bold text-gray-900 dark:text-white">
                   <tui-icon icon="@tui.calendar" class="text-purple-500"></tui-icon>
                   {{ 'workshops.in' | translate }} {{ headquarterData()!.name }}
                 </h2>
@@ -439,16 +488,21 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
           <!-- All Agreements Section -->
           @if (headquarterData()?.agreements?.length) {
-            <div class="mb-8 overflow-hidden rounded-xl bg-slate-900 shadow-xl">
-              <div class="border-b border-slate-700 px-6 py-4">
+            <div
+              class="mb-8 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+            >
+              <div class="border-b border-gray-200 px-6 py-4 dark:border-slate-700">
                 <div class="flex items-center justify-between">
-                  <h2 class="flex items-center gap-3 text-xl font-bold text-white">
+                  <h2 class="flex items-center gap-3 text-xl font-bold text-gray-900 dark:text-white">
                     <tui-icon icon="@tui.file-text" class="text-green-500"></tui-icon>
                     {{ 'all_agreements' | translate }}
                   </h2>
                   <!-- Role Filter -->
                   <div class="w-48">
-                    <label for="roleFilterSelect" class="mb-2 block text-sm font-medium text-slate-400">
+                    <label
+                      for="roleFilterSelect"
+                      class="mb-2 block text-sm font-medium text-gray-600 dark:text-slate-400"
+                    >
                       {{ 'filter_by_role' | translate }}
                     </label>
                     <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full">
@@ -487,16 +541,18 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
             <div class="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
               <!-- Current Season Card -->
               @if (currentSeason()) {
-                <div class="overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-xl lg:col-span-1">
-                  <div class="border-b border-slate-700 px-6 py-4">
-                    <h3 class="flex items-center gap-3 text-lg font-bold text-white">
+                <div
+                  class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl lg:col-span-1 dark:border-slate-700 dark:bg-slate-900"
+                >
+                  <div class="border-b border-gray-200 px-6 py-4 dark:border-slate-700">
+                    <h3 class="flex items-center gap-3 text-lg font-bold text-gray-900 dark:text-white">
                       <tui-icon icon="@tui.calendar" class="text-amber-500"></tui-icon>
                       {{ 'current_season' | translate }}
                     </h3>
                   </div>
                   <div class="space-y-4 p-6">
                     <div>
-                      <p class="text-xl font-bold text-white">{{ currentSeason()!.name }}</p>
+                      <p class="text-xl font-bold text-gray-900 dark:text-white">{{ currentSeason()!.name }}</p>
                       <div
                         class="mt-2 inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold"
                         [class]="
@@ -521,17 +577,21 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
                       </div>
                     </div>
                     @if (currentSeason()!.start_date || currentSeason()!.end_date) {
-                      <div class="space-y-2 border-t border-slate-700 pt-3">
+                      <div class="space-y-2 border-t border-gray-200 pt-3 dark:border-slate-700">
                         @if (currentSeason()!.start_date) {
                           <div class="flex items-center gap-2 text-sm">
-                            <span class="text-slate-400">{{ 'start_date' | translate }}:</span>
-                            <span class="font-medium text-white">{{ currentSeason()!.start_date }}</span>
+                            <span class="text-gray-600 dark:text-slate-400">{{ 'start_date' | translate }}:</span>
+                            <span class="font-medium text-gray-900 dark:text-white">{{
+                              currentSeason()!.start_date
+                            }}</span>
                           </div>
                         }
                         @if (currentSeason()!.end_date) {
                           <div class="flex items-center gap-2 text-sm">
-                            <span class="text-slate-400">{{ 'end_date' | translate }}:</span>
-                            <span class="font-medium text-white">{{ currentSeason()!.end_date }}</span>
+                            <span class="text-gray-600 dark:text-slate-400">{{ 'end_date' | translate }}:</span>
+                            <span class="font-medium text-gray-900 dark:text-white">{{
+                              currentSeason()!.end_date
+                            }}</span>
                           </div>
                         }
                       </div>
@@ -541,9 +601,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
               }
 
               <!-- All Seasons Table -->
-              <div class="overflow-hidden rounded-xl bg-slate-900 shadow-xl lg:col-span-2">
-                <div class="border-b border-slate-700 px-6 py-4">
-                  <h2 class="flex items-center gap-3 text-xl font-bold text-white">
+              <div
+                class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl lg:col-span-2 dark:border-slate-700 dark:bg-slate-900"
+              >
+                <div class="border-b border-gray-200 px-6 py-4 dark:border-slate-700">
+                  <h2 class="flex items-center gap-3 text-xl font-bold text-gray-900 dark:text-white">
                     <tui-icon icon="@tui.calendar" class="text-purple-500"></tui-icon>
                     {{ 'seasons' | translate }}
                   </h2>
@@ -570,9 +632,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
           <!-- Current Students Section -->
           @if (currentEditionStudents()?.length) {
-            <div class="mb-8 overflow-hidden rounded-xl bg-slate-900 shadow-xl">
-              <div class="border-b border-slate-700 px-6 py-4">
-                <h2 class="flex items-center gap-3 text-xl font-bold text-white">
+            <div
+              class="mb-8 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+            >
+              <div class="border-b border-gray-200 px-6 py-4 dark:border-slate-700">
+                <h2 class="flex items-center gap-3 text-xl font-bold text-gray-900 dark:text-white">
                   <tui-icon icon="@tui.users" class="text-blue-500"></tui-icon>
                   {{ 'current_students' | translate }}
                 </h2>
@@ -597,11 +661,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
         } @else if (headquartersFacade.detailLoadingError()) {
           <!-- Error State -->
           <div class="mx-auto max-w-md">
-            <tui-notification status="error" class="border border-red-500/20 bg-red-500/10">
+            <tui-notification status="error" class="border border-red-500/20 bg-red-50 dark:bg-red-500/10">
               <div class="py-8 text-center">
                 <tui-icon icon="@tui.alert-triangle" class="mb-4 text-4xl text-red-500"></tui-icon>
-                <h3 class="mb-2 text-xl font-bold text-white">{{ 'error_loading_headquarter' | translate }}</h3>
-                <p class="mb-6 text-slate-400">{{ headquartersFacade.detailLoadingError() }}</p>
+                <h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">
+                  {{ 'error_loading_headquarter' | translate }}
+                </h3>
+                <p class="mb-6 text-gray-600 dark:text-slate-400">{{ headquartersFacade.detailLoadingError() }}</p>
                 <button tuiButton appearance="destructive" size="m" (click)="retry()">
                   {{ 'retry' | translate }}
                 </button>
@@ -611,11 +677,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
         } @else if (!headquarterData() && !headquartersFacade.isDetailLoading()) {
           <!-- Not Found State -->
           <div class="mx-auto max-w-md">
-            <tui-notification status="warning" class="border border-yellow-500/20 bg-yellow-500/10">
+            <tui-notification status="warning" class="border border-yellow-500/20 bg-yellow-50 dark:bg-yellow-500/10">
               <div class="py-8 text-center">
                 <tui-icon icon="@tui.help-circle" class="mb-4 text-4xl text-yellow-500"></tui-icon>
-                <h3 class="mb-2 text-xl font-bold text-white">{{ 'headquarter.not.found' | translate }}</h3>
-                <p class="mb-6 text-slate-400">{{ 'headquarter_not_found_description' | translate }}</p>
+                <h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">
+                  {{ 'headquarter.not.found' | translate }}
+                </h3>
+                <p class="mb-6 text-gray-600 dark:text-slate-400">
+                  {{ 'headquarter_not_found_description' | translate }}
+                </p>
                 <button tuiButton appearance="secondary" size="m" routerLink="/dashboard/headquarters">
                   {{ 'back.to.headquarters' | translate }}
                 </button>

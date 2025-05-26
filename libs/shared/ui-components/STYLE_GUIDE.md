@@ -225,3 +225,87 @@ The library uses Tailwind's spacing scale:
 - Don't rely solely on color to convey information
 - Test all components in both themes
 - Consider using opacity for subtle backgrounds in dark mode (e.g., `dark:bg-blue-900/30`)
+
+## Interactive Action Cards
+
+Interactive action cards provide an engaging way to present quick actions and navigation options. These cards feature modern design elements including gradients, hover effects, and smooth animations.
+
+### Design Pattern
+
+```html
+<button
+  class="group relative overflow-hidden rounded-xl bg-white p-6 text-left shadow-sm transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10 dark:bg-slate-800 dark:hover:shadow-blue-400/10"
+>
+  <div class="flex items-center gap-4">
+    <div class="rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 p-3">
+      <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+        ></path>
+      </svg>
+    </div>
+    <div>
+      <h3 class="font-semibold text-gray-900 dark:text-white">Card Title</h3>
+      <p class="text-sm text-gray-600 dark:text-gray-300">Card description</p>
+    </div>
+  </div>
+  <div class="absolute inset-0 bg-blue-500 opacity-0 transition-opacity duration-200 group-hover:opacity-10"></div>
+</button>
+```
+
+### Key Features
+
+1. **Modern Aesthetics**:
+
+   - Rounded corners (`rounded-xl`)
+   - Gradient icon backgrounds
+   - Glass-morphism effects with backdrop blur
+   - Subtle shadows with color tinting on hover
+
+2. **Interactive Elements**:
+
+   - Smooth transitions (`transition-all duration-200`)
+   - Scale transforms on hover (`hover:scale-105`)
+   - Color-coordinated shadow effects
+   - Opacity overlays for enhanced interactivity
+
+3. **Accessibility**:
+   - Proper button semantics
+   - Focus states included
+   - High contrast text combinations
+   - Screen reader friendly structure
+
+### Color Variations
+
+Use consistent gradient patterns for different action types:
+
+```css
+/* Executive Actions */
+bg-gradient-to-r from-purple-500 to-pink-500
+
+/* Management Actions */
+bg-gradient-to-r from-emerald-500 to-teal-500
+
+/* Navigation Actions */
+bg-gradient-to-r from-blue-500 to-blue-600
+
+/* Information Actions */
+bg-gradient-to-r from-indigo-500 to-purple-500
+
+/* Warning/Important Actions */
+bg-gradient-to-r from-orange-500 to-red-500
+
+/* Headquarters/Location Actions */
+bg-gradient-to-r from-cyan-500 to-blue-500
+```
+
+### Implementation Notes
+
+- Always include both light and dark theme variants
+- Use semantic HTML (`button` for interactive elements)
+- Maintain consistent spacing and proportions
+- Include loading states when actions trigger API calls
+- Consider adding subtle animations for enhanced user experience
