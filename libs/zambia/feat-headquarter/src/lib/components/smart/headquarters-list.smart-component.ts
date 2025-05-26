@@ -406,7 +406,6 @@ export class HeadquartersListSmartComponent {
       return;
     }
 
-    // Open export options modal
     const dialog = this.dialogService.open<ExportOptions>(new PolymorpheusComponent(ExportModalUiComponent), {
       dismissible: true,
       size: 'm',
@@ -426,30 +425,24 @@ export class HeadquartersListSmartComponent {
   }
 
   private handleExport(options: ExportOptions): void {
-    // Use the transformed data that includes country_name and address_display
     const transformedData = this.transformedHeadquarters();
 
-    // Transform headquarters data to ensure compatibility with export service
     const exportData = transformedData.map((hq) => ({
       ...hq,
       contact_info: hq.contact_info as Json,
     }));
 
-    // Create export columns from table columns
     const exportColumns = this.exportService.createExportColumns(this.tableColumns());
 
-    // Generate filename with current date
     const date = new Date().toISOString().split('T')[0];
     const filename = `headquarters_${date}`;
 
-    // Export based on selected format
     if (options.format === 'csv') {
       this.exportService.exportToCSV(exportData, exportColumns, filename);
     } else {
       this.exportService.exportToExcel(exportData, exportColumns, filename);
     }
 
-    // Show success notification
     this.notificationService
       .showSuccess('export_success', {
         translateParams: {
@@ -625,7 +618,6 @@ export class HeadquartersListSmartComponent {
   }
 
   private async getRelatedDataCount(headquarterId: string): Promise<number> {
-    // Check for related data (seasons, workshops, agreements)
     const { count: seasonsCount } = await this.supabaseService
       .getClient()
       .from('seasons')

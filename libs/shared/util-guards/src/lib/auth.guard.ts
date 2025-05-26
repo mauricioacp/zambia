@@ -12,7 +12,6 @@ export const authGuard: CanActivateFn = (): boolean | UrlTree => {
 
   console.debug(`[AuthGuard] isLoading: ${isLoading}, isAuthenticated: ${isAuthenticated}`);
 
-  // If still loading, allow navigation to continue (will be checked again)
   if (isLoading) {
     return true;
   }

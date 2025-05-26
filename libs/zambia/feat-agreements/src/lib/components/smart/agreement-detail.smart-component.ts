@@ -12,7 +12,6 @@ import { CommonModule, NgClass } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AgreementDetails, AgreementsFacadeService } from '../../services/agreements-facade.service';
 import { TuiSkeleton } from '@taiga-ui/kit';
-import { ColumnTemplateDirective, GenericTableUiComponent } from '@zambia/ui-components';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TuiIcon } from '@taiga-ui/core';
 import { ICONS } from '@zambia/util-constants';
@@ -26,16 +25,7 @@ interface TableRow {
 @Component({
   selector: 'z-agreement-detail',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    TuiSkeleton,
-    NgClass,
-    GenericTableUiComponent,
-    ColumnTemplateDirective,
-    TranslatePipe,
-    TuiIcon,
-  ],
+  imports: [CommonModule, RouterModule, TuiSkeleton, NgClass, TranslatePipe, TuiIcon],
   template: `
     <div class="w-full bg-gray-50 p-6 dark:bg-gray-900">
       <div class="mb-4">
@@ -127,30 +117,6 @@ interface TableRow {
           <h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">
             {{ 'personal.information' | translate }}
           </h3>
-          <z-generic-table
-            [loading]="false"
-            [items]="personalInformation()"
-            [headers]="['translationKey', 'value']"
-            [headerLabels]="{
-              translationKey: ('field' | translate),
-              value: ('value' | translate),
-            }"
-            [emptyMessage]="'no.personal.information' | translate"
-          >
-            <ng-template [zColumnTemplate]="'translationKey'" let-item>
-              {{ item.translationKey | translate }}
-            </ng-template>
-            <ng-template [zColumnTemplate]="'value'" let-item>
-              @switch (item.key) {
-                @case ('birth_date') {
-                  {{ item.value ? (item.value | date: 'mediumDate') : ('N/A' | translate) }}
-                }
-                @default {
-                  {{ item.value || ('N/A' | translate) }}
-                }
-              }
-            </ng-template>
-          </z-generic-table>
         </div>
 
         <!-- Agreement Information -->
@@ -158,42 +124,6 @@ interface TableRow {
           <h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">
             {{ 'agreement.information' | translate }}
           </h3>
-          <z-generic-table
-            [loading]="false"
-            [items]="agreementInformation()"
-            [headers]="['translationKey', 'value']"
-            [headerLabels]="{
-              translationKey: ('field' | translate),
-              value: ('value' | translate),
-            }"
-            [emptyMessage]="'no.agreement.information' | translate"
-          >
-            <ng-template [zColumnTemplate]="'translationKey'" let-item>
-              {{ item.translationKey | translate }}
-            </ng-template>
-            <ng-template [zColumnTemplate]="'value'" let-item>
-              @switch (item.key) {
-                @case ('ethical_document_agreement') {
-                  {{ item.value ? ('yes' | translate) : ('no' | translate) }}
-                }
-                @case ('mailing_agreement') {
-                  {{ item.value ? ('yes' | translate) : ('no' | translate) }}
-                }
-                @case ('volunteering_agreement') {
-                  {{ item.value ? ('yes' | translate) : ('no' | translate) }}
-                }
-                @case ('age_verification') {
-                  {{ item.value ? ('yes' | translate) : ('no' | translate) }}
-                }
-                @case ('created_at') {
-                  {{ item.value | date: 'medium' }}
-                }
-                @default {
-                  {{ item.value || ('N/A' | translate) }}
-                }
-              }
-            </ng-template>
-          </z-generic-table>
         </div>
 
         <!-- Location Information -->
@@ -201,46 +131,6 @@ interface TableRow {
           <h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">
             {{ 'location.information' | translate }}
           </h3>
-          <z-generic-table
-            [loading]="false"
-            [items]="locationInformation()"
-            [headers]="['translationKey', 'value']"
-            [headerLabels]="{
-              translationKey: ('field' | translate),
-              value: ('value' | translate),
-            }"
-            [emptyMessage]="'no.location.information' | translate"
-          >
-            <ng-template [zColumnTemplate]="'translationKey'" let-item>
-              {{ item.translationKey | translate }}
-            </ng-template>
-            <ng-template [zColumnTemplate]="'value'" let-item>
-              @switch (item.key) {
-                @case ('country') {
-                  {{ item.value || ('N/A' | translate) }}
-                  {{
-                    agreementData()!.headquarters?.countries?.code
-                      ? ' (' + agreementData()!.headquarters?.countries?.code + ')'
-                      : ''
-                  }}
-                }
-                @case ('role') {
-                  {{ item.value || ('N/A' | translate) }}
-                  {{ agreementData()!.roles?.code ? ' (' + agreementData()!.roles?.code + ')' : '' }}
-                }
-                @case ('season') {
-                  {{ item.value || ('N/A' | translate) }}
-                  @if (agreementData()!.seasons?.start_date && agreementData()!.seasons?.end_date) {
-                    ({{ agreementData()!.seasons?.start_date | date: 'shortDate' }} -
-                    {{ agreementData()!.seasons?.end_date | date: 'shortDate' }})
-                  }
-                }
-                @default {
-                  {{ item.value || ('N/A' | translate) }}
-                }
-              }
-            </ng-template>
-          </z-generic-table>
         </div>
       } @else if (agreementsFacade.detailLoadingError()) {
         <div class="rounded border-l-4 border-red-400 bg-red-50 p-4 dark:border-red-500 dark:bg-red-900/30">
