@@ -7,6 +7,7 @@ import {
   WritableSignal,
   effect,
   computed,
+  DestroyRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -37,6 +38,7 @@ import { EnhancedTableUiComponent, type TableAction, type TableColumn } from '@z
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ICONS } from '@zambia/util-constants';
 import { TuiItem } from '@taiga-ui/cdk';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'z-headquarter-detail',
@@ -639,11 +641,13 @@ export class HeadquarterDetailSmartComponent {
   private translate = inject(TranslateService);
   private dialogService = inject(TuiDialogService);
   private notificationService = inject(NotificationService);
+  private destroyRef = inject(DestroyRef);
 
   headquarterId = input.required<string>();
   headquarterData: WritableSignal<HeadquarterWithRelations | null> = signal(null);
   isProcessing = signal(false);
   roleFilter = new FormControl('');
+  roleFilterValue = signal('');
 
   ICONS = ICONS;
 
@@ -675,7 +679,6 @@ export class HeadquarterDetailSmartComponent {
     if (!agreements) return [];
     return agreements.filter((agreement) => agreement.status === 'graduated');
   });
-
 
   studentMetrics = computed(() => {
     const agreements = this.headquarterData()?.agreements || [];
@@ -754,7 +757,7 @@ export class HeadquarterDetailSmartComponent {
   // Filtered agreements based on role filter
   filteredAgreements = computed(() => {
     const agreements = this.headquarterData()?.agreements || [];
-    const selectedDisplayText = this.roleFilter.value || '';
+    const selectedDisplayText = this.roleFilterValue();
 
     // Map the display text to the filter value
     const filter = this.roleFilterMap[selectedDisplayText] || 'all';
@@ -763,24 +766,45 @@ export class HeadquarterDetailSmartComponent {
       return agreements;
     }
 
+    // Debug: Log first agreement's role structure
+    if (agreements.length > 0 && agreements[0].role) {
+      console.log('Role structure:', agreements[0].role);
+    }
+
     return agreements.filter((agreement) => {
-      const roleCode = agreement.role?.code?.toLowerCase() || '';
+      // Handle different possible role structures
+      const role = agreement.role as any;
+      if (!role) return false;
+
+      // Try different possible property names
+      const roleCode = (role.code || role.role_code || '')?.toLowerCase();
+      const roleName = (role.name || role.role_name || '')?.toLowerCase();
 
       switch (filter) {
         case 'student':
-          return roleCode.includes('student') || roleCode.includes('alumno');
+          return (
+            roleCode.includes('student') ||
+            roleCode.includes('alumno') ||
+            roleName.includes('student') ||
+            roleName.includes('alumno')
+          );
         case 'facilitator':
-          return roleCode.includes('facilitator');
+          return roleCode.includes('facilitator') || roleName.includes('facilitator');
         case 'companion':
-          return roleCode.includes('companion');
+          return (
+            roleCode.includes('companion') ||
+            roleName.includes('companion') ||
+            roleCode.includes('companion') ||
+            roleName.includes('acompañante')
+          );
         case 'manager':
-          return roleCode.includes('manager');
+          return roleCode.includes('manager') || roleName.includes('manager');
         case 'assistant':
-          return roleCode.includes('assistant');
+          return roleCode.includes('assistant') || roleName.includes('assistant');
         case 'coordinator':
-          return roleCode.includes('coordinator');
+          return roleCode.includes('coordinator') || roleName.includes('coordinator');
         case 'director':
-          return roleCode.includes('director');
+          return roleCode.includes('director') || roleName.includes('director');
         default:
           return true;
       }
@@ -1005,6 +1029,12 @@ export class HeadquarterDetailSmartComponent {
 
     // Set default value for role filter
     this.roleFilter.setValue(this.translate.instant('all_roles'));
+    this.roleFilterValue.set(this.translate.instant('all_roles'));
+
+    // Subscribe to role filter changes
+    this.roleFilter.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+      this.roleFilterValue.set(value || '');
+    });
 
     effect(() => {
       this.headquartersFacade.headquarterId.set(this.headquarterId());

@@ -591,10 +591,15 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
   }
 
   getDisplayValue(item: T, key: string): string {
-    const value = item[key];
+    // Handle nested properties (e.g., 'role.name')
+    const keys = key.split('.');
+    let value: any = item;
 
-    if (value === null || value === undefined) {
-      return '-';
+    for (const k of keys) {
+      value = value?.[k];
+      if (value === undefined || value === null) {
+        return '-';
+      }
     }
 
     if (typeof value === 'boolean') {
@@ -603,6 +608,20 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
 
     if (typeof value === 'number') {
       return value.toLocaleString();
+    }
+
+    // Handle object values (like role field)
+    if (typeof value === 'object') {
+      const obj = value as any;
+      // Try common display properties
+      if (obj.name) return obj.name;
+      if (obj.role_name) return obj.role_name;
+      if (obj.title) return obj.title;
+      if (obj.label) return obj.label;
+      if (obj.code) return obj.code;
+      if (obj.role_code) return obj.role_code;
+      // Fallback to a meaningful representation
+      return '-';
     }
 
     return String(value);
@@ -690,14 +709,26 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
   }
 
   getSearchableValueForColumn(item: T, column: string): unknown {
-    const value = item[column];
+    // Handle nested properties (e.g., 'role.name')
+    const keys = column.split('.');
+    let value: any = item;
+
+    for (const k of keys) {
+      value = value?.[k];
+      if (value === undefined || value === null) {
+        return null;
+      }
+    }
 
     if (value && typeof value === 'object') {
       const obj = value as any;
       if (obj.name) return obj.name;
+      if (obj.role_name) return obj.role_name;
       if (obj.title) return obj.title;
       if (obj.label) return obj.label;
-      return JSON.stringify(value);
+      if (obj.code) return obj.code;
+      if (obj.role_code) return obj.role_code;
+      return '';
     }
 
     return value;
