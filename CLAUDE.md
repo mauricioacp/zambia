@@ -161,11 +161,83 @@ import { AuthService } from '@zambia/data-access-auth';
 
 ## 🎨 UI Guidelines
 
-- **Framework**: TaigaUI components + Tailwind utilities
-- **Theme**: Dark/light mode with `ThemeService`
-- **Layout**: Sidebar navigation, card-based content
-- **Tables**: Use `GenericTableUiComponent` for data display
-- **Forms**: Reactive forms with TUI form controls
+### Core Stack
+
+- **Framework**: TaigaUI components + Tailwind CSS v4
+- **Fonts**: Source Sans Pro (primary), Source Serif Pro (highlights)
+- **Theme**: Dark/light mode with `ThemeService` + custom TaigaUI overrides
+- **Icons**: Lucide icons via TUI
+
+### Color System
+
+- **Primary**: Sky (blue) - `bg-sky-600` light / `bg-sky-500` dark
+- **Success**: Emerald - `bg-emerald-600` light / `bg-emerald-500` dark
+- **Backgrounds**:
+  - Light: `bg-white`, `bg-gray-50`
+  - Dark: `dark:bg-slate-800`, `dark:bg-slate-900`
+- **Cards**: Always include shadow + dark mode variants
+
+### Component Patterns
+
+```html
+<!-- Card Example -->
+<div class="rounded-lg bg-white p-6 shadow-md dark:bg-slate-800 dark:shadow-gray-900/30">
+  <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Title</h2>
+  <p class="text-gray-600 dark:text-gray-300">Content</p>
+</div>
+
+<!-- Interactive Action Card -->
+<button
+  class="group relative overflow-hidden rounded-xl bg-white p-6 text-left shadow-sm transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10 dark:bg-slate-800"
+>
+  <div class="flex items-center gap-4">
+    <div class="rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 p-3">
+      <svg class="h-6 w-6 text-white"><!-- icon --></svg>
+    </div>
+    <div>
+      <h3 class="font-semibold text-gray-900 dark:text-white">Title</h3>
+      <p class="text-sm text-gray-600 dark:text-gray-300">Description</p>
+    </div>
+  </div>
+</button>
+```
+
+### Spacing & Layout
+
+- **Page sections**: `px-6 py-8 sm:px-8`
+- **Cards**: `p-4` or `p-6` with `rounded-lg`
+- **Form groups**: `space-y-4`
+- **Grid responsive**: `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`
+
+### Typography Scale
+
+- **H1**: `text-2xl font-bold` / `text-3xl sm:text-4xl` (hero)
+- **H2**: `text-xl font-semibold`
+- **H3**: `text-lg font-semibold`
+- **Body**: Base size (no class)
+- **Small**: `text-sm`
+- **Stats**: `text-2xl font-bold`
+
+### Key CSS Variables (in styles.css)
+
+- Primary accent: `--tui-background-accent-1`
+- Text colors: `--tui-text-primary`, `--tui-text-secondary`
+- Status colors: `--tui-status-positive`, `--tui-status-negative`
+- Custom scrollbar styling included
+
+### Best Practices
+
+1. **Always** include dark mode classes
+2. **Use** gradient backgrounds for interactive elements
+3. **Apply** consistent shadows with color tinting on hover
+4. **Test** in both themes before committing
+5. **Follow** mobile-first responsive design
+
+### Form Styling
+
+- **TUI Components**: Use TaigaUI form controls
+- **Focus states**: Handled by TUI with sky-600 accent
+- **Validation**: Use TUI error states with status colors
 
 ## 📚 Key Services
 
@@ -239,12 +311,14 @@ npx nx-mcp@latest /home/mcpo/developer/zambia
 ## 🔄 Git Workflow
 
 ### **Commit Standards**
+
 - **Types**: feat, fix, docs, style, refactor, perf, test, chore, ci, build
 - **Always commit** completed work with semantic messages
 - **NEVER push** unless explicitly requested by user
 - **Include** detailed bullet points explaining changes
 
 ### **Commit Message Format**
+
 ```
 type(scope): brief description
 
@@ -258,6 +332,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 ### **Workflow Steps**
+
 1. Make and test changes
 2. Run linting/type checking if needed
 3. Stage files with `git add`

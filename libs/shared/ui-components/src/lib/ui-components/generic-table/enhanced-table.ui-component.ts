@@ -33,6 +33,7 @@ import {
   TuiButtonSelect,
   TuiDataListWrapper,
   TuiPagination,
+  TuiChip,
 } from '@taiga-ui/kit';
 import { TuiCell } from '@taiga-ui/layout';
 import { TuiLet, TUI_DEFAULT_MATCHER } from '@taiga-ui/cdk';
@@ -56,7 +57,7 @@ export interface TableColumn {
   label: string;
   sortable?: boolean;
   searchable?: boolean;
-  type?: 'text' | 'avatar' | 'badge' | 'status' | 'actions' | 'custom';
+  type?: 'text' | 'avatar' | 'badge' | 'status' | 'actions' | 'custom' | 'date';
   width?: number;
   align?: 'left' | 'center' | 'right';
 }
@@ -88,6 +89,7 @@ export interface TableColumn {
     TuiDataListWrapper,
     TuiPagination,
     TranslatePipe,
+    TuiChip,
   ],
   template: `
     <div class="h-full w-full overflow-auto p-6 dark:bg-gray-900">
@@ -234,6 +236,9 @@ export interface TableColumn {
                                   }
                                 </span>
                               </div>
+                            }
+                            @case ('date') {
+                              <tui-chip appearance="info">{{ getDisplayValue(item, column.key) | date }}</tui-chip>
                             }
                             @case ('badge') {
                               <tui-badge> {{ getDisplayValue(item, column.key) }}</tui-badge>

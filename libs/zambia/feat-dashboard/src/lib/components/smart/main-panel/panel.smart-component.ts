@@ -36,7 +36,7 @@ import { ROLE } from '@zambia/util-roles-definitions';
       </div>
 
       <!-- Quick Actions Section -->
-      <section class="py-8">
+      <section class="px-6 py-8 sm:px-8">
         <div class="mb-6">
           <h2 class="mb-2 text-2xl font-bold text-gray-900 dark:text-white">Acciones Rápidas</h2>
           <p class="text-gray-600 dark:text-gray-300">Accesos directos a funciones principales</p>
@@ -75,7 +75,7 @@ import { ROLE } from '@zambia/util-roles-definitions';
 
       <!-- Quick Stats Overview -->
       @if (showGlobalStats()) {
-        <section class="mb-12">
+        <section class="px-6 py-8 sm:px-8">
           <div class="mb-6">
             <h2 class="mb-2 text-2xl font-bold text-gray-900 dark:text-white">Estadísticas Globales</h2>
             <p class="text-gray-600 dark:text-gray-300">Vista general del estado de acuerdos en la organización</p>
@@ -107,7 +107,7 @@ import { ROLE } from '@zambia/util-roles-definitions';
 
       <!-- Executive Dashboard (Level 70+) -->
       @if (isExecutiveLevel()) {
-        <section class="mb-12">
+        <section class="px-6 py-8 sm:px-8">
           <div class="mb-6">
             <div class="flex items-center gap-3">
               <div class="rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 p-2">
@@ -156,7 +156,7 @@ import { ROLE } from '@zambia/util-roles-definitions';
 
       <!-- Management Dashboard (Level 50+) -->
       @if (isManagerLevel()) {
-        <section class="mb-12">
+        <section class="px-6 py-8 sm:px-8">
           <div class="mb-6">
             <div class="flex items-center gap-3">
               <div class="rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 p-2">

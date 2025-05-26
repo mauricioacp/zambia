@@ -892,13 +892,13 @@ export class HeadquarterDetailSmartComponent {
     {
       key: 'start_datetime',
       label: this.translate.instant('start_date'),
-      type: 'text',
+      type: 'date',
       sortable: true,
     },
     {
       key: 'end_datetime',
       label: this.translate.instant('end_date'),
-      type: 'text',
+      type: 'date',
       sortable: true,
     },
     {
@@ -958,7 +958,7 @@ export class HeadquarterDetailSmartComponent {
     {
       key: 'created_at',
       label: this.translate.instant('created_at'),
-      type: 'text',
+      type: 'date',
       sortable: true,
       width: 150,
     },
@@ -1012,7 +1012,7 @@ export class HeadquarterDetailSmartComponent {
     {
       key: 'created_at',
       label: this.translate.instant('created_at'),
-      type: 'text',
+      type: 'date',
       sortable: true,
       width: 150,
     },
