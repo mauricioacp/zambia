@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormFieldComponent, logoSvg, ThemeService } from '@zambia/ui-components';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -99,7 +99,7 @@ interface AuthFormData {
     </div>
   `,
 })
-export class AuthSmartComponent {
+export class AuthSmartComponent implements OnInit {
   private router = inject(Router);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly themeService = inject(ThemeService);
@@ -122,6 +122,13 @@ export class AuthSmartComponent {
 
   get passwordControl() {
     return this.authForm.get('password') as FormControl;
+  }
+
+  ngOnInit(): void {
+    // Redirect if already authenticated
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate(['/dashboard/panel']);
+    }
   }
 
   async onSubmit(): Promise<void> {

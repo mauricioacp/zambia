@@ -9,7 +9,13 @@ export const zambiaFeatDashboardRoutes: Route[] = [
   {
     path: '',
     component: DashboardSmartComponent,
+    canActivate: [authGuard],
     children: [
+      {
+        path: '',
+        redirectTo: 'panel',
+        pathMatch: 'full',
+      },
       {
         path: 'panel',
         canActivate: [authGuard, roleGuard],

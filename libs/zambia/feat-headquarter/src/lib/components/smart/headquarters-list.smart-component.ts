@@ -415,7 +415,7 @@ export class HeadquartersListSmartComponent {
     dialog.subscribe({
       next: (options) => {
         if (options) {
-          this.handleExport(headquarters, options);
+          this.handleExport(options);
         }
       },
       error: (error) => {
@@ -425,9 +425,12 @@ export class HeadquartersListSmartComponent {
     });
   }
 
-  private handleExport(headquarters: any[], options: ExportOptions): void {
+  private handleExport(options: ExportOptions): void {
+    // Use the transformed data that includes country_name and address_display
+    const transformedData = this.transformedHeadquarters();
+
     // Transform headquarters data to ensure compatibility with export service
-    const exportData = headquarters.map((hq) => ({
+    const exportData = transformedData.map((hq) => ({
       ...hq,
       contact_info: hq.contact_info as Json,
     }));
@@ -450,7 +453,7 @@ export class HeadquartersListSmartComponent {
     this.notificationService
       .showSuccess('export_success', {
         translateParams: {
-          count: headquarters.length,
+          count: transformedData.length,
           format: options.format.toUpperCase(),
         },
       })

@@ -12,7 +12,7 @@ export class AuthService {
   private router = inject(Router);
   readonly #supabaseService = inject(SupabaseService);
   readonly #session = signal<Session | null>(null);
-  readonly #loading = signal<boolean>(false);
+  readonly #loading = signal<boolean>(true);
   readonly #acting = signal<boolean>(false);
   readonly #supabase = this.#supabaseService.getClient();
 

@@ -5,10 +5,17 @@ import { AuthService } from '@zambia/data-access-auth';
 export const authGuard: CanActivateFn = (): boolean | UrlTree => {
   const authService = inject(AuthService);
   const router = inject(Router);
-  const loginPath = '/';
+  const loginPath = '/login';
 
+  const isLoading = authService.loading();
   const isAuthenticated = authService.isAuthenticated();
-  console.debug(`[AuthGuard] isAuthenticated: ${isAuthenticated}`);
+
+  console.debug(`[AuthGuard] isLoading: ${isLoading}, isAuthenticated: ${isAuthenticated}`);
+
+  // If still loading, allow navigation to continue (will be checked again)
+  if (isLoading) {
+    return true;
+  }
 
   if (isAuthenticated) {
     return true;

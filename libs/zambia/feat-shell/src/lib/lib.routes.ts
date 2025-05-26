@@ -5,7 +5,7 @@ import { AuthSmartComponent } from '@zambia/feat-auth';
 const childRoutes: Route[] = [
   {
     path: '',
-    redirectTo: 'dashboard',
+    redirectTo: 'login',
     pathMatch: 'full',
   },
   {
@@ -18,7 +18,7 @@ const childRoutes: Route[] = [
   },
   {
     path: '**',
-    redirectTo: 'dashboard',
+    redirectTo: 'login',
   },
 ];
 
