@@ -299,6 +299,7 @@ npx nx-mcp@latest /home/mcpo/developer/zambia
 - **Development**: [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md)
 - **Database Schema**: [`docs/DATABASE.md`](docs/DATABASE.md)
 - **Nx MCP Integration**: [`docs/NX_MCP.md`](docs/NX_MCP.md)
+- **Commands **: [`docs/COMMANDS_REFERENCE.md`](docs/COMMANDS_REFERENCE.md)
 
 ## ⚡ Performance Tips
 
