@@ -13,8 +13,13 @@ export const zambiaFeatDashboardRoutes: Route[] = [
     children: [
       {
         path: '',
-        redirectTo: 'panel',
+        redirectTo: 'homepage',
         pathMatch: 'full',
+      },
+      {
+        path: 'homepage',
+        canActivate: [authGuard],
+        loadChildren: () => import('@zambia/feat-homepage').then((mod) => mod.featHomepageRoutes),
       },
       {
         path: 'panel',

@@ -206,10 +206,20 @@
   "export_format": "Formato de Exportación",
   "comma_separated_values": "Valores Separados por Comas",
   "include_column_headers": "Incluir encabezados de columna",
-  "nav.main_panel": "Vista general",
+  "nav.homepage": "Inicio",
+  "nav.main_panel": "Tablero",
   "nav.management": "Administración",
   "nav.countries": "Países",
   "nav.headquarters": "Sedes",
   "nav.workshops": "Talleres",
-  "nav.agreements": "Acuerdos"
+  "nav.agreements": "Acuerdos",
+  "homepage.welcome": "Bienvenido",
+  "homepage.systemActive": "Sistema Activo",
+  "homepage.keyMetrics": "Métricas Clave",
+  "homepage.globalMetricsDesc": "Resumen del rendimiento organizacional y estadísticas",
+  "homepage.hqMetricsDesc": "Métricas de rendimiento para tu sede y operaciones",
+  "homepage.quickActions": "Acciones Rápidas",
+  "homepage.quickActionsDesc": "Accesos directos a funciones utilizadas frecuentemente",
+  "homepage.statusDashboard": "Tablero de Estado",
+  "homepage.statusDashboardDesc": "Estado en tiempo real e información operacional"
 }

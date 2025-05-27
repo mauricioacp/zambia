@@ -121,6 +121,33 @@ ROLE_GROUPS = {
 3. Add translations to `i18n/*.json`
 4. Add route with `roleGuard`
 
+## 🏠 Homepage Feature
+
+**New dashboard homepage** with role-based KPI cards and quick actions:
+
+- **Role Level 51+**: Global organizational data and metrics
+- **Role Level 50-**: Headquarters-specific data only
+- **Modern UI**: Boxed glass design with interactive cards
+- **Navigation**: Clickable KPI cards route to detailed views
+- **Quick Actions**: Role-specific shortcuts to common tasks
+
+**Components**:
+
+- `HomepageSmartComponent` - Main container with role logic
+- `KpiCardUiComponent` - Reusable metric cards with glass styling
+- `QuickActionCardUiComponent` - Interactive action shortcuts
+- `HomepageFacadeService` - Data access and role filtering
+
+**Database Functions Required**:
+
+```sql
+-- Global statistics for level 51+ users
+get_homepage_statistics()
+
+-- HQ-specific statistics for level 50 and below
+get_homepage_statistics_hq(p_hq_id, p_season_id)
+```
+
 ## 🛠️ Common Tasks
 
 ### Add New Feature Module
@@ -285,6 +312,7 @@ import { AuthService } from '@zambia/data-access-auth';
 - `HeadquartersFacadeService` - HQ operations
 - `WorkshopsFacadeService` - Workshop scheduling
 - `AgreementsFacadeService` - Agreement tracking
+- `HomepageFacadeService` - Homepage KPIs and role-based data
 
 ## 🔍 Quick Debugging
 

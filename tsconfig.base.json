@@ -27,6 +27,7 @@
       "@zambia/feat-countries": ["libs/zambia/feat-countries/src/index.ts"],
       "@zambia/feat-dashboard": ["libs/zambia/feat-dashboard/src/index.ts"],
       "@zambia/feat-headquarter": ["libs/zambia/feat-headquarter/src/index.ts"],
+      "@zambia/feat-homepage": ["libs/zambia/feat-homepage/src/index.ts"],
       "@zambia/feat-shell": ["libs/zambia/feat-shell/src/index.ts"],
       "@zambia/feat-workshops": ["libs/zambia/feat-workshops/src/index.ts"],
       "@zambia/types-supabase": ["libs/shared/types-supabase/src/index.ts"],

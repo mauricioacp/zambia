@@ -97,6 +97,12 @@ export function filterRoleGroups<T extends ROLE_GROUP[]>(
 }
 
 export const NAVIGATION_CONFIG = {
+  homepage: {
+    route: '/dashboard/homepage',
+    icon: 'home',
+    translationKey: 'nav.homepage',
+    // No allowedGroups means all authenticated users
+  },
   panel: {
     route: '/dashboard/panel',
     icon: 'newspaper',
@@ -131,7 +137,7 @@ export const NAVIGATION_CONFIG = {
 
 export const NAVIGATION_SECTIONS = [
   {
-    items: ['panel'] as const,
+    items: ['homepage', 'panel'] as const,
   },
   {
     headerKey: 'nav.management' as const,

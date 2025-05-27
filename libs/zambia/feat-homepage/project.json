@@ -1,0 +1,20 @@
+{
+  "name": "feat-homepage",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/zambia/feat-homepage/src",
+  "prefix": "z",
+  "projectType": "library",
+  "tags": ["scope:zambia", "type:feat"],
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/zambia/feat-homepage/jest.config.ts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

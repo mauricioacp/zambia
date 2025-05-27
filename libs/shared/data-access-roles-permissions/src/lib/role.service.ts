@@ -34,6 +34,11 @@ export class RoleService {
   private translate = inject(TranslateService);
 
   userRole = computed(() => this.auth.session()?.user.user_metadata?.['role'] as RoleCode | null);
+  roleLevel = computed(() => this.auth.session()?.user.user_metadata?.['role_level'] as RoleCode | null);
+  roleId = computed(() => this.auth.session()?.user.user_metadata?.['role_id'] as RoleCode | null);
+  hqId = computed(() => this.auth.session()?.user.user_metadata?.['hq_id'] as RoleCode | null);
+  seasonId = computed(() => this.auth.session()?.user.user_metadata?.['season_id'] as RoleCode | null);
+  agreementId = computed(() => this.auth.session()?.user.user_metadata?.['agreement_id'] as RoleCode | null);
 
   hasRole(role: RoleCode): boolean {
     return this.userRole() === role;

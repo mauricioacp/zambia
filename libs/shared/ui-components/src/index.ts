@@ -59,3 +59,7 @@ export * from './lib/directives/column-template.directive';
 export * from './lib/ui-components/export-modal/export-modal.ui-component';
 
 export * from './lib/ui-components/confirmation-modal/confirmation-modal.ui-component';
+
+export * from './lib/ui-components/kpi-card.ui-component';
+
+export * from './lib/ui-components/quick-action-card.ui-component';
