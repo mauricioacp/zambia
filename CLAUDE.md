@@ -180,10 +180,23 @@ import { AuthService } from '@zambia/data-access-auth';
 ### Component Patterns
 
 ```html
-<!-- Card Example -->
+<!-- Standard Card -->
 <div class="rounded-lg bg-white p-6 shadow-md dark:bg-slate-800 dark:shadow-gray-900/30">
   <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Title</h2>
   <p class="text-gray-600 dark:text-gray-300">Content</p>
+</div>
+
+<!-- Boxed Glass Card (Modern) -->
+<div
+  class="group relative overflow-hidden rounded-2xl border border-gray-200/50 bg-white/90 p-6 shadow-lg shadow-gray-900/5 backdrop-blur-sm transition-all duration-300 hover:border-gray-300/70 hover:shadow-xl hover:shadow-gray-900/10 dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20 dark:hover:border-slate-600/70 dark:hover:shadow-slate-900/40"
+>
+  <div class="relative z-10">
+    <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">Title</h3>
+    <p class="text-gray-600 dark:text-gray-300">Content with glass effect</p>
+  </div>
+  <div
+    class="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:from-slate-700/30"
+  ></div>
 </div>
 
 <!-- Interactive Action Card -->
@@ -225,13 +238,30 @@ import { AuthService } from '@zambia/data-access-auth';
 - Status colors: `--tui-status-positive`, `--tui-status-negative`
 - Custom scrollbar styling included
 
+### Boxed Glass Design System
+
+**Modern glass morphism** pattern with clean geometric shapes:
+
+- **Glass Effects**: Semi-transparent backgrounds (`bg-white/90`) + backdrop blur
+- **Enhanced Shadows**: Multi-layered with color tinting (`shadow-lg shadow-gray-900/5`)
+- **Subtle Borders**: Transparent overlays (`border-gray-200/50`)
+- **Smooth Interactions**: Extended transitions (`duration-300`) + hover scale
+
+```html
+<!-- Boxed Glass Pattern -->
+<div
+  class="rounded-2xl border border-gray-200/50 bg-white/90 shadow-lg shadow-gray-900/5 backdrop-blur-sm hover:shadow-xl dark:border-slate-700/50 dark:bg-slate-800/90"
+></div>
+```
+
 ### Best Practices
 
 1. **Always** include dark mode classes
 2. **Use** gradient backgrounds for interactive elements
 3. **Apply** consistent shadows with color tinting on hover
-4. **Test** in both themes before committing
-5. **Follow** mobile-first responsive design
+4. **Prefer** boxed glass pattern for modern cards
+5. **Test** in both themes before committing
+6. **Follow** mobile-first responsive design
 
 ### Form Styling
 
@@ -295,6 +325,7 @@ npx nx-mcp@latest /home/mcpo/developer/zambia
 
 ## 📖 Documentation
 
+- **UI Style Guide**: [`libs/shared/ui-components/STYLE_GUIDE.md`](libs/shared/ui-components/STYLE_GUIDE.md)
 - **Angular Guidelines**: [`docs/ANGULAR_GUIDELINES.md`](docs/ANGULAR_GUIDELINES.md)
 - **Development**: [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md)
 - **Database Schema**: [`docs/DATABASE.md`](docs/DATABASE.md)
