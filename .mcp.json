@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "postgres": {
+      "command": "mcp-server-postgres",
+      "args": ["postgresql://postgres:postgres@127.0.0.1:54322/postgres"]
+    },
+    "context7": {
+      "command": "mcp-server-context7"
+    },
+    "nx-mcp": {
+      "command": "npx",
+      "args": ["nx-mcp@latest", "/home/mcpo/developer/zambia"]
+    },
+    "filesystem": {
+      "command": "mcp-server-filesystem",
+      "args": ["/mnt/c/Developer/supabase", "/"]
+    }
+  }
+}

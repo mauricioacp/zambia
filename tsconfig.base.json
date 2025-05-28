@@ -30,6 +30,7 @@
       "@zambia/feat-homepage": ["libs/zambia/feat-homepage/src/index.ts"],
       "@zambia/feat-profile": ["libs/zambia/feat-profile/src/index.ts"],
       "@zambia/feat-shell": ["libs/zambia/feat-shell/src/index.ts"],
+      "@zambia/feat-students": ["libs/zambia/feat-students/src/index.ts"],
       "@zambia/feat-workshops": ["libs/zambia/feat-workshops/src/index.ts"],
       "@zambia/types-supabase": ["libs/shared/types-supabase/src/index.ts"],
       "@zambia/ui-components": ["libs/shared/ui-components/src/index.ts"],

@@ -47,6 +47,7 @@
     "@angular/ssr": "19.2.1",
     "@ngx-translate/core": "^16.0.4",
     "@supabase/supabase-js": "^2.49.4",
+    "@taiga-ui/addon-charts": "^4.39.1",
     "@taiga-ui/addon-table": "^4.35.0",
     "@taiga-ui/cdk": "^4.35.0",
     "@taiga-ui/core": "^4.35.0",

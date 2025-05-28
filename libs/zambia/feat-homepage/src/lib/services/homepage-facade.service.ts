@@ -1,6 +1,7 @@
 import { computed, inject, Injectable, resource, signal } from '@angular/core';
 import { SupabaseService } from '@zambia/data-access-supabase';
 import { RoleService } from '@zambia/data-access-roles-permissions';
+import { DashboardFacadeService } from '@zambia/data-access-dashboard';
 import { ROLE } from '@zambia/util-roles-definitions';
 
 export interface KpiData {
@@ -59,6 +60,7 @@ export interface HomepageStatistics {
 export class HomepageFacadeService {
   private supabase = inject(SupabaseService);
   private roleService = inject(RoleService);
+  private dashboardFacade = inject(DashboardFacadeService);
 
   private readonly isLoadingSignal = signal(false);
 
@@ -120,91 +122,142 @@ export class HomepageFacadeService {
   });
 
   keyMetrics = computed<KpiData[]>(() => {
-    if (!this.homePageStats.hasValue()) {
-      return [];
-    }
-
-    const stats = this.homePageStats.value();
+    // Use real data from dashboard facade when available
+    const agreementStats = this.dashboardFacade.agreementReviewStats();
     const isGlobalView = this.roleService.roleLevel() !== null && Number(this.roleService.roleLevel()) >= 51;
 
-    const baseMetrics: KpiData[] = [
-      {
-        id: 'students',
-        title: 'Estudiantes',
-        value: stats.total_students,
-        trend: stats.active_students > stats.total_students * 0.8 ? 'up' : 'stable',
-        trendPercentage: Math.round((stats.active_students / stats.total_students) * 100),
-        icon: 'user',
-        iconBgClass: 'bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700',
-        route: '/dashboard/students',
-        subtitle: `${stats.active_students} activos`,
-      },
-      {
-        id: 'collaborators',
-        title: 'Colaboradores',
-        value: stats.total_collaborators,
-        trend: stats.active_collaborators > stats.total_collaborators * 0.9 ? 'up' : 'stable',
-        trendPercentage: Math.round((stats.active_collaborators / stats.total_collaborators) * 100),
-        icon: 'users',
-        iconBgClass: 'bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700',
-        route: '/dashboard/collaborators',
-        subtitle: `${stats.active_collaborators} activos`,
-      },
-      {
-        id: 'workshops',
-        title: 'Talleres',
-        value: stats.total_workshops,
-        trend: stats.completed_workshops > stats.total_workshops * 0.7 ? 'up' : 'down',
-        trendPercentage: Math.round((stats.completed_workshops / stats.total_workshops) * 100),
-        icon: 'book-open',
-        iconBgClass: 'bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700',
-        route: '/dashboard/workshops',
-        subtitle: `${stats.completed_workshops} completados`,
-      },
-      {
-        id: 'agreements',
-        title: 'Acuerdos',
-        value: stats.total_agreements,
-        trend: stats.pending_agreements < stats.total_agreements * 0.2 ? 'up' : 'down',
-        trendPercentage: Math.round(
-          ((stats.total_agreements - stats.pending_agreements) / stats.total_agreements) * 100
-        ),
-        icon: 'file-text',
-        iconBgClass: 'bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700',
-        route: '/dashboard/agreements',
-        subtitle: `${stats.pending_agreements} pendientes`,
-      },
-    ];
+    const baseMetrics: KpiData[] = [];
 
-    if (isGlobalView && stats.total_headquarters !== undefined) {
-      baseMetrics.push({
-        id: 'headquarters',
-        title: 'Sedes',
-        value: stats.total_headquarters,
-        trend: (stats.active_headquarters || 0) > stats.total_headquarters * 0.9 ? 'up' : 'stable',
-        trendPercentage: Math.round(((stats.active_headquarters || 0) / stats.total_headquarters) * 100),
-        icon: 'landmark',
-        iconBgClass: 'bg-gradient-to-br from-cyan-500 via-cyan-600 to-cyan-700',
-        route: '/dashboard/headquarters',
-        subtitle: `${stats.active_headquarters || 0} activas`,
-      });
+    // Use real agreement statistics when available
+    if (agreementStats) {
+      const students = agreementStats['students'];
+      if (students) {
+        baseMetrics.push({
+          id: 'students',
+          title: 'Estudiantes',
+          value: students.total,
+          trend: students.percentage_reviewed > 80 ? 'up' : 'down',
+          trendPercentage: students.percentage_reviewed,
+          icon: 'user',
+          iconBgClass: 'bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700',
+          route: '/dashboard/agreements?role=student',
+          subtitle: `${students.reviewed} revisados`,
+        });
+      }
+
+      const collaborators = agreementStats['collaborators'];
+      if (collaborators) {
+        baseMetrics.push({
+          id: 'collaborators',
+          title: 'Colaboradores',
+          value: collaborators.total,
+          trend: collaborators.percentage_reviewed > 80 ? 'up' : 'down',
+          trendPercentage: collaborators.percentage_reviewed,
+          icon: 'users',
+          iconBgClass: 'bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700',
+          route: '/dashboard/agreements?role=collaborator',
+          subtitle: `${collaborators.reviewed} revisados`,
+        });
+      }
+
+      const facilitators = agreementStats['facilitators'];
+      if (facilitators) {
+        baseMetrics.push({
+          id: 'facilitators',
+          title: 'Facilitadores',
+          value: facilitators.total,
+          trend: facilitators.percentage_reviewed > 80 ? 'up' : 'down',
+          trendPercentage: facilitators.percentage_reviewed,
+          icon: 'book-open',
+          iconBgClass: 'bg-gradient-to-br from-teal-500 via-teal-600 to-teal-700',
+          route: '/dashboard/agreements?role=facilitator',
+          subtitle: `${facilitators.reviewed} revisados`,
+        });
+      }
+
+      const companions = agreementStats['companions'];
+      if (companions) {
+        baseMetrics.push({
+          id: 'companions',
+          title: 'Acompañantes',
+          value: companions.total,
+          trend: companions.percentage_reviewed > 80 ? 'up' : 'down',
+          trendPercentage: companions.percentage_reviewed,
+          icon: 'heart',
+          iconBgClass: 'bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700',
+          route: '/dashboard/agreements?role=companion',
+          subtitle: `${companions.reviewed} revisados`,
+        });
+      }
+
+      // Konsejo Members (Global view only)
+      const konsejoMembers = agreementStats['konsejo_members'];
+      if (isGlobalView && konsejoMembers) {
+        baseMetrics.push({
+          id: 'konsejo_members',
+          title: 'Miembros del Konsejo',
+          value: konsejoMembers.total,
+          trend: konsejoMembers.percentage_reviewed > 80 ? 'up' : 'down',
+          trendPercentage: konsejoMembers.percentage_reviewed,
+          icon: 'star',
+          iconBgClass: 'bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700',
+          route: '/dashboard/agreements?role=konsejo_member',
+          subtitle: `${konsejoMembers.reviewed} revisados`,
+        });
+      }
+
+      // Directors (Global view only)
+      const directors = agreementStats['directors'];
+      if (isGlobalView && directors) {
+        baseMetrics.push({
+          id: 'directors',
+          title: 'Directores',
+          value: directors.total,
+          trend: directors.percentage_reviewed > 80 ? 'up' : 'down',
+          trendPercentage: directors.percentage_reviewed,
+          icon: 'briefcase',
+          iconBgClass: 'bg-gradient-to-br from-pink-500 via-pink-600 to-pink-700',
+          route: '/dashboard/agreements?role=director',
+          subtitle: `${directors.reviewed} revisados`,
+        });
+      }
     }
 
-    if (isGlobalView && stats.total_countries !== undefined) {
-      baseMetrics.push({
-        id: 'countries',
-        title: 'Países',
-        value: stats.total_countries,
-        trend: (stats.active_countries || 0) > stats.total_countries * 0.8 ? 'up' : 'stable',
-        trendPercentage: Math.round(((stats.active_countries || 0) / stats.total_countries) * 100),
-        icon: 'globe',
-        iconBgClass: 'bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700',
-        route: '/dashboard/countries',
-        subtitle: `${stats.active_countries || 0} activos`,
-      });
+    // Add global stats from homepage stats if available and in global view
+    if (this.homePageStats.hasValue()) {
+      const stats = this.homePageStats.value();
+
+      if (isGlobalView && stats.total_headquarters !== undefined) {
+        baseMetrics.push({
+          id: 'headquarters',
+          title: 'Sedes',
+          value: stats.total_headquarters,
+          trend: (stats.active_headquarters || 0) > stats.total_headquarters * 0.9 ? 'up' : 'stable',
+          trendPercentage: Math.round(((stats.active_headquarters || 0) / stats.total_headquarters) * 100),
+          icon: 'landmark',
+          iconBgClass: 'bg-gradient-to-br from-cyan-500 via-cyan-600 to-cyan-700',
+          route: '/dashboard/headquarters',
+          subtitle: `${stats.active_headquarters || 0} activas`,
+        });
+      }
+
+      if (isGlobalView && stats.total_countries !== undefined) {
+        baseMetrics.push({
+          id: 'countries',
+          title: 'Países',
+          value: stats.total_countries,
+          trend: (stats.active_countries || 0) > stats.total_countries * 0.8 ? 'up' : 'stable',
+          trendPercentage: Math.round(((stats.active_countries || 0) / stats.total_countries) * 100),
+          icon: 'globe',
+          iconBgClass: 'bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700',
+          route: '/dashboard/countries',
+          subtitle: `${stats.active_countries || 0} activos`,
+        });
+      }
     }
 
-    return baseMetrics;
+    // Return only 8 cards maximum
+    return baseMetrics.slice(0, 8);
   });
 
   statusCards = computed<StatusCard[]>(() => {
@@ -222,7 +275,7 @@ export class HomepageFacadeService {
         iconPath:
           'M12 14l9-5-9-5-9 5 9 5z M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z',
         iconBgClass: 'from-emerald-500 to-teal-500',
-        route: '/dashboard/students',
+        route: '/dashboard/students/progress',
         metrics: [
           {
             label: 'Estudiantes Activos',
@@ -240,23 +293,23 @@ export class HomepageFacadeService {
         ],
       },
       {
-        id: 'workshop-status',
-        title: 'Estado de Talleres',
+        id: 'collaboration-status',
+        title: 'Estado de la Colaboración',
         iconPath:
-          'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
+          'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',
         iconBgClass: 'from-purple-500 to-indigo-500',
-        route: '/dashboard/workshops',
+        route: '/dashboard/collaborators/demographics',
         metrics: [
           {
-            label: 'Talleres Completados',
-            value: stats.completed_workshops,
+            label: 'Colaboradores Activos',
+            value: stats.active_collaborators,
             colorClass: 'text-purple-600 dark:text-purple-400',
           },
           {
-            label: 'Tasa de Finalización',
-            value: `${Math.round((stats.completed_workshops / stats.total_workshops) * 100)}%`,
+            label: 'Tasa de Participación',
+            value: `${Math.round((stats.active_collaborators / stats.total_collaborators) * 100)}%`,
             colorClass:
-              stats.completed_workshops / stats.total_workshops > 0.7
+              stats.active_collaborators / stats.total_collaborators > 0.8
                 ? 'text-emerald-600 dark:text-emerald-400'
                 : 'text-orange-600 dark:text-orange-400',
           },
@@ -270,7 +323,7 @@ export class HomepageFacadeService {
         title: 'Salud Organizacional',
         iconPath: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
         iconBgClass: 'from-blue-500 to-cyan-500',
-        route: '/dashboard/panel',
+        route: '/dashboard/organizational-health',
         metrics: [
           {
             label: 'Sedes Activas',
@@ -312,7 +365,7 @@ export class HomepageFacadeService {
           description: 'Análisis y métricas organizacionales',
           icon: 'bar-chart-3',
           iconBgClass: 'bg-gradient-to-r from-purple-500 to-pink-500',
-          route: '/dashboard/reports',
+          route: '/dashboard/panel',
         },
         {
           id: 'manage-countries',
@@ -379,5 +432,7 @@ export class HomepageFacadeService {
     return baseActions.slice(0, 8); // Limit to 8 actions
   });
 
-  isLoading = computed(() => this.isLoadingSignal() || this.homePageStats.isLoading());
+  isLoading = computed(
+    () => this.isLoadingSignal() || this.homePageStats.isLoading() || this.dashboardFacade.reviewStatsLoading()
+  );
 }

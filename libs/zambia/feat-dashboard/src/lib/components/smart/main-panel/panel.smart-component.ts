@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { RoleService } from '@zambia/data-access-roles-permissions';
 import { CardColumnData, CardComponent, DataBadgeUiComponent } from '@zambia/ui-components';
 import { DashboardFacadeService, ReviewStat } from '@zambia/data-access-dashboard';
@@ -10,7 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'z-panel',
   standalone: true,
-  imports: [CommonModule, DataBadgeUiComponent, CardComponent, TuiSkeleton, TranslateModule],
+  imports: [CommonModule, RouterModule, DataBadgeUiComponent, CardComponent, TuiSkeleton, TranslateModule],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-slate-900">
       <!-- Header Section -->
@@ -64,14 +64,16 @@ import { TranslateModule } from '@ngx-translate/core';
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <!-- Homepage Navigation Card -->
-          <button
-            class="group relative overflow-hidden rounded-2xl border border-gray-200/50 bg-white/90 p-6 text-left shadow-lg shadow-gray-900/5 backdrop-blur-sm transition-all duration-300 hover:border-blue-300/70 hover:shadow-xl hover:shadow-blue-500/20 dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20 dark:hover:border-blue-600/70 dark:hover:shadow-blue-500/30"
-            (click)="navigateToHomepage()"
+          <a
+            routerLink="/dashboard/homepage"
+            class="group relative block overflow-hidden rounded-2xl border border-gray-200/50 bg-white/90 p-6 shadow-lg shadow-gray-900/5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:border-blue-300/70 hover:shadow-xl hover:shadow-blue-500/20 dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20 dark:hover:border-blue-600/70 dark:hover:shadow-blue-500/30"
             [attr.aria-label]="'panel.viewHomepage' | translate"
           >
             <div class="relative z-10">
               <div class="mb-4 flex items-center gap-4">
-                <div class="rounded-xl bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 p-3 shadow-lg shadow-blue-500/25">
+                <div
+                  class="rounded-xl bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 p-3 shadow-lg shadow-blue-500/25"
+                >
                   <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       stroke-linecap="round"
@@ -96,17 +98,19 @@ import { TranslateModule } from '@ngx-translate/core';
             <div
               class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
             ></div>
-          </button>
+          </a>
 
           <!-- Profile Navigation Card -->
-          <button
-            class="group relative overflow-hidden rounded-2xl border border-gray-200/50 bg-white/90 p-6 text-left shadow-lg shadow-gray-900/5 backdrop-blur-sm transition-all duration-300 hover:border-purple-300/70 hover:shadow-xl hover:shadow-purple-500/20 dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20 dark:hover:border-purple-600/70 dark:hover:shadow-purple-500/30"
-            (click)="navigateToProfile()"
+          <a
+            routerLink="/dashboard/profile"
+            class="group relative block overflow-hidden rounded-2xl border border-gray-200/50 bg-white/90 p-6 shadow-lg shadow-gray-900/5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:border-purple-300/70 hover:shadow-xl hover:shadow-purple-500/20 dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20 dark:hover:border-purple-600/70 dark:hover:shadow-purple-500/30"
             [attr.aria-label]="'profile.title' | translate"
           >
             <div class="relative z-10">
               <div class="mb-4 flex items-center gap-4">
-                <div class="rounded-xl bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 p-3 shadow-lg shadow-purple-500/25">
+                <div
+                  class="rounded-xl bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 p-3 shadow-lg shadow-purple-500/25"
+                >
                   <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       stroke-linecap="round"
@@ -131,18 +135,20 @@ import { TranslateModule } from '@ngx-translate/core';
             <div
               class="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
             ></div>
-          </button>
+          </a>
 
           <!-- Analytical Reports Card -->
           @if (showAnalyticalReports()) {
             <button
-              class="group relative overflow-hidden rounded-2xl border border-gray-200/50 bg-white/90 p-6 text-left shadow-lg shadow-gray-900/5 backdrop-blur-sm transition-all duration-300 hover:border-emerald-300/70 hover:shadow-xl hover:shadow-emerald-500/20 dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20 dark:hover:border-emerald-600/70 dark:hover:shadow-emerald-500/30"
+              class="group relative overflow-hidden rounded-2xl border border-gray-200/50 bg-white/90 p-6 text-left shadow-lg shadow-gray-900/5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:border-emerald-300/70 hover:shadow-xl hover:shadow-emerald-500/20 dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20 dark:hover:border-emerald-600/70 dark:hover:shadow-emerald-500/30"
               (click)="navigateToReports()"
               [attr.aria-label]="'panel.analyticalReports' | translate"
             >
               <div class="relative z-10">
                 <div class="mb-4 flex items-center gap-4">
-                  <div class="rounded-xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 p-3 shadow-lg shadow-emerald-500/25">
+                  <div
+                    class="rounded-xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 p-3 shadow-lg shadow-emerald-500/25"
+                  >
                     <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         stroke-linecap="round"
@@ -177,7 +183,9 @@ import { TranslateModule } from '@ngx-translate/core';
         <section class="px-6 py-8 sm:px-8">
           <div class="mb-6">
             <div class="flex items-center gap-3">
-              <div class="rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 p-3 shadow-lg shadow-indigo-500/25">
+              <div
+                class="rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 p-3 shadow-lg shadow-indigo-500/25"
+              >
                 <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     stroke-linecap="round"
@@ -215,7 +223,10 @@ import { TranslateModule } from '@ngx-translate/core';
           } @loading {
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
               @for (i of [1, 2, 3, 4]; track i) {
-                <div class="h-32 w-full animate-pulse rounded-2xl bg-white/40 backdrop-blur-sm" [tuiSkeleton]="true"></div>
+                <div
+                  class="h-32 w-full animate-pulse rounded-2xl bg-white/40 backdrop-blur-sm"
+                  [tuiSkeleton]="true"
+                ></div>
               }
             </div>
           }
@@ -227,7 +238,9 @@ import { TranslateModule } from '@ngx-translate/core';
         <section class="px-6 py-8 sm:px-8">
           <div class="mb-6">
             <div class="flex items-center gap-3">
-              <div class="rounded-xl bg-gradient-to-br from-pink-500 via-pink-600 to-pink-700 p-3 shadow-lg shadow-pink-500/25">
+              <div
+                class="rounded-xl bg-gradient-to-br from-pink-500 via-pink-600 to-pink-700 p-3 shadow-lg shadow-pink-500/25"
+              >
                 <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     stroke-linecap="round"
@@ -239,7 +252,9 @@ import { TranslateModule } from '@ngx-translate/core';
               </div>
               <div>
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Análisis Ejecutivo</h2>
-                <p class="text-gray-600 dark:text-gray-300">Métricas estratégicas y análisis organizacional detallado</p>
+                <p class="text-gray-600 dark:text-gray-300">
+                  Métricas estratégicas y análisis organizacional detallado
+                </p>
               </div>
             </div>
           </div>
@@ -248,7 +263,10 @@ import { TranslateModule } from '@ngx-translate/core';
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
               <!-- Overall Performance Card -->
               @if (overallStat()) {
-                <div class="transform transition-all duration-200 hover:scale-[1.02] lg:col-span-2 xl:col-span-3">
+                <a
+                  routerLink="/dashboard/agreements"
+                  class="block transform transition-all duration-200 hover:scale-[1.02] lg:col-span-2 xl:col-span-3"
+                >
                   <z-card
                     [mainTitle]="overallStat()!.title"
                     [mainSubtitle]="overallStat()!.total + ' Acuerdos Totales'"
@@ -260,7 +278,7 @@ import { TranslateModule } from '@ngx-translate/core';
                     [applyAnimatedBorder]="true"
                     [icon]="overallStat()!.iconSvg!"
                   ></z-card>
-                </div>
+                </a>
               }
             </div>
           } @placeholder {
@@ -285,10 +303,8 @@ export class PanelSmartComponent {
   protected roleService = inject(RoleService);
   protected dashboardFacade = inject(DashboardFacadeService);
   private router = inject(Router);
-
   protected overallStat = computed(() => this.dashboardFacade.overallStat());
 
-  // Role-based access control
   protected isExecutiveLevel = computed(() => {
     return this.roleService.isInAnyGroup(['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM']);
   });
@@ -301,13 +317,12 @@ export class PanelSmartComponent {
     return this.roleService.isInAnyGroup(['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM']);
   });
 
-  // Navigation methods
   protected navigateToHomepage(): void {
-    this.router.navigate(['/homepage']);
+    this.router.navigate(['/dashboard/homepage']);
   }
 
   protected navigateToProfile(): void {
-    this.router.navigate(['/profile']);
+    this.router.navigate(['/dashboard/profile']);
   }
 
   protected navigateToReports(): void {

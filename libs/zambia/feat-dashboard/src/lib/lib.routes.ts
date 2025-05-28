@@ -75,6 +75,30 @@ export const zambiaFeatDashboardRoutes: Route[] = [
         loadChildren: () => import('@zambia/feat-workshops').then((mod) => mod.featWorkshopsRoutes),
       },
       {
+        path: 'students',
+        canActivate: [authGuard, roleGuard],
+        data: {
+          groups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'],
+        },
+        loadChildren: () => import('@zambia/feat-students').then((mod) => mod.featStudentsRoutes),
+      },
+      {
+        path: 'collaborators',
+        canActivate: [authGuard, roleGuard],
+        data: {
+          groups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'],
+        },
+        loadChildren: () => import('@zambia/feat-students').then((mod) => mod.featStudentsRoutes),
+      },
+      {
+        path: 'organizational-health',
+        canActivate: [authGuard, roleGuard],
+        data: {
+          groups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'],
+        },
+        loadChildren: () => import('@zambia/feat-students').then((mod) => mod.featStudentsRoutes),
+      },
+      {
         path: 'access-denied',
         component: AccessDeniedPageUiComponent,
       },

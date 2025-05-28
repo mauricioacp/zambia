@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RoleService } from '@zambia/data-access-roles-permissions';
-import { HomepageFacadeService, QuickActionData } from '../../services/homepage-facade.service';
+import { HomepageFacadeService, QuickActionData, StatusCard } from '../../services/homepage-facade.service';
 import { KpiCardUiComponent, QuickActionCardUiComponent } from '@zambia/ui-components';
 import { TranslateModule } from '@ngx-translate/core';
 import { TuiSkeleton } from '@taiga-ui/kit';
@@ -139,7 +139,8 @@ import { Router } from '@angular/router';
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
               @for (status of homePageFacade.statusCards(); track status.id) {
                 <button
-                  class="group relative w-full overflow-hidden rounded-2xl border border-gray-200/50 bg-white/90 p-6 text-left shadow-lg shadow-gray-900/5 backdrop-blur-sm transition-all duration-300 hover:border-gray-300/70 hover:shadow-xl hover:shadow-gray-900/10 dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20 dark:hover:border-slate-600/70 dark:hover:shadow-slate-900/40"
+                  class="group relative w-full overflow-hidden rounded-2xl border border-gray-200/50 bg-white/90 p-6 text-left shadow-lg shadow-gray-900/5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-xl dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20"
+                  [ngClass]="getStatusCardHoverClass(status)"
                   (click)="navigateToEntity(status.route)"
                   [attr.aria-label]="'Navigate to ' + status.title"
                 >
@@ -170,7 +171,8 @@ import { Router } from '@angular/router';
 
                   <!-- Hover overlay -->
                   <div
-                    class="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:from-slate-700/30"
+                    class="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                    [ngClass]="getStatusCardGradientClass(status)"
                   ></div>
                 </button>
               }
@@ -226,5 +228,33 @@ export class HomepageSmartComponent {
     } else if (action.action) {
       action.action();
     }
+  }
+
+  protected getStatusCardHoverClass(status: StatusCard): string {
+    const iconBg = status.iconBgClass;
+
+    if (iconBg.includes('emerald') || iconBg.includes('teal')) {
+      return 'hover:border-emerald-300/70 hover:shadow-emerald-500/20 dark:hover:border-emerald-600/70 dark:hover:shadow-emerald-400/20';
+    } else if (iconBg.includes('purple') || iconBg.includes('indigo')) {
+      return 'hover:border-purple-300/70 hover:shadow-purple-500/20 dark:hover:border-purple-600/70 dark:hover:shadow-purple-400/20';
+    } else if (iconBg.includes('blue') || iconBg.includes('cyan')) {
+      return 'hover:border-blue-300/70 hover:shadow-blue-500/20 dark:hover:border-blue-600/70 dark:hover:shadow-blue-400/20';
+    }
+
+    return 'hover:border-gray-300/70 hover:shadow-gray-900/10 dark:hover:border-slate-600/70 dark:hover:shadow-slate-900/40';
+  }
+
+  protected getStatusCardGradientClass(status: StatusCard): string {
+    const iconBg = status.iconBgClass;
+
+    if (iconBg.includes('emerald') || iconBg.includes('teal')) {
+      return 'bg-gradient-to-br from-emerald-500/10 via-transparent to-emerald-600/5';
+    } else if (iconBg.includes('purple') || iconBg.includes('indigo')) {
+      return 'bg-gradient-to-br from-purple-500/10 via-transparent to-purple-600/5';
+    } else if (iconBg.includes('blue') || iconBg.includes('cyan')) {
+      return 'bg-gradient-to-br from-blue-500/10 via-transparent to-blue-600/5';
+    }
+
+    return 'bg-gradient-to-br from-white/50 to-transparent dark:from-slate-700/30';
   }
 }
