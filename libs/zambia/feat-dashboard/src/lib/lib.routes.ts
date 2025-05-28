@@ -22,6 +22,11 @@ export const zambiaFeatDashboardRoutes: Route[] = [
         loadChildren: () => import('@zambia/feat-homepage').then((mod) => mod.featHomepageRoutes),
       },
       {
+        path: 'profile',
+        canActivate: [authGuard],
+        loadChildren: () => import('@zambia/feat-profile').then((mod) => mod.featProfileRoutes),
+      },
+      {
         path: 'panel',
         canActivate: [authGuard, roleGuard],
         data: {

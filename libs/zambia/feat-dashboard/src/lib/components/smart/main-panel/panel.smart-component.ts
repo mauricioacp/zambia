@@ -1,84 +1,201 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { RoleService } from '@zambia/data-access-roles-permissions';
 import { CardColumnData, CardComponent, DataBadgeUiComponent } from '@zambia/ui-components';
 import { DashboardFacadeService, ReviewStat } from '@zambia/data-access-dashboard';
 import { TuiSkeleton } from '@taiga-ui/kit';
-import { ROLE } from '@zambia/util-roles-definitions';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'z-panel',
   standalone: true,
-  imports: [CommonModule, DataBadgeUiComponent, CardComponent, TuiSkeleton],
+  imports: [CommonModule, DataBadgeUiComponent, CardComponent, TuiSkeleton, TranslateModule],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-slate-900">
       <!-- Header Section -->
-      <div class="relative overflow-hidden bg-white/80 p-6 backdrop-blur-sm sm:p-8 dark:bg-slate-800/80">
+      <div class="relative overflow-hidden">
+        <!-- Background Glow -->
         <div
-          class="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-purple-600/5 dark:from-blue-400/10 dark:to-purple-400/10"
+          class="absolute inset-0 -inset-x-6 rounded-3xl bg-gradient-to-r from-purple-300 via-blue-500 to-indigo-700 opacity-10 blur-2xl"
         ></div>
-        <div class="relative">
-          <div class="mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-            <div>
-              <h1 class="mb-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
-                Panel de Control
-              </h1>
-              <p class="text-lg text-gray-600 dark:text-gray-300">Vista general de tu organización</p>
-            </div>
-            <div class="flex items-center gap-3">
-              <div class="rounded-full bg-green-100 p-2 dark:bg-green-900/30">
-                <div class="h-2 w-2 rounded-full bg-green-500"></div>
+
+        <!-- Glass Header Container -->
+        <div
+          class="relative rounded-2xl bg-white/40 p-2.5 ring-1 ring-gray-200/50 backdrop-blur-sm dark:bg-gray-500/20 dark:ring-gray-700/60"
+        >
+          <div
+            class="rounded-xl bg-white/95 p-6 shadow-xl shadow-gray-900/5 dark:bg-gray-950/95 dark:shadow-slate-900/20"
+          >
+            <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+              <div>
+                <h1 class="mb-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
+                  {{ 'panel.title' | translate }}
+                </h1>
+                <p class="text-lg text-gray-600 dark:text-gray-300">
+                  {{ 'panel.subtitle' | translate }}
+                </p>
               </div>
-              <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Sistema activo</span>
+
+              <!-- Status Indicator -->
+              <div class="flex items-center gap-3">
+                <div class="rounded-full bg-emerald-100 p-2 dark:bg-emerald-900/30">
+                  <div class="h-2 w-2 rounded-full bg-emerald-500"></div>
+                </div>
+                <span class="text-sm font-medium text-gray-600 dark:text-gray-300">
+                  {{ 'homepage.systemActive' | translate }}
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Quick Actions Section -->
+      <!-- Primary Navigation Section -->
       <section class="px-6 py-8 sm:px-8">
         <div class="mb-6">
-          <h2 class="mb-2 text-2xl font-bold text-gray-900 dark:text-white">Acciones Rápidas</h2>
-          <p class="text-gray-600 dark:text-gray-300">Accesos directos a funciones principales</p>
+          <h2 class="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
+            {{ 'homepage.quickActions' | translate }}
+          </h2>
+          <p class="text-gray-600 dark:text-gray-300">
+            {{ 'panel.viewHomepageDesc' | translate }}
+          </p>
         </div>
 
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          @for (action of quickActions(); track action.title) {
-            <button
-              class="group relative overflow-hidden rounded-xl bg-white p-6 text-left shadow-sm transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10 dark:bg-slate-800 dark:hover:shadow-blue-400/10"
-              [class]="action.bgClass"
-            >
-              <div class="flex items-center gap-4">
-                <div class="rounded-lg p-3" [class]="action.iconBgClass">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <!-- Homepage Navigation Card -->
+          <button
+            class="group relative overflow-hidden rounded-2xl border border-gray-200/50 bg-white/90 p-6 text-left shadow-lg shadow-gray-900/5 backdrop-blur-sm transition-all duration-300 hover:border-blue-300/70 hover:shadow-xl hover:shadow-blue-500/20 dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20 dark:hover:border-blue-600/70 dark:hover:shadow-blue-500/30"
+            (click)="navigateToHomepage()"
+            [attr.aria-label]="'panel.viewHomepage' | translate"
+          >
+            <div class="relative z-10">
+              <div class="mb-4 flex items-center gap-4">
+                <div class="rounded-xl bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 p-3 shadow-lg shadow-blue-500/25">
                   <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       stroke-linecap="round"
                       stroke-linejoin="round"
                       stroke-width="2"
-                      [attr.d]="action.iconPath"
+                      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                     ></path>
                   </svg>
                 </div>
                 <div>
-                  <h3 class="font-semibold text-gray-900 dark:text-white">{{ action.title }}</h3>
-                  <p class="text-sm text-gray-600 dark:text-gray-300">{{ action.description }}</p>
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    {{ 'panel.viewHomepage' | translate }}
+                  </h3>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">
+                    {{ 'homepage.quickActionsDesc' | translate }}
+                  </p>
                 </div>
               </div>
+            </div>
+
+            <!-- Hover overlay -->
+            <div
+              class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            ></div>
+          </button>
+
+          <!-- Profile Navigation Card -->
+          <button
+            class="group relative overflow-hidden rounded-2xl border border-gray-200/50 bg-white/90 p-6 text-left shadow-lg shadow-gray-900/5 backdrop-blur-sm transition-all duration-300 hover:border-purple-300/70 hover:shadow-xl hover:shadow-purple-500/20 dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20 dark:hover:border-purple-600/70 dark:hover:shadow-purple-500/30"
+            (click)="navigateToProfile()"
+            [attr.aria-label]="'profile.title' | translate"
+          >
+            <div class="relative z-10">
+              <div class="mb-4 flex items-center gap-4">
+                <div class="rounded-xl bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 p-3 shadow-lg shadow-purple-500/25">
+                  <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    ></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    {{ 'profile.title' | translate }}
+                  </h3>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">
+                    {{ 'profile.subtitle' | translate }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hover overlay -->
+            <div
+              class="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            ></div>
+          </button>
+
+          <!-- Analytical Reports Card -->
+          @if (showAnalyticalReports()) {
+            <button
+              class="group relative overflow-hidden rounded-2xl border border-gray-200/50 bg-white/90 p-6 text-left shadow-lg shadow-gray-900/5 backdrop-blur-sm transition-all duration-300 hover:border-emerald-300/70 hover:shadow-xl hover:shadow-emerald-500/20 dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20 dark:hover:border-emerald-600/70 dark:hover:shadow-emerald-500/30"
+              (click)="navigateToReports()"
+              [attr.aria-label]="'panel.analyticalReports' | translate"
+            >
+              <div class="relative z-10">
+                <div class="mb-4 flex items-center gap-4">
+                  <div class="rounded-xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 p-3 shadow-lg shadow-emerald-500/25">
+                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                      ></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                      {{ 'panel.analyticalReports' | translate }}
+                    </h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                      {{ 'panel.analyticalReportsDesc' | translate }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Hover overlay -->
               <div
-                class="absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-10"
-                [class]="action.hoverBg"
+                class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
               ></div>
             </button>
           }
         </div>
       </section>
 
-      <!-- Quick Stats Overview -->
+      <!-- Global Statistics Overview (for high-level users only) -->
       @if (showGlobalStats()) {
         <section class="px-6 py-8 sm:px-8">
           <div class="mb-6">
-            <h2 class="mb-2 text-2xl font-bold text-gray-900 dark:text-white">Estadísticas Globales</h2>
-            <p class="text-gray-600 dark:text-gray-300">Vista general del estado de acuerdos en la organización</p>
+            <div class="flex items-center gap-3">
+              <div class="rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 p-3 shadow-lg shadow-indigo-500/25">
+                <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  ></path>
+                </svg>
+              </div>
+              <div>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+                  {{ 'homepage.globalMetricsDesc' | translate }}
+                </h2>
+                <p class="text-gray-600 dark:text-gray-300">
+                  {{ 'panel.analyticalReportsDesc' | translate }}
+                </p>
+              </div>
+            </div>
           </div>
 
           @defer (on viewport; prefetch on idle) {
@@ -92,37 +209,37 @@ import { ROLE } from '@zambia/util-roles-definitions';
           } @placeholder {
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
               @for (i of [1, 2, 3, 4]; track i) {
-                <div [tuiSkeleton]="true" class="h-28 w-full rounded-xl"></div>
+                <div class="h-32 w-full rounded-2xl bg-white/40 backdrop-blur-sm" [tuiSkeleton]="true"></div>
               }
             </div>
           } @loading {
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
               @for (i of [1, 2, 3, 4]; track i) {
-                <div [tuiSkeleton]="true" class="h-28 w-full animate-pulse rounded-xl"></div>
+                <div class="h-32 w-full animate-pulse rounded-2xl bg-white/40 backdrop-blur-sm" [tuiSkeleton]="true"></div>
               }
             </div>
           }
         </section>
       }
 
-      <!-- Executive Dashboard (Level 70+) -->
+      <!-- Detailed Analytics Cards (for executives only) -->
       @if (isExecutiveLevel()) {
         <section class="px-6 py-8 sm:px-8">
           <div class="mb-6">
             <div class="flex items-center gap-3">
-              <div class="rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 p-2">
+              <div class="rounded-xl bg-gradient-to-br from-pink-500 via-pink-600 to-pink-700 p-3 shadow-lg shadow-pink-500/25">
                 <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                   ></path>
                 </svg>
               </div>
               <div>
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Panel Ejecutivo</h2>
-                <p class="text-gray-600 dark:text-gray-300">Métricas estratégicas y análisis organizacional</p>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Análisis Ejecutivo</h2>
+                <p class="text-gray-600 dark:text-gray-300">Métricas estratégicas y análisis organizacional detallado</p>
               </div>
             </div>
           </div>
@@ -147,70 +264,9 @@ import { ROLE } from '@zambia/util-roles-definitions';
               }
             </div>
           } @placeholder {
-            <div [tuiSkeleton]="true" class="h-40 w-full rounded-xl"></div>
+            <div class="h-40 w-full rounded-2xl bg-white/40 backdrop-blur-sm" [tuiSkeleton]="true"></div>
           } @loading {
-            <div [tuiSkeleton]="true" class="h-40 w-full animate-pulse rounded-xl"></div>
-          }
-        </section>
-      }
-
-      <!-- Management Dashboard (Level 50+) -->
-      @if (isManagerLevel()) {
-        <section class="px-6 py-8 sm:px-8">
-          <div class="mb-6">
-            <div class="flex items-center gap-3">
-              <div class="rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 p-2">
-                <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                  ></path>
-                </svg>
-              </div>
-              <div>
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Panel de Gestión</h2>
-                <p class="text-gray-600 dark:text-gray-300">Herramientas de gestión y supervisión operativa</p>
-              </div>
-            </div>
-          </div>
-
-          @defer (on viewport; prefetch on idle) {
-            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-              @if (reviewStatsLoading()) {
-                @for (i of [1, 2, 3, 4, 5, 6]; track i) {
-                  <div [tuiSkeleton]="true" class="h-48 w-full rounded-xl"></div>
-                }
-              } @else {
-                @for (stat of otherStats(); track stat.title) {
-                  <div class="transform transition-all duration-200 hover:scale-[1.02]">
-                    <z-card
-                      [mainTitle]="stat.title"
-                      [mainSubtitle]="stat.total + ' Acuerdos Totales'"
-                      [colData]="getCardColData(stat)"
-                      [progressPercentage]="stat.percentage_reviewed"
-                      [progressBarColor]="stat.color"
-                      [progressTextColor]="stat.textColor"
-                      [applyAnimatedBorder]="true"
-                      [icon]="stat.iconSvg!"
-                    ></z-card>
-                  </div>
-                }
-              }
-            </div>
-          } @placeholder {
-            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-              @for (i of [1, 2, 3, 4, 5, 6]; track i) {
-                <div [tuiSkeleton]="true" class="h-48 w-full rounded-xl"></div>
-              }
-            </div>
-          } @loading {
-            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-              @for (i of [1, 2, 3, 4, 5, 6]; track i) {
-                <div [tuiSkeleton]="true" class="h-48 w-full animate-pulse rounded-xl"></div>
-              }
-            </div>
+            <div class="h-40 w-full animate-pulse rounded-2xl bg-white/40 backdrop-blur-sm" [tuiSkeleton]="true"></div>
           }
         </section>
       }
@@ -227,123 +283,37 @@ import { ROLE } from '@zambia/util-roles-definitions';
 })
 export class PanelSmartComponent {
   protected roleService = inject(RoleService);
-  protected welcomeText = computed(() => this.roleService.getWelcomeText());
   protected dashboardFacade = inject(DashboardFacadeService);
+  private router = inject(Router);
 
-  protected reviewStatsLoading = computed(() => this.dashboardFacade.reviewStatsLoading());
   protected overallStat = computed(() => this.dashboardFacade.overallStat());
-  protected otherStats = computed(() => this.dashboardFacade.otherStats());
 
-  // Role-based access levels
-  protected userRole = computed(() => this.roleService.userRole());
-
-  // Role level detection (based on hierarchy from ROLES_CONSTANTS.ts)
+  // Role-based access control
   protected isExecutiveLevel = computed(() => {
-    const role = this.userRole();
-    return (
-      role === ROLE.SUPERADMIN || // level 100
-      role === ROLE.GENERAL_DIRECTOR || // level 90
-      role === ROLE.EXECUTIVE_LEADER || // level 90
-      role === ROLE.PEDAGOGICAL_LEADER || // level 80
-      role === ROLE.INNOVATION_LEADER || // level 80
-      role === ROLE.COMMUNICATION_LEADER || // level 80
-      role === ROLE.COMMUNITY_LEADER || // level 80
-      role === ROLE.COORDINATION_LEADER || // level 80
-      role === ROLE.LEGAL_ADVISOR || // level 80
-      role === ROLE.COORDINATOR || // level 70
-      role === ROLE.KONSEJO_MEMBER
-    ); // level 70
-  });
-
-  protected isManagerLevel = computed(() => {
-    const role = this.userRole();
-    return (
-      this.isExecutiveLevel() ||
-      role === ROLE.HEADQUARTER_MANAGER || // level 50
-      role === ROLE.PEDAGOGICAL_MANAGER || // level 40
-      role === ROLE.COMMUNICATION_MANAGER || // level 40
-      role === ROLE.COMPANION_DIRECTOR
-    ); // level 40
+    return this.roleService.isInAnyGroup(['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM']);
   });
 
   protected showGlobalStats = computed(() => {
     return this.roleService.isInAnyGroup(['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM', 'COORDINATION_TEAM']);
   });
 
-  // Quick actions based on role
-  protected quickActions = computed(() => {
-    const role = this.userRole();
-    const baseActions = [
-      {
-        title: 'Ver Perfil',
-        description: 'Gestiona tu información personal',
-        iconPath: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
-        iconBgClass: 'bg-gradient-to-r from-blue-500 to-blue-600',
-        bgClass: '',
-        hoverBg: 'bg-blue-500',
-      },
-    ];
-
-    if (this.isExecutiveLevel()) {
-      baseActions.unshift(
-        {
-          title: 'Reportes Ejecutivos',
-          description: 'Análisis y métricas estratégicas',
-          iconPath:
-            'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
-          iconBgClass: 'bg-gradient-to-r from-purple-500 to-pink-500',
-          bgClass: '',
-          hoverBg: 'bg-purple-500',
-        },
-        {
-          title: 'Panel Estratégico',
-          description: 'Vista global de la organización',
-          iconPath:
-            'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064',
-          iconBgClass: 'bg-gradient-to-r from-indigo-500 to-purple-500',
-          bgClass: '',
-          hoverBg: 'bg-indigo-500',
-        }
-      );
-    }
-
-    if (this.isManagerLevel()) {
-      baseActions.unshift(
-        {
-          title: 'Gestión de Equipos',
-          description: 'Supervisión y coordinación',
-          iconPath:
-            'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z',
-          iconBgClass: 'bg-gradient-to-r from-emerald-500 to-teal-500',
-          bgClass: '',
-          hoverBg: 'bg-emerald-500',
-        },
-        {
-          title: 'Acuerdos Pendientes',
-          description: 'Revisar y gestionar acuerdos',
-          iconPath:
-            'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
-          iconBgClass: 'bg-gradient-to-r from-orange-500 to-red-500',
-          bgClass: '',
-          hoverBg: 'bg-orange-500',
-        }
-      );
-    }
-
-    if (this.roleService.isInAnyGroup(['HEADQUARTERS_MANAGEMENT'])) {
-      baseActions.unshift({
-        title: 'Mi Sede',
-        description: 'Información de tu sede',
-        iconPath:
-          'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
-        iconBgClass: 'bg-gradient-to-r from-cyan-500 to-blue-500',
-        bgClass: '',
-        hoverBg: 'bg-cyan-500',
-      });
-    }
-
-    return baseActions.slice(0, 4); // Limit to 4 actions for layout
+  protected showAnalyticalReports = computed(() => {
+    return this.roleService.isInAnyGroup(['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM']);
   });
+
+  // Navigation methods
+  protected navigateToHomepage(): void {
+    this.router.navigate(['/homepage']);
+  }
+
+  protected navigateToProfile(): void {
+    this.router.navigate(['/profile']);
+  }
+
+  protected navigateToReports(): void {
+    // TODO: Implement reports route when reports feature is created
+    console.log('Navigate to analytical reports - feature pending');
+  }
 
   getCardColData(stat: ReviewStat): CardColumnData[] {
     return [
