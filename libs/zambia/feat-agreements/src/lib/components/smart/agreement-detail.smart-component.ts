@@ -11,10 +11,14 @@ import {
 import { CommonModule, NgClass } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AgreementDetails, AgreementsFacadeService } from '../../services/agreements-facade.service';
-import { TuiSkeleton } from '@taiga-ui/kit';
+import { TuiSkeleton, TuiBreadcrumbs } from '@taiga-ui/kit';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { TuiIcon } from '@taiga-ui/core';
+import { TuiIcon, TuiButton, TuiLink, TuiDialogService } from '@taiga-ui/core';
+import { TuiItem } from '@taiga-ui/cdk';
 import { ICONS } from '@zambia/util-constants';
+import { ConfirmationModalUiComponent, ConfirmationData, injectCurrentTheme } from '@zambia/ui-components';
+import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
+import { NotificationService } from '@zambia/data-access-generic';
 
 interface TableRow {
   key: string;
@@ -25,122 +29,308 @@ interface TableRow {
 @Component({
   selector: 'z-agreement-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, TuiSkeleton, NgClass, TranslatePipe, TuiIcon],
+  imports: [
+    CommonModule,
+    RouterModule,
+    TuiSkeleton,
+    NgClass,
+    TranslatePipe,
+    TuiIcon,
+    TuiButton,
+    TuiLink,
+    TuiBreadcrumbs,
+    TuiItem,
+  ],
   template: `
-    <div class="w-full bg-gray-50 p-6 dark:bg-gray-900">
-      <div class="mb-4">
-        <a
-          routerLink="/dashboard/agreements"
-          class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-        >
-          &larr; {{ 'back.to.agreements' | translate }}
-        </a>
-      </div>
-
+    <div class="min-h-screen bg-gray-50 dark:bg-slate-800">
       @if (agreementsFacade.isDetailLoading()) {
-        <div class="rounded-lg bg-white p-6 shadow-md dark:bg-slate-800">
-          <div class="space-y-4">
-            <div [tuiSkeleton]="true" class="h-8 w-1/2"></div>
-            <div [tuiSkeleton]="true" class="h-4 w-full"></div>
-            <div [tuiSkeleton]="true" class="h-4 w-full"></div>
-            <div [tuiSkeleton]="true" class="h-4 w-full"></div>
+        <!-- Loading State -->
+        <div class="container mx-auto px-6 py-8">
+          <div
+            class="rounded-2xl border border-gray-200/50 bg-white/90 p-8 shadow-lg shadow-gray-900/5 backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20"
+          >
+            <div class="space-y-6">
+              <div [tuiSkeleton]="true" class="h-8 w-1/3"></div>
+              <div [tuiSkeleton]="true" class="h-12 w-2/3"></div>
+              <div class="grid gap-4 md:grid-cols-2">
+                <div [tuiSkeleton]="true" class="h-32"></div>
+                <div [tuiSkeleton]="true" class="h-32"></div>
+              </div>
+            </div>
           </div>
         </div>
       } @else if (agreementData()) {
-        <!-- Page Headings: With Details and Actions -->
-        <div class="mb-8 flex flex-col items-center gap-4 text-center md:flex-row md:justify-between md:text-left">
-          <!-- Heading -->
-          <div>
-            <h2 class="mb-2 text-2xl font-extrabold md:text-3xl">
-              {{ agreementData()!.name }} {{ agreementData()!.last_name }}
-            </h2>
-            <ul
-              class="inline-flex list-none flex-wrap items-center justify-center gap-3 text-sm font-medium text-gray-600 md:justify-start dark:text-gray-400"
-            >
-              <li class="inline-flex items-center gap-1.5">
-                <tui-icon [icon]="ICONS.USERS" class="opacity-50"></tui-icon>
-                <span>{{ 'agreement' | translate }}</span>
-              </li>
-              @if (agreementData()!.roles?.name) {
-                <li class="inline-flex items-center gap-1.5">
-                  <tui-icon [icon]="ICONS.LEADER" class="opacity-50"></tui-icon>
-                  <span>{{ agreementData()!.roles?.name }} ({{ agreementData()!.roles?.code }})</span>
-                </li>
-              }
-              @if (agreementData()!.headquarters?.name) {
-                <li class="inline-flex items-center gap-1.5">
-                  <tui-icon [icon]="ICONS.HEADQUARTERS" class="opacity-50"></tui-icon>
-                  <span>{{ agreementData()!.headquarters?.name }}</span>
-                </li>
-              }
-              <li class="inline-flex items-center gap-1.5">
-                <tui-icon [icon]="'tuiIconActivity'" class="opacity-50"></tui-icon>
-                <span
-                  class="inline-flex rounded-full px-2 text-xs leading-5 font-semibold"
-                  [ngClass]="
-                    agreementData()!.status === 'active'
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                      : agreementData()!.status === 'graduated'
-                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                        : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
-                  "
+        <!-- Breadcrumb Navigation -->
+        <div class="border-b border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <div class="container mx-auto px-6 py-4">
+            <tui-breadcrumbs>
+              <a *tuiItem routerLink="/dashboard" tuiLink iconStart="@tui.house">
+                {{ 'dashboard' | translate }}
+              </a>
+              <a *tuiItem routerLink="/dashboard/agreements" tuiLink>
+                {{ 'agreements' | translate }}
+              </a>
+              <span *tuiItem> {{ agreementData()?.name }} {{ agreementData()?.last_name }} </span>
+            </tui-breadcrumbs>
+          </div>
+        </div>
+
+        <!-- Enhanced Header with Status Indicators -->
+        <div class="container mx-auto px-6 py-8">
+          <div
+            class="mb-8 rounded-2xl border border-gray-200/50 bg-white/90 p-8 shadow-lg shadow-gray-900/5 backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20"
+          >
+            <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+              <!-- User Identity & Primary Info -->
+              <div class="flex items-center gap-6">
+                <!-- Avatar/Initial Circle -->
+                <div
+                  class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-2xl font-bold text-white shadow-lg shadow-emerald-500/25"
                 >
-                  {{ agreementData()!.status || '' | translate }}
-                </span>
-              </li>
-              @if (agreementData()!.seasons?.name) {
-                <li class="inline-flex items-center gap-1.5">
-                  <tui-icon [icon]="'tuiIconCalendar'" class="opacity-50"></tui-icon>
-                  <span>{{ 'season' | translate }}: {{ agreementData()!.seasons?.name }}</span>
-                </li>
-              }
-            </ul>
+                  {{ getInitials(agreementData()?.name, agreementData()?.last_name) }}
+                </div>
+
+                <!-- Primary Information -->
+                <div>
+                  <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                    {{ agreementData()?.name }} {{ agreementData()?.last_name }}
+                  </h1>
+                  <div class="mt-2 flex flex-wrap items-center gap-4">
+                    <!-- Role Badge -->
+                    <span
+                      class="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                    >
+                      <tui-icon [icon]="ICONS.LEADER" size="xs" />
+                      {{ agreementData()?.roles?.name }}
+                    </span>
+
+                    <!-- Status Badge -->
+                    <span
+                      class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1 text-sm font-medium"
+                      [ngClass]="getStatusBadgeClasses(agreementData()?.status)"
+                    >
+                      <div class="h-2 w-2 rounded-full bg-current"></div>
+                      {{ agreementData()?.status | translate }}
+                    </span>
+
+                    <!-- Location Badge -->
+                    <span
+                      class="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-1 text-sm font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                    >
+                      <tui-icon [icon]="ICONS.HEADQUARTERS" size="xs" />
+                      {{ agreementData()?.headquarters?.name }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex gap-3">
+                <!-- Edit Agreement -->
+                <button
+                  tuiButton
+                  appearance="secondary"
+                  size="m"
+                  iconStart="@tui.edit"
+                  [attr.tuiTheme]="currentTheme()"
+                  (click)="onEditAgreement()"
+                  class="border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                >
+                  {{ 'edit_agreement' | translate }}
+                </button>
+
+                <!-- Activate/Deactivate -->
+                <button
+                  tuiButton
+                  [appearance]="agreementData()?.status === 'active' ? 'destructive' : 'primary'"
+                  size="m"
+                  [iconStart]="getActionIcon(agreementData()?.status)"
+                  [attr.tuiTheme]="currentTheme()"
+                  (click)="onToggleAgreementStatus()"
+                  [disabled]="isProcessing()"
+                  [ngClass]="getActionButtonClasses(agreementData()?.status)"
+                >
+                  {{ getActionText(agreementData()?.status) | translate }}
+                </button>
+              </div>
+            </div>
           </div>
-          <!-- END Heading -->
 
-          <!-- Actions -->
-          <div class="flex flex-none flex-wrap items-center justify-center gap-2 sm:justify-end">
-            <button
-              type="button"
-              class="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm leading-5 font-semibold text-gray-800 hover:border-gray-300 hover:text-gray-900 hover:shadow-xs focus:ring-3 focus:ring-gray-300/25 active:border-gray-200 active:shadow-none dark:border-gray-700 dark:bg-transparent dark:text-gray-300 dark:hover:border-gray-600 dark:hover:text-gray-200 dark:focus:ring-gray-600/40 dark:active:border-gray-700"
-            >
-              <tui-icon [icon]="'pencil'" class="opacity-50"></tui-icon>
-              <span>{{ 'edit' | translate }}</span>
-            </button>
+          <!-- Information Dashboard Grid -->
+          <div class="grid gap-8 lg:grid-cols-3">
+            <!-- Personal Information Card -->
+            <div class="lg:col-span-2">
+              <div
+                class="rounded-2xl border border-gray-200/50 bg-white/90 p-6 shadow-lg shadow-gray-900/5 backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20"
+              >
+                <h2 class="mb-6 flex items-center gap-2 text-xl font-semibold text-gray-900 dark:text-white">
+                  <tui-icon [icon]="ICONS.USERS" class="text-blue-600" size="s" />
+                  {{ 'personal_information' | translate }}
+                </h2>
+
+                <div class="grid gap-6 sm:grid-cols-2">
+                  @for (item of personalInformation(); track item.key) {
+                    <div class="space-y-1">
+                      <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        {{ item.translationKey | translate }}
+                      </dt>
+                      <dd class="text-sm text-gray-900 dark:text-white">
+                        {{ item.value || ('N/A' | translate) }}
+                      </dd>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Stats Sidebar -->
+            <div class="space-y-6">
+              <!-- Agreement Status Overview -->
+              <div
+                class="rounded-2xl border border-gray-200/50 bg-white/90 p-6 shadow-lg shadow-gray-900/5 backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20"
+              >
+                <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
+                  <tui-icon [icon]="ICONS.AGREEMENTS" class="text-emerald-600" size="s" />
+                  {{ 'agreement_status' | translate }}
+                </h3>
+
+                <div class="space-y-4">
+                  @for (item of agreementStatusItems(); track item.key) {
+                    <div class="flex items-center justify-between">
+                      <span class="text-sm text-gray-600 dark:text-gray-300">{{ item.label | translate }}</span>
+                      <span
+                        class="inline-flex items-center gap-1 text-sm font-medium"
+                        [ngClass]="item.value ? 'text-emerald-600' : 'text-red-600'"
+                      >
+                        <tui-icon [icon]="item.value ? '@tui.check-circle' : '@tui.x-circle'" size="xs" />
+                        {{ (item.value ? 'yes' : 'no') | translate }}
+                      </span>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Timeline Card -->
+              <div
+                class="rounded-2xl border border-gray-200/50 bg-white/90 p-6 shadow-lg shadow-gray-900/5 backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20"
+              >
+                <h3 class="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
+                  <tui-icon icon="@tui.clock" class="text-purple-600" size="s" />
+                  {{ 'timeline' | translate }}
+                </h3>
+
+                <div class="space-y-3">
+                  <div class="flex items-center gap-3">
+                    <div class="h-2 w-2 rounded-full bg-blue-500"></div>
+                    <div>
+                      <p class="text-sm font-medium text-gray-900 dark:text-white">{{ 'created' | translate }}</p>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">
+                        {{ agreementData()?.created_at | date: 'mediumDate' }}
+                      </p>
+                    </div>
+                  </div>
+
+                  @if (agreementData()?.seasons?.start_date) {
+                    <div class="flex items-center gap-3">
+                      <div class="h-2 w-2 rounded-full bg-emerald-500"></div>
+                      <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">
+                          {{ 'season_start' | translate }}
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                          {{ agreementData()?.seasons?.start_date | date: 'mediumDate' }}
+                        </p>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
           </div>
-          <!-- END Actions -->
-        </div>
-        <!-- END Page Headings: With Details and Actions -->
 
-        <!-- Personal Information -->
-        <div class="mb-6">
-          <h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">
-            {{ 'personal.information' | translate }}
-          </h3>
-        </div>
+          <!-- Location & Context Information -->
+          <div
+            class="mt-8 rounded-2xl border border-gray-200/50 bg-white/90 p-6 shadow-lg shadow-gray-900/5 backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20"
+          >
+            <h2 class="mb-6 flex items-center gap-2 text-xl font-semibold text-gray-900 dark:text-white">
+              <tui-icon icon="@tui.map" class="text-cyan-600" size="s" />
+              {{ 'location_context' | translate }}
+            </h2>
 
-        <!-- Agreement Information -->
-        <div class="mb-6">
-          <h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">
-            {{ 'agreement.information' | translate }}
-          </h3>
-        </div>
+            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              <!-- Headquarter Info -->
+              <div class="rounded-xl bg-cyan-50 p-4 dark:bg-cyan-900/20">
+                <div class="flex items-center gap-3">
+                  <tui-icon [icon]="ICONS.HEADQUARTERS" class="text-cyan-600" size="s" />
+                  <div>
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ 'headquarter' | translate }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">{{ agreementData()?.headquarters?.name }}</p>
+                  </div>
+                </div>
+              </div>
 
-        <!-- Location Information -->
-        <div class="mb-6">
-          <h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">
-            {{ 'location.information' | translate }}
-          </h3>
+              <!-- Country Info -->
+              <div class="rounded-xl bg-blue-50 p-4 dark:bg-blue-900/20">
+                <div class="flex items-center gap-3">
+                  <tui-icon [icon]="ICONS.COUNTRIES" class="text-blue-600" size="s" />
+                  <div>
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ 'country' | translate }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">
+                      {{ agreementData()?.headquarters?.countries?.name }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Season Info -->
+              <div class="rounded-xl bg-purple-50 p-4 dark:bg-purple-900/20">
+                <div class="flex items-center gap-3">
+                  <tui-icon icon="@tui.calendar" class="text-purple-600" size="s" />
+                  <div>
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ 'season' | translate }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">{{ agreementData()?.seasons?.name }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Role Info -->
+              <div class="rounded-xl bg-emerald-50 p-4 dark:bg-emerald-900/20">
+                <div class="flex items-center gap-3">
+                  <tui-icon [icon]="ICONS.LEADER" class="text-emerald-600" size="s" />
+                  <div>
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ 'role' | translate }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">{{ agreementData()?.roles?.name }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       } @else if (agreementsFacade.detailLoadingError()) {
-        <div class="rounded border-l-4 border-red-400 bg-red-50 p-4 dark:border-red-500 dark:bg-red-900/30">
-          <p class="text-red-700 dark:text-red-300">
-            {{ 'failed.to.load.agreement' | translate }}: {{ agreementsFacade.detailLoadingError() }}
-          </p>
+        <div class="container mx-auto px-6 py-8">
+          <div class="rounded-xl border border-red-200/50 bg-red-50 p-6 dark:border-red-800/50 dark:bg-red-900/20">
+            <div class="flex items-center gap-3">
+              <tui-icon icon="@tui.alert-circle" class="text-xl text-red-600 dark:text-red-400"></tui-icon>
+              <div>
+                <h3 class="font-semibold text-red-800 dark:text-red-200">
+                  {{ 'failed.to.load.agreement' | translate }}
+                </h3>
+                <p class="text-red-700 dark:text-red-300">{{ agreementsFacade.detailLoadingError() }}</p>
+              </div>
+            </div>
+          </div>
         </div>
       } @else {
-        <div class="rounded border-l-4 border-red-400 bg-red-50 p-4 dark:border-red-500 dark:bg-red-900/30">
-          <p class="text-red-700 dark:text-red-300">{{ 'agreement.not.found' | translate }}</p>
+        <div class="container mx-auto px-6 py-8">
+          <div class="rounded-xl border border-red-200/50 bg-red-50 p-6 dark:border-red-800/50 dark:bg-red-900/20">
+            <div class="flex items-center gap-3">
+              <tui-icon icon="@tui.alert-circle" class="text-xl text-red-600 dark:text-red-400"></tui-icon>
+              <div>
+                <h3 class="font-semibold text-red-800 dark:text-red-200">{{ 'agreement.not.found' | translate }}</h3>
+                <p class="text-red-700 dark:text-red-300">{{ 'agreement.not.found' | translate }}</p>
+              </div>
+            </div>
+          </div>
         </div>
       }
     </div>
@@ -158,8 +348,15 @@ interface TableRow {
 export class AgreementDetailSmartComponent {
   agreementsFacade = inject(AgreementsFacadeService);
   translate = inject(TranslateService);
+  dialogs = inject(TuiDialogService);
+  notificationService = inject(NotificationService);
+
   agreementId = input.required<string>();
   agreementData: WritableSignal<AgreementDetails | null> = signal(null);
+  isProcessing = signal(false);
+
+  // UI properties
+  currentTheme = injectCurrentTheme();
   ICONS = ICONS;
 
   constructor() {
@@ -199,6 +396,108 @@ export class AgreementDetailSmartComponent {
       { key: 'created_at', value: data.created_at, translationKey: 'created.at' },
     ];
   });
+
+  // UI Helper Methods
+  getInitials(firstName: string | undefined, lastName: string | undefined): string {
+    if (!firstName || !lastName) return '??';
+    return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+  }
+
+  getStatusBadgeClasses(status: string | undefined): string {
+    switch (status) {
+      case 'active':
+        return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300';
+      case 'graduated':
+        return 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300';
+      case 'inactive':
+        return 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300';
+      default:
+        return 'bg-gray-50 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300';
+    }
+  }
+
+  getActionButtonClasses(status: string | undefined): string {
+    const isActive = status === 'active';
+    return isActive
+      ? 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 dark:bg-red-700 dark:hover:bg-red-800'
+      : 'bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500 dark:bg-emerald-700 dark:hover:bg-emerald-800';
+  }
+
+  getActionIcon(status: string | undefined): string {
+    return status === 'active' ? '@tui.pause' : '@tui.play';
+  }
+
+  getActionText(status: string | undefined): string {
+    return status === 'active' ? 'deactivate_agreement' : 'activate_agreement';
+  }
+
+  // Agreement Status Items for Quick View
+  agreementStatusItems = computed(() => {
+    const data = this.agreementData();
+    if (!data) return [];
+
+    return [
+      { key: 'ethical_document', label: 'ethical_document_agreement', value: data.ethical_document_agreement },
+      { key: 'mailing', label: 'mailing_agreement', value: data.mailing_agreement },
+      { key: 'volunteering', label: 'volunteering_agreement', value: data.volunteering_agreement },
+      { key: 'age_verification', label: 'age_verification', value: data.age_verification },
+    ];
+  });
+
+  // Action Handlers
+  onEditAgreement(): void {
+    // Navigate to edit form or open modal
+    console.log('Edit agreement:', this.agreementData()?.id);
+    this.notificationService.showInfo(this.translate.instant('feature_coming_soon'));
+  }
+
+  async onToggleAgreementStatus(): Promise<void> {
+    const agreement = this.agreementData();
+    if (!agreement) return;
+
+    const isCurrentlyActive = agreement.status === 'active';
+    const action = isCurrentlyActive ? 'deactivate' : 'activate';
+
+    // Show confirmation modal
+    const confirmed = await this.showConfirmationModal(`${action}_agreement_confirmation`, {
+      name: `${agreement.name} ${agreement.last_name}`,
+    });
+
+    if (confirmed) {
+      try {
+        this.isProcessing.set(true);
+        if (isCurrentlyActive) {
+          await this.agreementsFacade.deactivateAgreement(agreement.id);
+        } else {
+          await this.agreementsFacade.activateAgreement(agreement.id);
+        }
+        // Reload data
+        this.agreementsFacade.loadAgreementById();
+      } catch (error) {
+        console.error(`Failed to ${action} agreement:`, error);
+      } finally {
+        this.isProcessing.set(false);
+      }
+    }
+  }
+
+  private async showConfirmationModal(messageKey: string, params: Record<string, string>): Promise<boolean> {
+    return new Promise((resolve) => {
+      const dialogRef = this.dialogs.open<boolean>(new PolymorpheusComponent(ConfirmationModalUiComponent), {
+        data: {
+          title: this.translate.instant('confirm'),
+          message: this.translate.instant(messageKey, params),
+          confirmText: this.translate.instant('confirm'),
+          cancelText: this.translate.instant('cancel'),
+        } as ConfirmationData,
+        size: 'm',
+      });
+
+      dialogRef.subscribe((result) => {
+        resolve(!!result);
+      });
+    });
+  }
 
   locationInformation = computed<TableRow[]>(() => {
     const data = this.agreementData();

@@ -1,5 +1,16 @@
-import { computed, inject, Injectable, linkedSignal, resource, signal, WritableSignal } from '@angular/core';
+import {
+  computed,
+  inject,
+  Injectable,
+  linkedSignal,
+  resource,
+  signal,
+  WritableSignal,
+  ResourceLoaderParams,
+} from '@angular/core';
 import { SupabaseService } from '@zambia/data-access-supabase';
+import { RoleService } from '@zambia/data-access-roles-permissions';
+import { AkademyEdgeFunctionsService, NotificationService } from '@zambia/data-access-generic';
 import { Database } from '@zambia/types-supabase';
 
 export type Agreement = Database['public']['Tables']['agreements']['Row'];
@@ -28,14 +39,42 @@ export interface AgreementFormData {
   age_verification: boolean | null;
 }
 
-// For the list of agreements
-export interface AgreementWithShallowRelations extends Agreement {
-  headquarters?: Pick<Headquarter, 'name'> & {
-    // headquarter is expected to be present
-    countries?: Pick<Country, 'name'>; // country is expected to be present within headquarter
-  };
-  roles?: Pick<Role, 'name' | 'code'>;
-  seasons?: Pick<Season, 'name'>;
+// Role information from the view
+export interface RoleInAgreement {
+  role_id: string;
+  role_name: string;
+  role_description: string | null;
+  role_code: string;
+  role_level: number;
+}
+
+// For the list of agreements from agreement_with_role view
+export interface AgreementWithShallowRelations {
+  id: string;
+  name: string | null;
+  last_name: string | null;
+  email: string;
+  phone: string | null;
+  document_number: string | null;
+  birth_date: string | null;
+  gender: string | null;
+  address: string | null;
+  headquarter_id: string;
+  role_id: string;
+  season_id: string;
+  status: string | null;
+  ethical_document_agreement: boolean | null;
+  mailing_agreement: boolean | null;
+  volunteering_agreement: boolean | null;
+  age_verification: boolean | null;
+  created_at: string | null;
+  updated_at: string | null;
+  user_id: string | null;
+  role: RoleInAgreement | null;
+  // These are flattened from joins in the view
+  headquarter_name?: string;
+  country_name?: string;
+  season_name?: string;
 }
 
 // For a single agreement by ID
@@ -47,14 +86,56 @@ export interface AgreementDetails extends Agreement {
   seasons?: Pick<Season, 'id' | 'name' | 'start_date' | 'end_date'>;
 }
 
+export interface PaginationMetadata {
+  total: number;
+  limit: number;
+  offset: number;
+  page: number;
+  pages: number;
+}
+
+export interface PaginatedAgreements {
+  data: AgreementWithShallowRelations[];
+  pagination: PaginationMetadata;
+}
+
+export interface AgreementsRpcParams {
+  p_limit: number;
+  p_offset: number;
+  p_status?: string;
+  p_headquarter_id?: string;
+  p_season_id?: string;
+  p_search?: string;
+  p_role_id?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class AgreementsFacadeService {
   private supabase = inject(SupabaseService);
+  private roleService = inject(RoleService);
+  private akademyEdgeFunctionsService = inject(AkademyEdgeFunctionsService);
+  private notificationService = inject(NotificationService);
+
   agreementId: WritableSignal<string> = signal('');
   agreementsResource = linkedSignal(() => this.agreements.value() ?? []);
   agreementByIdResource = linkedSignal(() => this.agreementById.value() ?? null);
+
+  // Pagination signals
+  currentPage = signal(1);
+  pageSize = signal(10);
+  totalItems = signal(0);
+  isLoading = signal(false);
+  status = signal<string | null>(null);
+  headquarterId = signal<string | null>(null);
+  seasonId = signal<string | null>(null);
+  search = signal<string | null>(null);
+
+  // Computed properties
+  totalPages = computed(() => Math.ceil(this.totalItems() / this.pageSize()));
+  hasNextPage = computed(() => this.currentPage() < this.totalPages());
+  hasPrevPage = computed(() => this.currentPage() > 1);
 
   // Form state management
   isEditing = signal<boolean>(false);
@@ -62,27 +143,75 @@ export class AgreementsFacadeService {
   saveError = signal<string | null>(null);
   saveSuccess = signal<boolean>(false);
 
-  agreements = resource({
-    loader: async () => {
-      const { data, error } = await this.supabase
-        .getClient()
-        .from('agreements')
-        // Fetch countries through headquarters: headquarters!inner(name, countries!inner(name))
-        // The !inner ensures that headquarters and countries within them must exist.
-        .select('*, headquarters!inner(name, countries!inner(name)), roles(name, code), seasons(name)')
-        .order('created_at', { ascending: false });
+  // Paginated agreements resource
+  private agreementsParams = computed<AgreementsRpcParams>(() => {
+    const params: AgreementsRpcParams = {
+      p_limit: this.pageSize(),
+      p_offset: (this.currentPage() - 1) * this.pageSize(),
+    };
 
-      if (error) {
-        console.error('Error fetching agreements:', error);
-        throw error;
+    const status = this.status();
+    if (status) params.p_status = status;
+
+    const headquarterId = this.headquarterId();
+    if (headquarterId) params.p_headquarter_id = headquarterId;
+
+    const seasonId = this.seasonId();
+    if (seasonId) params.p_season_id = seasonId;
+
+    const search = this.search();
+    if (search) params.p_search = search;
+
+    // TODO: Get current user role ID from auth context
+    // if (roleId) params.p_role_id = roleId;
+
+    return params;
+  });
+
+  agreements = resource<PaginatedAgreements, AgreementsRpcParams>({
+    request: () => this.agreementsParams(),
+    loader: async ({ request }: ResourceLoaderParams<AgreementsRpcParams>): Promise<PaginatedAgreements> => {
+      this.isLoading.set(true);
+      try {
+        const { data, error } = await this.supabase.getClient().rpc('get_agreements_with_role_paginated', request);
+
+        if (error) {
+          console.error('Error fetching agreements:', error);
+          throw error;
+        }
+
+        const response = data as unknown as { data: AgreementWithShallowRelations[]; pagination: PaginationMetadata };
+
+        if (!response || !response.data || !response.pagination) {
+          console.warn('Received unexpected data structure from get_agreements_with_role_paginated RPC.');
+          return {
+            data: [],
+            pagination: {
+              total: 0,
+              limit: request.p_limit,
+              offset: request.p_offset,
+              page: Math.floor(request.p_offset / request.p_limit) + 1,
+              pages: 0,
+            },
+          };
+        }
+
+        this.totalItems.set(response.pagination.total);
+        return response;
+      } finally {
+        this.isLoading.set(false);
       }
-      return data as AgreementWithShallowRelations[];
     },
   });
 
   agreementById = resource({
     request: () => ({ agreementId: this.agreementId() }),
     loader: async ({ request }) => {
+      // Don't fetch if agreementId is empty
+      if (!request.agreementId) {
+        return null;
+      }
+
       const { data, error } = await this.supabase
         .getClient()
         .from('agreements')
@@ -233,6 +362,71 @@ export class AgreementsFacadeService {
     });
   }
 
+  // Agreement activation/deactivation methods
+  async activateAgreement(agreementId: string): Promise<void> {
+    try {
+      this.isLoading.set(true);
+
+      // TODO: Implement agreement activation via edge function
+      // For now, we'll update locally
+      const { error } = await this.supabase
+        .getClient()
+        .from('agreements')
+        .update({ status: 'active' })
+        .eq('id', agreementId);
+
+      const result = { success: !error, error: error?.message };
+
+      if (result.success) {
+        this.notificationService.showSuccess('Agreement activated successfully');
+        // Refresh data
+        this.agreements.reload();
+        if (this.agreementId() === agreementId) {
+          this.agreementById.reload();
+        }
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      this.notificationService.showError('Failed to activate agreement');
+      throw error;
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  async deactivateAgreement(agreementId: string): Promise<void> {
+    try {
+      this.isLoading.set(true);
+
+      // TODO: Implement agreement deactivation via edge function
+      // For now, we'll update locally
+      const { error } = await this.supabase
+        .getClient()
+        .from('agreements')
+        .update({ status: 'inactive' })
+        .eq('id', agreementId);
+
+      const result = { success: !error, error: error?.message };
+
+      if (result.success) {
+        this.notificationService.showSuccess('Agreement deactivated successfully');
+        // Refresh data
+        this.agreements.reload();
+        if (this.agreementId() === agreementId) {
+          this.agreementById.reload();
+        }
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      this.notificationService.showError('Failed to deactivate agreement');
+      throw error;
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
   // Create a new agreement
   async createAgreement(formData: AgreementFormData) {
     try {
@@ -332,7 +526,66 @@ export class AgreementsFacadeService {
     }
   }
 
-  isLoading = computed(() => this.agreements.isLoading());
+  // Pagination methods
+  onPageChange = (page: number) => {
+    this.currentPage.set(page);
+  };
+
+  onPageSizeChange = (size: number) => {
+    this.pageSize.set(size);
+    this.currentPage.set(1);
+  };
+
+  updateFilters(
+    filters: Partial<{
+      status: string | null;
+      headquarterId: string | null;
+      seasonId: string | null;
+      search: string | null;
+    }>
+  ): void {
+    if (filters.status !== undefined) this.status.set(filters.status);
+    if (filters.headquarterId !== undefined) this.headquarterId.set(filters.headquarterId);
+    if (filters.seasonId !== undefined) this.seasonId.set(filters.seasonId);
+    if (filters.search !== undefined) this.search.set(filters.search);
+
+    this.currentPage.set(1);
+  }
+
+  // Export functionality for all agreements
+  async exportAgreements(): Promise<AgreementWithShallowRelations[]> {
+    const exportParams: AgreementsRpcParams = {
+      p_limit: this.totalItems() || 1000, // Export all or max 1000
+      p_offset: 0,
+    };
+
+    const status = this.status();
+    if (status) exportParams.p_status = status;
+
+    const headquarterId = this.headquarterId();
+    if (headquarterId) exportParams.p_headquarter_id = headquarterId;
+
+    const seasonId = this.seasonId();
+    if (seasonId) exportParams.p_season_id = seasonId;
+
+    const search = this.search();
+    if (search) exportParams.p_search = search;
+
+    // TODO: Get current user role ID from auth context
+    // if (roleId) exportParams.p_role_id = roleId;
+
+    const { data, error } = await this.supabase.getClient().rpc('get_agreements_with_role_paginated', exportParams);
+
+    if (error) {
+      console.error('Error exporting agreements:', error);
+      throw error;
+    }
+
+    const typedData = data as unknown as { data: AgreementWithShallowRelations[] };
+    return typedData?.data || [];
+  }
+
+  isAgreementsLoading = computed(() => this.agreements.isLoading() || this.isLoading());
   loadingError = computed(() => this.agreements.error);
 
   isDetailLoading = computed(() => this.agreementById.isLoading());

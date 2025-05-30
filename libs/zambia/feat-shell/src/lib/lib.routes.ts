@@ -1,11 +1,10 @@
 import { Route } from '@angular/router';
 import { ShellSmartComponent } from './components/smart/shell/shell.smart-component';
-import { AuthSmartComponent } from '@zambia/feat-auth';
 
 const childRoutes: Route[] = [
   {
     path: '',
-    redirectTo: 'login',
+    redirectTo: 'dashboard',
     pathMatch: 'full',
   },
   {
@@ -13,12 +12,8 @@ const childRoutes: Route[] = [
     loadChildren: () => import('@zambia/feat-dashboard').then((mod) => mod.zambiaFeatDashboardRoutes),
   },
   {
-    path: 'login',
-    component: AuthSmartComponent,
-  },
-  {
     path: '**',
-    redirectTo: 'login',
+    redirectTo: 'dashboard',
   },
 ];
 
