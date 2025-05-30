@@ -334,7 +334,7 @@ npx nx reset
 
 ```bash
 # Enable MCP for enhanced AI capabilities
-npx nx-mcp@latest /home/mcpo/developer/zambia
+npx nx-mcp@latest /mnt/c/Developer/zambia
 
 # Available AI tools via MCP:
 # - nx_workspace: Project graph and configuration

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { RouterOutlet } from '@angular/router';
@@ -9,12 +9,12 @@ import { TuiSkeleton } from '@taiga-ui/kit';
 @Component({
   selector: 'z-shell',
   imports: [CommonModule, AuthSmartComponent, RouterOutlet, TuiSkeleton],
+  changeDetection: ChangeDetectionStrategy.Default,
   template: `
     <main
       class="bg-linear-to-r from-red-500 via-orange-400 to-yellow-400 dark:via-none dark:from-blue-500 dark:to-teal-400"
     >
       @if (authService.loading()) {
-        <!-- Mostrar un loading mientras verifica la sesión -->
         <div class="flex h-screen items-center justify-center">
           <div class="text-center">
             <div

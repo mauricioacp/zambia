@@ -4,7 +4,7 @@ import { ShellSmartComponent } from './components/smart/shell/shell.smart-compon
 const childRoutes: Route[] = [
   {
     path: '',
-    redirectTo: 'dashboard',
+    redirectTo: 'dashboard/homepage',
     pathMatch: 'full',
   },
   {

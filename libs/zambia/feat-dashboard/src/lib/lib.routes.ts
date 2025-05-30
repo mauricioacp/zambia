@@ -9,7 +9,7 @@ export const zambiaFeatDashboardRoutes: Route[] = [
   {
     path: '',
     component: DashboardSmartComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, roleGuard],
     children: [
       {
         path: '',
@@ -18,17 +18,14 @@ export const zambiaFeatDashboardRoutes: Route[] = [
       },
       {
         path: 'homepage',
-        canActivate: [authGuard],
         loadChildren: () => import('@zambia/feat-homepage').then((mod) => mod.featHomepageRoutes),
       },
       {
         path: 'profile',
-        canActivate: [authGuard],
         loadChildren: () => import('@zambia/feat-profile').then((mod) => mod.featProfileRoutes),
       },
       {
         path: 'panel',
-        canActivate: [authGuard, roleGuard],
         data: {
           groups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'],
         },
@@ -36,7 +33,6 @@ export const zambiaFeatDashboardRoutes: Route[] = [
       },
       {
         path: 'showcase',
-        canActivate: [authGuard, roleGuard],
         data: {
           groups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'],
         },
@@ -44,7 +40,6 @@ export const zambiaFeatDashboardRoutes: Route[] = [
       },
       {
         path: 'countries',
-        canActivate: [authGuard, roleGuard],
         data: {
           groups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'],
         },
@@ -52,7 +47,6 @@ export const zambiaFeatDashboardRoutes: Route[] = [
       },
       {
         path: 'headquarters',
-        canActivate: [authGuard, roleGuard],
         data: {
           groups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'],
         },
@@ -60,7 +54,6 @@ export const zambiaFeatDashboardRoutes: Route[] = [
       },
       {
         path: 'agreements',
-        canActivate: [authGuard, roleGuard],
         data: {
           groups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM', 'HEADQUARTERS_MANAGEMENT'],
         },
@@ -68,7 +61,6 @@ export const zambiaFeatDashboardRoutes: Route[] = [
       },
       {
         path: 'workshops',
-        canActivate: [authGuard, roleGuard],
         data: {
           groups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM', 'HEADQUARTERS_MANAGEMENT'],
         },
@@ -76,7 +68,6 @@ export const zambiaFeatDashboardRoutes: Route[] = [
       },
       {
         path: 'students',
-        canActivate: [authGuard, roleGuard],
         data: {
           groups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'],
         },
@@ -84,7 +75,6 @@ export const zambiaFeatDashboardRoutes: Route[] = [
       },
       {
         path: 'collaborators',
-        canActivate: [authGuard, roleGuard],
         data: {
           groups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'],
         },
@@ -92,7 +82,6 @@ export const zambiaFeatDashboardRoutes: Route[] = [
       },
       {
         path: 'organizational-health',
-        canActivate: [authGuard, roleGuard],
         data: {
           groups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'],
         },
@@ -104,7 +93,7 @@ export const zambiaFeatDashboardRoutes: Route[] = [
       },
       {
         path: '**',
-        redirectTo: 'panel',
+        redirectTo: 'homepage',
       },
     ],
   },

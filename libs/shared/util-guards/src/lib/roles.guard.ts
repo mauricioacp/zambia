@@ -3,7 +3,7 @@ import { ActivatedRouteSnapshot, CanActivateFn, Router, UrlTree } from '@angular
 import { APP_CONFIG } from '@zambia/util-config';
 import { AuthService } from '@zambia/data-access-auth';
 import { RoleService } from '@zambia/data-access-roles-permissions';
-import { RoleCode, ROLE_GROUP } from '@zambia/util-roles-definitions';
+import { ROLE_GROUP, RoleCode } from '@zambia/util-roles-definitions';
 
 export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot): boolean | UrlTree => {
   const roleService = inject(RoleService);
@@ -16,7 +16,7 @@ export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot): boolean
   const requiredGroups = route.data['groups'] as ROLE_GROUP[] | undefined;
 
   if (authService.loading()) {
-    return false;
+    return true;
   }
 
   const userRole = roleService.userRole();
