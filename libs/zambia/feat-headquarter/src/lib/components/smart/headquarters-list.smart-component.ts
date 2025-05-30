@@ -294,7 +294,7 @@ export class HeadquartersListSmartComponent {
       inactive: headquarters.filter((h) => h.status === 'inactive').length,
       withManager: headquarters.filter((h) => {
         try {
-          const contactInfo = h.contact_info as any;
+          const contactInfo = h.contact_info as { managerId?: string } | null;
           return contactInfo && contactInfo.managerId;
         } catch {
           return false;

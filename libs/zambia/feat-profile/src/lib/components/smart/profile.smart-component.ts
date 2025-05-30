@@ -16,15 +16,7 @@ interface Headquarter {
 
 @Component({
   selector: 'z-profile',
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    TranslateModule,
-    TuiButton,
-    TuiSkeleton,
-    TuiIcon,
-  ],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, TuiButton, TuiSkeleton, TuiIcon],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-slate-900">
       <!-- Header Section -->
@@ -52,13 +44,7 @@ interface Headquarter {
               </div>
 
               <!-- Back Button -->
-              <button
-                tuiButton
-                appearance="secondary"
-                size="m"
-                (click)="goBack()"
-                [attr.aria-label]="'Volver'"
-              >
+              <button tuiButton appearance="secondary" size="m" (click)="goBack()" [attr.aria-label]="'Volver'">
                 <tui-icon icon="@tui.arrow-left" class="mr-2"></tui-icon>
                 Volver
               </button>
@@ -86,7 +72,9 @@ interface Headquarter {
                 class="rounded-2xl border border-gray-200/50 bg-white/90 p-6 shadow-lg shadow-gray-900/5 backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20"
               >
                 <div class="mb-6 flex items-center gap-3">
-                  <div class="rounded-xl bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 p-3 shadow-lg shadow-blue-500/25">
+                  <div
+                    class="rounded-xl bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 p-3 shadow-lg shadow-blue-500/25"
+                  >
                     <tui-icon icon="@tui.user" class="text-lg text-white"></tui-icon>
                   </div>
                   <div>
@@ -100,10 +88,11 @@ interface Headquarter {
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <!-- First Name -->
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label for="firstName" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                       {{ 'profile.firstName' | translate }}
                     </label>
                     <input
+                      id="firstName"
                       type="text"
                       formControlName="firstName"
                       class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500"
@@ -113,10 +102,11 @@ interface Headquarter {
 
                   <!-- Last Name -->
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label for="lastName" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                       {{ 'profile.lastName' | translate }}
                     </label>
                     <input
+                      id="lastName"
                       type="text"
                       formControlName="lastName"
                       class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500"
@@ -126,10 +116,11 @@ interface Headquarter {
 
                   <!-- Email (readonly) -->
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label for="email" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                       {{ 'profile.email' | translate }}
                     </label>
                     <input
+                      id="email"
                       type="email"
                       formControlName="email"
                       readonly
@@ -141,10 +132,11 @@ interface Headquarter {
 
                   <!-- Phone -->
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label for="phone" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                       {{ 'profile.phone' | translate }}
                     </label>
                     <input
+                      id="phone"
                       type="tel"
                       formControlName="phone"
                       class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500"
@@ -154,10 +146,11 @@ interface Headquarter {
 
                   <!-- Position -->
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label for="position" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                       {{ 'profile.position' | translate }}
                     </label>
                     <input
+                      id="position"
                       type="text"
                       formControlName="position"
                       class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500"
@@ -167,10 +160,11 @@ interface Headquarter {
 
                   <!-- Headquarter -->
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label for="headquarterId" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                       {{ 'profile.headquarter' | translate }}
                     </label>
                     <select
+                      id="headquarterId"
                       formControlName="headquarterId"
                       class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500"
                     >
@@ -188,7 +182,9 @@ interface Headquarter {
                 class="rounded-2xl border border-gray-200/50 bg-white/90 p-6 shadow-lg shadow-gray-900/5 backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20"
               >
                 <div class="mb-6 flex items-center gap-3">
-                  <div class="rounded-xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 p-3 shadow-lg shadow-emerald-500/25">
+                  <div
+                    class="rounded-xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 p-3 shadow-lg shadow-emerald-500/25"
+                  >
                     <tui-icon icon="@tui.file-text" class="text-lg text-white"></tui-icon>
                   </div>
                   <div>
@@ -202,10 +198,11 @@ interface Headquarter {
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
                   <!-- Agreement Type -->
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label for="agreementType" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                       {{ 'profile.agreementType' | translate }}
                     </label>
                     <select
+                      id="agreementType"
                       formControlName="agreementType"
                       class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500"
                     >
@@ -220,10 +217,11 @@ interface Headquarter {
 
                   <!-- Agreement Start Date -->
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label for="agreementStartDate" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                       {{ 'profile.agreementStartDate' | translate }}
                     </label>
                     <input
+                      id="agreementStartDate"
                       type="date"
                       formControlName="agreementStartDate"
                       class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500"
@@ -232,10 +230,11 @@ interface Headquarter {
 
                   <!-- Agreement Status -->
                   <div>
-                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label for="agreementStatus" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                       {{ 'profile.agreementStatus' | translate }}
                     </label>
                     <select
+                      id="agreementStatus"
                       formControlName="agreementStatus"
                       class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500"
                     >
@@ -250,8 +249,11 @@ interface Headquarter {
 
                 <!-- Role (readonly) -->
                 <div class="mt-6">
-                  <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Rol Organizacional</label>
+                  <label for="role" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >Rol Organizacional</label
+                  >
                   <input
+                    id="role"
                     type="text"
                     formControlName="role"
                     readonly
@@ -264,15 +266,7 @@ interface Headquarter {
 
               <!-- Actions -->
               <div class="flex justify-end gap-4">
-                <button
-                  type="button"
-                  tuiButton
-                  appearance="secondary"
-                  size="m"
-                  (click)="goBack()"
-                >
-                  Cancelar
-                </button>
+                <button type="button" tuiButton appearance="secondary" size="m" (click)="goBack()">Cancelar</button>
                 <button
                   type="submit"
                   tuiButton
@@ -333,11 +327,11 @@ export class ProfileSmartComponent implements OnInit {
   private async loadProfile(): Promise<void> {
     try {
       this.isLoading.set(true);
-      
-      const { data: { user }, error: userError } = await this.supabaseService
-        .getClient()
-        .auth
-        .getUser();
+
+      const {
+        data: { user },
+        error: userError,
+      } = await this.supabaseService.getClient().auth.getUser();
 
       if (userError || !user) {
         this.router.navigate(['/auth']);
@@ -346,7 +340,7 @@ export class ProfileSmartComponent implements OnInit {
 
       // Get user metadata
       const userMetadata = user.user_metadata || {};
-      
+
       // Try to get profile data from agreements table (assuming this is where user data is stored)
       const { data: profileData, error } = await this.supabaseService
         .getClient()
@@ -355,7 +349,8 @@ export class ProfileSmartComponent implements OnInit {
         .eq('email', user.email || '')
         .single();
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+      if (error && error.code !== 'PGRST116') {
+        // PGRST116 = no rows returned
         console.error('Error loading profile:', error);
         this.notificationService.showError('Error al cargar el perfil');
         return;
@@ -374,7 +369,6 @@ export class ProfileSmartComponent implements OnInit {
         agreementStatus: profileData?.status || userMetadata['agreementStatus'] || '',
         role: userMetadata['role'] || 'No asignado',
       });
-
     } catch (error) {
       console.error('Error loading profile:', error);
       this.notificationService.showError('Error al cargar el perfil');
@@ -408,32 +402,29 @@ export class ProfileSmartComponent implements OnInit {
 
     try {
       this.isSaving.set(true);
-      
-      const { data: { user }, error: userError } = await this.supabaseService
-        .getClient()
-        .auth
-        .getUser();
-        
+
+      const {
+        data: { user },
+        error: userError,
+      } = await this.supabaseService.getClient().auth.getUser();
+
       if (userError || !user) return;
 
       const formValue = this.profileForm.value;
 
       // Update user metadata in auth
-      const { error: metadataError } = await this.supabaseService
-        .getClient()
-        .auth
-        .updateUser({
-          data: {
-            firstName: formValue.firstName,
-            lastName: formValue.lastName,
-            phone: formValue.phone,
-            position: formValue.position,
-            headquarterId: formValue.headquarterId,
-            agreementType: formValue.agreementType,
-            agreementStartDate: formValue.agreementStartDate,
-            agreementStatus: formValue.agreementStatus,
-          }
-        });
+      const { error: metadataError } = await this.supabaseService.getClient().auth.updateUser({
+        data: {
+          firstName: formValue.firstName,
+          lastName: formValue.lastName,
+          phone: formValue.phone,
+          position: formValue.position,
+          headquarterId: formValue.headquarterId,
+          agreementType: formValue.agreementType,
+          agreementStartDate: formValue.agreementStartDate,
+          agreementStatus: formValue.agreementStatus,
+        },
+      });
 
       if (metadataError) {
         console.error('Error updating user metadata:', metadataError);
@@ -442,7 +433,6 @@ export class ProfileSmartComponent implements OnInit {
       }
 
       this.notificationService.showSuccess('Perfil actualizado exitosamente');
-      
     } catch (error) {
       console.error('Error saving profile:', error);
       this.notificationService.showError('Error al guardar el perfil');

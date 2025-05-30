@@ -42,7 +42,7 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs';
 import { injectCurrentTheme } from '../../layout/theme.service';
 import { TranslatePipe } from '@ngx-translate/core';
 
-export interface TableAction<T = any> {
+export interface TableAction<T = unknown> {
   label: string;
   icon?: string;
   color?: 'primary' | 'secondary' | 'warning' | 'danger';
@@ -447,7 +447,7 @@ export interface TableColumn {
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EnhancedTableUiComponent<T extends Record<string, any>> {
+export class EnhancedTableUiComponent<T extends Record<string, unknown>> {
   currentTheme = injectCurrentTheme();
   items = input.required<T[]>();
   columns = input.required<TableColumn[]>();
@@ -586,7 +586,7 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
     return JSON.stringify(item);
   }
 
-  getColumnTemplate(columnKey: string): TemplateRef<any> | null {
+  getColumnTemplate(columnKey: string): TemplateRef<unknown> | null {
     if (!this.columnTemplates) {
       return null;
     }
@@ -598,7 +598,7 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
   getDisplayValue(item: T, key: string): string {
     // Handle nested properties (e.g., 'role.name')
     const keys = key.split('.');
-    let value: any = item;
+    let value: unknown = item;
 
     for (const k of keys) {
       value = value?.[k];
@@ -617,11 +617,11 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
 
     // Handle object values (like role field)
     if (typeof value === 'object') {
-      const obj = value as any;
+      const obj = value as Record<string, unknown>;
       // Try common display properties
-      if (obj.name) return obj.name;
-      if (obj.role_name) return obj.role_name;
-      if (obj.title) return obj.title;
+      if (obj.name) return String(obj.name);
+      if (obj.role_name) return String(obj.role_name);
+      if (obj.title) return String(obj.title);
       if (obj.label) return obj.label;
       if (obj.code) return obj.code;
       if (obj.role_code) return obj.role_code;
@@ -716,7 +716,7 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
   getSearchableValueForColumn(item: T, column: string): unknown {
     // Handle nested properties (e.g., 'role.name')
     const keys = column.split('.');
-    let value: any = item;
+    let value: unknown = item;
 
     for (const k of keys) {
       value = value?.[k];
@@ -726,7 +726,7 @@ export class EnhancedTableUiComponent<T extends Record<string, any>> {
     }
 
     if (value && typeof value === 'object') {
-      const obj = value as any;
+      const obj = value as Record<string, unknown>;
       if (obj.name) return obj.name;
       if (obj.role_name) return obj.role_name;
       if (obj.title) return obj.title;

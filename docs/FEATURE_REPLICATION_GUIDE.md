@@ -100,6 +100,7 @@ Based on the Countries feature analysis, this comprehensive template allows you 
 - [ ] **Resource Loaders**
 
   - [ ] **Simple List Resource** (for low-volume features):
+
     ```typescript
     entities = resource({
       loader: async () => {
@@ -114,6 +115,7 @@ Based on the Countries feature analysis, this comprehensive template allows you 
       },
     });
     ```
+
   - [ ] **Paginated List Resource** (for high-volume features like agreements):
 
     ```typescript
@@ -134,6 +136,7 @@ Based on the Countries feature analysis, this comprehensive template allows you 
     ```
 
   - [ ] **Detail Resource with Relations**:
+
     ```typescript
     entityById = resource({
       request: () => (this.entityId() ? { entityId: this.entityId() } : undefined),

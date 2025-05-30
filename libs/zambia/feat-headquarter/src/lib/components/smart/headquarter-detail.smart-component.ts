@@ -843,7 +843,7 @@ export class HeadquarterDetailSmartComponent {
 
     return agreements.filter((agreement) => {
       // Handle different possible role structures
-      const role = agreement.role as any;
+      const role = agreement.role as { code?: string; role_code?: string; name?: string; role_name?: string } | null;
       if (!role) return false;
 
       // Try different possible property names

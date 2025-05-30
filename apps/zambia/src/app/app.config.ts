@@ -18,12 +18,12 @@ export const appConfig: ApplicationConfig = {
   providers: [
     { provide: APP_CONFIG, useValue: environment },
     provideRouter(
-      appRoutes, 
-      withComponentInputBinding(), 
+      appRoutes,
+      withComponentInputBinding(),
       withViewTransitions(),
       withInMemoryScrolling({
         scrollPositionRestoration: 'enabled',
-        anchorScrolling: 'enabled'
+        anchorScrolling: 'enabled',
       })
     ),
     provideClientHydration(withIncrementalHydration()),

@@ -5,7 +5,7 @@ import { TuiBreadcrumbs, TuiSkeleton, TuiSegmented } from '@taiga-ui/kit';
 import { RouterModule } from '@angular/router';
 import { SupabaseService } from '@zambia/data-access-supabase';
 import { RoleService } from '@zambia/data-access-roles-permissions';
-import { EnhancedTableUiComponent, KpiCardUiComponent, QuickActionCardUiComponent } from '@zambia/ui-components';
+import { EnhancedTableUiComponent, KpiCardUiComponent } from '@zambia/ui-components';
 import { resource } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TuiIcon } from '@taiga-ui/core';
@@ -473,8 +473,6 @@ export class CollaborationDemographicsSmartComponent {
   // Key metrics
   keyMetrics = computed(() => {
     const stats = this.globalStats();
-    const data = this.collaborationData.value() || [];
-    const totalHeadquarters = data.length;
 
     return [
       {
@@ -584,7 +582,7 @@ export class CollaborationDemographicsSmartComponent {
     }
   }
 
-  navigateToRole(roleId: string): void {
+  navigateToRole(): void {
     // Navigation is handled via routerLink on the KPI cards
   }
 }

@@ -15,14 +15,13 @@ import {
   CountryFormData,
   CountryWithHeadquarters,
 } from '../../services/countries-facade.service';
-import { TuiBreadcrumbs, TuiSkeleton } from '@taiga-ui/kit';
+import { TuiBreadcrumbs } from '@taiga-ui/kit';
 import { TuiButton, TuiDialogService, TuiIcon, TuiLink, TuiNotification } from '@taiga-ui/core';
 import { EnhancedTableUiComponent, type TableAction, type TableColumn } from '@zambia/ui-components';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ICONS } from '@zambia/util-constants';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { CountryFormModalSmartComponent } from './country-form-modal.smart-component';
-import { ConfirmationData } from '@zambia/ui-components';
 import { tryCatch } from '@zambia/data-access-generic';
 import { TuiItem } from '@taiga-ui/cdk';
 
@@ -282,7 +281,7 @@ export class CountryDetailSmartComponent {
     },
   ]);
 
-  headquartersActions = computed((): TableAction<any>[] => [
+  headquartersActions = computed((): TableAction<Headquarter>[] => [
     {
       label: this.translate.instant('view'),
       icon: '@tui.eye',
@@ -330,15 +329,15 @@ export class CountryDetailSmartComponent {
     });
   }
 
-  onHeadquarterClick(headquarter: any): void {
+  onHeadquarterClick(headquarter: Headquarter): void {
     this.router.navigate(['/dashboard/headquarters', headquarter.id]);
   }
 
-  onHeadquarterView(headquarter: any): void {
+  onHeadquarterView(headquarter: Headquarter): void {
     this.router.navigate(['/dashboard/headquarters', headquarter.id]);
   }
 
-  onHeadquarterEdit(headquarter: any): void {
+  onHeadquarterEdit(headquarter: Headquarter): void {
     // TODO: Implement headquarter edit
     console.log('Edit headquarter:', headquarter);
   }
@@ -347,7 +346,7 @@ export class CountryDetailSmartComponent {
     this.countriesFacade.loadCountryById();
   }
 
-  private async handleCountryUpdate(id: string, countryData: any): Promise<void> {
+  private async handleCountryUpdate(id: string, countryData: CountryUpdate): Promise<void> {
     this.isProcessing.set(true);
 
     const { error } = await tryCatch(() => this.countriesFacade.updateCountry(id, countryData));

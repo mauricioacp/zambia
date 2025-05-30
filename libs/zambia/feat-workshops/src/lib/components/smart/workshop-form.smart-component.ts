@@ -253,7 +253,7 @@ export class WorkshopFormSmartComponent {
 
   constructor() {
     // Initialize form with workshop data if in edit mode
-    const updateForm = computed(() => {
+    computed(() => {
       const workshopData = this.workshop();
       if (workshopData) {
         this.updateFormWithWorkshopData(workshopData);

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { CommonModule, AsyncPipe, NgOptimizedImage } from '@angular/common';
+import { CommonModule, AsyncPipe } from '@angular/common';
 import { TuiButton, TuiDataList, TuiDropdown, TuiFlagPipe } from '@taiga-ui/core';
 import { TUI_COUNTRIES } from '@taiga-ui/kit';
 import { LanguageService } from '../../layout/language.service';

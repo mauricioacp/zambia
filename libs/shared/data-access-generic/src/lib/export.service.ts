@@ -6,7 +6,7 @@ export type ExportFormat = 'csv' | 'excel';
 export interface ExportColumn {
   key: string;
   label: string;
-  transform?: (value: any) => string;
+  transform?: (value: unknown) => string;
 }
 
 @Injectable({
@@ -43,7 +43,7 @@ export class ExportService {
     }
 
     const transformedData = data.map((item) => {
-      const row: any = {};
+      const row: Record<string, unknown> = {};
       columns.forEach((col) => {
         const value = this.getNestedValue(item, col.key);
         const transformedValue = col.transform ? col.transform(value) : value;
@@ -183,7 +183,7 @@ export class ExportService {
     });
   }
 
-  createExportColumns(tableColumns: any[]): ExportColumn[] {
+  createExportColumns(tableColumns: Array<{ key: string; label: string; type?: string }>): ExportColumn[] {
     return tableColumns
       .filter((col) => col.key !== 'actions')
       .map((col) => ({
@@ -193,11 +193,16 @@ export class ExportService {
       }));
   }
 
-  private getNestedValue(obj: any, path: string): any {
-    return path.split('.').reduce((current, key) => current?.[key], obj);
+  private getNestedValue(obj: unknown, path: string): unknown {
+    return path.split('.').reduce((current, key) => {
+      if (current && typeof current === 'object' && key in current) {
+        return (current as Record<string, unknown>)[key];
+      }
+      return undefined;
+    }, obj);
   }
 
-  private escapeCSVValue(value: any): string {
+  private escapeCSVValue(value: unknown): string {
     if (value === null || value === undefined) {
       return '';
     }
@@ -212,17 +217,17 @@ export class ExportService {
     return stringValue;
   }
 
-  private getColumnTransform(type: string): ((value: any) => string) | undefined {
+  private getColumnTransform(type: string): ((value: unknown) => string) | undefined {
     switch (type) {
       case 'status':
-        return (value: any) => {
+        return (value: unknown) => {
           if (!value) return '';
           const status = value.toString().toLowerCase();
           // Return capitalized status for better readability
           return status.charAt(0).toUpperCase() + status.slice(1);
         };
       case 'date':
-        return (value: any) => {
+        return (value: unknown) => {
           if (value) {
             const date = new Date(value);
             return date.toLocaleDateString('es-ES', {
@@ -234,7 +239,7 @@ export class ExportService {
           return '';
         };
       case 'datetime':
-        return (value: any) => {
+        return (value: unknown) => {
           if (value) {
             const date = new Date(value);
             return date.toLocaleString('es-ES', {
@@ -249,12 +254,12 @@ export class ExportService {
         };
       case 'avatar':
       case 'text':
-        return (value: any) => {
+        return (value: unknown) => {
           if (!value) return '';
           return String(value).trim();
         };
       case 'badge':
-        return (value: any) => {
+        return (value: unknown) => {
           if (!value) return '';
           return String(value).toUpperCase();
         };

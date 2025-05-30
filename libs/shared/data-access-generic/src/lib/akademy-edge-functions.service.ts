@@ -46,7 +46,7 @@ export class AkademyEdgeFunctionsService {
   private async invokeFunction<T>(
     functionName: string,
     options: {
-      body?: any;
+      body?: Record<string, unknown> | unknown[];
       headers?: Record<string, string>;
       method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
     } = {}
@@ -92,9 +92,9 @@ export class AkademyEdgeFunctionsService {
       }
 
       return { data };
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.isLoading.set(false);
-      const errorMessage = error.message || 'Unexpected error occurred';
+      const errorMessage = error instanceof Error ? error.message : 'Unexpected error occurred';
       this.lastError.set(errorMessage);
 
       return {
