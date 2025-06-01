@@ -5,20 +5,23 @@
 Based on the codebase analysis, uncommitted changes, and TODO documentation, here's the current state:
 
 ### ✅ **Completed Features**
+
 - **Auth System**: Complete with role-based access control
 - **Shell & Navigation**: Fully functional with responsive sidebar
-- **Homepage**: Modern dashboard with role-based KPIs and quick actions  
+- **Homepage**: Modern dashboard with role-based KPIs and quick actions
 - **Dashboard Panel**: Executive analytics view with global statistics
 - **Countries Module**: Complete CRUD with pagination
 - **Profile Module**: Basic implementation exists
 
 ### 🚧 **Partially Implemented Features**
+
 - **Agreements Module**: UI inconsistencies, missing pagination implementation
 - **Headquarters Module**: Basic structure exists, needs UI alignment
 - **Student Analytics**: Mock data only, needs real database integration
 - **Homepage Statistics**: Using mock data, needs RPC functions
 
 ### ❌ **Missing/Incomplete Features**
+
 - **Workshops Module**: Structure exists but no implementation
 - **Export Functionality**: Service exists but not integrated everywhere
 - **Real-time Data**: All modules using mock data instead of real DB calls
@@ -32,17 +35,19 @@ Based on the codebase analysis, uncommitted changes, and TODO documentation, her
 ### 🔴 **CRITICAL (Week 1)**
 
 #### 1. **Fix Agreements Module UI Consistency**
+
 - **Why**: Major UX inconsistency between modules
-- **What**: 
+- **What**:
   - Align agreements-list with countries-list pattern
   - Implement proper pagination with `get_agreements_with_role_paginated`
   - Fix role-based data filtering
   - Add export functionality
-- **Files**: 
+- **Files**:
   - `libs/zambia/feat-agreements/src/lib/components/smart/agreements-list.smart-component.ts`
   - `libs/zambia/feat-agreements/src/lib/services/agreements-facade.service.ts`
 
 #### 2. **Create Database RPC Functions**
+
 - **Why**: All features depend on real data
 - **What**:
   - `get_homepage_statistics()` - Global view
@@ -52,18 +57,20 @@ Based on the codebase analysis, uncommitted changes, and TODO documentation, her
 - **Impact**: Enables real data across dashboard, homepage, and analytics
 
 #### 3. **Complete Homepage Real Data Integration**
+
 - **Why**: First impression for all users
 - **What**:
   - Replace mock data with RPC calls
   - Implement error handling
   - Add loading states
   - Test role-based data filtering
-- **Files**: 
+- **Files**:
   - `libs/zambia/feat-homepage/src/lib/services/homepage-facade.service.ts`
 
 ### 🟡 **HIGH PRIORITY (Week 2)**
 
 #### 4. **Implement Workshops Module**
+
 - **Why**: Core business feature referenced throughout
 - **What**:
   - List view with filtering by status/date
@@ -73,6 +80,7 @@ Based on the codebase analysis, uncommitted changes, and TODO documentation, her
 - **Files**: All in `libs/zambia/feat-workshops/`
 
 #### 5. **Fix Quick Action Routes**
+
 - **Why**: Dead links harm user experience
 - **What**:
   - `/dashboard/my-headquarters` - HQ manager view
@@ -82,6 +90,7 @@ Based on the codebase analysis, uncommitted changes, and TODO documentation, her
 - **Dependencies**: Need to create these components
 
 #### 6. **Student Analytics Real Implementation**
+
 - **Why**: Currently all mock data
 - **What**:
   - Replace mock data in student-progress component
@@ -92,6 +101,7 @@ Based on the codebase analysis, uncommitted changes, and TODO documentation, her
 ### 🟢 **MEDIUM PRIORITY (Week 3)**
 
 #### 7. **Headquarters Module Enhancement**
+
 - **Why**: Needs UI alignment and features
 - **What**:
   - Align UI with countries pattern
@@ -101,6 +111,7 @@ Based on the codebase analysis, uncommitted changes, and TODO documentation, her
 - **Files**: All in `libs/zambia/feat-headquarter/`
 
 #### 8. **Reports & Analytics Module**
+
 - **Why**: Referenced in panel but doesn't exist
 - **What**:
   - Executive reports dashboard
@@ -110,6 +121,7 @@ Based on the codebase analysis, uncommitted changes, and TODO documentation, her
 - **New Module**: `libs/zambia/feat-reports/`
 
 #### 9. **Enhanced Export System**
+
 - **Why**: Partial implementation only
 - **What**:
   - Integrate export modal in all list views
@@ -121,6 +133,7 @@ Based on the codebase analysis, uncommitted changes, and TODO documentation, her
 ### 🔵 **LOW PRIORITY (Week 4+)**
 
 #### 10. **Profile Module Enhancement**
+
 - **Why**: Basic implementation needs features
 - **What**:
   - Achievement/certification tracking
@@ -130,6 +143,7 @@ Based on the codebase analysis, uncommitted changes, and TODO documentation, her
 - **Files**: `libs/zambia/feat-profile/`
 
 #### 11. **Notification System**
+
 - **Why**: Improve user engagement
 - **What**:
   - Real-time notifications
@@ -139,6 +153,7 @@ Based on the codebase analysis, uncommitted changes, and TODO documentation, her
 - **New Service**: `libs/shared/data-access-notifications/`
 
 #### 12. **Advanced Search**
+
 - **Why**: Better data discovery
 - **What**:
   - Global search across entities
@@ -152,6 +167,7 @@ Based on the codebase analysis, uncommitted changes, and TODO documentation, her
 ## 📋 **Implementation Roadmap**
 
 ### **Week 1: Foundation & Critical Fixes**
+
 ```typescript
 // Priority Tasks
 1. [ ] Fix agreements-list UI to match countries pattern
@@ -162,10 +178,11 @@ Based on the codebase analysis, uncommitted changes, and TODO documentation, her
 ```
 
 ### **Week 2: Core Features**
+
 ```typescript
 // Workshop Implementation
 1. [ ] Create workshops-list component
-2. [ ] Create workshop-detail component  
+2. [ ] Create workshop-detail component
 3. [ ] Create workshop-form component
 4. [ ] Implement attendance tracking
 5. [ ] Add facilitator assignment
@@ -178,6 +195,7 @@ Based on the codebase analysis, uncommitted changes, and TODO documentation, her
 ```
 
 ### **Week 3: Analytics & Enhancements**
+
 ```typescript
 // Real Data Integration
 1. [ ] Update student-progress with real data
@@ -188,6 +206,7 @@ Based on the codebase analysis, uncommitted changes, and TODO documentation, her
 ```
 
 ### **Week 4: Polish & Optimization**
+
 ```typescript
 // Quality & Features
 1. [ ] Integrate export everywhere
@@ -202,6 +221,7 @@ Based on the codebase analysis, uncommitted changes, and TODO documentation, her
 ## 🛠️ **Technical Debt to Address**
 
 ### **Code Quality**
+
 - [ ] Remove all TODO/FIXME comments after implementation
 - [ ] Replace mock data with real implementations
 - [ ] Add proper error boundaries
@@ -209,18 +229,21 @@ Based on the codebase analysis, uncommitted changes, and TODO documentation, her
 - [ ] Add comprehensive logging
 
 ### **Testing**
+
 - [ ] Add unit tests for facade services
 - [ ] Add integration tests for RPC functions
 - [ ] Add E2E tests for critical workflows
 - [ ] Test role-based access thoroughly
 
 ### **Performance**
+
 - [ ] Implement proper caching strategy
 - [ ] Add pagination to all list views
 - [ ] Optimize bundle size
 - [ ] Add service workers for offline support
 
 ### **Security**
+
 - [ ] Audit all RPC functions for SQL injection
 - [ ] Implement rate limiting
 - [ ] Add activity logging
@@ -231,6 +254,7 @@ Based on the codebase analysis, uncommitted changes, and TODO documentation, her
 ## 🎨 **UI/UX Consistency Checklist**
 
 ### **All List Components Must Have**
+
 - [ ] Standard header with breadcrumbs
 - [ ] Consistent stats cards layout
 - [ ] Enhanced table with pagination
@@ -240,6 +264,7 @@ Based on the codebase analysis, uncommitted changes, and TODO documentation, her
 - [ ] Dark mode support
 
 ### **All Detail Components Must Have**
+
 - [ ] Breadcrumb navigation
 - [ ] Information cards grid
 - [ ] Related data sections
@@ -248,6 +273,7 @@ Based on the codebase analysis, uncommitted changes, and TODO documentation, her
 - [ ] Error handling
 
 ### **All Form Components Must Have**
+
 - [ ] Consistent field layouts
 - [ ] Proper validation messages
 - [ ] Loading states during submission
@@ -259,21 +285,25 @@ Based on the codebase analysis, uncommitted changes, and TODO documentation, her
 ## 📊 **Success Metrics**
 
 ### **Week 1 Success**
+
 - ✅ Agreements module fully aligned with UI standards
 - ✅ All homepage data coming from real database
 - ✅ No more UI inconsistencies between modules
 
 ### **Week 2 Success**
+
 - ✅ Workshops module fully functional
 - ✅ All quick action routes working
 - ✅ Student analytics showing real data
 
 ### **Week 3 Success**
+
 - ✅ All modules have real data integration
 - ✅ Reports module operational
 - ✅ Export working everywhere
 
 ### **Week 4 Success**
+
 - ✅ All features complete and polished
 - ✅ Performance metrics met
 - ✅ Ready for production deployment
@@ -283,16 +313,19 @@ Based on the codebase analysis, uncommitted changes, and TODO documentation, her
 ## 🚨 **Risk Mitigation**
 
 ### **Technical Risks**
+
 - **Database Performance**: Monitor query performance, add indexes
 - **Bundle Size**: Lazy load all feature modules
 - **API Limits**: Implement caching and rate limiting
 
 ### **User Experience Risks**
+
 - **Data Loading**: Always show loading states
 - **Error States**: Graceful error handling everywhere
 - **Mobile Experience**: Test on all screen sizes
 
 ### **Business Risks**
+
 - **Role Confusion**: Clear documentation and UI indicators
 - **Data Security**: Audit all data access paths
 - **Feature Creep**: Stick to prioritized roadmap

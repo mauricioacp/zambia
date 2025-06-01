@@ -217,7 +217,10 @@ interface Headquarter {
 
                   <!-- Agreement Start Date -->
                   <div>
-                    <label for="agreementStartDate" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label
+                      for="agreementStartDate"
+                      class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
                       {{ 'profile.agreementStartDate' | translate }}
                     </label>
                     <input
@@ -230,7 +233,10 @@ interface Headquarter {
 
                   <!-- Agreement Status -->
                   <div>
-                    <label for="agreementStatus" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label
+                      for="agreementStatus"
+                      class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
                       {{ 'profile.agreementStatus' | translate }}
                     </label>
                     <select
