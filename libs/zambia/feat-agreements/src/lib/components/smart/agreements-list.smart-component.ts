@@ -8,21 +8,21 @@ import { Subject } from 'rxjs';
 // Services
 import { AgreementsFacadeService, AgreementWithShallowRelations } from '../../services/agreements-facade.service';
 import { RoleService } from '@zambia/data-access-roles-permissions';
-import { NotificationService, ExportService } from '@zambia/data-access-generic';
+import { ExportService, NotificationService } from '@zambia/data-access-generic';
 
 // UI Components
 import {
   EnhancedTableUiComponent,
-  TableAction,
-  TableColumn,
   ExportModalUiComponent,
   ExportOptions,
   injectCurrentTheme,
+  TableAction,
+  TableColumn,
 } from '@zambia/ui-components';
 
 // TUI Components
-import { TuiIcon, TuiButton, TuiDialogService, TuiLink } from '@taiga-ui/core';
-import { TuiSkeleton, TuiBreadcrumbs } from '@taiga-ui/kit';
+import { TuiButton, TuiDialogService, TuiIcon, TuiLink } from '@taiga-ui/core';
+import { TuiBreadcrumbs, TuiSkeleton } from '@taiga-ui/kit';
 import { TuiItem } from '@taiga-ui/cdk';
 
 // Guards and Directives
@@ -47,8 +47,9 @@ interface StatCard {
   title: string;
   value: number;
   icon: string;
-  trend: number;
   color: string;
+  gradient: string;
+  cardClass: string;
 }
 
 @Component({
@@ -125,11 +126,6 @@ interface StatCard {
 
       <!-- Statistics Cards -->
       <div class="container mx-auto px-6 py-8">
-        <div class="mb-6">
-          <h2 class="mb-2 text-2xl font-bold text-gray-900 dark:text-white">{{ 'agreements_summary' | translate }}</h2>
-          <p class="text-gray-600 dark:text-gray-300">{{ 'agreements_summary_description' | translate }}</p>
-        </div>
-
         @if (isLoading()) {
           <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             @for (i of [1, 2, 3, 4]; track i) {
@@ -139,18 +135,13 @@ interface StatCard {
         } @else {
           <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             @for (stat of statsCards(); track stat.id) {
-              <div
-                class="rounded-xl bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-lg hover:shadow-gray-900/5 dark:bg-slate-800 dark:shadow-slate-900/20 dark:hover:shadow-slate-900/40"
-              >
+              <div [class]="stat.cardClass">
                 <div class="flex items-center justify-between">
                   <div>
                     <p class="text-sm font-medium text-gray-600 dark:text-gray-300">{{ stat.title | translate }}</p>
                     <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stat.value }}</p>
                   </div>
-                  <div
-                    class="rounded-lg bg-gradient-to-r p-3"
-                    [ngClass]="'from-' + stat.color + '-500 to-' + stat.color + '-600'"
-                  >
+                  <div class="rounded-lg p-3" [class]="stat.gradient">
                     <tui-icon [icon]="stat.icon" class="text-white" size="s"></tui-icon>
                   </div>
                 </div>
@@ -322,7 +313,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     },
   ];
 
-  protected tableActions: TableAction[] = [
+  protected tableActions: TableAction<AgreementListData>[] = [
     {
       label: this.translate.instant('view_agreement'),
       icon: '@tui.eye',
@@ -396,32 +387,40 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
         title: 'total_agreements',
         value: total,
         icon: '@tui.file-text',
-        trend: 0,
         color: 'blue',
+        gradient: 'bg-gradient-to-r from-blue-500 to-blue-600',
+        cardClass:
+          'group relative block overflow-hidden rounded-2xl border border-gray-200/50 bg-white/90 p-6 shadow-lg shadow-gray-900/5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:border-blue-300/70 hover:shadow-xl hover:shadow-blue-500/20 dark:border-slate-700/50 dark:bg-slate-900 dark:shadow-slate-900/20 dark:hover:border-blue-600/70 dark:hover:shadow-blue-500/30',
       },
       {
         id: 'active',
         title: 'active_agreements',
         value: active,
-        icon: '@tui.check-circle',
-        trend: 0,
+        icon: '@tui.circle-check',
         color: 'emerald',
+        gradient: 'bg-gradient-to-r from-emerald-500 to-emerald-600',
+        cardClass:
+          'group relative block overflow-hidden rounded-2xl border border-gray-200/50 bg-white/90 p-6 shadow-lg shadow-gray-900/5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:border-emerald-300/70 hover:shadow-xl hover:shadow-emerald-500/20 dark:border-slate-700/50 dark:bg-slate-900 dark:shadow-slate-900/20 dark:hover:border-emerald-600/70 dark:hover:shadow-emerald-500/30',
       },
       {
         id: 'pending',
         title: 'pending_agreements',
         value: pending,
         icon: '@tui.clock',
-        trend: 0,
         color: 'yellow',
+        gradient: 'bg-gradient-to-r from-yellow-500 to-yellow-600',
+        cardClass:
+          'group relative block overflow-hidden rounded-2xl border border-gray-200/50 bg-white/90 p-6 shadow-lg shadow-gray-900/5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:border-yellow-300/70 hover:shadow-xl hover:shadow-yellow-500/20 dark:border-slate-700/50 dark:bg-slate-900 dark:shadow-slate-900/20 dark:hover:border-yellow-600/70 dark:hover:shadow-yellow-500/30',
       },
       {
         id: 'inactive',
         title: 'inactive_agreements',
         value: inactive,
-        icon: '@tui.x-circle',
-        trend: 0,
+        icon: '@tui.circle-alert',
         color: 'red',
+        gradient: 'bg-gradient-to-r from-red-500 to-red-600',
+        cardClass:
+          'group relative block overflow-hidden rounded-2xl border border-gray-200/50 bg-white/90 p-6 shadow-lg shadow-gray-900/5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:border-red-300/70 hover:shadow-xl hover:shadow-red-500/20 dark:border-slate-700/50 dark:bg-slate-900 dark:shadow-slate-900/20 dark:hover:border-red-600/70 dark:hover:shadow-red-500/30',
       },
     ];
   }

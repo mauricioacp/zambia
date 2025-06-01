@@ -14,7 +14,7 @@ export interface CountryWithHeadquarters extends Country {
 export interface CountryFormData {
   name: string;
   code: string;
-  status: 'active' | 'inactive';
+  status: string | null;
 }
 
 @Injectable({

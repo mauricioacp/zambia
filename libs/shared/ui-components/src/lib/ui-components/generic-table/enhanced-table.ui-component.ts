@@ -42,7 +42,7 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs';
 import { injectCurrentTheme } from '../../layout/theme.service';
 import { TranslatePipe } from '@ngx-translate/core';
 
-export interface TableAction<T = unknown> {
+export interface TableAction<T> {
   label: string;
   icon?: string;
   color?: 'primary' | 'secondary' | 'warning' | 'danger';
@@ -596,12 +596,11 @@ export class EnhancedTableUiComponent<T extends Record<string, unknown>> {
   }
 
   getDisplayValue(item: T, key: string): string {
-    // Handle nested properties (e.g., 'role.name')
     const keys = key.split('.');
     let value: unknown = item;
 
     for (const k of keys) {
-      value = value?.[k];
+      value = (value as Record<string, unknown>)?.[k];
       if (value === undefined || value === null) {
         return '-';
       }
@@ -615,17 +614,14 @@ export class EnhancedTableUiComponent<T extends Record<string, unknown>> {
       return value.toLocaleString();
     }
 
-    // Handle object values (like role field)
     if (typeof value === 'object') {
       const obj = value as Record<string, unknown>;
-      // Try common display properties
-      if (obj.name) return String(obj.name);
-      if (obj.role_name) return String(obj.role_name);
-      if (obj.title) return String(obj.title);
-      if (obj.label) return obj.label;
-      if (obj.code) return obj.code;
-      if (obj.role_code) return obj.role_code;
-      // Fallback to a meaningful representation
+      if (obj?.['name']) return String(obj['name']);
+      if (obj?.['role_name']) return String(obj['role_name']);
+      if (obj?.['title']) return String(obj['title']);
+      if (obj?.['label']) return String(obj['label']);
+      if (obj?.['code']) return String(obj['code']);
+      if (obj?.['role_code']) return String(obj['role_code']);
       return '-';
     }
 
@@ -637,7 +633,6 @@ export class EnhancedTableUiComponent<T extends Record<string, unknown>> {
   }
 
   getSubtitle(item: T, key: string): string | null {
-    // Look for common subtitle patterns
     if (key === 'name' && item['code']) {
       return `Code: ${item['code']}`;
     }
@@ -719,7 +714,7 @@ export class EnhancedTableUiComponent<T extends Record<string, unknown>> {
     let value: unknown = item;
 
     for (const k of keys) {
-      value = value?.[k];
+      value = (value as Record<string, unknown>)?.[k];
       if (value === undefined || value === null) {
         return null;
       }
@@ -727,12 +722,12 @@ export class EnhancedTableUiComponent<T extends Record<string, unknown>> {
 
     if (value && typeof value === 'object') {
       const obj = value as Record<string, unknown>;
-      if (obj.name) return obj.name;
-      if (obj.role_name) return obj.role_name;
-      if (obj.title) return obj.title;
-      if (obj.label) return obj.label;
-      if (obj.code) return obj.code;
-      if (obj.role_code) return obj.role_code;
+      if (obj?.['name']) return String(obj['name']);
+      if (obj?.['role_name']) return String(obj['role_name']);
+      if (obj?.['title']) return String(obj['title']);
+      if (obj?.['label']) return String(obj['label']);
+      if (obj?.['code']) return String(obj['code']);
+      if (obj?.['role_code']) return String(obj['role_code']);
       return '';
     }
 

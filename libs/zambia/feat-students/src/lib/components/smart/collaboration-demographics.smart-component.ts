@@ -115,7 +115,7 @@ interface CountryCollaboratorSummary {
         @defer (on viewport; prefetch on idle) {
           <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             @for (kpi of keyMetrics(); track kpi.id) {
-              <z-kpi-card [kpiData]="kpi" [loading]="isLoading()" (cardClicked)="navigateToRole(kpi.id)" />
+              <z-kpi-card [kpiData]="kpi" [loading]="isLoading()" />
             }
           </div>
         } @placeholder {
@@ -520,7 +520,6 @@ export class CollaborationDemographicsSmartComponent {
 
   isLoading = computed(() => this.isLoadingSignal() || this.collaborationData.isLoading());
 
-  // Table columns for headquarter view
   tableColumns = [
     {
       key: 'headquarter_name',
@@ -546,25 +545,25 @@ export class CollaborationDemographicsSmartComponent {
     {
       key: 'directors',
       label: 'Directores',
-      type: 'number' as const,
+      type: 'text' as const,
       sortable: true,
     },
     {
       key: 'facilitators',
       label: 'Facilitadores',
-      type: 'number' as const,
+      type: 'text' as const,
       sortable: true,
     },
     {
       key: 'companions',
       label: 'Acompañantes',
-      type: 'number' as const,
+      type: 'text' as const,
       sortable: true,
     },
     {
       key: 'total_collaborators',
       label: 'Total Colaboradores',
-      type: 'number' as const,
+      type: 'text' as const,
       sortable: true,
     },
   ];
@@ -580,9 +579,5 @@ export class CollaborationDemographicsSmartComponent {
       default:
         return 'hover:border-gray-300/70 hover:shadow-gray-900/10 dark:hover:border-slate-600/70 dark:hover:shadow-slate-900/40';
     }
-  }
-
-  navigateToRole(): void {
-    // Navigation is handled via routerLink on the KPI cards
   }
 }

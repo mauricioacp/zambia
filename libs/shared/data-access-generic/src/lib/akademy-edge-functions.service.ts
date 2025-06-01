@@ -46,7 +46,7 @@ export class AkademyEdgeFunctionsService {
   private async invokeFunction<T>(
     functionName: string,
     options: {
-      body?: Record<string, unknown> | unknown[];
+      body?: Record<string, unknown> | unknown[] | object;
       headers?: Record<string, string>;
       method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
     } = {}

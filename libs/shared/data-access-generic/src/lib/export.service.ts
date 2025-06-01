@@ -217,7 +217,7 @@ export class ExportService {
     return stringValue;
   }
 
-  private getColumnTransform(type: string): ((value: unknown) => string) | undefined {
+  private getColumnTransform(type?: string): ((value: unknown) => string) | undefined {
     switch (type) {
       case 'status':
         return (value: unknown) => {
@@ -229,7 +229,7 @@ export class ExportService {
       case 'date':
         return (value: unknown) => {
           if (value) {
-            const date = new Date(value);
+            const date = new Date(value as string | number | Date);
             return date.toLocaleDateString('es-ES', {
               year: 'numeric',
               month: '2-digit',
@@ -241,7 +241,7 @@ export class ExportService {
       case 'datetime':
         return (value: unknown) => {
           if (value) {
-            const date = new Date(value);
+            const date = new Date(value as string | number | Date);
             return date.toLocaleString('es-ES', {
               year: 'numeric',
               month: '2-digit',

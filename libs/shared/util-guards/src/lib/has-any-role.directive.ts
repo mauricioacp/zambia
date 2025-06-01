@@ -1,6 +1,6 @@
-import { Directive, inject, Input, TemplateRef, ViewContainerRef, effect, signal, computed } from '@angular/core';
+import { computed, Directive, effect, inject, Input, signal, TemplateRef, ViewContainerRef } from '@angular/core';
 import { RoleService } from '@zambia/data-access-roles-permissions';
-import { RoleCode } from '@zambia/util-roles-definitions';
+import { ROLE_GROUP, RoleCode } from '@zambia/util-roles-definitions';
 
 @Directive({
   selector: '[zHasRole]',
@@ -12,9 +12,16 @@ export class HasRoleDirective {
   private viewContainer = inject(ViewContainerRef);
 
   private roles = signal<RoleCode[]>([]);
+  private groups = signal<ROLE_GROUP[]>([]);
 
   private hasAccess = computed(() => {
     const roleArray = this.roles();
+    const groupArray = this.groups();
+
+    if (groupArray.length > 0) {
+      return this.roleService.isInAnyGroup(groupArray);
+    }
+
     return roleArray.length > 0 ? this.roleService.hasAnyRole(roleArray) : false;
   });
 
@@ -28,8 +35,17 @@ export class HasRoleDirective {
     });
   }
 
-  @Input() set zHasRole(roles: RoleCode | RoleCode[]) {
-    const roleArray = Array.isArray(roles) ? roles : [roles];
-    this.roles.set(roleArray);
+  @Input() set zHasRole(value: RoleCode | RoleCode[] | ROLE_GROUP | ROLE_GROUP[]) {
+    const valueArray = Array.isArray(value) ? value : [value];
+
+    const isRoleGroup = valueArray.every((v) => v === v.toUpperCase());
+
+    if (isRoleGroup) {
+      this.groups.set(valueArray as ROLE_GROUP[]);
+      this.roles.set([]);
+    } else {
+      this.roles.set(valueArray as RoleCode[]);
+      this.groups.set([]);
+    }
   }
 }

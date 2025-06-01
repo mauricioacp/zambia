@@ -13,7 +13,9 @@ import { Router, RouterModule } from '@angular/router';
 import {
   CountriesFacadeService,
   CountryFormData,
+  CountryUpdate,
   CountryWithHeadquarters,
+  Headquarter,
 } from '../../services/countries-facade.service';
 import { TuiBreadcrumbs } from '@taiga-ui/kit';
 import { TuiButton, TuiDialogService, TuiIcon, TuiLink, TuiNotification } from '@taiga-ui/core';
@@ -320,7 +322,11 @@ export class CountryDetailSmartComponent {
 
     dialog.subscribe({
       next: async (result) => {
-        await this.handleCountryUpdate(country.id, result);
+        const updateData: Partial<CountryFormData> = {
+          ...result,
+          status: result.status || 'inactive',
+        };
+        await this.handleCountryUpdate(country.id, updateData);
       },
       error: (error) => {
         console.error('Create country dialog error:', error);

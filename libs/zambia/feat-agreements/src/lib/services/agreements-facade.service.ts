@@ -4,9 +4,9 @@ import {
   Injectable,
   linkedSignal,
   resource,
+  ResourceLoaderParams,
   signal,
   WritableSignal,
-  ResourceLoaderParams,
 } from '@angular/core';
 import { SupabaseService } from '@zambia/data-access-supabase';
 import { RoleService } from '@zambia/data-access-roles-permissions';
@@ -586,10 +586,10 @@ export class AgreementsFacadeService {
   }
 
   isAgreementsLoading = computed(() => this.agreements.isLoading() || this.isLoading());
-  loadingError = computed(() => this.agreements.error);
+  loadingError = computed(() => this.agreements.error());
 
   isDetailLoading = computed(() => this.agreementById.isLoading());
-  detailLoadingError = computed(() => this.agreementById.error);
+  detailLoadingError = computed(() => this.agreementById.error());
 
   isHeadquartersLoading = computed(() => this.headquarters.isLoading());
   isRolesLoading = computed(() => this.roles.isLoading());
