@@ -1,11 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormFieldComponent, logoSvg, ThemeService } from '@zambia/ui-components';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '@zambia/data-access-auth';
 import { Router } from '@angular/router';
+import { TuiButton, TuiIcon } from '@taiga-ui/core';
+import { TuiButtonLoading } from '@taiga-ui/kit';
+import { NotificationService } from '@zambia/data-access-generic';
 
 interface AuthFormData {
   email: string;
@@ -15,7 +18,16 @@ interface AuthFormData {
 @Component({
   selector: 'z-auth',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, TranslatePipe, FormFieldComponent],
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule, 
+    FormsModule, 
+    TranslatePipe, 
+    FormFieldComponent,
+    TuiButton,
+    TuiButtonLoading,
+    TuiIcon
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
     `
@@ -67,15 +79,16 @@ interface AuthFormData {
                   </div>
 
                   <button
+                    tuiButton
                     type="submit"
-                    class="w-full rounded-lg bg-blue-600 px-5 py-3 text-white transition hover:bg-blue-700 focus:ring-3 focus:ring-blue-500/50 disabled:opacity-50"
-                    [disabled]="authForm.invalid || isLoading()"
+                    size="l"
+                    appearance="primary"
+                    class="w-full"
+                    iconStart="lucide:log-in"
+                    [disabled]="authForm.invalid"
+                    [loading]="isSubmitting()"
                   >
-                    @if (isLoading()) {
-                      <span>{{ 'loading' | translate }}...</span>
-                    } @else {
-                      <span>{{ 'log-in' | translate }}</span>
-                    }
+                    {{ 'log-in' | translate }}
                   </button>
 
                   @if (signInError) {
@@ -104,10 +117,12 @@ export class AuthSmartComponent implements OnInit {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly themeService = inject(ThemeService);
   private readonly authService = inject(AuthService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly translate = inject(TranslateService);
 
   readonly safeSvg = this.sanitizer.bypassSecurityTrustHtml(logoSvg);
   readonly isDarkMode = this.themeService.isDarkTheme;
-  readonly isLoading = this.authService.acting;
+  readonly isSubmitting = signal(false);
 
   signInError = '';
 
@@ -131,16 +146,51 @@ export class AuthSmartComponent implements OnInit {
   }
 
   async onSubmit(): Promise<void> {
-    if (this.authForm.valid) {
+    if (this.authForm.valid && !this.isSubmitting()) {
+      this.isSubmitting.set(true);
+      this.signInError = '';
+      
       const { email, password } = this.authForm.value as AuthFormData;
 
-      const success = await this.authService.signIn(email, password);
-      if (success) {
-        this.authForm.reset();
-        await this.router.navigate(['/dashboard/panel']);
-      } else {
-        this.signInError = 'invalid_login';
+      try {
+        const success = await this.authService.signIn(email, password);
+        
+        if (success) {
+          // Success notification
+          this.notificationService.showSuccess('login_success', {
+            translateParams: { name: email.split('@')[0] }
+          }).subscribe();
+          
+          this.authForm.reset();
+          await this.router.navigate(['/dashboard/panel']);
+        } else {
+          // Invalid credentials
+          this.handleAuthError('invalid_login');
+        }
+      } catch (error: any) {
+        // Handle specific error types
+        if (error?.message?.includes('Invalid login')) {
+          this.handleAuthError('invalid_login');
+        } else if (error?.message?.includes('Email not confirmed')) {
+          this.handleAuthError('email_not_confirmed');
+        } else if (error?.message?.includes('Too many requests')) {
+          this.handleAuthError('too_many_attempts');
+        } else if (error?.message?.includes('Network')) {
+          this.handleAuthError('network_error');
+        } else {
+          // Generic error
+          this.handleAuthError('auth_error_generic');
+        }
+      } finally {
+        this.isSubmitting.set(false);
       }
     }
+  }
+
+  private handleAuthError(errorKey: string): void {
+    this.signInError = errorKey;
+    this.notificationService.showError(errorKey, {
+      autoClose: 7000
+    }).subscribe();
   }
 }

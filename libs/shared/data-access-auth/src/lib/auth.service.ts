@@ -52,7 +52,7 @@ export class AuthService {
     this.#acting.set(true);
     this.#loading.set(true);
 
-    const { data } = await tryCatch(() =>
+    const { data, error } = await tryCatch(() =>
       this.#supabase.auth.signInWithPassword({
         email,
         password,
@@ -61,6 +61,11 @@ export class AuthService {
 
     this.#acting.set(false);
     this.#loading.set(false);
+
+    // If there's an error, throw it so the component can handle it
+    if (error && !data) {
+      throw error;
+    }
 
     return !!data;
   }
