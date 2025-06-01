@@ -6,7 +6,7 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '@zambia/data-access-auth';
 import { Router } from '@angular/router';
-import { TuiButton, TuiIcon } from '@taiga-ui/core';
+import { TuiButton } from '@taiga-ui/core';
 import { TuiButtonLoading } from '@taiga-ui/kit';
 import { NotificationService } from '@zambia/data-access-generic';
 
@@ -19,14 +19,13 @@ interface AuthFormData {
   selector: 'z-auth',
   standalone: true,
   imports: [
-    CommonModule, 
-    ReactiveFormsModule, 
-    FormsModule, 
-    TranslatePipe, 
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    TranslatePipe,
     FormFieldComponent,
     TuiButton,
     TuiButtonLoading,
-    TuiIcon
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
@@ -149,27 +148,29 @@ export class AuthSmartComponent implements OnInit {
     if (this.authForm.valid && !this.isSubmitting()) {
       this.isSubmitting.set(true);
       this.signInError = '';
-      
+
       const { email, password } = this.authForm.value as AuthFormData;
 
       try {
         const success = await this.authService.signIn(email, password);
-        
+
         if (success) {
-          // Success notification
-          this.notificationService.showSuccess('login_success', {
-            translateParams: { name: email.split('@')[0] }
-          }).subscribe();
-          
+          this.notificationService
+            .showSuccess('login_success', {
+              translateParams: { name: email.split('@')[0] },
+            })
+            .subscribe();
+
           this.authForm.reset();
           await this.router.navigate(['/dashboard/panel']);
         } else {
-          // Invalid credentials
           this.handleAuthError('invalid_login');
         }
       } catch (error: any) {
         // Handle specific error types
-        if (error?.message?.includes('Invalid login')) {
+        if (error?.message?.includes('Failed to fetch') || error?.name === 'AuthRetryableFetchError') {
+          this.handleAuthError('network_error');
+        } else if (error?.message?.includes('Invalid login')) {
           this.handleAuthError('invalid_login');
         } else if (error?.message?.includes('Email not confirmed')) {
           this.handleAuthError('email_not_confirmed');
@@ -189,8 +190,10 @@ export class AuthSmartComponent implements OnInit {
 
   private handleAuthError(errorKey: string): void {
     this.signInError = errorKey;
-    this.notificationService.showError(errorKey, {
-      autoClose: 7000
-    }).subscribe();
+    this.notificationService
+      .showError(errorKey, {
+        autoClose: 7000,
+      })
+      .subscribe();
   }
 }

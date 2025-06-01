@@ -52,22 +52,33 @@ export class AuthService {
     this.#acting.set(true);
     this.#loading.set(true);
 
-    const { data, error } = await tryCatch(() =>
-      this.#supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-    );
+    try {
+      const result = await tryCatch(() =>
+        this.#supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
+      );
 
-    this.#acting.set(false);
-    this.#loading.set(false);
+      this.#acting.set(false);
+      this.#loading.set(false);
 
-    // If there's an error, throw it so the component can handle it
-    if (error && !data) {
+      // Check if there was an error in the tryCatch result
+      if (result.error) {
+        throw result.error;
+      }
+
+      // Check if the authentication was successful
+      if (!result.data || !result.data.session) {
+        throw new Error('Invalid login credentials');
+      }
+
+      return true;
+    } catch (error) {
+      this.#acting.set(false);
+      this.#loading.set(false);
       throw error;
     }
-
-    return !!data;
   }
 
   async signOut() {
