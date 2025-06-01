@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 
 import { Session } from '@supabase/supabase-js';
 import { SupabaseService } from '@zambia/data-access-supabase';
-import { tryCatch } from '@zambia/data-access-generic';
 
 @Injectable({
   providedIn: 'root',
@@ -52,33 +51,22 @@ export class AuthService {
     this.#acting.set(true);
     this.#loading.set(true);
 
-    try {
-      const result = await tryCatch(() =>
-        this.#supabase.auth.signInWithPassword({
-          email,
-          password,
-        })
-      );
+    const { data, error } = await this.#supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-      this.#acting.set(false);
-      this.#loading.set(false);
-
-      // Check if there was an error in the tryCatch result
-      if (result.error) {
-        throw result.error;
-      }
-
-      // Check if the authentication was successful
-      if (!result.data || !result.data.session) {
-        throw new Error('Invalid login credentials');
-      }
-
-      return true;
-    } catch (error) {
-      this.#acting.set(false);
-      this.#loading.set(false);
+    if (error) {
       throw error;
     }
+
+    if (!data || !data?.session) {
+      throw new Error('Invalid login credentials');
+    }
+
+    this.#acting.set(false);
+    this.#loading.set(false);
+    return true;
   }
 
   async signOut() {
