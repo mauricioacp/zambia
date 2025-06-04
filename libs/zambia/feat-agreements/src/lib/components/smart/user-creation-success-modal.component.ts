@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TuiDialogContext } from '@taiga-ui/core';
 import { POLYMORPHEUS_CONTEXT } from '@taiga-ui/polymorpheus';
 import { TranslateModule } from '@ngx-translate/core';
-import { TuiButton, TuiIcon } from '@taiga-ui/core';
+import { TuiButton, TuiIcon, TuiAlertService } from '@taiga-ui/core';
 
 interface UserCreationData {
   email: string;
@@ -71,7 +71,7 @@ interface UserCreationData {
             </button>
           </div>
           <p class="text-xs text-amber-700 dark:text-amber-300">
-            <tui-icon icon="@tui.alert-triangle" class="mr-1"></tui-icon>
+            <tui-icon icon="@tui.triangle-alert" class="mr-1"></tui-icon>
             {{ 'password_security_notice' | translate }}
           </p>
         </div>
@@ -88,14 +88,58 @@ interface UserCreationData {
 })
 export class UserCreationSuccessModalComponent {
   private readonly context = inject<TuiDialogContext<void, UserCreationData>>(POLYMORPHEUS_CONTEXT);
+  private readonly alerts = inject(TuiAlertService);
 
   get userData(): UserCreationData {
+    console.log(this.context.data);
     return this.context.data;
   }
 
   copyPassword(): void {
-    navigator.clipboard.writeText(this.userData.password);
-    // You might want to show a toast notification here
+    const password = this.userData.password;
+
+    // Modern clipboard API with fallback
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard
+        .writeText(password)
+        .then(() => {
+          this.alerts.open('Password copied to clipboard!', { appearance: 'positive' }).subscribe();
+        })
+        .catch((err) => {
+          console.error('Failed to copy with clipboard API:', err);
+          this.fallbackCopyToClipboard(password);
+        });
+    } else {
+      // Fallback for older browsers or non-secure contexts
+      this.fallbackCopyToClipboard(password);
+    }
+  }
+
+  private fallbackCopyToClipboard(text: string): void {
+    // Create a temporary textarea element
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+
+    try {
+      textArea.focus();
+      textArea.select();
+
+      const successful = document.execCommand('copy');
+      if (successful) {
+        this.alerts.open('Password copied to clipboard!', { appearance: 'positive' }).subscribe();
+      } else {
+        this.alerts.open('Failed to copy password. Please copy manually.', { appearance: 'negative' }).subscribe();
+      }
+    } catch (err) {
+      console.error('Fallback copy failed:', err);
+      this.alerts.open('Failed to copy password. Please copy manually.', { appearance: 'negative' }).subscribe();
+    } finally {
+      document.body.removeChild(textArea);
+    }
   }
 
   close(): void {

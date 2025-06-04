@@ -34,11 +34,11 @@ export class ExampleUsageComponent {
       return;
     }
 
-    if (response.data?.user) {
-      const { user } = response.data;
-      this.notification.success(`User created successfully! Email: ${user.email}, Password: ${user.password}`);
+    if (response.data) {
+      const userData = response.data;
+      this.notification.success(`User created successfully! Email: ${userData.email}, Password: ${userData.password}`);
       // IMPORTANT: Securely communicate the password to the user
-      console.log('Generated password:', user.password);
+      console.log('Generated password:', userData.password);
     }
   }
 

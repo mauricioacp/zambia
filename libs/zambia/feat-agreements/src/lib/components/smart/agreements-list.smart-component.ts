@@ -290,6 +290,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
       type: 'text',
       sortable: true,
       searchable: true,
+      width: 250,
     },
     {
       key: 'role',
@@ -297,6 +298,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
       type: 'text',
       sortable: true,
       searchable: true,
+      width: 150,
     },
     {
       key: 'headquarter',
@@ -304,24 +306,28 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
       type: 'text',
       sortable: true,
       searchable: true,
+      width: 180,
     },
     {
       key: 'status',
       label: this.translate.instant('agreement_status'),
       type: 'status',
       sortable: true,
+      width: 120,
     },
     {
       key: 'createdAt',
       label: this.translate.instant('agreement_start_date'),
       type: 'date',
       sortable: true,
+      width: 150,
     },
     {
       key: 'actions',
       label: this.translate.instant('actions'),
       type: 'actions',
       sortable: false,
+      width: 200,
     },
   ];
 
@@ -623,19 +629,34 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
         return;
       }
 
-      if (response.data?.user) {
-        const { user } = response.data;
-        // Show success with generated password
+      if (response.data) {
+        // Log the raw response to debug
+        console.log('Raw API response:', response);
+        console.log('Response data:', response.data);
+
+        // Transform the response data to match the expected structure
+        const userData = {
+          email: response.data.email || agreement.email || '',
+          password: response.data.password || '',
+          role: response.data.role_name || agreement.role || '',
+          user_metadata: {
+            first_name: agreement.name || '',
+            last_name: agreement.lastName || '',
+            phone: response.data.phone || agreement.phone || '',
+          },
+        };
+
+        console.log('Transformed user data for modal:', userData);
+
         this.dialogs
           .open<void>(new PolymorpheusComponent(UserCreationSuccessModalComponent), {
             dismissible: true,
             size: 'm',
-            data: user,
+            data: userData,
             label: this.translate.instant('user_created_successfully'),
           })
           .subscribe();
 
-        // Reload agreements to update status
         this.agreementsFacade.agreements.reload();
       }
     } catch (error) {

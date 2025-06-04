@@ -3,22 +3,14 @@ export interface CreateUserRequest {
 }
 
 export interface UserCreationResponse {
-  success: boolean;
-  user?: {
-    id: string;
-    email: string;
-    role: string;
-    password: string;
-    user_metadata: {
-      agreement_id: string;
-      role_level: number;
-      first_name: string;
-      last_name: string;
-      document_number: string;
-      phone: string;
-    };
-  };
-  error?: string;
+  user_id: string;
+  email: string;
+  password: string;
+  headquarter_name: string;
+  country_name: string;
+  season_name: string;
+  role_name: string;
+  phone: string;
 }
 
 export interface ResetPasswordRequest {

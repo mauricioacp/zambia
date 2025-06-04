@@ -24,6 +24,7 @@ import {
   TuiTextfield,
   TuiLabel,
   TuiLoader,
+  TuiHint,
 } from '@taiga-ui/core';
 import {
   TuiAvatar,
@@ -92,6 +93,7 @@ export interface TableColumn {
     TranslatePipe,
     TuiChip,
     TuiLineClamp,
+    TuiHint,
   ],
   template: `
     <div class="h-full w-full overflow-auto p-6 dark:bg-gray-900">
@@ -192,7 +194,7 @@ export interface TableColumn {
               <table
                 [attr.tuiTheme]="currentTheme()"
                 tuiTable
-                class="min-w-full bg-white dark:bg-gray-800"
+                class="w-full table-fixed bg-white dark:bg-gray-800"
                 [columns]="displayHeaders()"
                 size="m"
               >
@@ -231,18 +233,31 @@ export interface TableColumn {
                                   [style.background]="getAvatarText(item, column.key) | tuiAutoColor"
                                   size="s"
                                 ></tui-avatar>
-                                <div class="max-w-[200px] min-w-0 flex-1">
-                                  <tui-line-clamp [lineHeight]="20" [linesLimit]="1" class="block">
+                                <div
+                                  class="max-w-[200px] min-w-0 flex-1"
+                                  [tuiHint]="getDisplayValue(item, column.key)"
+                                  tuiHintDirection="top"
+                                >
+                                  <tui-line-clamp [content]="title" [lineHeight]="20" [linesLimit]="1" class="block">
+                                  </tui-line-clamp>
+                                  <ng-template #title>
                                     <span tuiTitle class="whitespace-nowrap">
                                       {{ getDisplayValue(item, column.key) }}
                                     </span>
-                                  </tui-line-clamp>
+                                  </ng-template>
                                   @if (getSubtitle(item, column.key); as subtitle) {
-                                    <tui-line-clamp [lineHeight]="16" [linesLimit]="1" class="block">
+                                    <tui-line-clamp
+                                      [content]="subtitleTemplate"
+                                      [lineHeight]="16"
+                                      [linesLimit]="1"
+                                      class="block"
+                                    >
+                                    </tui-line-clamp>
+                                    <ng-template #subtitleTemplate>
                                       <span tuiSubtitle class="text-sm whitespace-nowrap text-gray-500">
                                         {{ subtitle }}
                                       </span>
-                                    </tui-line-clamp>
+                                    </ng-template>
                                   }
                                 </div>
                               </div>
@@ -266,25 +281,27 @@ export interface TableColumn {
                                     <a
                                       [routerLink]="action.routerLink(item)"
                                       tuiButton
-                                      appearance="action"
-                                      [iconStart]="action.icon"
+                                      appearance="flat"
+                                      [iconStart]="action.icon || '@tui.more-horizontal'"
                                       size="xs"
-                                      class="action-button"
+                                      class="action-button !p-1"
+                                      [tuiHint]="action.label"
+                                      tuiHintDirection="top"
                                     >
-                                      {{ action.label }}
                                     </a>
                                   } @else {
                                     <button
                                       tuiButton
-                                      appearance="action"
-                                      [iconStart]="action.icon"
+                                      appearance="flat"
+                                      [iconStart]="action.icon || '@tui.more-horizontal'"
                                       size="xs"
                                       (click)="action.handler(item); $event.stopPropagation()"
                                       [disabled]="isActionDisabled(action, item)"
                                       [class]="getActionButtonClass(action)"
-                                    >
-                                      {{ action.label }}
-                                    </button>
+                                      [tuiHint]="action.label"
+                                      tuiHintDirection="top"
+                                      class="!p-1"
+                                    ></button>
                                   }
                                 }
                               </span>
@@ -297,7 +314,13 @@ export interface TableColumn {
                               }
                             }
                             @default {
-                              <span>{{ getDisplayValue(item, column.key) }}</span>
+                              <span
+                                class="block truncate"
+                                [tuiHint]="getDisplayValue(item, column.key)"
+                                tuiHintDirection="top"
+                              >
+                                {{ getDisplayValue(item, column.key) }}
+                              </span>
                             }
                           }
                         </td>
