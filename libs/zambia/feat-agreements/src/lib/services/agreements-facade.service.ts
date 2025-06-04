@@ -123,7 +123,7 @@ export class AgreementsFacadeService {
   agreementByIdResource = linkedSignal(() => this.agreementById.value() ?? null);
 
   currentPage = signal(1);
-  pageSize = signal(10);
+  pageSize = signal(1000); // Fetch all records for client-side pagination
   totalItems = signal(0);
   isLoading = signal(false);
   status = signal<string | null>(null);
@@ -192,8 +192,21 @@ export class AgreementsFacadeService {
           };
         }
 
+        // Map the data to include flattened fields for the view
+        const mappedData = response.data.map((agreement: AgreementWithShallowRelations) => ({
+          ...agreement,
+          headquarter_name: agreement.headquarter_name,
+          country_name: agreement.country_name,
+          season_name: agreement.season_name,
+        }));
+
+        console.log('Fetched agreements:', mappedData.length, 'total:', response.pagination.total);
+
         this.totalItems.set(response.pagination.total);
-        return response;
+        return {
+          data: mappedData,
+          pagination: response.pagination,
+        };
       } finally {
         this.isLoading.set(false);
       }

@@ -7,7 +7,7 @@ import { Subject } from 'rxjs';
 
 import { AgreementsFacadeService, AgreementWithShallowRelations } from '../../services/agreements-facade.service';
 import { RoleService } from '@zambia/data-access-roles-permissions';
-import { ExportService, NotificationService } from '@zambia/data-access-generic';
+import { ExportService, NotificationService, AkademyEdgeFunctionsService } from '@zambia/data-access-generic';
 
 import {
   EnhancedTableUiComponent,
@@ -22,8 +22,11 @@ import { TuiButton, TuiDialogService, TuiIcon, TuiLink } from '@taiga-ui/core';
 import { TuiBreadcrumbs, TuiSkeleton } from '@taiga-ui/kit';
 import { TuiItem } from '@taiga-ui/cdk';
 
-import { HasRoleDirective } from '@zambia/util-roles-permissions';
+import { ROLE } from '@zambia/util-roles-definitions';
 import { ICONS } from '@zambia/util-constants';
+import { UserCreationSuccessModalComponent } from './user-creation-success-modal.component';
+import { PasswordResetModalComponent } from './password-reset-modal.component';
+import { HasRoleDirective } from '@zambia/util-roles-permissions';
 
 interface AgreementListData {
   id: string;
@@ -34,8 +37,10 @@ interface AgreementListData {
   status: 'pending' | 'active' | 'inactive' | 'completed';
   headquarter: string;
   createdAt: string;
-  agreementType: string;
   verificationType: 'verified' | 'pending' | 'rejected';
+  userId?: string;
+  phone?: string;
+  documentNumber?: string;
 }
 
 interface StatCard {
@@ -60,8 +65,8 @@ interface StatCard {
     TuiBreadcrumbs,
     TuiItem,
     TuiLink,
-    HasRoleDirective,
     RouterLink,
+    HasRoleDirective,
   ],
   template: `
     <div class="min-h-screen bg-gray-50 dark:bg-slate-800">
@@ -102,6 +107,19 @@ interface StatCard {
                 class="border-emerald-500 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
               >
                 {{ 'export' | translate }}
+              </button>
+              <button
+                *zHasRole="[ROLE.SUPERADMIN]"
+                tuiButton
+                appearance="secondary"
+                size="l"
+                iconStart="@tui.database"
+                [attr.tuiTheme]="currentTheme()"
+                (click)="onMigrateFromStrapi()"
+                [disabled]="isProcessing()"
+                class="border-purple-500 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+              >
+                {{ 'migrate_from_strapi' | translate }}
               </button>
               <button
                 *zHasRole="allowedRolesForAgreementCreation()"
@@ -167,6 +185,8 @@ interface StatCard {
               [enableFiltering]="true"
               [enableColumnVisibility]="true"
               [showCreateButton]="false"
+              [pageSize]="25"
+              [pageSizeOptions]="[10, 25, 50, 100]"
             />
           </div>
         } @placeholder {
@@ -225,9 +245,11 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private exportService = inject(ExportService);
   private translate = inject(TranslateService);
+  private edgeFunctions = inject(AkademyEdgeFunctionsService);
 
   protected currentTheme = injectCurrentTheme();
   protected ICONS = ICONS;
+  protected ROLE = ROLE;
   protected isProcessing = signal(false);
 
   protected isLoading = computed(() => this.agreementsFacade.isAgreementsLoading());
@@ -260,6 +282,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
       type: 'avatar',
       sortable: true,
       searchable: true,
+      width: 250,
     },
     {
       key: 'email',
@@ -283,12 +306,6 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
       searchable: true,
     },
     {
-      key: 'agreementType',
-      label: this.translate.instant('agreement_type'),
-      type: 'text',
-      sortable: true,
-    },
-    {
       key: 'status',
       label: this.translate.instant('agreement_status'),
       type: 'status',
@@ -299,6 +316,12 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
       label: this.translate.instant('agreement_start_date'),
       type: 'date',
       sortable: true,
+    },
+    {
+      key: 'actions',
+      label: this.translate.instant('actions'),
+      type: 'actions',
+      sortable: false,
     },
   ];
 
@@ -311,11 +334,32 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
       visible: () => true,
     },
     {
-      label: this.translate.instant('activate_agreement'),
-      icon: '@tui.play',
+      label: this.translate.instant('create_user'),
+      icon: '@tui.user-plus',
       color: 'primary',
-      handler: (item: AgreementListData) => this.onActivateAgreement(item),
-      visible: (item: AgreementListData) => this.canEdit() && item.status !== 'active',
+      handler: (item: AgreementListData) => this.onCreateUserFromAgreement(item),
+      visible: (item: AgreementListData) => {
+        const roleLevel = Number(this.roleService.roleLevel() || 0);
+        const hasValidStatus = item.status === 'pending' || item.status === 'inactive';
+        const hasNoUser = !item.userId;
+        return roleLevel >= 30 && hasValidStatus && hasNoUser;
+      },
+    },
+    {
+      label: this.translate.instant('deactivate_user'),
+      icon: '@tui.user-x',
+      color: 'warning',
+      handler: (item: AgreementListData) => this.onDeactivateUser(item),
+      visible: (item: AgreementListData) =>
+        Number(this.roleService.roleLevel() || 0) >= 50 && item.status === 'active' && item.userId !== undefined,
+    },
+    {
+      label: this.translate.instant('reset_password'),
+      icon: '@tui.key',
+      color: 'secondary',
+      handler: (item: AgreementListData) => this.onResetPassword(item),
+      visible: (item: AgreementListData) =>
+        Number(this.roleService.roleLevel() || 0) >= 1 && item.status === 'active' && item.userId !== undefined,
     },
     {
       label: this.translate.instant('deactivate_agreement'),
@@ -328,6 +372,9 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadInitialData();
+    console.log('Current user role:', this.roleService.userRole());
+    console.log('Current role level:', this.roleService.roleLevel());
+    console.log('Is superadmin:', this.roleService.hasRole(ROLE.SUPERADMIN));
   }
 
   ngOnDestroy(): void {
@@ -348,7 +395,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   };
 
   private transformAgreementsData(agreements: AgreementWithShallowRelations[]): AgreementListData[] {
-    return agreements.map((agreement) => ({
+    const transformed = agreements.map((agreement) => ({
       id: agreement.id,
       name: agreement.name || this.translate.instant('no_name'),
       lastName: agreement.last_name || '',
@@ -357,9 +404,26 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
       status: this.mapStatus(agreement.status || 'pending'),
       headquarter: agreement.headquarter_name || this.translate.instant('no_headquarter'),
       createdAt: agreement.created_at || '',
-      agreementType: this.translate.instant('not_specified'), // TODO: Add agreement_type to database
-      verificationType: 'pending', // TODO: Add verification_status to database
+      verificationType: 'pending' as 'pending' | 'verified' | 'rejected', // TODO: Add verification_status to database
+      userId: agreement.user_id || undefined,
+      phone: agreement.phone || undefined,
+      documentNumber: agreement.document_number || undefined,
     }));
+
+    // Debug: Log first item to see available actions
+    if (transformed.length > 0) {
+      const firstItem = transformed[0];
+      console.log('First agreement:', firstItem);
+      console.log(
+        'Available actions for first item:',
+        this.tableActions.map((action) => ({
+          label: action.label,
+          visible: action.visible ? action.visible(firstItem) : true,
+        }))
+      );
+    }
+
+    return transformed;
   }
 
   private getStatsCards(): StatCard[] {
@@ -421,6 +485,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
       completed: 'completed',
       draft: 'pending',
       approved: 'active',
+      prospect: 'pending', // Map prospect to pending for UI consistency
     };
     return statusMap[status] || 'pending';
   }
@@ -432,21 +497,6 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   protected onCreateAgreement(): void {
     console.log('Create agreement modal - to be implemented');
     this.notificationService.showInfo(this.translate.instant('feature_coming_soon'));
-  }
-
-  protected async onActivateAgreement(agreement: AgreementListData): Promise<void> {
-    try {
-      this.isProcessing.set(true);
-      await this.agreementsFacade.activateAgreement(agreement.id);
-      this.notificationService.showSuccess(
-        this.translate.instant('agreement_activation_success', { name: `${agreement.name} ${agreement.lastName}` })
-      );
-    } catch (error) {
-      console.error('Error activating agreement:', error);
-      this.notificationService.showError(this.translate.instant('agreement_activation_error'));
-    } finally {
-      this.isProcessing.set(false);
-    }
   }
 
   protected async onDeactivateAgreement(agreement: AgreementListData): Promise<void> {
@@ -532,5 +582,154 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
         format: options.format.toUpperCase(),
       })
     );
+  }
+
+  protected async onMigrateFromStrapi(): Promise<void> {
+    try {
+      this.isProcessing.set(true);
+      const response = await this.edgeFunctions.migrate();
+
+      if (response.error) {
+        this.notificationService.showError(this.translate.instant('migration_failed', { error: response.error }));
+        return;
+      }
+
+      if (response.data) {
+        const { statistics } = response.data;
+        this.notificationService.showSuccess(
+          this.translate.instant('migration_success', {
+            inserted: statistics.supabaseInserted,
+            skipped: statistics.supabaseSkippedDuplicates,
+          })
+        );
+        // Reload agreements to show migrated data
+        this.agreementsFacade.agreements.reload();
+      }
+    } catch (error) {
+      console.error('Migration error:', error);
+      this.notificationService.showError(this.translate.instant('migration_error'));
+    } finally {
+      this.isProcessing.set(false);
+    }
+  }
+
+  protected async onCreateUserFromAgreement(agreement: AgreementListData): Promise<void> {
+    try {
+      this.isProcessing.set(true);
+      const response = await this.edgeFunctions.createUser({ agreement_id: agreement.id });
+
+      if (response.error) {
+        this.notificationService.showError(this.translate.instant('user_creation_failed', { error: response.error }));
+        return;
+      }
+
+      if (response.data?.user) {
+        const { user } = response.data;
+        // Show success with generated password
+        this.dialogs
+          .open<void>(new PolymorpheusComponent(UserCreationSuccessModalComponent), {
+            dismissible: true,
+            size: 'm',
+            data: user,
+            label: this.translate.instant('user_created_successfully'),
+          })
+          .subscribe();
+
+        // Reload agreements to update status
+        this.agreementsFacade.agreements.reload();
+      }
+    } catch (error) {
+      console.error('User creation error:', error);
+      this.notificationService.showError(this.translate.instant('user_creation_error'));
+    } finally {
+      this.isProcessing.set(false);
+    }
+  }
+
+  protected async onDeactivateUser(agreement: AgreementListData): Promise<void> {
+    if (!agreement.userId) {
+      this.notificationService.showError(this.translate.instant('no_user_id_found'));
+      return;
+    }
+
+    try {
+      this.isProcessing.set(true);
+      const response = await this.edgeFunctions.deactivateUser({ user_id: agreement.userId });
+
+      if (response.error) {
+        this.notificationService.showError(
+          this.translate.instant('user_deactivation_failed', { error: response.error })
+        );
+        return;
+      }
+
+      if (response.data) {
+        this.notificationService.showSuccess(
+          this.translate.instant('user_deactivation_success', {
+            name: `${agreement.name} ${agreement.lastName}`,
+          })
+        );
+        // Reload agreements to update status
+        this.agreementsFacade.agreements.reload();
+      }
+    } catch (error) {
+      console.error('User deactivation error:', error);
+      this.notificationService.showError(this.translate.instant('user_deactivation_error'));
+    } finally {
+      this.isProcessing.set(false);
+    }
+  }
+
+  protected async onResetPassword(agreement: AgreementListData): Promise<void> {
+    if (!agreement.userId) {
+      this.notificationService.showError(this.translate.instant('no_user_id_found'));
+      return;
+    }
+
+    // Open password reset form modal
+    this.dialogs
+      .open<{ newPassword: string } | null>(new PolymorpheusComponent(PasswordResetModalComponent), {
+        dismissible: true,
+        size: 'm',
+        data: {
+          name: agreement.name,
+          lastName: agreement.lastName,
+          email: agreement.email,
+        },
+        label: this.translate.instant('reset_password'),
+      })
+      .subscribe(async (formData) => {
+        if (formData) {
+          await this.performPasswordReset(agreement, formData);
+        }
+      });
+  }
+
+  private async performPasswordReset(agreement: AgreementListData, formData: { newPassword: string }): Promise<void> {
+    try {
+      this.isProcessing.set(true);
+      const response = await this.edgeFunctions.resetPassword({
+        email: agreement.email,
+        document_number: agreement.documentNumber || '',
+        new_password: formData.newPassword,
+        phone: agreement.phone || '',
+        first_name: agreement.name,
+        last_name: agreement.lastName,
+      });
+
+      if (response.error) {
+        this.notificationService.showError(this.translate.instant('password_reset_failed', { error: response.error }));
+        return;
+      }
+
+      if (response.data) {
+        this.notificationService.showSuccess(response.data.message);
+      }
+    } catch (error) {
+      console.error('Password reset error:', error);
+      this.notificationService.showError(this.translate.instant('password_reset_error'));
+    } finally {
+      this.isProcessing.set(false);
+    }
   }
 }

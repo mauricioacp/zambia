@@ -10,8 +10,6 @@ import {
   DeactivateUserRequest,
   DeactivateUserResponse,
   MigrationResponse,
-  HealthResponse,
-  ApiStatusResponse,
   ApiResponse,
 } from './akademy-edge-functions.types';
 
@@ -26,8 +24,6 @@ export class AkademyEdgeFunctionsService {
   private lastError = signal<string | null>(null);
 
   // Response signals for each endpoint
-  private apiStatusData = signal<ApiStatusResponse | null>(null);
-  private healthData = signal<HealthResponse | null>(null);
   private migrationData = signal<MigrationResponse | null>(null);
   private userCreationData = signal<UserCreationResponse | null>(null);
   private passwordResetData = signal<PasswordResetResponse | null>(null);
@@ -36,8 +32,6 @@ export class AkademyEdgeFunctionsService {
   // Read-only signals
   readonly loading = this.isLoading.asReadonly();
   readonly error = this.lastError.asReadonly();
-  readonly apiStatus = this.apiStatusData.asReadonly();
-  readonly health = this.healthData.asReadonly();
   readonly migration = this.migrationData.asReadonly();
   readonly userCreation = this.userCreationData.asReadonly();
   readonly passwordReset = this.passwordResetData.asReadonly();
@@ -104,55 +98,48 @@ export class AkademyEdgeFunctionsService {
     }
   }
 
-  async getApiStatus(): Promise<void> {
-    const response = await this.invokeFunction<ApiStatusResponse>('akademy', { method: 'GET' });
-    if (response.data) {
-      this.apiStatusData.set(response.data);
-    }
-  }
-
-  async getHealth(): Promise<void> {
-    const response = await this.invokeFunction<HealthResponse>('akademy/health', { method: 'GET' });
-    if (response.data) {
-      this.healthData.set(response.data);
-    }
-  }
-
-  async migrate(superPassword: string): Promise<void> {
-    const response = await this.invokeFunction<MigrationResponse>('akademy/migrate', {
+  async migrate(): Promise<ApiResponse<MigrationResponse>> {
+    const response = await this.invokeFunction<MigrationResponse>('akademy-app/migrate', {
+      method: 'POST',
       body: {},
-      headers: { 'x-super-password': superPassword },
     });
     if (response.data) {
       this.migrationData.set(response.data);
     }
+    return response;
   }
 
-  async createUser(request: CreateUserRequest): Promise<void> {
-    const response = await this.invokeFunction<{ data: UserCreationResponse }>('akademy/create-user', {
+  async createUser(request: CreateUserRequest): Promise<ApiResponse<UserCreationResponse>> {
+    const response = await this.invokeFunction<UserCreationResponse>('akademy-app/create-user', {
+      method: 'POST',
       body: request,
     });
     if (response.data) {
-      this.userCreationData.set(response.data.data);
+      this.userCreationData.set(response.data);
     }
+    return response;
   }
 
-  async resetPassword(request: ResetPasswordRequest): Promise<void> {
-    const response = await this.invokeFunction<{ data: PasswordResetResponse }>('akademy/reset-password', {
+  async resetPassword(request: ResetPasswordRequest): Promise<ApiResponse<PasswordResetResponse>> {
+    const response = await this.invokeFunction<PasswordResetResponse>('akademy-app/reset-password', {
+      method: 'POST',
       body: request,
     });
     if (response.data) {
-      this.passwordResetData.set(response.data.data);
+      this.passwordResetData.set(response.data);
     }
+    return response;
   }
 
-  async deactivateUser(request: DeactivateUserRequest): Promise<void> {
-    const response = await this.invokeFunction<{ data: DeactivateUserResponse }>('akademy/deactivate-user', {
+  async deactivateUser(request: DeactivateUserRequest): Promise<ApiResponse<DeactivateUserResponse>> {
+    const response = await this.invokeFunction<DeactivateUserResponse>('akademy-app/deactivate-user', {
+      method: 'POST',
       body: request,
     });
     if (response.data) {
-      this.userDeactivationData.set(response.data.data);
+      this.userDeactivationData.set(response.data);
     }
+    return response;
   }
 
   clearError(): void {
@@ -160,8 +147,6 @@ export class AkademyEdgeFunctionsService {
   }
 
   clearData(): void {
-    this.apiStatusData.set(null);
-    this.healthData.set(null);
     this.migrationData.set(null);
     this.userCreationData.set(null);
     this.passwordResetData.set(null);

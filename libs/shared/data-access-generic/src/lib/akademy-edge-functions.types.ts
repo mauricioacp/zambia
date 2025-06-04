@@ -3,14 +3,22 @@ export interface CreateUserRequest {
 }
 
 export interface UserCreationResponse {
-  user_id: string;
-  email: string;
-  password: string;
-  headquarter_name: string;
-  country_name: string;
-  season_name: string;
-  role_name: string;
-  phone?: string;
+  success: boolean;
+  user?: {
+    id: string;
+    email: string;
+    role: string;
+    password: string;
+    user_metadata: {
+      agreement_id: string;
+      role_level: number;
+      first_name: string;
+      last_name: string;
+      document_number: string;
+      phone: string;
+    };
+  };
+  error?: string;
 }
 
 export interface ResetPasswordRequest {
@@ -23,9 +31,9 @@ export interface ResetPasswordRequest {
 }
 
 export interface PasswordResetResponse {
+  success: boolean;
   message: string;
-  new_password: string;
-  user_email: string;
+  error?: string;
 }
 
 export interface DeactivateUserRequest {
@@ -33,41 +41,24 @@ export interface DeactivateUserRequest {
 }
 
 export interface DeactivateUserResponse {
+  success: boolean;
   message: string;
-  user_id: string;
-}
-
-export interface ProcessedAgreement {
-  id: number;
-  email: string;
-  name: string;
-  headquarters: string;
-  role: string;
-  status: 'inserted' | 'updated' | 'skipped';
+  error?: string;
 }
 
 export interface MigrationResponse {
   success: boolean;
   statistics: {
-    strapiTotal: number;
+    strapiAgreementsFetched: number;
     supabaseInserted: number;
-    supabaseUpdated: number;
-    duplicatesSkipped: number;
+    supabaseSkippedDuplicates: number;
+    supabaseErrors: number;
   };
-  processedData: ProcessedAgreement[];
-}
-
-export interface HealthResponse {
-  status: string;
-  timestamp: string;
-  services: string[];
-}
-
-export interface ApiStatusResponse {
-  status: string;
-  message: string;
-  timestamp: string;
-  endpoints: string[];
+  data?: {
+    inserted: unknown[];
+    errors: unknown[];
+  };
+  error?: string;
 }
 
 export interface ApiError {

@@ -34,6 +34,7 @@ import {
   TuiDataListWrapper,
   TuiPagination,
   TuiChip,
+  TuiLineClamp,
 } from '@taiga-ui/kit';
 import { TuiCell } from '@taiga-ui/layout';
 import { TuiLet, TUI_DEFAULT_MATCHER } from '@taiga-ui/cdk';
@@ -90,6 +91,7 @@ export interface TableColumn {
     TuiPagination,
     TranslatePipe,
     TuiChip,
+    TuiLineClamp,
   ],
   template: `
     <div class="h-full w-full overflow-auto p-6 dark:bg-gray-900">
@@ -223,18 +225,26 @@ export interface TableColumn {
                         >
                           @switch (column.type) {
                             @case ('avatar') {
-                              <div tuiCell="m">
+                              <div tuiCell="m" class="max-w-xs">
                                 <tui-avatar
                                   [src]="getAvatarText(item, column.key) | tuiInitials"
                                   [style.background]="getAvatarText(item, column.key) | tuiAutoColor"
                                   size="s"
                                 ></tui-avatar>
-                                <span tuiTitle>
-                                  {{ getDisplayValue(item, column.key) }}
+                                <div class="max-w-[200px] min-w-0 flex-1">
+                                  <tui-line-clamp [lineHeight]="20" [linesLimit]="1" class="block">
+                                    <span tuiTitle class="whitespace-nowrap">
+                                      {{ getDisplayValue(item, column.key) }}
+                                    </span>
+                                  </tui-line-clamp>
                                   @if (getSubtitle(item, column.key); as subtitle) {
-                                    <span tuiSubtitle>{{ subtitle }}</span>
+                                    <tui-line-clamp [lineHeight]="16" [linesLimit]="1" class="block">
+                                      <span tuiSubtitle class="text-sm whitespace-nowrap text-gray-500">
+                                        {{ subtitle }}
+                                      </span>
+                                    </tui-line-clamp>
                                   }
-                                </span>
+                                </div>
                               </div>
                             }
                             @case ('date') {
