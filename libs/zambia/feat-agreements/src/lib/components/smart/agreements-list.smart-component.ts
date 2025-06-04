@@ -1,16 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 
-// Services
 import { AgreementsFacadeService, AgreementWithShallowRelations } from '../../services/agreements-facade.service';
 import { RoleService } from '@zambia/data-access-roles-permissions';
 import { ExportService, NotificationService } from '@zambia/data-access-generic';
 
-// UI Components
 import {
   EnhancedTableUiComponent,
   ExportModalUiComponent,
@@ -20,12 +18,10 @@ import {
   TableColumn,
 } from '@zambia/ui-components';
 
-// TUI Components
 import { TuiButton, TuiDialogService, TuiIcon, TuiLink } from '@taiga-ui/core';
 import { TuiBreadcrumbs, TuiSkeleton } from '@taiga-ui/kit';
 import { TuiItem } from '@taiga-ui/cdk';
 
-// Guards and Directives
 import { HasRoleDirective } from '@zambia/util-roles-permissions';
 import { ICONS } from '@zambia/util-constants';
 
@@ -65,6 +61,7 @@ interface StatCard {
     TuiItem,
     TuiLink,
     HasRoleDirective,
+    RouterLink,
   ],
   template: `
     <div class="min-h-screen bg-gray-50 dark:bg-slate-800">
@@ -221,7 +218,6 @@ interface StatCard {
 export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  // Services
   private agreementsFacade = inject(AgreementsFacadeService);
   private roleService = inject(RoleService);
   private router = inject(Router);
@@ -230,40 +226,33 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   private exportService = inject(ExportService);
   private translate = inject(TranslateService);
 
-  // UI properties
   protected currentTheme = injectCurrentTheme();
   protected ICONS = ICONS;
   protected isProcessing = signal(false);
 
-  // Loading states
   protected isLoading = computed(() => this.agreementsFacade.isAgreementsLoading());
   protected errorMessage = computed(() => this.agreementsFacade.loadingError());
 
-  // Data
   protected agreementsData = computed(() => this.agreementsFacade.agreements.value()?.data || []);
   protected tableData = computed(() => this.transformAgreementsData(this.agreementsData()));
   protected hasData = computed(() => (this.agreementsData()?.length || 0) > 0);
   protected statsCards = computed(() => this.getStatsCards());
 
-  // Pagination
   protected currentPage = this.agreementsFacade.currentPage;
   protected pageSize = this.agreementsFacade.pageSize;
   protected totalPages = this.agreementsFacade.totalPages;
   protected totalItems = this.agreementsFacade.totalItems;
 
-  // Role-based permissions
   protected canCreate = computed(() =>
     this.roleService.isInAnyGroup(['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'])
   );
   protected canEdit = computed(() =>
     this.roleService.isInAnyGroup(['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'])
   );
-  protected canDelete = computed(() => this.roleService.isInAnyGroup(['ADMINISTRATION', 'TOP_MANAGEMENT']));
+  protected canDelete = computed(() => this.roleService.isInAnyGroup(['ADMINISTRATION']));
 
-  // Role-based access for UI
   protected allowedRolesForAgreementCreation = () => ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'];
 
-  // Table configuration
   protected tableColumns: TableColumn[] = [
     {
       key: 'name',
@@ -350,7 +339,6 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     this.agreementsFacade.agreements.reload();
   }
 
-  // Pagination methods
   protected onPageChange = (page: number): void => {
     this.agreementsFacade.onPageChange(page);
   };
@@ -442,7 +430,6 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   }
 
   protected onCreateAgreement(): void {
-    // TODO: Implement create modal
     console.log('Create agreement modal - to be implemented');
     this.notificationService.showInfo(this.translate.instant('feature_coming_soon'));
   }
@@ -481,7 +468,6 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     try {
       this.isProcessing.set(true);
 
-      // Get all agreements for export
       const agreements = await this.agreementsFacade.exportAgreements();
 
       if (!agreements || agreements.length === 0) {
@@ -489,7 +475,6 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
         return;
       }
 
-      // Open export options modal
       const dialog = this.dialogs.open<ExportOptions>(new PolymorpheusComponent(ExportModalUiComponent), {
         dismissible: true,
         size: 'm',
@@ -515,7 +500,6 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   }
 
   private handleExport(agreements: AgreementWithShallowRelations[], options: ExportOptions): void {
-    // Transform agreements to export format
     const exportData = agreements.map((agreement) => ({
       name: agreement.name || '',
       lastName: agreement.last_name || '',
@@ -526,7 +510,6 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
       createdAt: agreement.created_at || '',
     }));
 
-    // Create export columns
     const exportColumns = this.tableColumns
       .filter((col) => col.key !== 'actions')
       .map((col) => ({
@@ -534,18 +517,15 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
         label: col.label,
       }));
 
-    // Generate filename with current date
     const date = new Date().toISOString().split('T')[0];
     const filename = `agreements_${date}`;
 
-    // Export based on selected format
     if (options.format === 'csv') {
       this.exportService.exportToCSV(exportData, exportColumns, filename);
     } else {
       this.exportService.exportToExcel(exportData, exportColumns, filename);
     }
 
-    // Show success notification
     this.notificationService.showSuccess(
       this.translate.instant('export_success', {
         count: exportData.length,

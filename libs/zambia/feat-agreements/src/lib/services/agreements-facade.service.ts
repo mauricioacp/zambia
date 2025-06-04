@@ -122,7 +122,6 @@ export class AgreementsFacadeService {
   agreementsResource = linkedSignal(() => this.agreements.value() ?? []);
   agreementByIdResource = linkedSignal(() => this.agreementById.value() ?? null);
 
-  // Pagination signals
   currentPage = signal(1);
   pageSize = signal(10);
   totalItems = signal(0);
@@ -132,18 +131,15 @@ export class AgreementsFacadeService {
   seasonId = signal<string | null>(null);
   search = signal<string | null>(null);
 
-  // Computed properties
   totalPages = computed(() => Math.ceil(this.totalItems() / this.pageSize()));
   hasNextPage = computed(() => this.currentPage() < this.totalPages());
   hasPrevPage = computed(() => this.currentPage() > 1);
 
-  // Form state management
   isEditing = signal<boolean>(false);
   formData = signal<AgreementFormData | null>(null);
   saveError = signal<string | null>(null);
   saveSuccess = signal<boolean>(false);
 
-  // Paginated agreements resource
   private agreementsParams = computed<AgreementsRpcParams>(() => {
     const params: AgreementsRpcParams = {
       p_limit: this.pageSize(),
@@ -207,7 +203,6 @@ export class AgreementsFacadeService {
   agreementById = resource({
     request: () => ({ agreementId: this.agreementId() }),
     loader: async ({ request }) => {
-      // Don't fetch if agreementId is empty
       if (!request.agreementId) {
         return null;
       }
@@ -237,7 +232,6 @@ export class AgreementsFacadeService {
     },
   });
 
-  // Resource for loading headquarters
   headquarters = resource({
     loader: async () => {
       const { data, error } = await this.supabase
@@ -255,7 +249,6 @@ export class AgreementsFacadeService {
     },
   });
 
-  // Resource for loading roles
   roles = resource({
     loader: async () => {
       const { data, error } = await this.supabase
@@ -273,7 +266,6 @@ export class AgreementsFacadeService {
     },
   });
 
-  // Resource for loading seasons
   seasons = resource({
     loader: async () => {
       const { data, error } = await this.supabase
@@ -311,7 +303,6 @@ export class AgreementsFacadeService {
     this.seasons.reload();
   }
 
-  // Initialize form for creating a new agreement
   initCreateForm() {
     this.isEditing.set(false);
     this.saveError.set(null);
@@ -336,7 +327,6 @@ export class AgreementsFacadeService {
     });
   }
 
-  // Initialize form for editing an existing agreement
   initEditForm(agreement: AgreementDetails) {
     this.isEditing.set(true);
     this.saveError.set(null);
@@ -362,13 +352,11 @@ export class AgreementsFacadeService {
     });
   }
 
-  // Agreement activation/deactivation methods
   async activateAgreement(agreementId: string): Promise<void> {
     try {
       this.isLoading.set(true);
 
       // TODO: Implement agreement activation via edge function
-      // For now, we'll update locally
       const { error } = await this.supabase
         .getClient()
         .from('agreements')
@@ -379,7 +367,7 @@ export class AgreementsFacadeService {
 
       if (result.success) {
         this.notificationService.showSuccess('Agreement activated successfully');
-        // Refresh data
+
         this.agreements.reload();
         if (this.agreementId() === agreementId) {
           this.agreementById.reload();
@@ -400,7 +388,6 @@ export class AgreementsFacadeService {
       this.isLoading.set(true);
 
       // TODO: Implement agreement deactivation via edge function
-      // For now, we'll update locally
       const { error } = await this.supabase
         .getClient()
         .from('agreements')
@@ -411,7 +398,7 @@ export class AgreementsFacadeService {
 
       if (result.success) {
         this.notificationService.showSuccess('Agreement deactivated successfully');
-        // Refresh data
+
         this.agreements.reload();
         if (this.agreementId() === agreementId) {
           this.agreementById.reload();
@@ -427,7 +414,6 @@ export class AgreementsFacadeService {
     }
   }
 
-  // Create a new agreement
   async createAgreement(formData: AgreementFormData) {
     try {
       this.saveError.set(null);
@@ -474,7 +460,6 @@ export class AgreementsFacadeService {
     }
   }
 
-  // Update an existing agreement
   async updateAgreement(formData: AgreementFormData) {
     try {
       this.saveError.set(null);
@@ -526,7 +511,6 @@ export class AgreementsFacadeService {
     }
   }
 
-  // Pagination methods
   onPageChange = (page: number) => {
     this.currentPage.set(page);
   };
@@ -552,7 +536,6 @@ export class AgreementsFacadeService {
     this.currentPage.set(1);
   }
 
-  // Export functionality for all agreements
   async exportAgreements(): Promise<AgreementWithShallowRelations[]> {
     const exportParams: AgreementsRpcParams = {
       p_limit: this.totalItems() || 1000, // Export all or max 1000
