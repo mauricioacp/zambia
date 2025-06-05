@@ -27,6 +27,7 @@ import { ICONS } from '@zambia/util-constants';
 import { UserCreationSuccessModalComponent } from './user-creation-success-modal.component';
 import { PasswordResetModalComponent } from './password-reset-modal.component';
 import { HasRoleDirective } from '@zambia/util-roles-permissions';
+import { UserCreationResponse } from '@zambia/data-access-generic';
 
 interface AgreementListData {
   id: string;
@@ -608,7 +609,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
             skipped: statistics.supabaseSkippedDuplicates,
           })
         );
-        // Reload agreements to show migrated data
+
         this.agreementsFacade.agreements.reload();
       }
     } catch (error) {
@@ -630,23 +631,16 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
       }
 
       if (response.data) {
-        // Log the raw response to debug
-        console.log('Raw API response:', response);
-        console.log('Response data:', response.data);
-
-        // Transform the response data to match the expected structure
         const userData = {
-          email: response.data.email || agreement.email || '',
-          password: response.data.password || '',
-          role: response.data.role_name || agreement.role || '',
+          email: response.data.email,
+          password: response.data.password,
+          role: response.data.role_name,
           user_metadata: {
             first_name: agreement.name || '',
             last_name: agreement.lastName || '',
-            phone: response.data.phone || agreement.phone || '',
+            phone: response.data.phone,
           },
         };
-
-        console.log('Transformed user data for modal:', userData);
 
         this.dialogs
           .open<void>(new PolymorpheusComponent(UserCreationSuccessModalComponent), {
@@ -690,7 +684,6 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
             name: `${agreement.name} ${agreement.lastName}`,
           })
         );
-        // Reload agreements to update status
         this.agreementsFacade.agreements.reload();
       }
     } catch (error) {
@@ -707,7 +700,6 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Open password reset form modal
     this.dialogs
       .open<{ newPassword: string } | null>(new PolymorpheusComponent(PasswordResetModalComponent), {
         dismissible: true,

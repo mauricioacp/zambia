@@ -98,7 +98,6 @@ export class UserCreationSuccessModalComponent {
   copyPassword(): void {
     const password = this.userData.password;
 
-    // Modern clipboard API with fallback
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard
         .writeText(password)
@@ -110,7 +109,6 @@ export class UserCreationSuccessModalComponent {
           this.fallbackCopyToClipboard(password);
         });
     } else {
-      // Fallback for older browsers or non-secure contexts
       this.fallbackCopyToClipboard(password);
     }
   }

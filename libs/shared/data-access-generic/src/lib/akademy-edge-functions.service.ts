@@ -23,13 +23,11 @@ export class AkademyEdgeFunctionsService {
   private isLoading = signal(false);
   private lastError = signal<string | null>(null);
 
-  // Response signals for each endpoint
   private migrationData = signal<MigrationResponse | null>(null);
   private userCreationData = signal<UserCreationResponse | null>(null);
   private passwordResetData = signal<PasswordResetResponse | null>(null);
   private userDeactivationData = signal<DeactivateUserResponse | null>(null);
 
-  // Read-only signals
   readonly loading = this.isLoading.asReadonly();
   readonly error = this.lastError.asReadonly();
   readonly migration = this.migrationData.asReadonly();
@@ -110,14 +108,15 @@ export class AkademyEdgeFunctionsService {
   }
 
   async createUser(request: CreateUserRequest): Promise<ApiResponse<UserCreationResponse>> {
-    const response = await this.invokeFunction<UserCreationResponse>('akademy-app/create-user', {
+    const response = await this.invokeFunction<{ data: UserCreationResponse }>('akademy-app/create-user', {
       method: 'POST',
       body: request,
     });
-    if (response.data) {
-      this.userCreationData.set(response.data);
+    if (response.data?.data) {
+      this.userCreationData.set(response.data.data);
+      return { data: response.data.data };
     }
-    return response;
+    return response as unknown as ApiResponse<UserCreationResponse>;
   }
 
   async resetPassword(request: ResetPasswordRequest): Promise<ApiResponse<PasswordResetResponse>> {

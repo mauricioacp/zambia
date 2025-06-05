@@ -192,7 +192,6 @@ export class AgreementsFacadeService {
           };
         }
 
-        // Map the data to include flattened fields for the view
         const mappedData = response.data.map((agreement: AgreementWithShallowRelations) => ({
           ...agreement,
           headquarter_name: agreement.headquarter_name,
@@ -400,7 +399,6 @@ export class AgreementsFacadeService {
     try {
       this.isLoading.set(true);
 
-      // TODO: Implement agreement deactivation via edge function
       const { error } = await this.supabase
         .getClient()
         .from('agreements')

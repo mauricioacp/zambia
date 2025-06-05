@@ -29,9 +29,6 @@ export class NotificationService {
   private readonly alertService = inject(TuiAlertService);
   private readonly translateService = inject(TranslateService);
 
-  /**
-   * Show a success notification
-   */
   showSuccess(message: string, options?: NotificationOptions): Observable<unknown> {
     return this.showNotification(message, 'success', {
       autoClose: 3000,
@@ -39,9 +36,6 @@ export class NotificationService {
     });
   }
 
-  /**
-   * Show an error notification
-   */
   showError(message: string, options?: NotificationOptions): Observable<unknown> {
     return this.showNotification(message, 'error', {
       autoClose: 5000,
@@ -49,9 +43,6 @@ export class NotificationService {
     });
   }
 
-  /**
-   * Show a warning notification
-   */
   showWarning(message: string, options?: NotificationOptions): Observable<unknown> {
     return this.showNotification(message, 'warning', {
       autoClose: 4000,
@@ -59,9 +50,6 @@ export class NotificationService {
     });
   }
 
-  /**
-   * Show an info notification
-   */
   showInfo(message: string, options?: NotificationOptions): Observable<unknown> {
     return this.showNotification(message, 'info', {
       autoClose: 3000,
@@ -69,9 +57,6 @@ export class NotificationService {
     });
   }
 
-  /**
-   * Generic notification method
-   */
   private showNotification(
     message: string,
     type: NotificationType,
@@ -79,13 +64,10 @@ export class NotificationService {
   ): Observable<unknown> {
     const { translate = true, translateParams, autoClose, ...alertOptions } = options;
 
-    // Translate message if needed
     const finalMessage = translate ? this.translateService.instant(message, translateParams) : message;
 
-    // Map notification type to Taiga UI appearance
     const appearance = this.mapTypeToAppearance(type);
 
-    // Get default label based on type
     const defaultLabel = translate
       ? this.translateService.instant(this.getDefaultLabel(type))
       : this.getDefaultLabelText(type);
@@ -101,9 +83,6 @@ export class NotificationService {
     return this.alertService.open(finalMessage, alertConfig);
   }
 
-  /**
-   * Show a custom notification with full control
-   */
   showCustom(
     content: string | TemplateRef<unknown> | object,
     options: Partial<TuiAlertOptions<unknown>> & { translate?: boolean; translateParams?: Record<string, unknown> } = {}

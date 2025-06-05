@@ -301,7 +301,10 @@ export interface TableColumn {
                                       [tuiHint]="action.label"
                                       tuiHintDirection="top"
                                       class="!p-1"
-                                    ></button>
+                                      [attr.aria-label]="action.label"
+                                    >
+                                      <span class="sr-only">{{ action.label }}</span>
+                                    </button>
                                   }
                                 }
                               </span>
