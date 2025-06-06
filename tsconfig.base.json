@@ -20,6 +20,7 @@
       "@zambia/data-access-auth": ["libs/shared/data-access-auth/src/index.ts"],
       "@zambia/data-access-dashboard": ["libs/shared/data-access-dashboard/src/index.ts"],
       "@zambia/data-access-generic": ["libs/shared/data-access-generic/src/index.ts"],
+      "@zambia/data-access-notifications": ["libs/shared/data-access-notifications/src/index.ts"],
       "@zambia/data-access-roles-permissions": ["libs/shared/data-access-roles-permissions/src/index.ts"],
       "@zambia/data-access-supabase": ["libs/shared/data-access-supabase/src/index.ts"],
       "@zambia/feat-agreements": ["libs/zambia/feat-agreements/src/index.ts"],
@@ -28,6 +29,7 @@
       "@zambia/feat-dashboard": ["libs/zambia/feat-dashboard/src/index.ts"],
       "@zambia/feat-headquarter": ["libs/zambia/feat-headquarter/src/index.ts"],
       "@zambia/feat-homepage": ["libs/zambia/feat-homepage/src/index.ts"],
+      "@zambia/feat-notifications": ["libs/zambia/feat-notifications/src/index.ts"],
       "@zambia/feat-profile": ["libs/zambia/feat-profile/src/index.ts"],
       "@zambia/feat-shell": ["libs/zambia/feat-shell/src/index.ts"],
       "@zambia/feat-students": ["libs/zambia/feat-students/src/index.ts"],
@@ -37,7 +39,8 @@
       "@zambia/util-config": ["libs/shared/util-config/src/index.ts"],
       "@zambia/util-constants": ["libs/shared/util-constants/src/index.ts"],
       "@zambia/util-roles-definitions": ["libs/shared/util-roles-definitions/src/index.ts"],
-      "@zambia/util-roles-permissions": ["libs/shared/util-guards/src/index.ts"]
+      "@zambia/util-roles-permissions": ["libs/shared/util-guards/src/index.ts"],
+      "@zambia/shared/data-access-notifications": ["libs/shared/data-access-notifications/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

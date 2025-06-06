@@ -404,5 +404,39 @@
   "generated_password": "Contraseña Generada",
   "copy": "Copiar",
   "password_security_notice": "Por favor guarde esta contraseña de forma segura y compártala con el usuario",
-  "please_save_password": "Por favor guarde esta contraseña de forma segura y compártala con el usuario"
+  "please_save_password": "Por favor guarde esta contraseña de forma segura y compártala con el usuario",
+  "send_message": "Enviar Mensaje",
+  "message_sent_success": "Mensaje enviado exitosamente",
+  "NOTIFICATIONS": {
+    "TITLE": "Notificaciones",
+    "TOOLTIP": "Ver notificaciones",
+    "MARK_ALL_READ": "Marcar todas como leídas",
+    "MARK_AS_READ": "Marcar como leída",
+    "ARCHIVE": "Archivar",
+    "ERROR_LOADING": "Error al cargar notificaciones",
+    "EMPTY": "No hay notificaciones",
+    "TODAY": "Hoy",
+    "YESTERDAY": "Ayer",
+    "THIS_WEEK": "Esta semana",
+    "OLDER": "Anteriores",
+    "FROM": "De",
+    "VIEW_ALL": "Ver todas las notificaciones",
+    "SEND_MESSAGE": "Enviar Mensaje Directo",
+    "RECIPIENT": "Para",
+    "SEARCH_USER_PLACEHOLDER": "Buscar por nombre o correo...",
+    "NO_USERS_FOUND": "No se encontraron usuarios",
+    "MESSAGE_TITLE": "Asunto",
+    "MESSAGE_TITLE_PLACEHOLDER": "Ingrese el asunto del mensaje",
+    "MESSAGE_BODY": "Mensaje",
+    "MESSAGE_BODY_PLACEHOLDER": "Escriba su mensaje aquí...",
+    "PRIORITY": "Prioridad",
+    "PRIORITY_LOW": "Baja",
+    "PRIORITY_MEDIUM": "Media",
+    "PRIORITY_HIGH": "Alta",
+    "PRIORITY_URGENT": "Urgente",
+    "SEND": "Enviar Mensaje"
+  },
+  "COMMON": {
+    "RETRY": "Reintentar"
+  }
 }

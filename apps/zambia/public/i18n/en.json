@@ -322,5 +322,39 @@
   "generated_password": "Generated Password",
   "copy": "Copy",
   "password_security_notice": "Please save this password securely and share it with the user",
-  "please_save_password": "Please save this password securely and share it with the user"
+  "please_save_password": "Please save this password securely and share it with the user",
+  "send_message": "Send Message",
+  "message_sent_success": "Message sent successfully",
+  "NOTIFICATIONS": {
+    "TITLE": "Notifications",
+    "TOOLTIP": "View notifications",
+    "MARK_ALL_READ": "Mark all as read",
+    "MARK_AS_READ": "Mark as read",
+    "ARCHIVE": "Archive",
+    "ERROR_LOADING": "Error loading notifications",
+    "EMPTY": "No notifications",
+    "TODAY": "Today",
+    "YESTERDAY": "Yesterday",
+    "THIS_WEEK": "This week",
+    "OLDER": "Older",
+    "FROM": "From",
+    "VIEW_ALL": "View all notifications",
+    "SEND_MESSAGE": "Send Direct Message",
+    "RECIPIENT": "To",
+    "SEARCH_USER_PLACEHOLDER": "Search by name or email...",
+    "NO_USERS_FOUND": "No users found",
+    "MESSAGE_TITLE": "Subject",
+    "MESSAGE_TITLE_PLACEHOLDER": "Enter message subject",
+    "MESSAGE_BODY": "Message",
+    "MESSAGE_BODY_PLACEHOLDER": "Type your message here...",
+    "PRIORITY": "Priority",
+    "PRIORITY_LOW": "Low",
+    "PRIORITY_MEDIUM": "Medium",
+    "PRIORITY_HIGH": "High",
+    "PRIORITY_URGENT": "Urgent",
+    "SEND": "Send Message"
+  },
+  "COMMON": {
+    "RETRY": "Retry"
+  }
 }

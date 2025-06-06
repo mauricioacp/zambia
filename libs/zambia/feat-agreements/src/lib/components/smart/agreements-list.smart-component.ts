@@ -8,6 +8,8 @@ import { Subject } from 'rxjs';
 import { AgreementsFacadeService, AgreementWithShallowRelations } from '../../services/agreements-facade.service';
 import { RoleService } from '@zambia/data-access-roles-permissions';
 import { ExportService, NotificationService, AkademyEdgeFunctionsService } from '@zambia/data-access-generic';
+import { DirectMessageService } from '@zambia/shared/data-access-notifications';
+import { DirectMessageDialogV2SmartComponent } from '@zambia/feat-notifications';
 
 import {
   EnhancedTableUiComponent,
@@ -27,7 +29,6 @@ import { ICONS } from '@zambia/util-constants';
 import { UserCreationSuccessModalComponent } from './user-creation-success-modal.component';
 import { PasswordResetModalComponent } from './password-reset-modal.component';
 import { HasRoleDirective } from '@zambia/util-roles-permissions';
-import { UserCreationResponse } from '@zambia/data-access-generic';
 
 interface AgreementListData {
   id: string;
@@ -247,6 +248,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   private exportService = inject(ExportService);
   private translate = inject(TranslateService);
   private edgeFunctions = inject(AkademyEdgeFunctionsService);
+  private directMessageService = inject(DirectMessageService);
 
   protected currentTheme = injectCurrentTheme();
   protected ICONS = ICONS;
@@ -369,6 +371,13 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
         Number(this.roleService.roleLevel() || 0) >= 1 && item.status === 'active' && item.userId !== undefined,
     },
     {
+      label: this.translate.instant('send_message'),
+      icon: '@tui.message-circle',
+      color: 'primary',
+      handler: (item: AgreementListData) => this.onSendMessage(item),
+      visible: (item: AgreementListData) => item.status === 'active' && item.userId !== undefined,
+    },
+    {
       label: this.translate.instant('deactivate_agreement'),
       icon: '@tui.pause',
       color: 'warning',
@@ -437,7 +446,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     const data = this.agreementsData();
     const total = this.totalItems() || data.length;
     const active = data.filter((item) => item.status === 'active').length;
-    const pending = data.filter((item) => item.status === 'pending').length;
+    const pending = data.filter((item) => item.status === 'prospect').length;
     const inactive = data.filter((item) => item.status === 'inactive').length;
 
     return [
@@ -716,6 +725,22 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
           await this.performPasswordReset(agreement, formData);
         }
       });
+  }
+
+  protected async onSendMessage(agreement: AgreementListData): Promise<void> {
+    if (!agreement.userId) {
+      this.notificationService.showError(this.translate.instant('no_user_id_found'));
+      return;
+    }
+
+    const sent = await this.directMessageService.openSendMessageDialog(
+      new PolymorpheusComponent(DirectMessageDialogV2SmartComponent),
+      agreement.userId
+    );
+
+    if (sent) {
+      this.notificationService.showSuccess(this.translate.instant('message_sent_success'));
+    }
   }
 
   private async performPasswordReset(agreement: AgreementListData, formData: { newPassword: string }): Promise<void> {

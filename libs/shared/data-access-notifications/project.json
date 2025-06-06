@@ -1,0 +1,20 @@
+{
+  "name": "data-access-notifications",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/data-access-notifications/src",
+  "prefix": "z",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:data-access"],
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/shared/data-access-notifications/jest.config.ts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
