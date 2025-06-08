@@ -32,9 +32,21 @@ interface UserCreationData {
 
       <div class="mb-6 space-y-4">
         <div class="rounded-lg bg-gray-50 p-4 dark:bg-slate-800">
-          <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
-            {{ 'user_details' | translate }}
-          </p>
+          <div class="mb-2 flex items-center justify-between">
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+              {{ 'user_details' | translate }}
+            </p>
+            <button
+              tuiButton
+              size="xs"
+              appearance="secondary"
+              iconStart="@tui.copy"
+              (click)="copyAllData()"
+              class="ml-2"
+            >
+              {{ 'copy_all' | translate }}
+            </button>
+          </div>
           <div class="space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-sm text-gray-600 dark:text-gray-400">{{ 'full_name' | translate }}:</span>
@@ -50,6 +62,12 @@ interface UserCreationData {
               <span class="text-sm text-gray-600 dark:text-gray-400">{{ 'role' | translate }}:</span>
               <span class="font-medium text-gray-900 dark:text-white">{{ userData.role }}</span>
             </div>
+            @if (userData.user_metadata.phone) {
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600 dark:text-gray-400">{{ 'phone' | translate }}:</span>
+                <span class="font-medium text-gray-900 dark:text-white">{{ userData.user_metadata.phone }}</span>
+              </div>
+            }
           </div>
         </div>
 
@@ -97,24 +115,39 @@ export class UserCreationSuccessModalComponent {
 
   copyPassword(): void {
     const password = this.userData.password;
+    this.copyToClipboard(password, 'Password copied to clipboard!');
+  }
 
+  copyAllData(): void {
+    const userData = this.userData;
+    const fullName = `${userData.user_metadata.first_name} ${userData.user_metadata.last_name}`;
+    const allData = `User Details:
+Full Name: ${fullName}
+Email: ${userData.email}
+Role: ${userData.role}
+Phone: ${userData.user_metadata.phone || 'N/A'}
+Password: ${userData.password}`;
+
+    this.copyToClipboard(allData, 'All user data copied to clipboard!');
+  }
+
+  private copyToClipboard(text: string, successMessage: string): void {
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard
-        .writeText(password)
+        .writeText(text)
         .then(() => {
-          this.alerts.open('Password copied to clipboard!', { appearance: 'positive' }).subscribe();
+          this.alerts.open(successMessage, { appearance: 'positive' }).subscribe();
         })
         .catch((err) => {
           console.error('Failed to copy with clipboard API:', err);
-          this.fallbackCopyToClipboard(password);
+          this.fallbackCopyToClipboard(text, successMessage);
         });
     } else {
-      this.fallbackCopyToClipboard(password);
+      this.fallbackCopyToClipboard(text, successMessage);
     }
   }
 
-  private fallbackCopyToClipboard(text: string): void {
-    // Create a temporary textarea element
+  private fallbackCopyToClipboard(text: string, successMessage: string): void {
     const textArea = document.createElement('textarea');
     textArea.value = text;
     textArea.style.position = 'fixed';
@@ -128,13 +161,13 @@ export class UserCreationSuccessModalComponent {
 
       const successful = document.execCommand('copy');
       if (successful) {
-        this.alerts.open('Password copied to clipboard!', { appearance: 'positive' }).subscribe();
+        this.alerts.open(successMessage, { appearance: 'positive' }).subscribe();
       } else {
-        this.alerts.open('Failed to copy password. Please copy manually.', { appearance: 'negative' }).subscribe();
+        this.alerts.open('Failed to copy. Please copy manually.', { appearance: 'negative' }).subscribe();
       }
     } catch (err) {
       console.error('Fallback copy failed:', err);
-      this.alerts.open('Failed to copy password. Please copy manually.', { appearance: 'negative' }).subscribe();
+      this.alerts.open('Failed to copy. Please copy manually.', { appearance: 'negative' }).subscribe();
     } finally {
       document.body.removeChild(textArea);
     }

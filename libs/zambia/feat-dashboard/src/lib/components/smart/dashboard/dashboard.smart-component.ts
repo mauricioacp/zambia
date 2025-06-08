@@ -76,7 +76,7 @@ import { TranslateModule } from '@ngx-translate/core';
             [label]="'Cerrar sesión'"
             user-nav
             icon="log-out"
-            (clicked)="this.authService.signOut()"
+            (clicked)="handleLogout()"
           ></z-sidebar-nav-item>
         </z-sidebar-mini>
       </z-sidebar>
@@ -97,4 +97,12 @@ export class DashboardSmartComponent {
   layoutService = inject(LayoutService);
   authService = inject(AuthService);
   roleService = inject(RoleService);
+
+  async handleLogout() {
+    try {
+      await this.authService.signOut();
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  }
 }

@@ -5,7 +5,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '@zambia/data-access-auth';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TuiButton } from '@taiga-ui/core';
 import { TuiButtonLoading } from '@taiga-ui/kit';
 import { NotificationService } from '@zambia/data-access-generic';
@@ -22,6 +22,7 @@ interface AuthFormData {
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
+    RouterLink,
     TranslatePipe,
     FormFieldComponent,
     TuiButton,
@@ -72,7 +73,7 @@ interface AuthFormData {
                   />
 
                   <div class="flex items-center justify-between pt-2">
-                    <a class="text-sm font-medium text-blue-600 hover:text-blue-500">
+                    <a routerLink="/auth/forgot-password" class="text-sm font-medium text-blue-600 hover:text-blue-500">
                       {{ 'forgot-password' | translate }}
                     </a>
                   </div>
@@ -139,7 +140,8 @@ export class AuthSmartComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.authService.isAuthenticated()) {
+    // Solo redirigir si está autenticado y no está en proceso de logout
+    if (this.authService.isAuthenticated() && !this.authService.acting()) {
       this.router.navigate(['/dashboard/panel']);
     }
   }
@@ -192,12 +194,10 @@ export class AuthSmartComponent implements OnInit {
     const message = errorObj.message?.toLowerCase() || '';
     const name = errorObj.name || '';
 
-    // Network-related errors
     if (message.includes('failed to fetch') || name === 'AuthRetryableFetchError' || message.includes('network')) {
       return 'network_error';
     }
 
-    // Authentication-specific errors
     if (message.includes('invalid login')) {
       return 'invalid_login';
     }

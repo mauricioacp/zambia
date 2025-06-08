@@ -71,9 +71,25 @@ export class AuthService {
 
   async signOut() {
     this.#acting.set(true);
-    return this.#supabase.auth.signOut().then((v) => {
+
+    try {
+      this.#session.set(null);
+
+      const { error } = await this.#supabase.auth.signOut();
+
+      if (error) {
+        console.error('[AuthService] Error during signOut:', error);
+      }
+
+      await this.router.navigate(['/auth'], { replaceUrl: true });
+
+      return { error };
+    } catch (err) {
+      console.error('[AuthService] Unexpected error during signOut:', err);
+      await this.router.navigate(['/auth'], { replaceUrl: true });
+      throw err;
+    } finally {
       this.#acting.set(false);
-      return v;
-    });
+    }
   }
 }

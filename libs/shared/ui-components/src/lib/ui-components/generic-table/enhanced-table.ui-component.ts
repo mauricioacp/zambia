@@ -263,7 +263,9 @@ export interface TableColumn {
                               </div>
                             }
                             @case ('date') {
-                              <tui-chip appearance="info">{{ getDisplayValue(item, column.key) | date }}</tui-chip>
+                              <tui-chip appearance="info">{{
+                                getDisplayValue(item, column.key) | date: 'mediumDate'
+                              }}</tui-chip>
                             }
                             @case ('badge') {
                               <tui-badge> {{ getDisplayValue(item, column.key) }}</tui-badge>

@@ -510,6 +510,245 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_deliveries: {
+        Row: {
+          channel: Database["public"]["Enums"]["notification_channel"]
+          created_at: string | null
+          delivered_at: string | null
+          error_message: string | null
+          failed_at: string | null
+          id: string
+          metadata: Json | null
+          notification_id: string
+          sent_at: string | null
+          status: string
+        }
+        Insert: {
+          channel: Database["public"]["Enums"]["notification_channel"]
+          created_at?: string | null
+          delivered_at?: string | null
+          error_message?: string | null
+          failed_at?: string | null
+          id?: string
+          metadata?: Json | null
+          notification_id: string
+          sent_at?: string | null
+          status?: string
+        }
+        Update: {
+          channel?: Database["public"]["Enums"]["notification_channel"]
+          created_at?: string | null
+          delivered_at?: string | null
+          error_message?: string | null
+          failed_at?: string | null
+          id?: string
+          metadata?: Json | null
+          notification_id?: string
+          sent_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_deliveries_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_preferences: {
+        Row: {
+          blocked_categories: string[] | null
+          blocked_senders: string[] | null
+          channel_preferences: Json | null
+          created_at: string | null
+          enabled: boolean | null
+          id: string
+          priority_threshold:
+            | Database["public"]["Enums"]["notification_priority"]
+            | null
+          quiet_hours_end: string | null
+          quiet_hours_start: string | null
+          timezone: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          blocked_categories?: string[] | null
+          blocked_senders?: string[] | null
+          channel_preferences?: Json | null
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          priority_threshold?:
+            | Database["public"]["Enums"]["notification_priority"]
+            | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          timezone?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          blocked_categories?: string[] | null
+          blocked_senders?: string[] | null
+          channel_preferences?: Json | null
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          priority_threshold?:
+            | Database["public"]["Enums"]["notification_priority"]
+            | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          timezone?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notification_templates: {
+        Row: {
+          body_template: string
+          code: string
+          created_at: string | null
+          default_channels:
+            | Database["public"]["Enums"]["notification_channel"][]
+            | null
+          default_priority:
+            | Database["public"]["Enums"]["notification_priority"]
+            | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          metadata: Json | null
+          name: string
+          title_template: string
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at: string | null
+          variables: Json | null
+        }
+        Insert: {
+          body_template: string
+          code: string
+          created_at?: string | null
+          default_channels?:
+            | Database["public"]["Enums"]["notification_channel"][]
+            | null
+          default_priority?:
+            | Database["public"]["Enums"]["notification_priority"]
+            | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          name: string
+          title_template: string
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string | null
+          variables?: Json | null
+        }
+        Update: {
+          body_template?: string
+          code?: string
+          created_at?: string | null
+          default_channels?:
+            | Database["public"]["Enums"]["notification_channel"][]
+            | null
+          default_priority?:
+            | Database["public"]["Enums"]["notification_priority"]
+            | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          name?: string
+          title_template?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string | null
+          variables?: Json | null
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          action_url: string | null
+          archived_at: string | null
+          body: string
+          category: string | null
+          created_at: string | null
+          data: Json | null
+          expires_at: string | null
+          id: string
+          is_archived: boolean | null
+          is_read: boolean | null
+          priority: Database["public"]["Enums"]["notification_priority"] | null
+          read_at: string | null
+          recipient_id: string | null
+          recipient_role_code: string | null
+          recipient_role_level: number | null
+          related_entity_id: string | null
+          related_entity_type: string | null
+          sender_id: string | null
+          sender_type: string | null
+          tags: string[] | null
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          action_url?: string | null
+          archived_at?: string | null
+          body: string
+          category?: string | null
+          created_at?: string | null
+          data?: Json | null
+          expires_at?: string | null
+          id?: string
+          is_archived?: boolean | null
+          is_read?: boolean | null
+          priority?: Database["public"]["Enums"]["notification_priority"] | null
+          read_at?: string | null
+          recipient_id?: string | null
+          recipient_role_code?: string | null
+          recipient_role_level?: number | null
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          sender_id?: string | null
+          sender_type?: string | null
+          tags?: string[] | null
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          action_url?: string | null
+          archived_at?: string | null
+          body?: string
+          category?: string | null
+          created_at?: string | null
+          data?: Json | null
+          expires_at?: string | null
+          id?: string
+          is_archived?: boolean | null
+          is_read?: boolean | null
+          priority?: Database["public"]["Enums"]["notification_priority"] | null
+          read_at?: string | null
+          recipient_id?: string | null
+          recipient_role_code?: string | null
+          recipient_role_level?: number | null
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          sender_id?: string | null
+          sender_type?: string | null
+          tags?: string[] | null
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       processes: {
         Row: {
           content: Json | null
@@ -832,6 +1071,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_search_index: {
+        Row: {
+          created_at: string | null
+          email: string
+          full_name: string
+          headquarter_name: string | null
+          is_active: boolean | null
+          last_seen: string | null
+          role_code: string
+          role_level: number
+          role_name: string
+          search_vector: unknown | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          full_name: string
+          headquarter_name?: string | null
+          is_active?: boolean | null
+          last_seen?: string | null
+          role_code: string
+          role_level: number
+          role_name: string
+          search_vector?: unknown | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          full_name?: string
+          headquarter_name?: string | null
+          is_active?: boolean | null
+          last_seen?: string | null
+          role_code?: string
+          role_level?: number
+          role_name?: string
+          search_vector?: unknown | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       workflow_action_history: {
         Row: {
@@ -1384,9 +1668,26 @@ export type Database = {
         Args: { p_action_id: string }
         Returns: boolean
       }
+      cleanup_expired_notifications: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       complete_workflow_action: {
         Args: { p_action_id: string; p_result?: Json; p_comment?: string }
         Returns: boolean
+      }
+      create_notification_from_template: {
+        Args: {
+          p_template_code: string
+          p_recipient_id: string
+          p_variables?: Json
+          p_sender_id?: string
+          p_priority?: Database["public"]["Enums"]["notification_priority"]
+          p_related_entity_type?: string
+          p_related_entity_id?: string
+          p_action_url?: string
+        }
+        Returns: string
       }
       create_workflow_instance: {
         Args: { p_template_id: string; p_data?: Json }
@@ -1659,9 +1960,38 @@ export type Database = {
         Args: { quarters_back?: number }
         Returns: Json
       }
+      get_unread_notification_count: {
+        Args: { p_user_id?: string }
+        Returns: number
+      }
       get_user_dashboard_stats: {
         Args: { target_user_id: string }
         Returns: Json
+      }
+      get_user_notifications: {
+        Args: {
+          p_limit?: number
+          p_offset?: number
+          p_type?: Database["public"]["Enums"]["notification_type"]
+          p_priority?: Database["public"]["Enums"]["notification_priority"]
+          p_is_read?: boolean
+          p_category?: string
+        }
+        Returns: {
+          id: string
+          type: Database["public"]["Enums"]["notification_type"]
+          priority: Database["public"]["Enums"]["notification_priority"]
+          sender_id: string
+          sender_name: string
+          title: string
+          body: string
+          data: Json
+          is_read: boolean
+          read_at: string
+          created_at: string
+          action_url: string
+          total_count: number
+        }[]
       }
       get_workflow_status: {
         Args: { p_workflow_id: string }
@@ -1686,13 +2016,58 @@ export type Database = {
         Args: { p_workflow_id: string }
         Returns: boolean
       }
+      mark_notifications_read: {
+        Args: { p_notification_ids: string[] }
+        Returns: number
+      }
       reject_workflow_action: {
         Args: { p_action_id: string; p_reason: string; p_comment?: string }
         Returns: boolean
       }
+      search_users_vector: {
+        Args: {
+          p_query: string
+          p_role_code?: string
+          p_min_role_level?: number
+          p_limit?: number
+          p_offset?: number
+        }
+        Returns: {
+          user_id: string
+          full_name: string
+          email: string
+          role_code: string
+          role_name: string
+          role_level: number
+          headquarter_name: string
+          similarity: number
+        }[]
+      }
+      send_role_based_notification: {
+        Args: {
+          p_role_codes: string[]
+          p_title: string
+          p_body: string
+          p_min_role_level?: number
+          p_type?: Database["public"]["Enums"]["notification_type"]
+          p_priority?: Database["public"]["Enums"]["notification_priority"]
+          p_data?: Json
+        }
+        Returns: number
+      }
     }
     Enums: {
       collaborator_status: "active" | "inactive" | "standby"
+      notification_channel: "in_app" | "email" | "sms" | "push"
+      notification_priority: "low" | "medium" | "high" | "urgent"
+      notification_type:
+        | "system"
+        | "direct_message"
+        | "action_required"
+        | "reminder"
+        | "alert"
+        | "achievement"
+        | "role_based"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1812,6 +2187,18 @@ export const Constants = {
   public: {
     Enums: {
       collaborator_status: ["active", "inactive", "standby"],
+      notification_channel: ["in_app", "email", "sms", "push"],
+      notification_priority: ["low", "medium", "high", "urgent"],
+      notification_type: [
+        "system",
+        "direct_message",
+        "action_required",
+        "reminder",
+        "alert",
+        "achievement",
+        "role_based",
+      ],
     },
   },
 } as const
+

@@ -1,5 +1,6 @@
 import { Route } from '@angular/router';
 import { ShellSmartComponent } from './components/smart/shell/shell.smart-component';
+import { authGuard } from '@zambia/util-roles-permissions';
 
 const childRoutes: Route[] = [
   {
@@ -19,8 +20,13 @@ const childRoutes: Route[] = [
 
 export const zambiaFeatShellRoutes: Route[] = [
   {
+    path: 'auth',
+    loadChildren: () => import('@zambia/feat-auth').then((mod) => mod.featAuthRoutes),
+  },
+  {
     path: '',
     component: ShellSmartComponent,
+    canActivate: [authGuard],
     children: childRoutes,
   },
 ];

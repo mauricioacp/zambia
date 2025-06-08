@@ -1,9 +1,20 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  DestroyRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { AgreementsFacadeService, AgreementWithShallowRelations } from '../../services/agreements-facade.service';
 import { RoleService } from '@zambia/data-access-roles-permissions';
@@ -20,8 +31,16 @@ import {
   TableColumn,
 } from '@zambia/ui-components';
 
-import { TuiButton, TuiDialogService, TuiIcon, TuiLink } from '@taiga-ui/core';
-import { TuiBreadcrumbs, TuiSkeleton } from '@taiga-ui/kit';
+import {
+  TuiButton,
+  TuiDialogService,
+  TuiIcon,
+  TuiLink,
+  TuiTextfieldComponent,
+  TuiTextfieldDropdownDirective,
+  TuiTextfieldOptionsDirective,
+} from '@taiga-ui/core';
+import { TuiBreadcrumbs, TuiSkeleton, TuiDataListWrapper, TuiSelect, TuiChevron } from '@taiga-ui/kit';
 import { TuiItem } from '@taiga-ui/cdk';
 
 import { ROLE } from '@zambia/util-roles-definitions';
@@ -60,6 +79,7 @@ interface StatCard {
   imports: [
     CommonModule,
     TranslateModule,
+    ReactiveFormsModule,
     EnhancedTableUiComponent,
     TuiIcon,
     TuiButton,
@@ -69,6 +89,12 @@ interface StatCard {
     TuiLink,
     RouterLink,
     HasRoleDirective,
+    TuiDataListWrapper,
+    TuiSelect,
+    TuiChevron,
+    TuiTextfieldComponent,
+    TuiTextfieldDropdownDirective,
+    TuiTextfieldOptionsDirective,
   ],
   template: `
     <div class="min-h-screen bg-gray-50 dark:bg-slate-800">
@@ -170,15 +196,53 @@ interface StatCard {
 
       <!-- Agreements Table -->
       <div class="container mx-auto px-6 pb-8">
-        <div class="mb-6">
-          <h2 class="mb-2 text-2xl font-bold text-gray-900 dark:text-white">{{ 'agreements_list' | translate }}</h2>
-          <p class="text-gray-600 dark:text-gray-300">{{ 'agreements_list_description' | translate }}</p>
-        </div>
-
-        @defer (on viewport; prefetch on idle) {
-          <div class="overflow-hidden rounded-xl bg-white shadow-sm dark:bg-slate-800 dark:shadow-slate-900/20">
+        <!-- Enhanced Table Section -->
+        <div
+          class="mb-8 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+        >
+          <div class="border-b border-gray-200 px-6 py-4 dark:border-slate-700">
+            <div class="flex items-center justify-between">
+              <h2 class="flex items-center gap-3 text-xl font-bold text-gray-900 dark:text-white">
+                <tui-icon icon="@tui.file-text" class="text-green-500"></tui-icon>
+                {{ 'agreements_list' | translate }}
+              </h2>
+              <div class="flex items-center gap-4">
+                <!-- Search Button -->
+                <button
+                  tuiButton
+                  appearance="secondary"
+                  size="m"
+                  iconStart="@tui.search"
+                  (click)="onSearchAgreements()"
+                  class="border-sky-500 text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/20"
+                >
+                  {{ 'search' | translate }}
+                </button>
+                <!-- Role Filter -->
+                <div class="w-48">
+                  <label
+                    for="roleFilterSelect"
+                    class="mb-2 block text-sm font-medium text-gray-600 dark:text-slate-400"
+                  >
+                    {{ 'filter_by_role' | translate }}
+                  </label>
+                  <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full">
+                    <input
+                      id="roleFilterSelect"
+                      tuiSelect
+                      [formControl]="roleFilter"
+                      [placeholder]="'all_roles' | translate"
+                    />
+                    <tui-data-list-wrapper *tuiTextfieldDropdown new [items]="roleFilterOptions()">
+                    </tui-data-list-wrapper>
+                  </tui-textfield>
+                </div>
+              </div>
+            </div>
+          </div>
+          @defer (on viewport; prefetch on idle) {
             <z-enhanced-table
-              [items]="tableData()"
+              [items]="filteredTableData()"
               [columns]="tableColumns"
               [loading]="isLoading()"
               [actions]="tableActions"
@@ -189,28 +253,32 @@ interface StatCard {
               [showCreateButton]="false"
               [pageSize]="25"
               [pageSizeOptions]="[10, 25, 50, 100]"
+              [searchableColumns]="['name', 'email', 'role']"
+              [emptyStateTitle]="'no.agreements.found' | translate"
+              [emptyStateDescription]="'no_agreements_description' | translate"
+              [emptyStateIcon]="'@tui.file-text'"
             />
-          </div>
-        } @placeholder {
-          <div class="rounded-xl bg-white p-8 shadow-sm dark:bg-slate-800 dark:shadow-slate-900/20">
-            <div class="space-y-4">
-              @for (i of [1, 2, 3, 4, 5]; track i) {
-                <div class="h-12 w-full rounded-lg bg-gray-200/50 dark:bg-gray-700/50" [tuiSkeleton]="true"></div>
-              }
+          } @placeholder {
+            <div class="rounded-xl bg-white p-8 shadow-sm dark:bg-slate-800 dark:shadow-slate-900/20">
+              <div class="space-y-4">
+                @for (i of [1, 2, 3, 4, 5]; track i) {
+                  <div class="h-12 w-full rounded-lg bg-gray-200/50 dark:bg-gray-700/50" [tuiSkeleton]="true"></div>
+                }
+              </div>
             </div>
-          </div>
-        } @loading {
-          <div class="rounded-xl bg-white p-8 shadow-sm dark:bg-slate-800 dark:shadow-slate-900/20">
-            <div class="space-y-4">
-              @for (i of [1, 2, 3, 4, 5]; track i) {
-                <div
-                  class="h-12 w-full animate-pulse rounded-lg bg-gray-200/50 dark:bg-gray-700/50"
-                  [tuiSkeleton]="true"
-                ></div>
-              }
+          } @loading {
+            <div class="rounded-xl bg-white p-8 shadow-sm dark:bg-slate-800 dark:shadow-slate-900/20">
+              <div class="space-y-4">
+                @for (i of [1, 2, 3, 4, 5]; track i) {
+                  <div
+                    class="h-12 w-full animate-pulse rounded-lg bg-gray-200/50 dark:bg-gray-700/50"
+                    [tuiSkeleton]="true"
+                  ></div>
+                }
+              </div>
             </div>
-          </div>
-        }
+          }
+        </div>
 
         @if (errorMessage()) {
           <div class="mt-6 rounded-xl border border-red-200/50 bg-red-50 p-6 dark:border-red-800/50 dark:bg-red-900/20">
@@ -249,6 +317,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   private translate = inject(TranslateService);
   private edgeFunctions = inject(AkademyEdgeFunctionsService);
   private directMessageService = inject(DirectMessageService);
+  private destroyRef = inject(DestroyRef);
 
   protected currentTheme = injectCurrentTheme();
   protected ICONS = ICONS;
@@ -262,6 +331,9 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   protected tableData = computed(() => this.transformAgreementsData(this.agreementsData()));
   protected hasData = computed(() => (this.agreementsData()?.length || 0) > 0);
   protected statsCards = computed(() => this.getStatsCards());
+
+  protected roleFilter = new FormControl('');
+  protected roleFilterValue = signal('');
 
   protected currentPage = this.agreementsFacade.currentPage;
   protected pageSize = this.agreementsFacade.pageSize;
@@ -277,6 +349,52 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   protected canDelete = computed(() => this.roleService.isInAnyGroup(['ADMINISTRATION']));
 
   protected allowedRolesForAgreementCreation = () => ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'];
+
+  protected roleFilterOptions = computed(() => [
+    this.translate.instant('all_roles'),
+    this.translate.instant('students'),
+    this.translate.instant('facilitators'),
+    this.translate.instant('companions'),
+    this.translate.instant('managers'),
+    this.translate.instant('assistants'),
+    this.translate.instant('coordinators'),
+    this.translate.instant('directors'),
+  ]);
+
+  private roleFilterMap: Record<string, string> = {};
+
+  protected filteredTableData = computed(() => {
+    const tableData = this.tableData();
+    const selectedDisplayText = this.roleFilterValue();
+    const filter = this.roleFilterMap[selectedDisplayText] || 'all';
+
+    if (!filter || filter === 'all') {
+      return tableData;
+    }
+
+    return tableData.filter((agreement) => {
+      const roleName = agreement.role?.toLowerCase() || '';
+
+      switch (filter) {
+        case 'student':
+          return roleName.includes('student') || roleName.includes('alumno');
+        case 'facilitator':
+          return roleName.includes('facilitator') || roleName.includes('facilitador');
+        case 'companion':
+          return roleName.includes('companion') || roleName.includes('acompañante');
+        case 'manager':
+          return roleName.includes('manager') || roleName.includes('responsable');
+        case 'assistant':
+          return roleName.includes('assistant') || roleName.includes('asistente');
+        case 'coordinator':
+          return roleName.includes('coordinator') || roleName.includes('coordinador');
+        case 'director':
+          return roleName.includes('director');
+        default:
+          return true;
+      }
+    });
+  });
 
   protected tableColumns: TableColumn[] = [
     {
@@ -388,9 +506,30 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadInitialData();
+    this.initializeRoleFilter();
     console.log('Current user role:', this.roleService.userRole());
     console.log('Current role level:', this.roleService.roleLevel());
     console.log('Is superadmin:', this.roleService.hasRole(ROLE.SUPERADMIN));
+  }
+
+  private initializeRoleFilter(): void {
+    this.roleFilterMap = {
+      [this.translate.instant('all_roles')]: 'all',
+      [this.translate.instant('students')]: 'student',
+      [this.translate.instant('facilitators')]: 'facilitator',
+      [this.translate.instant('companions')]: 'companion',
+      [this.translate.instant('managers')]: 'manager',
+      [this.translate.instant('assistants')]: 'assistant',
+      [this.translate.instant('coordinators')]: 'coordinator',
+      [this.translate.instant('directors')]: 'director',
+    };
+
+    this.roleFilter.setValue(this.translate.instant('all_roles'));
+    this.roleFilterValue.set(this.translate.instant('all_roles'));
+
+    this.roleFilter.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+      this.roleFilterValue.set(value || '');
+    });
   }
 
   ngOnDestroy(): void {
@@ -425,19 +564,6 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
       phone: agreement.phone || undefined,
       documentNumber: agreement.document_number || undefined,
     }));
-
-    // Debug: Log first item to see available actions
-    if (transformed.length > 0) {
-      const firstItem = transformed[0];
-      console.log('First agreement:', firstItem);
-      console.log(
-        'Available actions for first item:',
-        this.tableActions.map((action) => ({
-          label: action.label,
-          visible: action.visible ? action.visible(firstItem) : true,
-        }))
-      );
-    }
 
     return transformed;
   }
@@ -769,5 +895,10 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     } finally {
       this.isProcessing.set(false);
     }
+  }
+
+  protected async onSearchAgreements(): Promise<void> {
+    // TODO: Implement search modal for agreements
+    this.notificationService.showInfo(this.translate.instant('feature_coming_soon'));
   }
 }

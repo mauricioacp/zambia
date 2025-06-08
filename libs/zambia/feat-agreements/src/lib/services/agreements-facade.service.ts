@@ -169,6 +169,7 @@ export class AgreementsFacadeService {
     loader: async ({ request }: ResourceLoaderParams<AgreementsRpcParams>): Promise<PaginatedAgreements> => {
       this.isLoading.set(true);
       try {
+        // Fetch agreements
         const { data, error } = await this.supabase.getClient().rpc('get_agreements_with_role_paginated', request);
 
         if (error) {
@@ -192,14 +193,43 @@ export class AgreementsFacadeService {
           };
         }
 
+        // Fetch headquarters to map names
+        const { data: headquartersData, error: hqError } = await this.supabase
+          .getClient()
+          .from('headquarters')
+          .select('id, name');
+
+        if (hqError) {
+          console.error('Error fetching headquarters:', hqError);
+        }
+
+        // Create a map of headquarter IDs to names
+        const headquarterMap = new Map<string, string>();
+        if (headquartersData) {
+          headquartersData.forEach((hq) => {
+            headquarterMap.set(hq.id, hq.name);
+          });
+        }
+
+        // Map agreements with headquarter names
         const mappedData = response.data.map((agreement: AgreementWithShallowRelations) => ({
           ...agreement,
-          headquarter_name: agreement.headquarter_name,
+          headquarter_name: headquarterMap.get(agreement.headquarter_id) || 'Unknown Headquarter',
           country_name: agreement.country_name,
           season_name: agreement.season_name,
         }));
 
         console.log('Fetched agreements:', mappedData.length, 'total:', response.pagination.total);
+
+        // Log a sample agreement to verify headquarter_name is included
+        if (mappedData.length > 0) {
+          console.log('Sample agreement data:', {
+            id: mappedData[0].id,
+            name: mappedData[0].name,
+            headquarter_name: mappedData[0].headquarter_name,
+            headquarter_id: mappedData[0].headquarter_id,
+          });
+        }
 
         this.totalItems.set(response.pagination.total);
         return {
@@ -246,11 +276,7 @@ export class AgreementsFacadeService {
 
   headquarters = resource({
     loader: async () => {
-      const { data, error } = await this.supabase
-        .getClient()
-        .from('headquarters')
-        .select('id, name, status')
-        .eq('status', 'active');
+      const { data, error } = await this.supabase.getClient().from('headquarters').select('id, name, status');
 
       if (error) {
         console.error('Error fetching headquarters:', error);
@@ -576,7 +602,31 @@ export class AgreementsFacadeService {
     }
 
     const typedData = data as unknown as { data: AgreementWithShallowRelations[] };
-    return typedData?.data || [];
+    const agreements = typedData?.data || [];
+
+    // Fetch headquarters to map names
+    const { data: headquartersData, error: hqError } = await this.supabase
+      .getClient()
+      .from('headquarters')
+      .select('id, name');
+
+    if (hqError) {
+      console.error('Error fetching headquarters for export:', hqError);
+    }
+
+    // Create a map of headquarter IDs to names
+    const headquarterMap = new Map<string, string>();
+    if (headquartersData) {
+      headquartersData.forEach((hq) => {
+        headquarterMap.set(hq.id, hq.name);
+      });
+    }
+
+    // Map agreements with headquarter names
+    return agreements.map((agreement) => ({
+      ...agreement,
+      headquarter_name: headquarterMap.get(agreement.headquarter_id) || 'Unknown Headquarter',
+    }));
   }
 
   isAgreementsLoading = computed(() => this.agreements.isLoading() || this.isLoading());
