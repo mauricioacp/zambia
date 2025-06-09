@@ -257,13 +257,11 @@ export class StudentProgressSmartComponent {
   viewMode = signal<'country' | 'headquarter'>('country');
   isLoadingSignal = signal(false);
 
-  // Resource for fetching student data
   studentData = resource({
     request: () => ({}),
     loader: async () => {
       this.isLoadingSignal.set(true);
       try {
-        // Mock data for now - replace with actual Supabase RPC call
         const mockHeadquarterData: HeadquarterStudentData[] = [
           {
             id: '1',
@@ -338,7 +336,6 @@ export class StudentProgressSmartComponent {
     },
   });
 
-  // Computed data by country
   countryData = computed<CountryStudentSummary[]>(() => {
     const data = this.studentData.value() || [];
     const countryMap = new Map<string, CountryStudentSummary>();
@@ -359,7 +356,6 @@ export class StudentProgressSmartComponent {
       countryMap.set(hq.country, existing);
     });
 
-    // Calculate percentages
     const countries = Array.from(countryMap.values());
     countries.forEach((country) => {
       country.percentage_active = Math.round((country.active_students / country.total_students) * 100);
@@ -368,12 +364,10 @@ export class StudentProgressSmartComponent {
     return countries.sort((a, b) => b.total_students - a.total_students);
   });
 
-  // Computed data for headquarters view
   headquarterData = computed(() => {
     return (this.studentData.value() || []).sort((a, b) => b.total_students - a.total_students);
   });
 
-  // Key metrics
   keyMetrics = computed(() => {
     const data = this.studentData.value() || [];
     const totalStudents = data.reduce((sum, hq) => sum + hq.total_students, 0);
@@ -427,7 +421,6 @@ export class StudentProgressSmartComponent {
 
   isLoading = computed(() => this.isLoadingSignal() || this.studentData.isLoading());
 
-  // Table columns for headquarter view
   tableColumns = [
     {
       key: 'name',

@@ -87,8 +87,7 @@ export class HeadquartersFacadeService {
           *,
           countries(name, code),
           scheduled_workshops!scheduled_workshops_headquarter_id_fkey(*),
-          seasons:seasons!seasons_headquarter_id_fkey(*),
-          agreement_with_role(*)
+          seasons:seasons!seasons_headquarter_id_fkey(*)
         `
         )
         .eq('id', request.headquarterId)
@@ -109,7 +108,7 @@ export class HeadquartersFacadeService {
         countries: rawSupabaseData.countries || undefined,
         scheduled_workshops: (rawSupabaseData.scheduled_workshops as ScheduledWorkshop[]) || [],
         seasons: (rawSupabaseData.seasons as Season[]) || [],
-        agreements: (rawSupabaseData.agreement_with_role as unknown as AgreementWithRole[]) || [],
+        agreements: [],
       };
 
       if (headquarterData.agreements) {

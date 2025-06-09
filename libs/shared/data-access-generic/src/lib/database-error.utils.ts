@@ -33,7 +33,6 @@ export function isDatabaseConstraintError(error: unknown): error is DatabaseErro
 export function parseConstraintError(error: DatabaseError): ParsedConstraintError {
   const { code, message, details } = error;
 
-  // Foreign key constraint violation
   if (code === '23503') {
     const foreignKeyMatch = message.match(/violates foreign key constraint "([^"]+)" on table "([^"]+)"/);
     const referencedTableMatch = details?.match(/Key is still referenced from table "([^"]+)"/);
@@ -47,7 +46,6 @@ export function parseConstraintError(error: DatabaseError): ParsedConstraintErro
     };
   }
 
-  // Unique constraint violation
   if (code === '23505') {
     const uniqueMatch = message.match(/violates unique constraint "([^"]+)"/);
     const tableMatch = message.match(/on table "([^"]+)"/);
@@ -60,7 +58,6 @@ export function parseConstraintError(error: DatabaseError): ParsedConstraintErro
     };
   }
 
-  // Check constraint violation
   if (code === '23514') {
     const checkMatch = message.match(/violates check constraint "([^"]+)"/);
     const tableMatch = message.match(/on table "([^"]+)"/);
@@ -73,7 +70,6 @@ export function parseConstraintError(error: DatabaseError): ParsedConstraintErro
     };
   }
 
-  // Not null constraint violation
   if (code === '23502') {
     const columnMatch = message.match(/null value in column "([^"]+)"/);
     const tableMatch = message.match(/of relation "([^"]+)"/);

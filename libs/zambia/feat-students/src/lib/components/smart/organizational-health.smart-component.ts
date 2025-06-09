@@ -11,24 +11,20 @@ import { TuiIcon } from '@taiga-ui/core';
 import { TuiRingChart } from '@taiga-ui/addon-charts';
 
 interface HealthMetrics {
-  // Activity Metrics
   active_headquarters_percentage: number;
   active_countries_percentage: number;
   workshops_completion_rate: number;
   agreements_review_rate: number;
 
-  // Participation Metrics
   student_participation_rate: number;
   collaborator_participation_rate: number;
   average_students_per_hq: number;
   average_collaborators_per_hq: number;
 
-  // Growth Metrics
   student_growth_rate: number;
   collaborator_growth_rate: number;
   new_headquarters_last_quarter: number;
 
-  // Quality Metrics
   facilitator_to_student_ratio: number;
   companion_to_student_ratio: number;
   average_workshop_attendance: number;
@@ -320,13 +316,11 @@ export class OrganizationalHealthSmartComponent {
 
   isLoadingSignal = signal(false);
 
-  // Resource for fetching health metrics
   healthMetrics = resource({
     request: () => ({}),
     loader: async () => {
       this.isLoadingSignal.set(true);
       try {
-        // Mock data for now - replace with actual Supabase RPC call
         const mockMetrics: HealthMetrics = {
           active_headquarters_percentage: 89,
           active_countries_percentage: 100,
@@ -361,12 +355,10 @@ export class OrganizationalHealthSmartComponent {
     },
   });
 
-  // Overall health score calculation
   overallScore = computed(() => {
     const metrics = this.healthMetrics.value();
     if (!metrics) return 0;
 
-    // Weighted average of key metrics
     const weights = {
       activity: 0.25,
       participation: 0.3,

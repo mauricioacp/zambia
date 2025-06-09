@@ -115,7 +115,6 @@ describe('AkademyEdgeFunctionsService', () => {
       },
     };
 
-    // Mock FunctionsHttpError - Jest doesn't need special prototype setup
     mockSupabaseClient.functions.invoke.mockResolvedValue({ data: null, error: mockError });
 
     await service.getHealth();

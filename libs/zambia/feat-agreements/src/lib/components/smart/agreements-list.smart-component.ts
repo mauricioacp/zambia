@@ -559,7 +559,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
       status: this.mapStatus(agreement.status || 'pending'),
       headquarter: agreement.headquarter_name || this.translate.instant('no_headquarter'),
       createdAt: agreement.created_at || '',
-      verificationType: 'pending' as 'pending' | 'verified' | 'rejected', // TODO: Add verification_status to database
+      verificationType: 'pending' as 'pending' | 'verified' | 'rejected',
       userId: agreement.user_id || undefined,
       phone: agreement.phone || undefined,
       documentNumber: agreement.document_number || undefined,
@@ -627,7 +627,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
       completed: 'completed',
       draft: 'pending',
       approved: 'active',
-      prospect: 'pending', // Map prospect to pending for UI consistency
+      prospect: 'pending',
     };
     return statusMap[status] || 'pending';
   }

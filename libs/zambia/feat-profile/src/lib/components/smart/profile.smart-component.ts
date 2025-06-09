@@ -344,10 +344,7 @@ export class ProfileSmartComponent implements OnInit {
         return;
       }
 
-      // Get user metadata
       const userMetadata = user.user_metadata || {};
-
-      // Try to get profile data from agreements table (assuming this is where user data is stored)
       const { data: profileData, error } = await this.supabaseService
         .getClient()
         .from('agreements')
@@ -356,13 +353,11 @@ export class ProfileSmartComponent implements OnInit {
         .single();
 
       if (error && error.code !== 'PGRST116') {
-        // PGRST116 = no rows returned
         console.error('Error loading profile:', error);
         this.notificationService.showError('Error al cargar el perfil');
         return;
       }
 
-      // Populate form with available data
       this.profileForm.patchValue({
         firstName: profileData?.name || userMetadata['firstName'] || '',
         lastName: profileData?.last_name || userMetadata['lastName'] || '',
@@ -418,7 +413,6 @@ export class ProfileSmartComponent implements OnInit {
 
       const formValue = this.profileForm.value;
 
-      // Update user metadata in auth
       const { error: metadataError } = await this.supabaseService.getClient().auth.updateUser({
         data: {
           firstName: formValue.firstName,

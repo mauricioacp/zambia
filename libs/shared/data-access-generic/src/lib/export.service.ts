@@ -55,15 +55,12 @@ export class ExportService {
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(transformedData);
 
-    // Apply styles to the worksheet
     const range = XLSX.utils.decode_range(ws['!ref'] || 'A1:A1');
 
-    // Style header row with gradient effect
     for (let C = range.s.c; C <= range.e.c; ++C) {
       const address = XLSX.utils.encode_cell({ r: 0, c: C });
       if (!ws[address]) continue;
 
-      // Apply header styling with gradient
       ws[address].s = {
         font: {
           bold: true,
@@ -87,22 +84,20 @@ export class ExportService {
       };
     }
 
-    // Style data rows with improved alternating colors
     for (let R = 1; R <= range.e.r; ++R) {
       for (let C = range.s.c; C <= range.e.c; ++C) {
         const address = XLSX.utils.encode_cell({ r: R, c: C });
         if (!ws[address]) continue;
 
-        // Apply alternating row colors with subtle gradients
         const isEvenRow = R % 2 === 0;
         ws[address].s = {
           font: {
             sz: 11,
             name: 'Segoe UI',
-            color: { rgb: '374151' }, // Gray-700 for better readability
+            color: { rgb: '374151' },
           },
           fill: {
-            fgColor: { rgb: isEvenRow ? 'F8FAFC' : 'FFFFFF' }, // Slate-50 / White alternating
+            fgColor: { rgb: isEvenRow ? 'F8FAFC' : 'FFFFFF' },
           },
           alignment: {
             vertical: 'center',
@@ -117,21 +112,19 @@ export class ExportService {
           },
         };
 
-        // Special styling for status columns
         const cellValue = String(ws[address].v || '').toLowerCase();
         if (cellValue === 'active' || cellValue === 'activo') {
-          ws[address].s.fill = { fgColor: { rgb: 'D1FAE5' } }; // Green-100
-          ws[address].s.font.color = { rgb: '065F46' }; // Green-800
+          ws[address].s.fill = { fgColor: { rgb: 'D1FAE5' } };
+          ws[address].s.font.color = { rgb: '065F46' };
           ws[address].s.font.bold = true;
         } else if (cellValue === 'inactive' || cellValue === 'inactivo') {
-          ws[address].s.fill = { fgColor: { rgb: 'FEE2E2' } }; // Red-100
-          ws[address].s.font.color = { rgb: '991B1B' }; // Red-800
+          ws[address].s.fill = { fgColor: { rgb: 'FEE2E2' } };
+          ws[address].s.font.color = { rgb: '991B1B' };
           ws[address].s.font.bold = true;
         }
       }
     }
 
-    // Enhanced auto-sizing with better column width calculation
     const maxWidth = 60;
     const minWidth = 12;
     const wscols = columns.map((col) => {
@@ -142,27 +135,20 @@ export class ExportService {
           maxLength = value.length;
         }
       });
-      // Calculate optimal width with padding
       const calculatedWidth = Math.max(minWidth, Math.min(maxLength + 6, maxWidth));
       return { wch: calculatedWidth };
     });
     ws['!cols'] = wscols;
 
-    // Set enhanced row heights
-    const rows = [{ hpt: 35 }]; // Taller header row
+    const rows = [{ hpt: 35 }];
     for (let i = 1; i <= range.e.r; i++) {
-      rows.push({ hpt: 25 }); // Standard row height
+      rows.push({ hpt: 25 });
     }
     ws['!rows'] = rows;
-
-    // Add freeze panes for header row
     ws['!freeze'] = { xSplit: 0, ySplit: 1 };
-
-    // Add the worksheet to workbook with a more descriptive name
     const sheetName = 'Datos Exportados';
     XLSX.utils.book_append_sheet(wb, ws, sheetName);
 
-    // Enhanced metadata
     wb.Props = {
       Title: filename,
       Subject: 'Datos exportados desde Sistema Zambia',
@@ -173,7 +159,6 @@ export class ExportService {
       Company: 'Akademia',
     };
 
-    // Write the file with enhanced options
     XLSX.writeFile(wb, `${filename}.xlsx`, {
       bookType: 'xlsx',
       type: 'binary',

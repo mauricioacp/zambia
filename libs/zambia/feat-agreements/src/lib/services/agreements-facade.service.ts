@@ -39,7 +39,6 @@ export interface AgreementFormData {
   age_verification: boolean | null;
 }
 
-// Role information from the view
 export interface RoleInAgreement {
   role_id: string;
   role_name: string;
@@ -48,7 +47,6 @@ export interface RoleInAgreement {
   role_level: number;
 }
 
-// For the list of agreements from agreement_with_role view
 export interface AgreementWithShallowRelations {
   id: string;
   name: string | null;
@@ -71,13 +69,11 @@ export interface AgreementWithShallowRelations {
   updated_at: string | null;
   user_id: string | null;
   role: RoleInAgreement | null;
-  // These are flattened from joins in the view
   headquarter_name?: string;
   country_name?: string;
   season_name?: string;
 }
 
-// For a single agreement by ID
 export interface AgreementDetails extends Agreement {
   headquarters?: Pick<Headquarter, 'id' | 'name' | 'address' | 'status'> & {
     countries?: Pick<Country, 'id' | 'name' | 'code'>;
@@ -123,7 +119,7 @@ export class AgreementsFacadeService {
   agreementByIdResource = linkedSignal(() => this.agreementById.value() ?? null);
 
   currentPage = signal(1);
-  pageSize = signal(1000); // Fetch all records for client-side pagination
+  pageSize = signal(1000);
   totalItems = signal(0);
   isLoading = signal(false);
   status = signal<string | null>(null);
@@ -158,9 +154,6 @@ export class AgreementsFacadeService {
     const search = this.search();
     if (search) params.p_search = search;
 
-    // TODO: Get current user role ID from auth context
-    // if (roleId) params.p_role_id = roleId;
-
     return params;
   });
 
@@ -169,7 +162,6 @@ export class AgreementsFacadeService {
     loader: async ({ request }: ResourceLoaderParams<AgreementsRpcParams>): Promise<PaginatedAgreements> => {
       this.isLoading.set(true);
       try {
-        // Fetch agreements
         const { data, error } = await this.supabase.getClient().rpc('get_agreements_with_role_paginated', request);
 
         if (error) {
@@ -193,7 +185,6 @@ export class AgreementsFacadeService {
           };
         }
 
-        // Fetch headquarters to map names
         const { data: headquartersData, error: hqError } = await this.supabase
           .getClient()
           .from('headquarters')
@@ -203,7 +194,6 @@ export class AgreementsFacadeService {
           console.error('Error fetching headquarters:', hqError);
         }
 
-        // Create a map of headquarter IDs to names
         const headquarterMap = new Map<string, string>();
         if (headquartersData) {
           headquartersData.forEach((hq) => {
@@ -211,7 +201,6 @@ export class AgreementsFacadeService {
           });
         }
 
-        // Map agreements with headquarter names
         const mappedData = response.data.map((agreement: AgreementWithShallowRelations) => ({
           ...agreement,
           headquarter_name: headquarterMap.get(agreement.headquarter_id) || 'Unknown Headquarter',
@@ -219,9 +208,6 @@ export class AgreementsFacadeService {
           season_name: agreement.season_name,
         }));
 
-        console.log('Fetched agreements:', mappedData.length, 'total:', response.pagination.total);
-
-        // Log a sample agreement to verify headquarter_name is included
         if (mappedData.length > 0) {
           console.log('Sample agreement data:', {
             id: mappedData[0].id,
@@ -394,7 +380,6 @@ export class AgreementsFacadeService {
     try {
       this.isLoading.set(true);
 
-      // TODO: Implement agreement activation via edge function
       const { error } = await this.supabase
         .getClient()
         .from('agreements')

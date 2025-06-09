@@ -262,10 +262,8 @@ import { AsyncPipe } from '@angular/common';
     tuiItemsHandlersProvider({
       stringify: signal((item: string | { name: string; id: string }) => {
         if (typeof item === 'string') {
-          // For status options
           return item === 'active' ? '✓ Active' : '✗ Inactive';
         }
-        // For country options
         return item.name;
       }),
     }),
@@ -306,7 +304,6 @@ export class HeadquarterFormModalSmartComponent {
       status: [headquarter?.status || 'active', [Validators.required]],
     });
 
-    // Load countries if not already loaded
     this.countriesFacade.countries.reload();
   }
 

@@ -16,13 +16,13 @@ import {
   HeadquartersFacadeService,
   HeadquarterWithRelations,
   ScheduledWorkshop,
-  AgreementWithRole,
   HeadquarterFormData,
   Season,
 } from '../../services/headquarters-facade.service';
 import { HeadquarterFormModalSmartComponent } from './headquarter-form-modal.smart-component';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { NotificationService } from '@zambia/data-access-generic';
+import { AgreementsFacadeService, AgreementWithShallowRelations } from '@zambia/feat-agreements';
 import { TuiBreadcrumbs, TuiDataListWrapper, TuiSelect, TuiChevron } from '@taiga-ui/kit';
 import {
   TuiButton,
@@ -522,7 +522,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
                 [items]="filteredAgreements() || []"
                 [columns]="agreementsColumns()"
                 [actions]="agreementsActions()"
-                [loading]="false"
+                [loading]="agreementsLoading()"
                 [enablePagination]="true"
                 [enableFiltering]="true"
                 [enableColumnVisibility]="true"
@@ -707,6 +707,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 })
 export class HeadquarterDetailSmartComponent {
   protected headquartersFacade = inject(HeadquartersFacadeService);
+  protected agreementsFacade = inject(AgreementsFacadeService);
   private router = inject(Router);
   private translate = inject(TranslateService);
   private dialogService = inject(TuiDialogService);
@@ -718,6 +719,11 @@ export class HeadquarterDetailSmartComponent {
   isProcessing = signal(false);
   roleFilter = new FormControl('');
   roleFilterValue = signal('');
+  agreementsList = computed(() => {
+    const result = this.agreementsFacade.agreements.value();
+    return result?.data || [];
+  });
+  agreementsLoading = computed(() => this.agreementsFacade.isLoading());
 
   ICONS = ICONS;
 
@@ -739,42 +745,53 @@ export class HeadquarterDetailSmartComponent {
   });
 
   currentEditionStudents = computed(() => {
-    const agreements = this.headquarterData()?.agreements;
+    const agreements = this.agreementsList();
     if (!agreements) return [];
-    return agreements.filter((agreement) => agreement.status !== 'graduated');
+    return agreements.filter((agreement: AgreementWithShallowRelations) => agreement.status !== 'graduated');
   });
 
   previousStudents = computed(() => {
-    const agreements = this.headquarterData()?.agreements;
+    const agreements = this.agreementsList();
     if (!agreements) return [];
-    return agreements.filter((agreement) => agreement.status === 'graduated');
+    return agreements.filter((agreement: AgreementWithShallowRelations) => agreement.status === 'graduated');
   });
 
   studentMetrics = computed(() => {
-    const agreements = this.headquarterData()?.agreements || [];
+    const agreements = this.agreementsList() || [];
 
     return {
       total: agreements.length,
-      active: agreements.filter((a) => a.status === 'active').length,
-      prospects: agreements.filter((a) => a.status === 'prospect').length,
-      inactive: agreements.filter((a) => a.status === 'inactive').length,
-      graduated: agreements.filter((a) => a.status === 'graduated').length,
-      currentEdition: agreements.filter((a) => a.status !== 'graduated').length,
+      active: agreements.filter((a: AgreementWithShallowRelations) => a.status === 'active').length,
+      prospects: agreements.filter((a: AgreementWithShallowRelations) => a.status === 'prospect').length,
+      inactive: agreements.filter((a: AgreementWithShallowRelations) => a.status === 'inactive').length,
+      graduated: agreements.filter((a: AgreementWithShallowRelations) => a.status === 'graduated').length,
+      currentEdition: agreements.filter((a: AgreementWithShallowRelations) => a.status !== 'graduated').length,
     };
   });
 
-  // Enhanced collaborator metrics (based on role types)
   collaboratorMetrics = computed(() => {
-    const agreements = this.headquarterData()?.agreements || [];
+    const agreements = this.agreementsList() || [];
 
     return {
       total: agreements.length,
-      facilitators: agreements.filter((a) => a.role?.code?.toLowerCase().includes('facilitator')).length,
-      companions: agreements.filter((a) => a.role?.code?.toLowerCase().includes('companion')).length,
-      managers: agreements.filter((a) => a.role?.code?.toLowerCase().includes('manager')).length,
-      assistants: agreements.filter((a) => a.role?.code?.toLowerCase().includes('assistant')).length,
-      coordinators: agreements.filter((a) => a.role?.code?.toLowerCase().includes('coordinator')).length,
-      directors: agreements.filter((a) => a.role?.code?.toLowerCase().includes('director')).length,
+      facilitators: agreements.filter((a: AgreementWithShallowRelations) =>
+        a.role?.role_code?.toLowerCase().includes('facilitator')
+      ).length,
+      companions: agreements.filter((a: AgreementWithShallowRelations) =>
+        a.role?.role_code?.toLowerCase().includes('companion')
+      ).length,
+      managers: agreements.filter((a: AgreementWithShallowRelations) =>
+        a.role?.role_code?.toLowerCase().includes('manager')
+      ).length,
+      assistants: agreements.filter((a: AgreementWithShallowRelations) =>
+        a.role?.role_code?.toLowerCase().includes('assistant')
+      ).length,
+      coordinators: agreements.filter((a: AgreementWithShallowRelations) =>
+        a.role?.role_code?.toLowerCase().includes('coordinator')
+      ).length,
+      directors: agreements.filter((a: AgreementWithShallowRelations) =>
+        a.role?.role_code?.toLowerCase().includes('director')
+      ).length,
     };
   });
 
@@ -826,7 +843,7 @@ export class HeadquarterDetailSmartComponent {
 
   // Filtered agreements based on role filter
   filteredAgreements = computed(() => {
-    const agreements = this.headquarterData()?.agreements || [];
+    const agreements = this.agreementsList() || [];
     const selectedDisplayText = this.roleFilterValue();
 
     // Map the display text to the filter value
@@ -841,14 +858,14 @@ export class HeadquarterDetailSmartComponent {
       console.log('Role structure:', agreements[0].role);
     }
 
-    return agreements.filter((agreement) => {
-      // Handle different possible role structures
-      const role = agreement.role as { code?: string; role_code?: string; name?: string; role_name?: string } | null;
+    return agreements.filter((agreement: AgreementWithShallowRelations) => {
+      // Handle role structure from AgreementWithShallowRelations
+      const role = agreement.role;
       if (!role) return false;
 
-      // Try different possible property names
-      const roleCode = (role.code || role.role_code || '')?.toLowerCase();
-      const roleName = (role.name || role.role_name || '')?.toLowerCase();
+      // Use the correct property names from RoleInAgreement type
+      const roleCode = (role.role_code || '')?.toLowerCase();
+      const roleName = (role.role_name || '')?.toLowerCase();
 
       switch (filter) {
         case 'student':
@@ -964,7 +981,7 @@ export class HeadquarterDetailSmartComponent {
     },
   ]);
 
-  studentsActions = computed((): TableAction<AgreementWithRole>[] => [
+  studentsActions = computed((): TableAction<AgreementWithShallowRelations>[] => [
     {
       label: this.translate.instant('view'),
       icon: '@tui.eye',
@@ -973,7 +990,6 @@ export class HeadquarterDetailSmartComponent {
     },
   ]);
 
-  // Agreements table columns
   agreementsColumns = computed((): TableColumn[] => [
     {
       key: 'name',
@@ -1025,17 +1041,15 @@ export class HeadquarterDetailSmartComponent {
     },
   ]);
 
-  // Agreements table actions
-  agreementsActions = computed((): TableAction<AgreementWithRole>[] => [
+  agreementsActions = computed((): TableAction<AgreementWithShallowRelations>[] => [
     {
       label: this.translate.instant('view'),
       icon: '@tui.eye',
       color: 'primary',
-      handler: (agreement) => this.onAgreementView(agreement),
+      handler: (agreement) => this.onStudentView(agreement),
     },
   ]);
 
-  // Seasons table columns
   seasonsColumns = computed((): TableColumn[] => [
     {
       key: 'name',
@@ -1074,7 +1088,6 @@ export class HeadquarterDetailSmartComponent {
     },
   ]);
 
-  // Seasons table actions
   seasonsActions = computed((): TableAction<Season>[] => [
     {
       label: this.translate.instant('view'),
@@ -1085,7 +1098,6 @@ export class HeadquarterDetailSmartComponent {
   ]);
 
   constructor() {
-    // Initialize role filter map and default value
     this.roleFilterMap = {
       [this.translate.instant('all_roles')]: 'all',
       [this.translate.instant('students')]: 'student',
@@ -1097,11 +1109,9 @@ export class HeadquarterDetailSmartComponent {
       [this.translate.instant('directors')]: 'director',
     };
 
-    // Set default value for role filter
     this.roleFilter.setValue(this.translate.instant('all_roles'));
     this.roleFilterValue.set(this.translate.instant('all_roles'));
 
-    // Subscribe to role filter changes
     this.roleFilter.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
       this.roleFilterValue.set(value || '');
     });
@@ -1113,6 +1123,15 @@ export class HeadquarterDetailSmartComponent {
 
     effect(() => {
       this.headquarterData.set(this.headquartersFacade.headquarterByIdResource());
+    });
+
+    effect(() => {
+      const hqId = this.headquarterId();
+      if (hqId) {
+        this.agreementsFacade.headquarterId.set(hqId);
+        this.agreementsFacade.currentPage.set(1);
+        this.agreementsFacade.agreements.reload();
+      }
     });
   }
 
@@ -1170,11 +1189,11 @@ export class HeadquarterDetailSmartComponent {
     this.router.navigate(['/dashboard/workshops', workshop.id]);
   }
 
-  onStudentView(student: AgreementWithRole): void {
+  onStudentView(student: AgreementWithShallowRelations): void {
     this.router.navigate(['/dashboard/agreements', student.id]);
   }
 
-  onAgreementView(agreement: AgreementWithRole): void {
+  onAgreementView(agreement: AgreementWithShallowRelations): void {
     this.router.navigate(['/dashboard/agreements', agreement.id]);
   }
 

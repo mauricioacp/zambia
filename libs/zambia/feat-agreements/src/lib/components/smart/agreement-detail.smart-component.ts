@@ -355,7 +355,6 @@ export class AgreementDetailSmartComponent {
   agreementData: WritableSignal<AgreementDetails | null> = signal(null);
   isProcessing = signal(false);
 
-  // UI properties
   currentTheme = injectCurrentTheme();
   ICONS = ICONS;
 
@@ -397,7 +396,6 @@ export class AgreementDetailSmartComponent {
     ];
   });
 
-  // UI Helper Methods
   getInitials(firstName: string | undefined, lastName: string | undefined): string {
     if (!firstName || !lastName) return '??';
     return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
@@ -431,7 +429,6 @@ export class AgreementDetailSmartComponent {
     return status === 'active' ? 'deactivate_agreement' : 'activate_agreement';
   }
 
-  // Agreement Status Items for Quick View
   agreementStatusItems = computed(() => {
     const data = this.agreementData();
     if (!data) return [];
@@ -444,10 +441,7 @@ export class AgreementDetailSmartComponent {
     ];
   });
 
-  // Action Handlers
   onEditAgreement(): void {
-    // Navigate to edit form or open modal
-    console.log('Edit agreement:', this.agreementData()?.id);
     this.notificationService.showInfo(this.translate.instant('feature_coming_soon'));
   }
 

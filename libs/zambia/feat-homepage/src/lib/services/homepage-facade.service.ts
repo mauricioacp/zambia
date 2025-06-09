@@ -70,8 +70,6 @@ export class HomepageFacadeService {
       this.isLoadingSignal.set(true);
       try {
         const isGlobalView = this.roleService.roleLevel() !== null && Number(this.roleService.roleLevel()) >= 51;
-
-        // For now, return mock data until the RPC functions are created in Supabase
         const mockStats: HomepageStatistics = {
           total_students: isGlobalView ? 1250 : 85,
           active_students: isGlobalView ? 1180 : 78,
@@ -88,9 +86,6 @@ export class HomepageFacadeService {
             active_countries: 4,
           }),
         };
-
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 800));
 
         return mockStats;
 
@@ -122,13 +117,11 @@ export class HomepageFacadeService {
   });
 
   keyMetrics = computed<KpiData[]>(() => {
-    // Use real data from dashboard facade when available
     const agreementStats = this.dashboardFacade.agreementReviewStats();
     const isGlobalView = this.roleService.roleLevel() !== null && Number(this.roleService.roleLevel()) >= 51;
 
     const baseMetrics: KpiData[] = [];
 
-    // Use real agreement statistics when available
     if (agreementStats) {
       const students = agreementStats['students'];
       if (students) {
@@ -190,7 +183,6 @@ export class HomepageFacadeService {
         });
       }
 
-      // Konsejo Members (Global view only)
       const konsejoMembers = agreementStats['konsejo_members'];
       if (isGlobalView && konsejoMembers) {
         baseMetrics.push({
@@ -206,7 +198,6 @@ export class HomepageFacadeService {
         });
       }
 
-      // Directors (Global view only)
       const directors = agreementStats['directors'];
       if (isGlobalView && directors) {
         baseMetrics.push({
@@ -223,7 +214,6 @@ export class HomepageFacadeService {
       }
     }
 
-    // Add global stats from homepage stats if available and in global view
     if (this.homePageStats.hasValue()) {
       const stats = this.homePageStats.value();
 
@@ -256,7 +246,6 @@ export class HomepageFacadeService {
       }
     }
 
-    // Return only 8 cards maximum
     return baseMetrics.slice(0, 8);
   });
 
@@ -429,7 +418,7 @@ export class HomepageFacadeService {
       });
     }
 
-    return baseActions.slice(0, 8); // Limit to 8 actions
+    return baseActions.slice(0, 8);
   });
 
   isLoading = computed(

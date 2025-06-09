@@ -126,7 +126,6 @@ export class PasswordResetModalComponent {
   protected passwordStrength = signal<'weak' | 'medium' | 'strong' | null>(null);
 
   constructor() {
-    // Watch password changes for strength calculation
     this.form.controls.newPassword.valueChanges.subscribe((value) => {
       this.calculatePasswordStrength(value || '');
       this.validatePasswordMatch();

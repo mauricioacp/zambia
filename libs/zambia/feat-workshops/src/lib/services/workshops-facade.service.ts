@@ -41,7 +41,6 @@ export class WorkshopsFacadeService {
   workshopByIdResource = linkedSignal(() => this.workshopById.value() ?? null);
   workshopTypesResource = linkedSignal(() => this.workshopTypes.value() ?? []);
 
-  // Form state management
   isEditing = signal<boolean>(false);
   formData = signal<WorkshopFormData | null>(null);
   saveError = signal<string | null>(null);
@@ -118,7 +117,6 @@ export class WorkshopsFacadeService {
     },
   });
 
-  // Resource for loading facilitators (collaborators)
   facilitators = resource({
     loader: async () => {
       const { data, error } = await this.supabase
@@ -136,7 +134,6 @@ export class WorkshopsFacadeService {
     },
   });
 
-  // Resource for loading headquarters
   headquarters = resource({
     loader: async () => {
       const { data, error } = await this.supabase
@@ -196,7 +193,6 @@ export class WorkshopsFacadeService {
     this.seasons.reload();
   }
 
-  // Initialize form for creating a new workshop
   initCreateForm() {
     this.isEditing.set(false);
     this.saveError.set(null);
@@ -214,7 +210,6 @@ export class WorkshopsFacadeService {
     });
   }
 
-  // Initialize form for editing an existing workshop
   initEditForm(workshop: WorkshopWithRelations) {
     this.isEditing.set(true);
     this.saveError.set(null);
@@ -233,7 +228,6 @@ export class WorkshopsFacadeService {
     });
   }
 
-  // Create a new workshop
   async createWorkshop(formData: WorkshopFormData) {
     try {
       this.saveError.set(null);
@@ -263,7 +257,6 @@ export class WorkshopsFacadeService {
         return null;
       }
 
-      // Also create entry in facilitator_workshop_map
       await this.supabase
         .getClient()
         .from('facilitator_workshop_map')
@@ -286,7 +279,6 @@ export class WorkshopsFacadeService {
     }
   }
 
-  // Update an existing workshop
   async updateWorkshop(formData: WorkshopFormData) {
     try {
       this.saveError.set(null);
@@ -320,7 +312,6 @@ export class WorkshopsFacadeService {
         return null;
       }
 
-      // Also update entry in facilitator_workshop_map if facilitator changed
       await this.supabase
         .getClient()
         .from('facilitator_workshop_map')

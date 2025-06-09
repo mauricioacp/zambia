@@ -296,13 +296,11 @@ export class CollaborationDemographicsSmartComponent {
   viewMode = 'global';
   isLoadingSignal = signal(false);
 
-  // Resource for fetching collaboration data
   collaborationData = resource({
     request: () => ({}),
     loader: async () => {
       this.isLoadingSignal.set(true);
       try {
-        // Mock data for now - replace with actual Supabase RPC call
         const mockData: CollaboratorDemographics[] = [
           {
             headquarter_id: '1',
@@ -399,10 +397,9 @@ export class CollaborationDemographicsSmartComponent {
     };
   });
 
-  // Global role cards
   globalRoleCards = computed(() => {
     const stats = this.globalStats();
-    const total = stats.total || 1; // Avoid division by zero
+    const total = stats.total || 1;
 
     return [
       {

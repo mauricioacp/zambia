@@ -1693,6 +1693,10 @@ export type Database = {
         Args: { p_template_id: string; p_data?: Json }
         Returns: string
       }
+      fn_can_access_agreement: {
+        Args: { p_agreement_hq_id: string; p_agreement_user_id: string }
+        Returns: boolean
+      }
       fn_get_current_agreement_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1911,6 +1915,29 @@ export type Database = {
       get_global_dashboard_stats: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      get_headquarter_agreements_with_role: {
+        Args: { p_headquarter_id: string }
+        Returns: {
+          id: string
+          user_id: string
+          headquarter_id: string
+          role_id: string
+          season_id: string
+          name: string
+          last_name: string
+          email: string
+          phone: string
+          document_number: string
+          status: string
+          created_at: string
+          updated_at: string
+          role: Json
+          user_email: string
+          headquarter_name: string
+          season_name: string
+          season_status: string
+        }[]
       }
       get_headquarter_dashboard_stats: {
         Args: { target_hq_id: string }
