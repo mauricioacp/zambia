@@ -1,41 +1,37 @@
 import { inject } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivateFn, Router } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivateFn, Router, UrlTree } from '@angular/router';
 import { APP_CONFIG } from '@zambia/util-config';
-
 import { AuthService } from '@zambia/data-access-auth';
+import { RoleService } from '@zambia/data-access-roles-permissions';
+import { ROLE_GROUP, RoleCode } from '@zambia/util-roles-definitions';
 
-import { firstValueFrom } from 'rxjs';
-import { RolesService } from '@zambia/data-access-roles-permissions';
-
-export const REQUIRED_ROLES = 'requiredRoles';
-
-export const rolesGuard: CanActivateFn = async (route: ActivatedRouteSnapshot) => {
-  const roleService = inject(RolesService);
+export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot): boolean | UrlTree => {
+  const roleService = inject(RoleService);
   const authService = inject(AuthService);
   const router = inject(Router);
   const config = inject(APP_CONFIG);
   const forbiddenPath = '/access-denied';
-  const requiredRoles = route.data[REQUIRED_ROLES] as string[] | undefined;
 
-  await firstValueFrom(authService.initialAuthCheckComplete$);
+  const requiredRoles = route.data['roles'] as RoleCode[] | undefined;
+  const requiredGroups = route.data['groups'] as ROLE_GROUP[] | undefined;
 
-  if (!requiredRoles || requiredRoles.length === 0) {
-    console.log('[RolesGuard] No required roles specified for this route. Allowing access.');
+  if (authService.loading()) {
     return true;
   }
 
   const userRole = roleService.userRole();
-  const hasRequiredRole = roleService.hasAnyRole(requiredRoles);
 
-  if (hasRequiredRole) {
-    console.log('[RolesGuard] User has required role(s). Allowing access.');
-    return true;
-  } else {
+  const hasAccess =
+    (!requiredRoles || roleService.hasAnyRole(requiredRoles)) &&
+    (!requiredGroups || roleService.isInAnyGroup(requiredGroups));
+
+  if (!hasAccess) {
     if (!config.PROD) {
-      console.warn(`[RolesGuard] Access denied. Required roles: ${requiredRoles.join(', ')}. User role: ${userRole}`);
+      console.warn(
+        `[RoleGuard] Access denied. Required roles: ${requiredRoles?.join(', ') || 'none'}. Required groups: ${requiredGroups?.join(', ') || 'none'}. User role: ${userRole}`
+      );
     }
-
-    await router.navigate([forbiddenPath]);
-    return false;
+    return router.createUrlTree([forbiddenPath]);
   }
+  return true;
 };

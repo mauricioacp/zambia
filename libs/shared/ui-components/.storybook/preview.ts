@@ -15,7 +15,7 @@ export const decorators = [
     defaultTheme: 'light',
   }),
   moduleMetadata({}),
-  (storyFn: any, context: any) => {
+  (storyFn: () => unknown) => {
     const isDarkMode = useDarkMode();
     const documentElement = document.documentElement;
     const bodyElement = document.body;

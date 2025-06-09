@@ -3,6 +3,8 @@ export * from './lib/assets/logo-svg';
 export * from './lib/layout/layout.service';
 export * from './lib/layout/window.service';
 export * from './lib/layout/theme.service';
+export * from './lib/layout/theme.utils';
+export * from './lib/layout/language.service';
 
 export * from './lib/ui-components/sidebar/sidebar.ui-component';
 
@@ -17,6 +19,7 @@ export * from './lib/ui-components/brand/brand-logo.component';
 export * from './lib/ui-components/page-header/notifications-button.component';
 export * from './lib/ui-components/page-header/sidebar-toggle.component';
 export * from './lib/ui-components/page-header/theme-toggle.component';
+export * from './lib/ui-components/page-header/language-toggle.component';
 
 export * from './lib/ui-components/form-field/form-field.ui-component';
 
@@ -50,5 +53,13 @@ export * from './lib/ui-components/card/card.component';
 
 export * from './lib/layout/masonry.component';
 
-export * from './lib/ui-components/generic-table/generic-table.ui-component';
+export * from './lib/ui-components/generic-table/enhanced-table.ui-component';
 export * from './lib/directives/column-template.directive';
+
+export * from './lib/ui-components/export-modal/export-modal.ui-component';
+
+export * from './lib/ui-components/confirmation-modal/confirmation-modal.ui-component';
+
+export * from './lib/ui-components/kpi-card.ui-component';
+
+export * from './lib/ui-components/quick-action-card.ui-component';

@@ -3,10 +3,18 @@ import { SupabaseService } from '@zambia/data-access-supabase';
 import { Database } from '@zambia/types-supabase';
 
 export type Country = Database['public']['Tables']['countries']['Row'];
+export type CountryInsert = Database['public']['Tables']['countries']['Insert'];
+export type CountryUpdate = Database['public']['Tables']['countries']['Update'];
 export type Headquarter = Database['public']['Tables']['headquarters']['Row'];
 
 export interface CountryWithHeadquarters extends Country {
   headquarters: Headquarter[];
+}
+
+export interface CountryFormData {
+  name: string;
+  code: string;
+  status: string | null;
 }
 
 @Injectable({
@@ -36,8 +44,10 @@ export class CountriesFacadeService {
   });
 
   countryById = resource({
-    request: () => ({ countryId: this.countryId() }),
+    request: () => (this.countryId() ? { countryId: this.countryId() } : undefined),
     loader: async ({ request }) => {
+      if (!request) return null;
+
       const { data, error } = await this.supabase
         .getClient()
         .from('countries')
@@ -64,8 +74,61 @@ export class CountriesFacadeService {
   }
 
   isLoading = computed(() => this.countries.isLoading());
-  countriesLoadingError = computed(() => this.countries.error);
+  countriesLoadingError = computed(() => this.countries.error());
 
   isDetailLoading = computed(() => this.countryById.isLoading());
-  detailLoadingError = computed(() => this.countryById.error);
+  detailLoadingError = computed(() => this.countryById.error());
+
+  async createCountry(countryData: CountryFormData): Promise<Country> {
+    const { data, error } = await this.supabase
+      .getClient()
+      .from('countries')
+      .insert({
+        name: countryData.name,
+        code: countryData.code,
+        status: countryData.status,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating country:', error);
+      throw error;
+    }
+
+    this.countries.reload();
+    return data as Country;
+  }
+
+  async updateCountry(id: string, countryData: Partial<CountryFormData>): Promise<Country> {
+    const { data, error } = await this.supabase
+      .getClient()
+      .from('countries')
+      .update(countryData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating country:', error);
+      throw error;
+    }
+
+    this.countries.reload();
+    if (this.countryId() === id) {
+      this.countryById.reload();
+    }
+    return data as Country;
+  }
+
+  async deleteCountry(id: string): Promise<void> {
+    const { error } = await this.supabase.getClient().from('countries').delete().eq('id', id);
+
+    if (error) {
+      console.error('Error deleting country:', error);
+      throw error;
+    }
+
+    this.countries.reload();
+  }
 }

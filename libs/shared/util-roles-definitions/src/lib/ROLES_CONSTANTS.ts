@@ -67,7 +67,13 @@ export const ROLE_GROUPS = {
     ROLE.LEGAL_ADVISOR,
   ],
   COORDINATION_TEAM: [ROLE.COORDINATOR, ROLE.KONSEJO_MEMBER],
-  HEADQUARTERS_MANAGEMENT: [ROLE.HEADQUARTER_MANAGER],
+  HEADQUARTERS_MANAGEMENT: [
+    ROLE.HEADQUARTER_MANAGER,
+    ROLE.PEDAGOGICAL_MANAGER,
+    ROLE.COMMUNICATION_MANAGER,
+    ROLE.COMPANION_DIRECTOR,
+    ROLE.MANAGER_ASSISTANT,
+  ],
   LOCAL_MANAGEMENT_TEAM: [ROLE.PEDAGOGICAL_MANAGER, ROLE.COMMUNICATION_MANAGER, ROLE.COMPANION_DIRECTOR],
   ASSISTANTS: [ROLE.MANAGER_ASSISTANT],
   FIELD_STAFF: [ROLE.COMPANION, ROLE.FACILITATOR],
@@ -89,3 +95,55 @@ export function filterRoleGroups<T extends ROLE_GROUP[]>(
 
   return result as Record<Exclude<ROLE_GROUP, T[number]>, RoleCode[]>;
 }
+
+export const NAVIGATION_CONFIG = {
+  homepage: {
+    route: '/dashboard/homepage',
+    icon: 'home',
+    translationKey: 'nav.homepage',
+    // No allowedGroups means all authenticated users
+  },
+  panel: {
+    route: '/dashboard/panel',
+    icon: 'newspaper',
+    translationKey: 'nav.main_panel',
+    // No allowedGroups means all authenticated users
+  },
+  countries: {
+    route: '/dashboard/countries',
+    icon: 'globe',
+    translationKey: 'nav.countries',
+    allowedGroups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM', 'HEADQUARTERS_MANAGEMENT'] as const,
+  },
+  headquarters: {
+    route: '/dashboard/headquarters',
+    icon: 'building',
+    translationKey: 'nav.headquarters',
+    allowedGroups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM', 'HEADQUARTERS_MANAGEMENT'] as const,
+  },
+  workshops: {
+    route: '/dashboard/workshops',
+    icon: 'graduation-cap',
+    translationKey: 'nav.workshops',
+    allowedGroups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM', 'HEADQUARTERS_MANAGEMENT'] as const,
+  },
+  agreements: {
+    route: '/dashboard/agreements',
+    icon: 'handshake',
+    translationKey: 'nav.agreements',
+    allowedGroups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM', 'HEADQUARTERS_MANAGEMENT'] as const,
+  },
+} as const;
+
+export const NAVIGATION_SECTIONS = [
+  {
+    items: ['homepage', 'panel'] as const,
+  },
+  {
+    headerKey: 'nav.management' as const,
+    items: ['countries', 'headquarters', 'workshops', 'agreements'] as const,
+  },
+] as const;
+
+export type NavigationItemKey = keyof typeof NAVIGATION_CONFIG;
+export type NavigationConfig = (typeof NAVIGATION_CONFIG)[NavigationItemKey];

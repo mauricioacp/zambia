@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   BrandLogoComponent,
@@ -15,20 +15,8 @@ import {
 } from '@zambia/ui-components';
 import { RouterOutlet } from '@angular/router';
 import { AuthService } from '@zambia/data-access-auth';
-import { RolesService } from '@zambia/data-access-roles-permissions';
-
-interface NavItem {
-  icon: string;
-  text: string;
-  route: string;
-  roles?: string[];
-}
-
-interface NavSection {
-  header?: string;
-  items: NavItem[];
-  roles?: string[];
-}
+import { RoleService } from '@zambia/data-access-roles-permissions';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'z-dashboard',
@@ -45,6 +33,7 @@ interface NavSection {
     SidebarNavSectionHeaderUiComponent,
     BrandLogoComponent,
     RouterOutlet,
+    TranslateModule,
   ],
   template: `
     <div
@@ -60,15 +49,15 @@ interface NavSection {
         >
         </z-sidebar-header>
         <z-sidebar-nav sidebar-nav>
-          @for (section of navSectionsByCurrentUserRole(); track section.header) {
-            @if (section.header) {
-              <z-sidebar-nav-section-header [text]="section.header"></z-sidebar-nav-section-header>
+          @for (section of roleService.getNavigationItems(); track section) {
+            @if (section.headerKey) {
+              <z-sidebar-nav-section-header [text]="section.headerKey | translate"> </z-sidebar-nav-section-header>
             }
-            @for (item of section.items; track item.route) {
+            @for (item of section.items; track item.key) {
               <div class="mb-2">
                 <z-main-sidebar-nav-item
                   [icon]="item.icon"
-                  [text]="item.text"
+                  [text]="item.translationKey | translate"
                   [route]="item.route"
                 ></z-main-sidebar-nav-item>
               </div>
@@ -87,7 +76,7 @@ interface NavSection {
             [label]="'Cerrar sesión'"
             user-nav
             icon="log-out"
-            (clicked)="this.authService.signOut()"
+            (clicked)="handleLogout()"
           ></z-sidebar-nav-item>
         </z-sidebar-mini>
       </z-sidebar>
@@ -99,44 +88,21 @@ interface NavSection {
       <z-page-container>
         <router-outlet />
       </z-page-container>
-      <!--      <section class="mt-auto">-->
-      <!--        <z-page-footer />-->
-      <!--      </section>-->
     </div>
   `,
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DashboardSmartComponent implements OnInit {
-  readonly layoutService = inject(LayoutService);
-  readonly authService = inject(AuthService);
-  private allNavSections: NavSection[] = inject(RolesService).allowedNavigationsByRole();
-  private readonly rolesService = inject(RolesService);
+export class DashboardSmartComponent {
+  layoutService = inject(LayoutService);
+  authService = inject(AuthService);
+  roleService = inject(RoleService);
 
-  readonly navSectionsByCurrentUserRole = signal<NavSection[]>([]);
-
-  ngOnInit(): void {
-    this.updateFilteredNavItems();
-  }
-
-  private updateFilteredNavItems(): void {
-    const currentUserRole = this.rolesService.userRole();
-    if (!currentUserRole) {
-      this.navSectionsByCurrentUserRole.set([]);
-      return;
+  async handleLogout() {
+    try {
+      await this.authService.signOut();
+    } catch (error) {
+      console.error('Error during logout:', error);
     }
-
-    const filteredSections = this.allNavSections
-      .filter((section) => {
-        return !section.roles || this.rolesService.hasAnyRole(section.roles);
-      })
-      .map((section) => {
-        const filteredItems = section.items.filter((item) => {
-          return !item.roles || this.rolesService.hasAnyRole(item.roles);
-        });
-        return { ...section, items: filteredItems };
-      })
-      .filter((section) => section.items.length > 0);
-    this.navSectionsByCurrentUserRole.set(filteredSections);
   }
 }

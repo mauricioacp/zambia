@@ -510,6 +510,245 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_deliveries: {
+        Row: {
+          channel: Database["public"]["Enums"]["notification_channel"]
+          created_at: string | null
+          delivered_at: string | null
+          error_message: string | null
+          failed_at: string | null
+          id: string
+          metadata: Json | null
+          notification_id: string
+          sent_at: string | null
+          status: string
+        }
+        Insert: {
+          channel: Database["public"]["Enums"]["notification_channel"]
+          created_at?: string | null
+          delivered_at?: string | null
+          error_message?: string | null
+          failed_at?: string | null
+          id?: string
+          metadata?: Json | null
+          notification_id: string
+          sent_at?: string | null
+          status?: string
+        }
+        Update: {
+          channel?: Database["public"]["Enums"]["notification_channel"]
+          created_at?: string | null
+          delivered_at?: string | null
+          error_message?: string | null
+          failed_at?: string | null
+          id?: string
+          metadata?: Json | null
+          notification_id?: string
+          sent_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_deliveries_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_preferences: {
+        Row: {
+          blocked_categories: string[] | null
+          blocked_senders: string[] | null
+          channel_preferences: Json | null
+          created_at: string | null
+          enabled: boolean | null
+          id: string
+          priority_threshold:
+            | Database["public"]["Enums"]["notification_priority"]
+            | null
+          quiet_hours_end: string | null
+          quiet_hours_start: string | null
+          timezone: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          blocked_categories?: string[] | null
+          blocked_senders?: string[] | null
+          channel_preferences?: Json | null
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          priority_threshold?:
+            | Database["public"]["Enums"]["notification_priority"]
+            | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          timezone?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          blocked_categories?: string[] | null
+          blocked_senders?: string[] | null
+          channel_preferences?: Json | null
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          priority_threshold?:
+            | Database["public"]["Enums"]["notification_priority"]
+            | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          timezone?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notification_templates: {
+        Row: {
+          body_template: string
+          code: string
+          created_at: string | null
+          default_channels:
+            | Database["public"]["Enums"]["notification_channel"][]
+            | null
+          default_priority:
+            | Database["public"]["Enums"]["notification_priority"]
+            | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          metadata: Json | null
+          name: string
+          title_template: string
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at: string | null
+          variables: Json | null
+        }
+        Insert: {
+          body_template: string
+          code: string
+          created_at?: string | null
+          default_channels?:
+            | Database["public"]["Enums"]["notification_channel"][]
+            | null
+          default_priority?:
+            | Database["public"]["Enums"]["notification_priority"]
+            | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          name: string
+          title_template: string
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string | null
+          variables?: Json | null
+        }
+        Update: {
+          body_template?: string
+          code?: string
+          created_at?: string | null
+          default_channels?:
+            | Database["public"]["Enums"]["notification_channel"][]
+            | null
+          default_priority?:
+            | Database["public"]["Enums"]["notification_priority"]
+            | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          name?: string
+          title_template?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string | null
+          variables?: Json | null
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          action_url: string | null
+          archived_at: string | null
+          body: string
+          category: string | null
+          created_at: string | null
+          data: Json | null
+          expires_at: string | null
+          id: string
+          is_archived: boolean | null
+          is_read: boolean | null
+          priority: Database["public"]["Enums"]["notification_priority"] | null
+          read_at: string | null
+          recipient_id: string | null
+          recipient_role_code: string | null
+          recipient_role_level: number | null
+          related_entity_id: string | null
+          related_entity_type: string | null
+          sender_id: string | null
+          sender_type: string | null
+          tags: string[] | null
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          action_url?: string | null
+          archived_at?: string | null
+          body: string
+          category?: string | null
+          created_at?: string | null
+          data?: Json | null
+          expires_at?: string | null
+          id?: string
+          is_archived?: boolean | null
+          is_read?: boolean | null
+          priority?: Database["public"]["Enums"]["notification_priority"] | null
+          read_at?: string | null
+          recipient_id?: string | null
+          recipient_role_code?: string | null
+          recipient_role_level?: number | null
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          sender_id?: string | null
+          sender_type?: string | null
+          tags?: string[] | null
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          action_url?: string | null
+          archived_at?: string | null
+          body?: string
+          category?: string | null
+          created_at?: string | null
+          data?: Json | null
+          expires_at?: string | null
+          id?: string
+          is_archived?: boolean | null
+          is_read?: boolean | null
+          priority?: Database["public"]["Enums"]["notification_priority"] | null
+          read_at?: string | null
+          recipient_id?: string | null
+          recipient_role_code?: string | null
+          recipient_role_level?: number | null
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          sender_id?: string | null
+          sender_type?: string | null
+          tags?: string[] | null
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       processes: {
         Row: {
           content: Json | null
@@ -833,6 +1072,539 @@ export type Database = {
           },
         ]
       }
+      user_search_index: {
+        Row: {
+          created_at: string | null
+          email: string
+          full_name: string
+          headquarter_name: string | null
+          is_active: boolean | null
+          last_seen: string | null
+          role_code: string
+          role_level: number
+          role_name: string
+          search_vector: unknown | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          full_name: string
+          headquarter_name?: string | null
+          is_active?: boolean | null
+          last_seen?: string | null
+          role_code: string
+          role_level: number
+          role_name: string
+          search_vector?: unknown | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          full_name?: string
+          headquarter_name?: string | null
+          is_active?: boolean | null
+          last_seen?: string | null
+          role_code?: string
+          role_level?: number
+          role_name?: string
+          search_vector?: unknown | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      workflow_action_history: {
+        Row: {
+          action: string
+          action_id: string
+          comment: string | null
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          new_value: Json | null
+          previous_value: Json | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          action_id: string
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_value?: Json | null
+          previous_value?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          action_id?: string
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_value?: Json | null
+          previous_value?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_action_history_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_actions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_action_role_assignments: {
+        Row: {
+          action_type: string
+          assigned_role_code: string | null
+          assignment_rule: Json | null
+          created_at: string | null
+          id: string
+          min_role_level: number | null
+          template_stage_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          action_type: string
+          assigned_role_code?: string | null
+          assignment_rule?: Json | null
+          created_at?: string | null
+          id?: string
+          min_role_level?: number | null
+          template_stage_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          action_type?: string
+          assigned_role_code?: string | null
+          assignment_rule?: Json | null
+          created_at?: string | null
+          id?: string
+          min_role_level?: number | null
+          template_stage_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_action_role_assignments_template_stage_id_fkey"
+            columns: ["template_stage_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_template_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_actions: {
+        Row: {
+          action_type: string
+          assigned_by: string | null
+          assigned_to: string | null
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string | null
+          data: Json | null
+          due_date: string | null
+          id: string
+          priority: string | null
+          rejected_at: string | null
+          rejected_by: string | null
+          rejection_reason: string | null
+          result: Json | null
+          stage_instance_id: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          action_type: string
+          assigned_by?: string | null
+          assigned_to?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string | null
+          data?: Json | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          result?: Json | null
+          stage_instance_id: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          action_type?: string
+          assigned_by?: string | null
+          assigned_to?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string | null
+          data?: Json | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          result?: Json | null
+          stage_instance_id?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_actions_stage_instance_id_fkey"
+            columns: ["stage_instance_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_stage_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_instances: {
+        Row: {
+          cancelled_at: string | null
+          completed_at: string | null
+          created_at: string | null
+          current_stage_id: string | null
+          data: Json | null
+          id: string
+          initiated_by: string | null
+          status: string | null
+          template_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          current_stage_id?: string | null
+          data?: Json | null
+          id?: string
+          initiated_by?: string | null
+          status?: string | null
+          template_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          current_stage_id?: string | null
+          data?: Json | null
+          id?: string
+          initiated_by?: string | null
+          status?: string | null
+          template_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_instances_current_stage_id_fkey"
+            columns: ["current_stage_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_template_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_instances_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_notifications: {
+        Row: {
+          action_id: string | null
+          channel: string
+          created_at: string | null
+          data: Json | null
+          id: string
+          notification_type: string
+          read_at: string | null
+          recipient_id: string | null
+          sent_at: string | null
+          workflow_instance_id: string
+        }
+        Insert: {
+          action_id?: string | null
+          channel: string
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          notification_type: string
+          read_at?: string | null
+          recipient_id?: string | null
+          sent_at?: string | null
+          workflow_instance_id: string
+        }
+        Update: {
+          action_id?: string | null
+          channel?: string
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          notification_type?: string
+          read_at?: string | null
+          recipient_id?: string | null
+          sent_at?: string | null
+          workflow_instance_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_notifications_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_notifications_workflow_instance_id_fkey"
+            columns: ["workflow_instance_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_stage_instances: {
+        Row: {
+          completed_actions: number | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          started_at: string | null
+          status: string | null
+          template_stage_id: string
+          updated_at: string | null
+          workflow_instance_id: string
+        }
+        Insert: {
+          completed_actions?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          started_at?: string | null
+          status?: string | null
+          template_stage_id: string
+          updated_at?: string | null
+          workflow_instance_id: string
+        }
+        Update: {
+          completed_actions?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          started_at?: string | null
+          status?: string | null
+          template_stage_id?: string
+          updated_at?: string | null
+          workflow_instance_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_stage_instances_template_stage_id_fkey"
+            columns: ["template_stage_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_template_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_stage_instances_workflow_instance_id_fkey"
+            columns: ["workflow_instance_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_template_permissions: {
+        Row: {
+          allowed_roles: string[] | null
+          created_at: string | null
+          id: string
+          min_role_level: number
+          template_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          allowed_roles?: string[] | null
+          created_at?: string | null
+          id?: string
+          min_role_level?: number
+          template_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          allowed_roles?: string[] | null
+          created_at?: string | null
+          id?: string
+          min_role_level?: number
+          template_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_template_permissions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: true
+            referencedRelation: "workflow_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_template_stages: {
+        Row: {
+          approval_threshold: number | null
+          created_at: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          name: string
+          required_actions: number | null
+          stage_number: number
+          stage_type: string | null
+          template_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          approval_threshold?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          name: string
+          required_actions?: number | null
+          stage_number: number
+          stage_type?: string | null
+          template_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          approval_threshold?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          name?: string
+          required_actions?: number | null
+          stage_number?: number
+          stage_type?: string | null
+          template_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_template_stages_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_templates: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          metadata: Json | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      workflow_transitions: {
+        Row: {
+          created_at: string | null
+          from_stage_id: string | null
+          id: string
+          to_stage_id: string | null
+          transition_data: Json | null
+          transition_type: string | null
+          triggered_by: string | null
+          workflow_instance_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          from_stage_id?: string | null
+          id?: string
+          to_stage_id?: string | null
+          transition_data?: Json | null
+          transition_type?: string | null
+          triggered_by?: string | null
+          workflow_instance_id: string
+        }
+        Update: {
+          created_at?: string | null
+          from_stage_id?: string | null
+          id?: string
+          to_stage_id?: string | null
+          transition_data?: Json | null
+          transition_type?: string | null
+          triggered_by?: string | null
+          workflow_instance_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_transitions_from_stage_id_fkey"
+            columns: ["from_stage_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_stage_instances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_transitions_to_stage_id_fkey"
+            columns: ["to_stage_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_stage_instances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_transitions_workflow_instance_id_fkey"
+            columns: ["workflow_instance_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       agreement_with_role: {
@@ -877,6 +1649,54 @@ export type Database = {
       }
     }
     Functions: {
+      assign_workflow_action: {
+        Args: {
+          p_stage_instance_id: string
+          p_action_type: string
+          p_assigned_to: string
+          p_due_date?: string
+          p_priority?: string
+          p_data?: Json
+        }
+        Returns: string
+      }
+      can_create_workflow_from_template: {
+        Args: { p_template_id: string }
+        Returns: boolean
+      }
+      can_perform_workflow_action: {
+        Args: { p_action_id: string }
+        Returns: boolean
+      }
+      cleanup_expired_notifications: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      complete_workflow_action: {
+        Args: { p_action_id: string; p_result?: Json; p_comment?: string }
+        Returns: boolean
+      }
+      create_notification_from_template: {
+        Args: {
+          p_template_code: string
+          p_recipient_id: string
+          p_variables?: Json
+          p_sender_id?: string
+          p_priority?: Database["public"]["Enums"]["notification_priority"]
+          p_related_entity_type?: string
+          p_related_entity_id?: string
+          p_action_url?: string
+        }
+        Returns: string
+      }
+      create_workflow_instance: {
+        Args: { p_template_id: string; p_data?: Json }
+        Returns: string
+      }
+      fn_can_access_agreement: {
+        Args: { p_agreement_hq_id: string; p_agreement_user_id: string }
+        Returns: boolean
+      }
       fn_get_current_agreement_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1084,10 +1904,6 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
-      get_dashboard_statistics_by_prospect_agreements: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
       get_facilitator_multiple_roles_stats: {
         Args: Record<PropertyKey, never>
         Returns: Json
@@ -1099,6 +1915,29 @@ export type Database = {
       get_global_dashboard_stats: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      get_headquarter_agreements_with_role: {
+        Args: { p_headquarter_id: string }
+        Returns: {
+          id: string
+          user_id: string
+          headquarter_id: string
+          role_id: string
+          season_id: string
+          name: string
+          last_name: string
+          email: string
+          phone: string
+          document_number: string
+          status: string
+          created_at: string
+          updated_at: string
+          role: Json
+          user_email: string
+          headquarter_name: string
+          season_name: string
+          season_status: string
+        }[]
       }
       get_headquarter_dashboard_stats: {
         Args: { target_hq_id: string }
@@ -1122,6 +1961,20 @@ export type Database = {
         Args: { months_back?: number }
         Returns: Json
       }
+      get_my_pending_actions: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          action_id: string
+          workflow_id: string
+          workflow_name: string
+          stage_name: string
+          action_type: string
+          priority: string
+          due_date: string
+          is_overdue: boolean
+          assigned_at: string
+        }[]
+      }
       get_prospect_to_active_avg_time: {
         Args: { target_hq_id?: string }
         Returns: Json
@@ -1134,13 +1987,114 @@ export type Database = {
         Args: { quarters_back?: number }
         Returns: Json
       }
+      get_unread_notification_count: {
+        Args: { p_user_id?: string }
+        Returns: number
+      }
       get_user_dashboard_stats: {
         Args: { target_user_id: string }
         Returns: Json
       }
+      get_user_notifications: {
+        Args: {
+          p_limit?: number
+          p_offset?: number
+          p_type?: Database["public"]["Enums"]["notification_type"]
+          p_priority?: Database["public"]["Enums"]["notification_priority"]
+          p_is_read?: boolean
+          p_category?: string
+        }
+        Returns: {
+          id: string
+          type: Database["public"]["Enums"]["notification_type"]
+          priority: Database["public"]["Enums"]["notification_priority"]
+          sender_id: string
+          sender_name: string
+          title: string
+          body: string
+          data: Json
+          is_read: boolean
+          read_at: string
+          created_at: string
+          action_url: string
+          total_count: number
+        }[]
+      }
+      get_workflow_status: {
+        Args: { p_workflow_id: string }
+        Returns: {
+          workflow_id: string
+          template_name: string
+          status: string
+          current_stage: string
+          total_stages: number
+          completed_stages: number
+          total_actions: number
+          completed_actions: number
+          pending_actions: number
+          overdue_actions: number
+        }[]
+      }
+      is_workflow_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_workflow_participant: {
+        Args: { p_workflow_id: string }
+        Returns: boolean
+      }
+      mark_notifications_read: {
+        Args: { p_notification_ids: string[] }
+        Returns: number
+      }
+      reject_workflow_action: {
+        Args: { p_action_id: string; p_reason: string; p_comment?: string }
+        Returns: boolean
+      }
+      search_users_vector: {
+        Args: {
+          p_query: string
+          p_role_code?: string
+          p_min_role_level?: number
+          p_limit?: number
+          p_offset?: number
+        }
+        Returns: {
+          user_id: string
+          full_name: string
+          email: string
+          role_code: string
+          role_name: string
+          role_level: number
+          headquarter_name: string
+          similarity: number
+        }[]
+      }
+      send_role_based_notification: {
+        Args: {
+          p_role_codes: string[]
+          p_title: string
+          p_body: string
+          p_min_role_level?: number
+          p_type?: Database["public"]["Enums"]["notification_type"]
+          p_priority?: Database["public"]["Enums"]["notification_priority"]
+          p_data?: Json
+        }
+        Returns: number
+      }
     }
     Enums: {
       collaborator_status: "active" | "inactive" | "standby"
+      notification_channel: "in_app" | "email" | "sms" | "push"
+      notification_priority: "low" | "medium" | "high" | "urgent"
+      notification_type:
+        | "system"
+        | "direct_message"
+        | "action_required"
+        | "reminder"
+        | "alert"
+        | "achievement"
+        | "role_based"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1260,6 +2214,17 @@ export const Constants = {
   public: {
     Enums: {
       collaborator_status: ["active", "inactive", "standby"],
+      notification_channel: ["in_app", "email", "sms", "push"],
+      notification_priority: ["low", "medium", "high", "urgent"],
+      notification_type: [
+        "system",
+        "direct_message",
+        "action_required",
+        "reminder",
+        "alert",
+        "achievement",
+        "role_based",
+      ],
     },
   },
 } as const

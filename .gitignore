@@ -49,12 +49,5 @@ Thumbs.db
 !.env.*.example
 apps/zambia/.env
 apps/zambia/.env.*
-!apps/zambia/.env.*.example
-apps/zambia/src/environments/environment.ts
-apps/zambia/src/environments/environment.*.ts
-
-.cursor\rules\nx-rules.mdc
-.github\instructions\nx.instructions.md
-/.cursor/mcp.json
-/.cursor/rules/nx-rules.mdc
-/.vscode/settings.json
+/apps/zambia/src/environments/environment.production.ts
+/.claude/settings.local.json

@@ -225,3 +225,320 @@ The library uses Tailwind's spacing scale:
 - Don't rely solely on color to convey information
 - Test all components in both themes
 - Consider using opacity for subtle backgrounds in dark mode (e.g., `dark:bg-blue-900/30`)
+
+## Boxed Glass Style Components
+
+The Zambia UI library features a modern "boxed glass" design pattern that combines clean geometric shapes with subtle transparency effects and sophisticated hover interactions.
+
+### Core Boxed Glass Pattern
+
+```html
+<!-- Standard Boxed Glass Card -->
+<div
+  class="group relative overflow-hidden rounded-2xl border border-gray-200/50 bg-white/90 p-6 shadow-lg shadow-gray-900/5 backdrop-blur-sm transition-all duration-300 hover:border-gray-300/70 hover:shadow-xl hover:shadow-gray-900/10 dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20 dark:hover:border-slate-600/70 dark:hover:shadow-slate-900/40"
+>
+  <div class="relative z-10">
+    <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">Title</h3>
+    <p class="text-gray-600 dark:text-gray-300">Content with subtle transparency</p>
+  </div>
+  <!-- Optional subtle background pattern -->
+  <div
+    class="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:from-slate-700/30"
+  ></div>
+</div>
+```
+
+### Boxed Glass Key Features
+
+1. **Glass Morphism Effects**:
+
+   - Semi-transparent backgrounds (`bg-white/90`, `dark:bg-slate-800/90`)
+   - Backdrop blur for depth (`backdrop-blur-sm`)
+   - Subtle border overlays (`border-gray-200/50`)
+
+2. **Enhanced Shadows**:
+
+   - Multi-layered shadow system
+   - Color-tinted shadows that match theme
+   - Progressive shadow intensity on hover
+
+3. **Smooth Interactions**:
+   - Extended transition duration (`duration-300`)
+   - Gradient overlays on hover
+   - Border color transitions
+
+### Boxed Glass Variations
+
+#### Action Card with Glass Effect
+
+```html
+<button
+  class="group relative overflow-hidden rounded-2xl border border-gray-200/50 bg-white/90 p-6 text-left shadow-lg shadow-gray-900/5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:border-blue-300/70 hover:shadow-xl hover:shadow-blue-500/20 dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20 dark:hover:border-blue-600/70 dark:hover:shadow-blue-400/20"
+>
+  <div class="relative z-10 flex items-center gap-4">
+    <div class="rounded-xl bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 p-3 shadow-lg shadow-blue-500/25">
+      <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- icon path -->
+      </svg>
+    </div>
+    <div>
+      <h3 class="font-semibold text-gray-900 dark:text-white">Action Title</h3>
+      <p class="text-sm text-gray-600 dark:text-gray-300">Action description</p>
+    </div>
+  </div>
+  <!-- Hover overlay with blue tint -->
+  <div
+    class="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-blue-600/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+  ></div>
+</button>
+```
+
+#### Info Panel Glass Style
+
+```html
+<div
+  class="rounded-2xl border border-gray-200/60 bg-white/80 p-8 shadow-xl shadow-gray-900/8 backdrop-blur-md dark:border-slate-700/60 dark:bg-slate-800/80 dark:shadow-slate-900/30"
+>
+  <div class="space-y-4">
+    <div class="flex items-center gap-3">
+      <div class="h-2 w-2 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/50"></div>
+      <h4 class="font-medium text-gray-900 dark:text-white">Status Indicator</h4>
+    </div>
+    <div class="space-y-2 pl-5">
+      <p class="text-gray-700 dark:text-gray-200">Primary information</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Secondary details</p>
+    </div>
+  </div>
+</div>
+```
+
+#### Layered Glass Form Container
+
+Advanced glass morphism with layered effects and background glow:
+
+```html
+<!-- Form Container with Glow Effect -->
+<div class="relative mx-auto max-w-lg">
+  <!-- Background Glow -->
+  <div
+    class="absolute inset-0 -inset-x-6 rounded-3xl bg-gradient-to-b from-blue-300 via-teal-500 to-blue-700 opacity-15 blur-xl"
+  ></div>
+
+  <!-- Glass Container -->
+  <div
+    class="relative rounded-2xl bg-white/40 p-2.5 ring-1 ring-gray-200/50 backdrop-blur-xs dark:bg-gray-500/20 dark:ring-gray-700/60"
+  >
+    <!-- Inner Content -->
+    <div class="rounded-xl bg-white p-6 lg:p-12 dark:bg-gray-950">
+      <!-- Form content goes here -->
+      <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Form Title</h2>
+      <p class="text-gray-600 dark:text-gray-300">Form description or content</p>
+    </div>
+  </div>
+</div>
+```
+
+#### Authentication Glass Card
+
+Specialized pattern for auth forms with enhanced visual hierarchy:
+
+```html
+<div class="relative mx-auto max-w-md">
+  <!-- Gradient Background Glow -->
+  <div
+    class="absolute inset-0 -inset-x-4 rounded-3xl bg-gradient-to-br from-purple-300 via-blue-400 to-teal-500 opacity-20 blur-2xl"
+  ></div>
+
+  <!-- Glass Frame -->
+  <div
+    class="relative rounded-2xl bg-white/30 p-3 ring-1 ring-white/20 backdrop-blur-sm dark:bg-gray-800/30 dark:ring-gray-700/40"
+  >
+    <!-- Content Card -->
+    <div class="rounded-xl bg-white/95 p-8 shadow-xl shadow-gray-900/5 dark:bg-gray-950/95 dark:shadow-slate-900/20">
+      <div class="mb-6 text-center">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Welcome Back</h1>
+        <p class="mt-2 text-gray-600 dark:text-gray-400">Sign in to your account</p>
+      </div>
+      <!-- Form elements -->
+    </div>
+  </div>
+</div>
+```
+
+#### Modal Glass Overlay
+
+Glass effect for modal dialogs and overlays:
+
+```html
+<!-- Modal Background -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/20 backdrop-blur-sm">
+  <!-- Modal Container -->
+  <div class="relative mx-4 w-full max-w-lg">
+    <!-- Glow Effect -->
+    <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-400 to-purple-500 opacity-10 blur-xl"></div>
+
+    <!-- Glass Modal -->
+    <div
+      class="relative rounded-2xl border border-white/30 bg-white/80 p-1 shadow-2xl backdrop-blur-md dark:border-gray-700/50 dark:bg-gray-800/80"
+    >
+      <!-- Modal Content -->
+      <div class="rounded-xl bg-white p-6 dark:bg-gray-900">
+        <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Modal Title</h3>
+        <p class="text-gray-600 dark:text-gray-300">Modal content goes here...</p>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+### Glass Effect Specifications
+
+#### Layered Glass Architecture
+
+The advanced glass system uses a three-layer approach for maximum depth and visual impact:
+
+1. **Background Glow Layer** (outermost)
+
+   - Gradient blur effects with extended insets
+   - Low opacity (10-20%) for subtle enhancement
+   - `blur-xl` or `blur-2xl` for soft diffusion
+
+2. **Glass Frame Layer** (middle)
+
+   - Semi-transparent background (`bg-white/30` to `/40`)
+   - Ring borders with transparency (`ring-1 ring-gray-200/50`)
+   - Backdrop blur for glass effect (`backdrop-blur-xs` to `backdrop-blur-sm`)
+
+3. **Content Layer** (innermost)
+   - High opacity or solid backgrounds (`bg-white/95` or `bg-white`)
+   - Clean content presentation
+   - Proper contrast for readability
+
+#### Transparency Levels
+
+- **Glass frames**: `bg-white/30` to `bg-white/40` (light), `bg-gray-500/20` to `bg-gray-800/30` (dark)
+- **Content layers**: `bg-white/95` to `bg-white` (light), `bg-gray-950/95` to `bg-gray-950` (dark)
+- **Glow effects**: `opacity-10` to `opacity-20`
+
+#### Border Treatments
+
+- **Ring borders**: `ring-1 ring-gray-200/50` (light), `ring-gray-700/40` to `ring-gray-700/60` (dark)
+- **Enhanced borders**: `ring-white/20` to `ring-white/30` for premium effects
+- **Content borders**: `border border-white/30` for modal overlays
+
+#### Background Glow Patterns
+
+```css
+/* Authentication/Form Glow */
+bg-gradient-to-b from-blue-300 via-teal-500 to-blue-700 opacity-15 blur-xl
+
+/* Premium/Modal Glow */
+bg-gradient-to-br from-purple-300 via-blue-400 to-teal-500 opacity-20 blur-2xl
+
+/* Action/Interactive Glow */
+bg-gradient-to-r from-blue-400 to-purple-500 opacity-10 blur-xl
+```
+
+#### Shadow System
+
+```css
+/* Light theme shadows */
+shadow-lg shadow-gray-900/5          /* Glass base */
+shadow-xl shadow-gray-900/5          /* Content layer */
+shadow-2xl                           /* Modal overlays */
+
+/* Dark theme shadows */
+shadow-slate-900/20                  /* Glass base */
+shadow-slate-900/20                  /* Content layer */
+shadow-2xl                           /* Modal overlays */
+```
+
+#### Backdrop Blur Levels
+
+- **Subtle effect**: `backdrop-blur-xs` (minimal blur)
+- **Standard effect**: `backdrop-blur-sm` (recommended)
+- **Enhanced effect**: `backdrop-blur-md` (for overlays)
+
+## Interactive Action Cards
+
+Interactive action cards provide an engaging way to present quick actions and navigation options. These cards feature modern design elements including gradients, hover effects, and smooth animations.
+
+### Design Pattern
+
+```html
+<button
+  class="group relative overflow-hidden rounded-xl bg-white p-6 text-left shadow-sm transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10 dark:bg-slate-800 dark:hover:shadow-blue-400/10"
+>
+  <div class="flex items-center gap-4">
+    <div class="rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 p-3">
+      <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+        ></path>
+      </svg>
+    </div>
+    <div>
+      <h3 class="font-semibold text-gray-900 dark:text-white">Card Title</h3>
+      <p class="text-sm text-gray-600 dark:text-gray-300">Card description</p>
+    </div>
+  </div>
+  <div class="absolute inset-0 bg-blue-500 opacity-0 transition-opacity duration-200 group-hover:opacity-10"></div>
+</button>
+```
+
+### Key Features
+
+1. **Modern Aesthetics**:
+
+   - Rounded corners (`rounded-xl`)
+   - Gradient icon backgrounds
+   - Glass-morphism effects with backdrop blur
+   - Subtle shadows with color tinting on hover
+
+2. **Interactive Elements**:
+
+   - Smooth transitions (`transition-all duration-200`)
+   - Scale transforms on hover (`hover:scale-105`)
+   - Color-coordinated shadow effects
+   - Opacity overlays for enhanced interactivity
+
+3. **Accessibility**:
+   - Proper button semantics
+   - Focus states included
+   - High contrast text combinations
+   - Screen reader friendly structure
+
+### Color Variations
+
+Use consistent gradient patterns for different action types:
+
+```css
+/* Executive Actions */
+bg-gradient-to-r from-purple-500 to-pink-500
+
+/* Management Actions */
+bg-gradient-to-r from-emerald-500 to-teal-500
+
+/* Navigation Actions */
+bg-gradient-to-r from-blue-500 to-blue-600
+
+/* Information Actions */
+bg-gradient-to-r from-indigo-500 to-purple-500
+
+/* Warning/Important Actions */
+bg-gradient-to-r from-orange-500 to-red-500
+
+/* Headquarters/Location Actions */
+bg-gradient-to-r from-cyan-500 to-blue-500
+```
+
+### Implementation Notes
+
+- Always include both light and dark theme variants
+- Use semantic HTML (`button` for interactive elements)
+- Maintain consistent spacing and proportions
+- Include loading states when actions trigger API calls
+- Consider adding subtle animations for enhanced user experience

@@ -1,18 +1,18 @@
 # Zambia Project
 
-Angular application built with NX workspace for managing Akademia's educational organization data across multiple countries.
+Multi-tenant educational management platform built with Angular 19 and Nx for Akademia's international organization. Features role-based access control (RBAC), real-time data synchronization, and comprehensive administrative tools for managing educational programs across multiple countries and headquarters.
 
-## Tech Stack
+## 🚀 Tech Stack
 
-This project leverages the following technologies:
+This project leverages modern web technologies:
 
-- **Core Framework**: [Angular](https://angular.io/) (v19)
-- **Monorepo Management**: [Nx](https://nx.dev/) (v20)
-- **Backend/Database**: [Supabase](https://supabase.io/)
-- **UI Components**: [Taiga UI](https://taiga-ui.dev/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Core Framework**: [Angular](https://angular.io/) (v19) with standalone components & signals
+- **Monorepo Management**: [Nx](https://nx.dev/) (v20) for scalable architecture
+- **Backend/Database**: [Supabase](https://supabase.io/) (PostgreSQL + Auth + Realtime)
+- **UI Components**: [Taiga UI](https://taiga-ui.dev/) + Custom design system
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) v4 with dark mode support
 - **Component Development**: [Storybook](https://storybook.js.org/)
-- **Internationalization**: [ngx-translate](https://github.com/ngx-translate/core)
+- **Internationalization**: [ngx-translate](https://github.com/ngx-translate/core) (EN/ES)
 - **Testing**:
   - [Jest](https://jestjs.io/) (Unit tests)
   - [Playwright](https://playwright.dev/) (E2E tests)
@@ -20,32 +20,44 @@ This project leverages the following technologies:
   - [ESLint](https://eslint.org/)
   - [Prettier](https://prettier.io/)
   - [Husky](https://typicode.github.io/husky/) (Git hooks)
-  - [Commitizen](https://github.com/commitizen/cz-cli) (Standardized commits)
+  - [Commitizen](https://github.com/commitizen/cz-cli) (Semantic commits)
 
-## Monorepo Structure
+## 📁 Monorepo Structure
 
-The project follows Nx's monorepo architecture with the following structure:
+The project follows Nx's domain-driven monorepo architecture:
 
 ```
 zambia/
 ├── apps/
 │   ├── zambia/                # Main Angular application
-│   └── zambia-e2e/            # End-to-end tests for the application
+│   └── zambia-e2e/            # End-to-end tests
 ├── libs/
-│   ├── shared/                # Shared libraries used across applications
-│   │   ├── data-access-auth/  # Authentication services
-│   │   ├── data-access-roles-permissions/ # Role and permission management
-│   │   ├── data-access-supabase/ # Supabase database access
-│   │   ├── types-supabase/    # TypeScript types for Supabase data
-│   │   ├── ui-components/     # Shared UI components
-│   │   ├── util-config/       # Configuration utilities
-│   │   └── util-guards/       # Route guards for auth/authorization
-│   └── zambia/                # Application-specific libraries
-│       ├── feat-auth/         # Authentication feature
-│       ├── feat-dashboard/    # Dashboard feature
-│       ├── feat-agreements/   # Dashboard page for agreements review and approval
-│       ├── feat-headquarter/  # Headquarter management feature
-│       └── feat-shell/        # Application shell/layout
+│   ├── shared/                # Cross-application libraries
+│   │   ├── data-access-auth/  # Authentication services & guards
+│   │   ├── data-access-dashboard/ # Dashboard data management
+│   │   ├── data-access-generic/ # Edge functions & utilities
+│   │   ├── data-access-roles-permissions/ # RBAC implementation
+│   │   ├── data-access-supabase/ # Database connection
+│   │   ├── types-supabase/    # TypeScript types from DB
+│   │   ├── ui-components/     # Reusable UI component library
+│   │   ├── util-config/       # App configuration
+│   │   ├── util-constants/    # Shared constants
+│   │   ├── util-guards/       # Route guards
+│   │   └── util-roles-definitions/ # Role definitions
+│   └── zambia/                # Feature modules
+│       ├── feat-agreements/   # Agreement management
+│       ├── feat-auth/         # Login/authentication
+│       ├── feat-countries/    # Country management
+│       ├── feat-dashboard/    # Main dashboard panel
+│       ├── feat-headquarter/  # HQ management
+│       ├── feat-homepage/     # Role-based homepage
+│       ├── feat-profile/      # User profile
+│       ├── feat-shell/        # App shell/layout
+│       ├── feat-students/     # Student analytics
+│       └── feat-workshops/    # Workshop management
+├── docs/                      # Project documentation
+├── database/                  # SQL functions & migrations
+└── public/                    # Static assets
 ```
 
 ## Environment Setup
@@ -197,12 +209,117 @@ To format staged files:
 npm run prettier:staged
 ```
 
-## Project Structure and Configuration Files
+## 🏗️ Key Features
 
-- `apps/zambia`: Main Angular application
-- `libs/`: Shared libraries and feature modules
-- `docker-compose.yaml`: Production Docker Compose configuration
-- `docker-compose.dev.yaml`: Development Docker Compose with hot reloading
-- `dockerfile`: Production Dockerfile
-- `nginx.conf`: Nginx configuration for hosting the built application
-- `.env.*`: Environment configuration files
+### Role-Based Access Control (RBAC)
+
+- **Multi-level hierarchy**: 50+ role levels with granular permissions
+- **Dynamic navigation**: Menu items adapt based on user role
+- **Secure routes**: Guard-protected pages with role verification
+- **Data filtering**: Role-based data visibility at API level
+
+### Core Modules
+
+- **Authentication**: Supabase Auth with JWT tokens
+- **Dashboard**: Role-specific KPIs and analytics
+- **Agreement Management**: Workflow for agreement approval
+- **Workshop Tracking**: Schedule and monitor educational workshops
+- **Student Analytics**: Progress tracking and demographics
+- **Multi-tenancy**: Country and HQ-level data isolation
+
+### UI/UX Design
+
+- **Glass morphism**: Modern glassmorphic design patterns
+- **Dark mode**: Full dark/light theme support
+- **Responsive**: Mobile-first responsive design
+- **i18n**: English/Spanish translations
+- **Accessible**: WCAG compliance focus
+
+## 📘 Development Guidelines
+
+### Angular 19 Best Practices
+
+```typescript
+// ✅ Use standalone components
+@Component({
+  selector: 'z-example',
+  standalone: true,
+  imports: [CommonModule],
+  template: `...`
+})
+
+// ✅ Use signals for state
+isLoading = signal(false);
+data = computed(() => this.items().filter(item => item.active));
+
+// ✅ Use new control flow
+@if (condition) { }
+@for (item of items; track item.id) { }
+
+// ✅ Use inject() for DI
+private service = inject(MyService);
+```
+
+### Naming Conventions
+
+- **Smart Components**: `*.smart-component.ts` (containers)
+- **UI Components**: `*.ui-component.ts` (presentational)
+- **Services**: `*-facade.service.ts` (feature facades)
+- **Files**: kebab-case throughout
+
+### Git Workflow
+
+```bash
+# Use semantic commits
+npm run cm
+
+# Automatic formatting on commit
+git add .
+git commit # Husky will run linting/formatting
+```
+
+## 🛠️ Common Commands
+
+```bash
+# Development
+npm run dev                    # Start dev server
+npm run build                  # Production build
+npm run test                   # Run unit tests
+npm run e2e                    # Run E2E tests
+npm run lint:all               # Lint entire workspace
+npm run graph                  # View dependency graph
+
+# Code Generation
+npx nx g @nx/angular:library --name=feat-[name] --directory=libs/zambia
+npx nx g @nx/angular:component --name=[name] --type=smart-component
+
+# Docker Operations
+npm run docker:dev             # Dev with hot reload
+npm run docker:prod:build      # Production build
+```
+
+## 📚 Documentation
+
+- [CLAUDE.md](./CLAUDE.md) - AI assistant instructions
+- [Development Guide](./docs/DEVELOPMENT.md) - Detailed dev setup
+- [Angular Guidelines](./docs/ANGULAR_GUIDELINES.md) - Angular best practices
+- [Database Schema](./docs/DATABASE.md) - Supabase structure
+- [Dashboard Analysis](./DASHBOARD_HOMEPAGE_ANALYSIS.md) - Feature analysis
+
+## 🚢 Deployment
+
+The application is designed for deployment on various platforms:
+
+- **Coolify**: Self-hosted PaaS deployment
+- **Vercel**: Edge deployment with SSR support
+- **Docker**: Containerized deployment anywhere
+- **Traditional**: Nginx static hosting
+
+See [deployment documentation](./docs/DEVELOPMENT.md#deployment) for detailed instructions.
+
+## 🤝 Contributing
+
+1. Follow the semantic commit convention
+2. Ensure all tests pass
+3. Update documentation as needed
+4. Submit PR with clear description

@@ -8,7 +8,9 @@
     "config:dev": "cross-env NODE_ENV=development ts-node ./apps/zambia/set-env.ts",
     "config:prod": "cross-env NODE_ENV=production ts-node ./apps/zambia/set-env.ts",
     "serve": "npm run config:dev && npx nx run zambia:serve:development",
+    "build": "npx nx run zambia:build:development",
     "build:prod": "npm run config:prod && npx nx run zambia:build:production",
+    "build:analyze": "npx nx run zambia:build:production --stats-json && npx webpack-bundle-analyzer dist/apps/zambia/stats.json",
     "docker:dev": "docker-compose -f docker-compose.dev.yaml up",
     "docker:dev:build": "docker-compose -f docker-compose.dev.yaml up --build",
     "docker:prod": "docker-compose up -d",
@@ -18,9 +20,17 @@
     "test": "npx nx test zambia",
     "e2e": "npx nx e2e zambia",
     "cm": "cz",
-    "prettier:staged": "npx pretty-quick - staged",
+    "prettier:staged": "npx pretty-quick --staged",
     "prepare": "husky",
-    "graph": "npx nx graph"
+    "graph": "npx nx graph",
+    "lint:all": "npx nx run-many --target=lint --all",
+    "lint:affected": "npx nx affected --target=lint",
+    "test:all": "npx nx run-many --target=test --all",
+    "test:affected": "npx nx affected --target=test",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write \"**/*.{ts,html,css,scss,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,html,css,scss,json,md}\"",
+    "reset": "npx nx reset"
   },
   "private": true,
   "dependencies": {
@@ -37,8 +47,7 @@
     "@angular/ssr": "19.2.1",
     "@ngx-translate/core": "^16.0.4",
     "@supabase/supabase-js": "^2.49.4",
-    "@taiga-ui/addon-charts": "^4.35.0",
-    "@taiga-ui/addon-mobile": "^4.35.0",
+    "@taiga-ui/addon-charts": "^4.39.1",
     "@taiga-ui/addon-table": "^4.35.0",
     "@taiga-ui/cdk": "^4.35.0",
     "@taiga-ui/core": "^4.35.0",
@@ -48,7 +57,9 @@
     "@taiga-ui/layout": "^4.35.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "rxjs": "~7.8.0"
+    "rxjs": "~7.8.0",
+    "xlsx": "^0.18.5",
+    "zod": "^3.25.32"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "19.2.1",
@@ -118,7 +129,8 @@
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",
     "typescript": "~5.8.2",
-    "typescript-eslint": "^8.19.0"
+    "typescript-eslint": "^8.19.0",
+    "webpack-bundle-analyzer": "^4.10.2"
   },
   "config": {
     "commitizen": {

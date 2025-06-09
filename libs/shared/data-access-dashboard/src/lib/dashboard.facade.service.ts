@@ -7,12 +7,12 @@ import {
   ReviewStatRecord,
   StatBadge,
 } from './dashboard-data.models';
-import { RolesAccessService } from '@zambia/util-roles-definitions';
+import { RoleService } from '@zambia/data-access-roles-permissions';
 
 @Injectable({ providedIn: 'root' })
 export class DashboardFacadeService {
   private supabase = inject(SupabaseService);
-  private roleAccess = inject(RolesAccessService);
+  private roleService = inject(RoleService);
 
   private readonly iconMap = {
     countries: 'globe',
@@ -204,7 +204,13 @@ export class DashboardFacadeService {
   });
 
   dashboardStats = computed<StatBadge[]>(() => {
-    return this.roleAccess.hasFullDashboardAccess() ? this.allStats() : this.limitedStats();
+    const hasFullAccess = this.roleService.isInAnyGroup([
+      'ADMINISTRATION',
+      'TOP_MANAGEMENT',
+      'LEADERSHIP_TEAM',
+      'COORDINATION_TEAM',
+    ]);
+    return hasFullAccess ? this.allStats() : this.limitedStats();
   });
 
   agreementReviewStats = computed(() => {

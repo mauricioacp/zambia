@@ -1,11 +1,8 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { filter, Observable, shareReplay } from 'rxjs';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { Session } from '@supabase/supabase-js';
 import { SupabaseService } from '@zambia/data-access-supabase';
-import { tryCatch } from '@zambia/data-access-generic';
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +11,7 @@ export class AuthService {
   private router = inject(Router);
   readonly #supabaseService = inject(SupabaseService);
   readonly #session = signal<Session | null>(null);
-  readonly #loading = signal<boolean>(false);
+  readonly #loading = signal<boolean>(true);
   readonly #acting = signal<boolean>(false);
   readonly #supabase = this.#supabaseService.getClient();
 
@@ -31,11 +28,6 @@ export class AuthService {
     const name = (session.user?.user_metadata?.['name'] as string) || '';
     return name || email.split('@')[0] || 'Usuario';
   });
-
-  readonly initialAuthCheckComplete$: Observable<boolean> = toObservable(this.loading).pipe(
-    filter((loading) => !loading),
-    shareReplay(1)
-  );
 
   constructor() {
     this.#supabase.auth
@@ -59,25 +51,45 @@ export class AuthService {
     this.#acting.set(true);
     this.#loading.set(true);
 
-    const { data } = await tryCatch(() =>
-      this.#supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-    );
+    const { data, error } = await this.#supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data || !data?.session) {
+      throw new Error('Invalid login credentials');
+    }
 
     this.#acting.set(false);
     this.#loading.set(false);
-
-    return !!data;
+    return true;
   }
 
   async signOut() {
     this.#acting.set(true);
-    return this.#supabase.auth.signOut().then((v) => {
+
+    try {
+      this.#session.set(null);
+
+      const { error } = await this.#supabase.auth.signOut();
+
+      if (error) {
+        console.error('[AuthService] Error during signOut:', error);
+      }
+
+      await this.router.navigate(['/auth'], { replaceUrl: true });
+
+      return { error };
+    } catch (err) {
+      console.error('[AuthService] Unexpected error during signOut:', err);
+      await this.router.navigate(['/auth'], { replaceUrl: true });
+      throw err;
+    } finally {
       this.#acting.set(false);
-      this.router.navigate(['/']);
-      return v;
-    });
+    }
   }
 }

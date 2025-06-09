@@ -3,10 +3,17 @@ import { CommonModule } from '@angular/common';
 import { NotificationsButtonComponent } from './notifications-button.component';
 import { ThemeToggleComponent } from './theme-toggle.component';
 import { SidebarToggleComponent } from './sidebar-toggle.component';
+import { LanguageToggleComponent } from './language-toggle.component';
 
 @Component({
   selector: 'z-page-header',
-  imports: [CommonModule, NotificationsButtonComponent, ThemeToggleComponent, SidebarToggleComponent],
+  imports: [
+    CommonModule,
+    NotificationsButtonComponent,
+    ThemeToggleComponent,
+    SidebarToggleComponent,
+    LanguageToggleComponent,
+  ],
   template: `
     <header
       id="page-header"
@@ -38,6 +45,7 @@ import { SidebarToggleComponent } from './sidebar-toggle.component';
 
         <!-- Right Section -->
         <div class="flex items-center gap-2">
+          <z-language-toggle />
           <z-theme-toggle />
           <z-notifications-button />
         </div>

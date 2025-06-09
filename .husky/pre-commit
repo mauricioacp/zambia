@@ -1,1 +1,3 @@
-npm run prettier:staged
+#!/bin/sh
+npx pretty-quick --staged
+npm run lint:affected

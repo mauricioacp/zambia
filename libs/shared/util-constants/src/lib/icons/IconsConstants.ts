@@ -11,4 +11,6 @@ export const ICONS = {
   USERS: 'users',
   HEADQUARTERS: 'landmark',
   BOOK: 'book',
+  WORKSHOPS: 'presentation',
+  AGREEMENTS: 'file-text',
 };

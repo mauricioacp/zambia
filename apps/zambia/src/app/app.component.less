@@ -1,7 +1,38 @@
 @import '@taiga-ui/core/styles/taiga-ui-local.less';
 
+// === COMPONENT-SPECIFIC OVERRIDES ===
 :host {
   display: block;
   width: 100%;
   min-height: 100%;
+
+  // Ensure smooth theme transitions
+  * {
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  // Override any specific Taiga components that need special handling
+  tui-root {
+    // Custom height and radius for inputs to match your style guide
+    --tui-height-l: 3rem; // Larger input height
+    --tui-radius-m: 0.5rem; // 8px border radius (rounded-lg equivalent)
+    --tui-radius-l: 0.75rem; // 12px border radius
+
+    // Custom shadow to match your style guide
+    --tui-shadow-small: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); // shadow-md equivalent
+    --tui-shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  // Dark theme shadow adjustments
+  tui-root[tuiTheme='dark'] &,
+  [tuiTheme='dark'] &,
+  :root.dark & {
+    tui-root {
+      --tui-shadow-small: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+      --tui-shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    }
+  }
 }

@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://postgres:postgres@127.0.0.1:54322/postgres"]
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    },
+    "nx-mcp": {
+      "command": "npx",
+      "args": ["nx-mcp@latest", "/mnt/c/Developer/zambia"]
+    },
+    "filesystem": {
+      "command": "mcp-server-filesystem",
+      "args": ["/mnt/c/Developer/supabase", "/"]
+    }
+  }
+}

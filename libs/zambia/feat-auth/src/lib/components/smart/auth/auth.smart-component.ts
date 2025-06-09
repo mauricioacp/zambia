@@ -1,11 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormFieldComponent, logoSvg, ThemeService } from '@zambia/ui-components';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '@zambia/data-access-auth';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { TuiButton } from '@taiga-ui/core';
+import { TuiButtonLoading } from '@taiga-ui/kit';
+import { NotificationService } from '@zambia/data-access-generic';
 
 interface AuthFormData {
   email: string;
@@ -15,7 +18,16 @@ interface AuthFormData {
 @Component({
   selector: 'z-auth',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, TranslatePipe, FormFieldComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    RouterLink,
+    TranslatePipe,
+    FormFieldComponent,
+    TuiButton,
+    TuiButtonLoading,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
     `
@@ -35,7 +47,7 @@ interface AuthFormData {
               <section class="bg-gray-100 px-6 py-10 md:px-10 lg:p-16 dark:bg-gray-800">
                 <header class="mb-8 text-center">
                   <h1 class="text-primary mb-2 inline-flex items-center gap-2 text-2xl font-bold">
-                    <div [innerHTML]="safeSvg" [class.dark-logo]="isDarkMode"></div>
+                    <div [innerHTML]="safeSvg" [class.dark-logo]="isDarkMode()"></div>
                     <span>{{ 'the.akademy' | translate }}</span>
                   </h1>
                   <h2 class="text-secondary text-sm font-medium">
@@ -61,21 +73,22 @@ interface AuthFormData {
                   />
 
                   <div class="flex items-center justify-between pt-2">
-                    <a class="text-sm font-medium text-blue-600 hover:text-blue-500">
+                    <a routerLink="/auth/forgot-password" class="text-sm font-medium text-blue-600 hover:text-blue-500">
                       {{ 'forgot-password' | translate }}
                     </a>
                   </div>
 
                   <button
+                    tuiButton
                     type="submit"
-                    class="w-full rounded-lg bg-blue-600 px-5 py-3 text-white transition hover:bg-blue-700 focus:ring-3 focus:ring-blue-500/50 disabled:opacity-50"
-                    [disabled]="authForm.invalid || isLoading()"
+                    size="l"
+                    appearance="primary"
+                    class="w-full"
+                    iconStart="lucide:log-in"
+                    [disabled]="authForm.invalid"
+                    [loading]="isSubmitting()"
                   >
-                    @if (isLoading()) {
-                      <span>{{ 'loading' | translate }}...</span>
-                    } @else {
-                      <span>{{ 'log-in' | translate }}</span>
-                    }
+                    {{ 'log-in' | translate }}
                   </button>
 
                   @if (signInError) {
@@ -99,15 +112,17 @@ interface AuthFormData {
     </div>
   `,
 })
-export class AuthSmartComponent {
+export class AuthSmartComponent implements OnInit {
   private router = inject(Router);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly themeService = inject(ThemeService);
   private readonly authService = inject(AuthService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly translate = inject(TranslateService);
 
   readonly safeSvg = this.sanitizer.bypassSecurityTrustHtml(logoSvg);
   readonly isDarkMode = this.themeService.isDarkTheme;
-  readonly isLoading = this.authService.acting;
+  readonly isSubmitting = signal(false);
 
   signInError = '';
 
@@ -124,17 +139,86 @@ export class AuthSmartComponent {
     return this.authForm.get('password') as FormControl;
   }
 
+  ngOnInit(): void {
+    // Solo redirigir si está autenticado y no está en proceso de logout
+    if (this.authService.isAuthenticated() && !this.authService.acting()) {
+      this.router.navigate(['/dashboard/panel']);
+    }
+  }
+
   async onSubmit(): Promise<void> {
-    if (this.authForm.valid) {
+    if (this.authForm.valid && !this.isSubmitting()) {
+      this.isSubmitting.set(true);
+      this.signInError = '';
+
       const { email, password } = this.authForm.value as AuthFormData;
 
-      const success = await this.authService.signIn(email, password);
-      if (success) {
-        this.authForm.reset();
-        await this.router.navigate(['/dashboard/panel']);
-      } else {
-        this.signInError = 'invalid_login';
+      try {
+        const success = await this.authService.signIn(email, password);
+
+        if (success) {
+          await this.handleSuccessfulLogin(email);
+        } else {
+          this.handleAuthError('invalid_login');
+        }
+      } catch (error: unknown) {
+        this.handleSignInError(error);
+      } finally {
+        this.isSubmitting.set(false);
       }
     }
+  }
+
+  private async handleSuccessfulLogin(email: string): Promise<void> {
+    this.notificationService
+      .showSuccess('login_success', {
+        translateParams: { name: email.split('@')[0] },
+      })
+      .subscribe();
+
+    this.authForm.reset();
+    await this.router.navigate(['/dashboard/panel']);
+  }
+
+  private handleSignInError(error: unknown): void {
+    const errorKey = this.mapErrorToKey(error);
+    this.handleAuthError(errorKey);
+  }
+
+  private mapErrorToKey(error: unknown): string {
+    if (!error || typeof error !== 'object') {
+      return 'auth_error_generic';
+    }
+
+    const errorObj = error as { message?: string; name?: string };
+    const message = errorObj.message?.toLowerCase() || '';
+    const name = errorObj.name || '';
+
+    if (message.includes('failed to fetch') || name === 'AuthRetryableFetchError' || message.includes('network')) {
+      return 'network_error';
+    }
+
+    if (message.includes('invalid login')) {
+      return 'invalid_login';
+    }
+
+    if (message.includes('email not confirmed')) {
+      return 'email_not_confirmed';
+    }
+
+    if (message.includes('too many requests')) {
+      return 'too_many_attempts';
+    }
+
+    return 'auth_error_generic';
+  }
+
+  private handleAuthError(errorKey: string): void {
+    this.signInError = errorKey;
+    this.notificationService
+      .showError(errorKey, {
+        autoClose: 7000,
+      })
+      .subscribe();
   }
 }

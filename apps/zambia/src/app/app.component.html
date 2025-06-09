@@ -1,4 +1,4 @@
-<tui-root>
+<tui-root [attr.tuiTheme]="themeService.currentTheme()">
   <router-outlet></router-outlet>
   <ng-container ngProjectAs="tuiOverContent">
     <!-- Content over app content -->
