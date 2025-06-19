@@ -41,7 +41,7 @@
   "management": "Administración",
   "countries": "Países",
   "headquarters": "Sedes",
-  "headquarters_description": "Administra las sedes y su información",
+  "headquarters_description": "Sedes y su información",
   "total_headquarters": "Total de Sedes",
   "active_headquarters": "Sedes Activas",
   "inactive_headquarters": "Sedes Inactivas",
@@ -226,7 +226,7 @@
   "active": "Activo",
   "inactive": "Inactivo",
 
-  "countries_description": "Administra los países donde opera la organización educativa",
+  "countries_description": "Países donde opera la organización educativa",
   "create_country": "Crear País",
   "edit_country": "Editar País",
   "edit_country_description": "Actualiza la información del país seleccionado",
