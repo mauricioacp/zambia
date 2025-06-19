@@ -27,7 +27,6 @@ export type UserTier = 1 | 2 | 3; // 1: Student, 2: Operational Staff, 3: Leader
   standalone: true,
   imports: [
     CommonModule,
-
     TuiLoader,
     TranslateModule,
     KpiWidgetComponent,
@@ -55,7 +54,7 @@ export type UserTier = 1 | 2 | 3; // 1: Student, 2: Operational Staff, 3: Leader
         <!-- Tier-specific dashboard content -->
         <div class="space-y-8">
           @switch (userTier()) {
-            <!-- Leadership Dashboard (Tier 3) -->
+            <!-- Leadership Dashboard (Tier 3): View all organization data -->
             @case (3) {
               <!-- Organization KPIs -->
               @if (organizationKpis()) {
@@ -64,10 +63,10 @@ export type UserTier = 1 | 2 | 3; // 1: Student, 2: Operational Staff, 3: Leader
 
               <!-- Quick Actions -->
               <div>
-                <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">
+                <h2 class="mb-6 text-xl font-semibold text-gray-900 dark:text-white">
                   {{ 'dashboard.home.quickActions' | translate }}
                 </h2>
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                   @for (action of leadershipQuickActions; track action.title) {
                     <z-quick-action-card [data]="action" (actionClicked)="handleQuickAction($event)" />
                   }
@@ -75,12 +74,13 @@ export type UserTier = 1 | 2 | 3; // 1: Student, 2: Operational Staff, 3: Leader
               </div>
 
               <!-- Recent Agreements -->
-              <z-recent-agreements-widget
-                [agreements]="recentAgreements()"
-                [loading]="loadingAgreements()"
-                (viewAgreement)="navigateToAgreement($event)"
-              />
-
+              <div class="my-8">
+                <z-recent-agreements-widget
+                  [agreements]="recentAgreements()"
+                  [loading]="loadingAgreements()"
+                  (viewAgreement)="navigateToAgreement($event)"
+                />
+              </div>
               <!-- Recent Activities -->
               <z-activity-feed
                 [activities]="recentActivities()"
@@ -89,7 +89,7 @@ export type UserTier = 1 | 2 | 3; // 1: Student, 2: Operational Staff, 3: Leader
               />
             }
 
-            <!-- Operational Staff Dashboard (Tier 2) -->
+            <!-- Operational Staff Dashboard (Tier 2): Headquarter-specific operations -->
             @case (2) {
               <!-- Headquarter Metrics -->
               @if (headquarterMetrics()) {
@@ -102,10 +102,10 @@ export type UserTier = 1 | 2 | 3; // 1: Student, 2: Operational Staff, 3: Leader
 
               <!-- Quick Actions -->
               <div>
-                <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">
+                <h2 class="mb-6 text-xl font-semibold text-gray-900 dark:text-white">
                   {{ 'dashboard.home.quickActions' | translate }}
                 </h2>
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div class="grid grid-cols-1 gap-8 sm:grid-cols-2">
                   @for (action of operationalQuickActions; track action.title) {
                     <z-quick-action-card [data]="action" (actionClicked)="handleQuickAction($event)" />
                   }
@@ -116,7 +116,7 @@ export type UserTier = 1 | 2 | 3; // 1: Student, 2: Operational Staff, 3: Leader
               <z-activity-feed [activities]="recentActivities()" [loading]="loadingActivities()" />
             }
 
-            <!-- Student Dashboard (Tier 1) -->
+            <!-- Student Dashboard (Tier 1): Personal information and activities -->
             @default {
               <!-- Student Agreement Info -->
               @if (myAgreement()) {
@@ -153,10 +153,10 @@ export type UserTier = 1 | 2 | 3; // 1: Student, 2: Operational Staff, 3: Leader
 
               <!-- Student Quick Actions -->
               <div>
-                <h2 class="mb-4 text-xl font-semibold text-gray-900 dark:text-white">
+                <h2 class="mb-6 text-xl font-semibold text-gray-900 dark:text-white">
                   {{ 'dashboard.home.quickActions' | translate }}
                 </h2>
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div class="grid grid-cols-1 gap-8 sm:grid-cols-2">
                   @for (action of studentQuickActions; track action.title) {
                     <z-quick-action-card [data]="action" (actionClicked)="handleQuickAction($event)" />
                   }
@@ -197,7 +197,6 @@ export class HomeSmartComponent implements OnInit {
   userDisplayName = signal<string>('');
   userId = signal<string>('');
 
-  // Data signals
   loadingAgreements = signal(false);
   loadingActivities = signal(false);
   loadingHqMetrics = signal(false);
@@ -206,32 +205,31 @@ export class HomeSmartComponent implements OnInit {
   recentActivities = signal<ActivityItem[]>([]);
   recentAgreements = signal<RecentAgreement[]>([]);
 
-  // Computed KPI data
   organizationKpis = computed<KpiWidgetData | null>(() => {
     const stats = this.homeFacade.dashboardStats();
     if (!stats || this.userTier() !== 3 || !stats.metrics) return null;
 
     const metrics = stats.metrics as OrganizationMetrics;
     return {
-      title: 'Organization Overview',
+      title: 'dashboard.home.organizationOverview',
       kpis: [
         {
-          title: 'Total Headquarters',
+          title: 'dashboard.home.totalHeadquarters',
           value: metrics.total_headquarters,
-          icon: 'M3.75 21h16.5M4.5 3h15M5.25 7.5h13.5m-13.5 4.5h13.5M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21',
+          icon: 'building',
         },
         {
-          title: 'Active Agreements',
+          title: 'dashboard.home.activeAgreements',
           value: metrics.total_active_agreements,
-          icon: 'M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08',
+          icon: 'file-text',
         },
         {
-          title: 'Total Students',
+          title: 'dashboard.home.totalStudents',
           value: metrics.total_students,
-          icon: 'M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766',
+          icon: 'users',
         },
         {
-          title: 'System Health',
+          title: 'dashboard.home.systemHealth',
           value: metrics.system_health?.status || 'Unknown',
           changeType: metrics.system_health?.status === 'healthy' ? 'increase' : 'decrease',
         },
@@ -239,26 +237,25 @@ export class HomeSmartComponent implements OnInit {
     };
   });
 
-  // Quick Actions
   leadershipQuickActions: QuickActionData[] = [
     {
-      title: 'View All Headquarters',
-      description: 'Manage headquarters across regions',
-      icon: 'M3.75 21h16.5M4.5 3h15M5.25 7.5h13.5m-13.5 4.5h13.5',
+      title: 'dashboard.home.viewAllHeadquarters',
+      description: 'dashboard.home.viewAllHeadquartersDesc',
+      icon: 'building',
       route: '/dashboard/headquarters',
       color: 'sky',
     },
     {
-      title: 'Global Agreements',
-      description: 'Review all active agreements',
-      icon: 'M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108',
+      title: 'dashboard.home.globalAgreements',
+      description: 'dashboard.home.globalAgreementsDesc',
+      icon: 'file-text',
       route: '/dashboard/agreements',
       color: 'emerald',
     },
     {
-      title: 'Generate Reports',
-      description: 'Create custom analytics reports',
-      icon: 'M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75z',
+      title: 'dashboard.home.generateReports',
+      description: 'dashboard.home.generateReportsDesc',
+      icon: 'chart-bar',
       action: 'generate-reports',
       color: 'purple',
     },
@@ -266,16 +263,16 @@ export class HomeSmartComponent implements OnInit {
 
   operationalQuickActions: QuickActionData[] = [
     {
-      title: 'New Agreement',
-      description: 'Register a new student or staff',
-      icon: 'M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0z',
+      title: 'dashboard.home.newAgreement',
+      description: 'dashboard.home.newAgreementDesc',
+      icon: 'user-plus',
       route: '/dashboard/agreements/new',
       color: 'emerald',
     },
     {
-      title: 'Manage Students',
-      description: 'View and update student records',
-      icon: 'M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952',
+      title: 'dashboard.home.manageStudents',
+      description: 'dashboard.home.manageStudentsDesc',
+      icon: 'users',
       route: '/dashboard/students',
       color: 'sky',
     },
@@ -283,16 +280,16 @@ export class HomeSmartComponent implements OnInit {
 
   studentQuickActions: QuickActionData[] = [
     {
-      title: 'My Profile',
-      description: 'View and update your information',
-      icon: 'M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0',
+      title: 'dashboard.home.myProfile',
+      description: 'dashboard.home.myProfileDesc',
+      icon: 'user',
       route: '/dashboard/profile',
       color: 'sky',
     },
     {
-      title: 'My Documents',
-      description: 'Access your agreement documents',
-      icon: 'M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5',
+      title: 'dashboard.home.myDocuments',
+      description: 'dashboard.home.myDocumentsDesc',
+      icon: 'file-text',
       action: 'view-documents',
       color: 'purple',
     },
@@ -304,7 +301,6 @@ export class HomeSmartComponent implements OnInit {
 
   private async loadUserData() {
     try {
-      // Get current session
       const session = this.authService.session();
       const user = session?.user;
 
@@ -315,7 +311,6 @@ export class HomeSmartComponent implements OnInit {
 
       this.userId.set(user.id);
 
-      // Get user metadata
       const metadata = user.user_metadata || {};
       const role = metadata['role'] || '';
       const roleLevel = metadata['role_level'] || 0;
@@ -333,8 +328,13 @@ export class HomeSmartComponent implements OnInit {
         this.userTier.set(1); // Student tier
       }
 
-      // Load dashboard data
-      await this.homeFacade.loadDashboardStats(user.id, roleLevel);
+      // Get agreement ID by querying the database with user ID
+      const agreementId = await this.homeFacade.getAgreementIdByUserId(user.id);
+      if (agreementId) {
+        await this.homeFacade.loadDashboardStats(agreementId);
+      } else {
+        console.warn('No agreement found for user:', user.id);
+      }
 
       // Load tier-specific data
       await this.loadTierSpecificData();
@@ -346,14 +346,24 @@ export class HomeSmartComponent implements OnInit {
   }
 
   private async loadTierSpecificData() {
-    const userId = this.userId();
+    const session = this.authService.session();
+    const user = session?.user;
+    if (!user) return;
+
     const roleLevelValue = this.roleService.roleLevel();
     const roleLevel = typeof roleLevelValue === 'string' ? parseInt(roleLevelValue, 10) : roleLevelValue || 0;
+
+    // Get agreement ID by querying the database with user ID
+    const agreementId = await this.homeFacade.getAgreementIdByUserId(user.id);
+    if (!agreementId) {
+      console.warn('No agreement found for user:', user.id);
+      return;
+    }
 
     // Load activities for all tiers
     this.loadingActivities.set(true);
     try {
-      const activities = await this.homeFacade.loadRecentActivities(userId, roleLevel, 10);
+      const activities = await this.homeFacade.loadRecentActivities(agreementId, roleLevel, 10);
       this.recentActivities.set(this.mapActivities(activities));
     } finally {
       this.loadingActivities.set(false);
@@ -362,8 +372,8 @@ export class HomeSmartComponent implements OnInit {
     // Load tier-specific data
     switch (this.userTier()) {
       case 1: {
-        // Student
-        const agreement = await this.homeFacade.loadMyAgreementSummary(userId);
+        // Student - load their agreement summary
+        const agreement = await this.homeFacade.loadMyAgreementSummary(agreementId);
         this.myAgreement.set(agreement);
         break;
       }
@@ -371,9 +381,16 @@ export class HomeSmartComponent implements OnInit {
       case 2: // Operational Staff
         this.loadingHqMetrics.set(true);
         try {
-          // TODO: Get headquarter ID from user's agreement
-          const hqMetrics = await this.homeFacade.loadHeadquarterQuickStats('mock-hq-id');
-          this.headquarterMetrics.set(hqMetrics);
+          // Get headquarter ID from dashboard stats
+          const dashboardStats = this.homeFacade.dashboardStats();
+          if (dashboardStats?.headquarter_info) {
+            const hqInfo = dashboardStats.headquarter_info as Record<string, unknown>;
+            const hqId = hqInfo['id'];
+            if (typeof hqId === 'string') {
+              const hqMetrics = await this.homeFacade.loadHeadquarterQuickStats(hqId);
+              this.headquarterMetrics.set(hqMetrics);
+            }
+          }
         } finally {
           this.loadingHqMetrics.set(false);
         }
@@ -382,8 +399,20 @@ export class HomeSmartComponent implements OnInit {
       case 3: // Leadership
         this.loadingAgreements.set(true);
         try {
-          // TODO: Load recent agreements from facade
-          this.recentAgreements.set([]);
+          // Get recent agreements from dashboard stats
+          const dashboardStats = this.homeFacade.dashboardStats();
+          if (dashboardStats?.recent_agreements && Array.isArray(dashboardStats.recent_agreements)) {
+            const agreements = dashboardStats.recent_agreements.map((agreement: Record<string, unknown>) => ({
+              id: String(agreement['id'] || ''),
+              name: String(agreement['user_name'] || 'User'),
+              email: String(agreement['user_email'] || ''),
+              role: String(agreement['role_name'] || ''),
+              status: agreement['status'] as 'active' | 'pending' | 'expired' | 'cancelled',
+              createdAt: String(agreement['created_at'] || ''),
+              headquarter: String(agreement['headquarter_name'] || ''),
+            }));
+            this.recentAgreements.set(agreements);
+          }
         } finally {
           this.loadingAgreements.set(false);
         }

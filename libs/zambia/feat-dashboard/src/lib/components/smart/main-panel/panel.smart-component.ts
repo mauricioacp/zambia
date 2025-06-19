@@ -251,9 +251,11 @@ import { TranslateModule } from '@ngx-translate/core';
                 </svg>
               </div>
               <div>
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Análisis Ejecutivo</h2>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+                  {{ 'panel.executiveAnalysis' | translate }}
+                </h2>
                 <p class="text-gray-600 dark:text-gray-300">
-                  Métricas estratégicas y análisis organizacional detallado
+                  {{ 'panel.executiveAnalysisDesc' | translate }}
                 </p>
               </div>
             </div>

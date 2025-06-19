@@ -63,3 +63,13 @@ export * from './lib/ui-components/confirmation-modal/confirmation-modal.ui-comp
 export * from './lib/ui-components/kpi-card.ui-component';
 
 export * from './lib/ui-components/quick-action-card.ui-component';
+
+export * from './lib/ui-components/welcome-header.ui-component';
+
+export * from './lib/ui-components/navigation-card.ui-component';
+
+export * from './lib/ui-components/student-agreement-card.ui-component';
+
+export * from './lib/ui-components/status-dashboard-card.ui-component';
+
+export * from './lib/ui-components/glass-container.ui-component';

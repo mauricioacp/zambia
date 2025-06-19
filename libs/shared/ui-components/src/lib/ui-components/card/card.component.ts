@@ -16,7 +16,7 @@ function trimColData(colData: CardColumnData[]): CardColumnData[] {
   imports: [CommonModule, TuiIcon],
   template: `
     <div
-      class="card-base bg-white shadow-md dark:bg-slate-800 dark:shadow-gray-900/30"
+      class="card-base group relative overflow-hidden rounded-2xl border border-gray-200/50 bg-white/90 shadow-lg shadow-gray-900/5 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-xl dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20 dark:hover:shadow-slate-900/40"
       [class.hover-gradient-border]="applyAnimatedBorder()"
       [ngClass]="
         applyAnimatedBorder()
@@ -24,40 +24,51 @@ function trimColData(colData: CardColumnData[]): CardColumnData[] {
           : staticBorderColor() + ' ring-2 ring-offset-2 ring-offset-gray-100 dark:ring-offset-slate-900'
       "
     >
-      <div>
+      <!-- Gradient overlay on hover -->
+      <div
+        class="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:from-slate-700/30"
+      ></div>
+
+      <div class="relative z-10">
         <div class="mb-4 flex items-start justify-between">
           <div>
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-slate-100">{{ mainTitle() }}</h3>
-            <p class="text-xs text-gray-500 dark:text-slate-400">{{ mainSubtitle() }}</p>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ mainTitle() }}</h3>
+            <p class="text-xs text-gray-600 dark:text-gray-400">{{ mainSubtitle() }}</p>
           </div>
-          <div class="stat-card-icon bg-gray-200 dark:bg-gray-700">
+          <div
+            class="stat-card-icon bg-gradient-to-br shadow-lg transition-transform duration-300 group-hover:scale-110"
+            [ngClass]="getIconGradientClass()"
+          >
             <tui-icon
               [attr.aria-label]="icon() + ' icon'"
               [icon]="icon()"
-              [style.background]="progressTextColor()"
               [style.color]="'white'"
-              [style.font-size.rem]="2"
+              [style.font-size.rem]="1.5"
             />
           </div>
         </div>
 
         <div [class]="gridClass()">
           @for (col of colData(); track col.dataSubtitle) {
-            <div>
-              <p class="text-xs text-gray-500 dark:text-slate-400">{{ col.dataSubtitle }}</p>
-              <p class="text-xl font-bold text-gray-800 dark:text-slate-100">{{ col.dataNumber }}</p>
+            <div class="transition-transform duration-200 group-hover:translate-x-1">
+              <p class="text-xs text-gray-600 dark:text-gray-400">{{ col.dataSubtitle }}</p>
+              <p class="text-xl font-bold text-gray-900 dark:text-white">{{ col.dataNumber }}</p>
             </div>
           }
         </div>
       </div>
 
-      <div class="mt-auto">
-        <div class="mb-1 flex justify-between text-xs text-gray-500 dark:text-slate-400">
+      <div class="relative z-10 mt-auto">
+        <div class="mb-1 flex justify-between text-xs text-gray-600 dark:text-gray-400">
           <span>Progreso</span>
           <span [ngClass]="progressTextColor()" class="font-semibold">{{ progressPercentage().toFixed(1) }}%</span>
         </div>
-        <div class="h-2.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-slate-700">
-          <div [ngClass]="progressBarColor()" class="h-2.5 rounded-full" [style.width.%]="progressPercentage()"></div>
+        <div class="h-2.5 w-full overflow-hidden rounded-full bg-gray-200/50 dark:bg-slate-700/50">
+          <div
+            [ngClass]="progressBarColor()"
+            class="h-2.5 rounded-full shadow-sm transition-all duration-300"
+            [style.width.%]="progressPercentage()"
+          ></div>
         </div>
       </div>
     </div>
@@ -69,19 +80,9 @@ function trimColData(colData: CardColumnData[]): CardColumnData[] {
 
     .card-base {
       padding: 1.25rem;
-      border-radius: 0.85rem;
-      box-shadow:
-        0 10px 15px -3px rgba(0, 0, 0, 0.2),
-        0 4px 6px -2px rgba(0, 0, 0, 0.1);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: transform 0.3s ease-in-out;
-      position: relative;
-      border: 3px solid transparent;
-      background-clip: padding-box;
-      z-index: 1;
-      isolation: isolate;
       min-height: 220px;
     }
 
@@ -217,5 +218,25 @@ export class CardComponent {
       return `border-${colorMatch[1]}`;
     }
     return 'border-sky';
+  }
+
+  getIconGradientClass(): string {
+    const barColor = this.progressBarColor();
+
+    if (barColor.includes('blue') || barColor.includes('sky')) {
+      return 'from-blue-500 to-blue-600';
+    } else if (barColor.includes('green') || barColor.includes('emerald')) {
+      return 'from-emerald-500 to-emerald-600';
+    } else if (barColor.includes('purple') || barColor.includes('violet')) {
+      return 'from-purple-500 to-purple-600';
+    } else if (barColor.includes('orange') || barColor.includes('amber')) {
+      return 'from-orange-500 to-orange-600';
+    } else if (barColor.includes('red') || barColor.includes('rose')) {
+      return 'from-red-500 to-red-600';
+    } else if (barColor.includes('teal')) {
+      return 'from-teal-500 to-teal-600';
+    } else {
+      return 'from-gray-500 to-gray-600';
+    }
   }
 }

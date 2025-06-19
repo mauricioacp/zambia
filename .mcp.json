@@ -11,10 +11,6 @@
     "nx-mcp": {
       "command": "npx",
       "args": ["nx-mcp@latest", "/mnt/c/Developer/zambia"]
-    },
-    "filesystem": {
-      "command": "mcp-server-filesystem",
-      "args": ["/mnt/c/Developer/supabase", "/"]
     }
   }
 }
