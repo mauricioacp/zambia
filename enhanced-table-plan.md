@@ -4,6 +4,17 @@
 
 Refactor the enhanced table UI component into a modern, scalable three-layer architecture with improved search capabilities, proper separation of concerns, and strict TypeScript typing following Angular 19 best practices.
 
+## Quality Assurance Requirements
+
+**IMPORTANT**: After completing EACH task or subtask in this plan, you MUST:
+
+1. Run `npm run build` to ensure the code compiles without errors
+2. Run `npm run lint:all` to ensure code meets quality standards
+3. Fix any errors before marking the task as complete
+4. Only proceed to the next task after both commands pass successfully
+
+This applies to ALL changes in the `/home/mcpo/developer/zambia/` directory.
+
 ## Phase 1: Foundation & Base Components (Days 1-2)
 
 ### 1.1 Project Setup & Type Definitions
@@ -178,7 +189,6 @@ Refactor the enhanced table UI component into a modern, scalable three-layer arc
 
 - [ ] Create comprehensive README for table primitives library
 - [ ] Document enhanced table API changes
-- [ ] Create migration guide for other teams
 - [ ] Add code examples for common use cases
 - [ ] Document new search functionality
 
@@ -186,23 +196,12 @@ Refactor the enhanced table UI component into a modern, scalable three-layer arc
 
 - [ ] Add ARIA labels to all interactive elements
 - [ ] Implement keyboard navigation for search modal
-- [ ] Test with screen readers
 - [ ] Add focus management in modals
 - [ ] Verify dark mode works correctly
 - [ ] Add loading skeletons for better UX
 
-### 4.4 Performance Optimization
-
-- [ ] Implement virtual scrolling for large datasets
-- [ ] Add memoization where needed
-- [ ] Optimize change detection
-- [ ] Profile and fix any performance bottlenecks
-- [ ] Test with 3000 agreements
-
 ### 4.5 Final Testing & Cleanup
 
-- [ ] Run full test suite
-- [ ] Manual testing of all features
 - [ ] Fix any remaining bugs
 - [ ] Remove old/unused code
 - [ ] Update translations
@@ -250,5 +249,3 @@ Refactor the enhanced table UI component into a modern, scalable three-layer arc
 6. Consider future bulk actions feature in design
 
 ---
-
-This plan breaks down the 9-day timeline into specific, actionable tasks that can be assigned to engineers. Each task is small enough to be completed safely but meaningful enough to show progress.
