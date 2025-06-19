@@ -21,6 +21,10 @@ export const zambiaFeatDashboardRoutes: Route[] = [
         loadChildren: () => import('@zambia/feat-homepage').then((mod) => mod.featHomepageRoutes),
       },
       {
+        path: 'home',
+        loadChildren: () => import('@zambia/feat-home').then((mod) => mod.featHomeRoutes),
+      },
+      {
         path: 'profile',
         loadChildren: () => import('@zambia/feat-profile').then((mod) => mod.featProfileRoutes),
       },

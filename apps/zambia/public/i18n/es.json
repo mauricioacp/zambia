@@ -247,6 +247,8 @@
   "no_countries_description": "Comienza agregando el primer país a tu organización",
 
   "dashboard": "Panel",
+  "dashboard.home.title": "Panel Principal",
+  "dashboard.home.subtitle": "Bienvenido a tu panel personalizado",
   "headquarters_count": "Cantidad de Sedes",
   "city": "Ciudad",
   "duplicate": "Duplicar",
@@ -289,6 +291,7 @@
   "comma_separated_values": "Valores Separados por Comas",
   "include_column_headers": "Incluir encabezados de columna",
   "nav.homepage": "Inicio",
+  "nav.home": "Panel Principal",
   "nav.main_panel": "Tablero",
   "nav.management": "Administración",
   "nav.countries": "Países",
