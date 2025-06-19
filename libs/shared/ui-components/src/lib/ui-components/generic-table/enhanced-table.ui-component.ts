@@ -96,7 +96,7 @@ export interface TableColumn {
     TuiHint,
   ],
   template: `
-    <div class="h-full w-full overflow-auto p-6 dark:bg-gray-900">
+    <div class="h-full w-full p-4 sm:p-6 dark:bg-gray-900">
       <!-- Header Section -->
       <div class="mb-6 flex items-center justify-between">
         @if (title()) {
@@ -187,14 +187,14 @@ export interface TableColumn {
       }
 
       <!-- Table Container -->
-      <div class="overflow-hidden rounded-lg shadow-md ring-1 ring-gray-700 dark:ring-gray-700">
+      <div class="rounded-lg shadow-md ring-1 ring-gray-200 dark:ring-gray-700">
         <tui-loader [overlay]="true" [showLoader]="loading()">
           @if (paginatedItems().length > 0) {
-            <div class="overflow-x-auto">
+            <div class="-mx-4 overflow-x-auto sm:mx-0">
               <table
                 [attr.tuiTheme]="currentTheme()"
                 tuiTable
-                class="w-full table-fixed bg-white dark:bg-gray-800"
+                class="min-w-full table-auto bg-white dark:bg-gray-800"
                 [columns]="displayHeaders()"
                 size="m"
               >

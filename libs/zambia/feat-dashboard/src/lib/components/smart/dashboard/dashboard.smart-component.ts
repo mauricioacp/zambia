@@ -12,6 +12,7 @@ import {
   SidebarNavSectionHeaderUiComponent,
   SidebarNavUiComponent,
   SidebarUiComponent,
+  WindowService,
 } from '@zambia/ui-components';
 import { RouterOutlet } from '@angular/router';
 import { AuthService } from '@zambia/data-access-auth';
@@ -39,7 +40,7 @@ import { TranslateModule } from '@ngx-translate/core';
     <div
       id="page-container"
       [class.lg:pl-72]="layoutService.sidebarOpen()"
-      class="mx-auto flex min-h-dvh w-full min-w-80 flex-col bg-gray-100 transition-all duration-500 ease-out dark:bg-gray-900 dark:text-gray-100"
+      class="flex min-h-dvh w-full flex-col bg-gray-100 transition-all duration-500 ease-out dark:bg-gray-900 dark:text-gray-100"
     >
       <z-sidebar [isOpen]="layoutService.sidebarOpen()">
         <z-sidebar-header
@@ -81,6 +82,16 @@ import { TranslateModule } from '@ngx-translate/core';
         </z-sidebar-mini>
       </z-sidebar>
 
+      <!-- Mobile backdrop -->
+      @if (layoutService.sidebarOpen() && windowService.isMobile()) {
+        <button
+          type="button"
+          class="fixed inset-0 z-40 cursor-default bg-black/50 transition-opacity duration-300 lg:hidden"
+          (click)="layoutService.closeSidebar()"
+          aria-label="Close sidebar"
+        ></button>
+      }
+
       <z-page-header [sidebarOpenState]="layoutService.sidebarOpen()" (toggleSidebar)="layoutService.toggleSidebar()">
         <z-brand-logo brand-logo-mobile />
         <div class="flex h-16 flex-none items-center justify-center" brand-logo-mobile></div>
@@ -97,6 +108,7 @@ export class DashboardSmartComponent {
   layoutService = inject(LayoutService);
   authService = inject(AuthService);
   roleService = inject(RoleService);
+  windowService = inject(WindowService);
 
   async handleLogout() {
     try {

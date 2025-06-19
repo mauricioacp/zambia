@@ -5,8 +5,8 @@ import { CommonModule } from '@angular/common';
   selector: 'z-page-container',
   imports: [CommonModule],
   template: `
-    <main id="page-content" class="flex max-w-full flex-auto flex-col pt-16">
-      <div class="max-w-10xl mx-auto w-full p-4 lg:p-8">
+    <main id="page-content" class="flex flex-auto flex-col pt-16">
+      <div class="w-full overflow-x-auto p-4 lg:p-8">
         <ng-content />
       </div>
     </main>
