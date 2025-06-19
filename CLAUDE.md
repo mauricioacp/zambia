@@ -53,6 +53,9 @@ npx nx g @nx/angular:component --path=[path] --name=[name] --type=smart-componen
 # Git & Quality
 npm run cm                             # Commitizen (standardized commits)
 npm run prettier:staged                # Format staged files
+
+# Supabase Types
+npm run supabase:gen:types:local       # Regenerate Supabase types
 ```
 
 ## 📋 Angular 19 Patterns
@@ -121,33 +124,6 @@ ROLE_GROUPS = {
 3. Add translations to `i18n/*.json`
 4. Add route with `roleGuard`
 
-## 🏠 Homepage Feature
-
-**New dashboard homepage** with role-based KPI cards and quick actions:
-
-- **Role Level 51+**: Global organizational data and metrics
-- **Role Level 50-**: Headquarters-specific data only
-- **Modern UI**: Boxed glass design with interactive cards
-- **Navigation**: Clickable KPI cards route to detailed views
-- **Quick Actions**: Role-specific shortcuts to common tasks
-
-**Components**:
-
-- `HomepageSmartComponent` - Main container with role logic
-- `KpiCardUiComponent` - Reusable metric cards with glass styling
-- `QuickActionCardUiComponent` - Interactive action shortcuts
-- `HomepageFacadeService` - Data access and role filtering
-
-**Database Functions Required**:
-
-```sql
--- Global statistics for level 51+ users
-get_homepage_statistics()
-
--- HQ-specific statistics for level 50 and below
-get_homepage_statistics_hq(p_hq_id, p_season_id)
-```
-
 ## 🛠️ Common Tasks
 
 ### Add New Feature Module
@@ -163,13 +139,6 @@ npx nx g @nx/angular:component --path=libs/zambia/feat-example/src/lib/component
 ```
 
 ### Fix Common Issues
-
-**ESLint Config Error**
-
-```json
-// Add to tsconfig.app.json
-"include": ["src/**/*.d.ts", "src/environments/*.ts", "set-env.ts"]
-```
 
 **Import Paths**
 
@@ -320,10 +289,6 @@ import { AuthService } from '@zambia/data-access-auth';
 # Check circular dependencies
 npx nx graph
 
-# Analyze bundle size
-npx nx build zambia --stats-json
-npx webpack-bundle-analyzer dist/apps/zambia/stats.json
-
 # Clear cache if weird errors
 npx nx reset
 ```
@@ -343,13 +308,6 @@ npx nx-mcp@latest /mnt/c/Developer/zambia
 # - nx_generators: Available code generators
 # - nx_visualize_graph: Interactive project graphs
 ```
-
-**Enhanced AI Capabilities:**
-
-- Impact analysis across projects
-- Architecture-aware code generation
-- Workspace pattern recognition
-- Smart generator suggestions
 
 ## 📖 Documentation
 
@@ -374,7 +332,6 @@ npx nx-mcp@latest /mnt/c/Developer/zambia
 
 - **Types**: feat, fix, docs, style, refactor, perf, test, chore, ci, build
 - **Always commit** completed work with semantic messages
-- **NEVER push** unless explicitly requested by user
 - **Include** detailed bullet points explaining changes
 
 ### **Commit Message Format**
@@ -386,9 +343,6 @@ type(scope): brief description
 - Focus on the "why" rather than the "what"
 - Include motivation and reasoning behind changes
 
-🤖 Generated with [Claude Code](https://claude.ai/code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 ### **Workflow Steps**
@@ -399,14 +353,91 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 4. Commit with semantic message
 5. **Wait for user instruction** before any `git push`
 
+## 🎓 Common Errors & Solutions
+
+### Nx Library Generation Errors
+
+**Error**: "Schema does not support positional arguments"
+
+```bash
+# ❌ Wrong
+npx nx g @nx/angular:library feat-home
+
+# ✅ Correct - Always use named parameters
+npx nx g @nx/angular:library --name=feat-home --tags=scope:zambia,type:feat --directory=libs/zambia/feat-home
+```
+
+**Error**: Library created in wrong directory structure
+
+- Always specify the full `--directory` parameter
+- Check `tsconfig.base.json` paths after generation
+
+### Taiga UI Import Errors
+
+**Error**: "Module 'TuiLoaderModule' has no exported member"
+
+```typescript
+// ❌ Wrong - Old module approach
+import { TuiLoaderModule } from '@taiga-ui/core';
+
+// ✅ Correct - Import standalone components directly
+import { TuiLoader } from '@taiga-ui/core';
+```
+
+### Service API Patterns
+
+**Error**: "Property 'currentUser' does not exist on type 'AuthService'"
+
+```typescript
+// ❌ Wrong - Assumed API
+const user = this.authService.currentUser();
+
+// ✅ Correct - Check actual implementation
+const session = this.authService.session();
+const user = session()?.user;
+```
+
+**Error**: "Property 'client' does not exist on type 'SupabaseService'"
+
+```typescript
+// ❌ Wrong
+const client = this.supabaseService.client;
+
+// ✅ Correct
+const client = this.supabaseService.getClient();
+```
+
+### Cross-Project Development
+
+**THIS IS THE BACKEND DIRECTORY**: Working with both Zambia and Supabase projects
+
+```bash
+ /home/mcpo/developer/supabase/
+```
+
+### Quality Assurance Workflow
+
+**ALWAYS run after making changes**:
+
+```bash
+npm run build && npm run lint:all
+```
+
+**Common linting fixes**:
+
+- Use `// eslint-disable-next-line @typescript-eslint/no-explicit-any` only when absolutely necessary
+- Remove unused imports immediately
+- Check service APIs before assuming methods exist
+
 ## 🚨 Critical Rules
 
 1. **NEVER** commit secrets or API keys
 2. **NEVER** push to remote without explicit user request
-3. **ALWAYS** use type safety (no `any`)
+3. **ALWAYS** use type safety (no `any` without eslint exception)
 4. **FOLLOW** existing patterns in codebase
-5. **TEST** before committing
+5. **TEST** before committing (build + lint)
 6. **USE** semantic commit messages
+7. **CHECK** existing service implementations before assuming APIs
 
 ---
 

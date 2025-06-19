@@ -17,10 +17,10 @@ export type Database = {
     Functions: {
       graphql: {
         Args: {
-          operationName?: string
           query?: string
           variables?: Json
           extensions?: Json
+          operationName?: string
         }
         Returns: Json
       }
@@ -1651,12 +1651,12 @@ export type Database = {
     Functions: {
       assign_workflow_action: {
         Args: {
+          p_data?: Json
           p_stage_instance_id: string
           p_action_type: string
           p_assigned_to: string
           p_due_date?: string
           p_priority?: string
-          p_data?: Json
         }
         Returns: string
       }
@@ -1678,14 +1678,14 @@ export type Database = {
       }
       create_notification_from_template: {
         Args: {
+          p_variables?: Json
+          p_priority?: Database["public"]["Enums"]["notification_priority"]
+          p_action_url?: string
+          p_related_entity_id?: string
+          p_related_entity_type?: string
           p_template_code: string
           p_recipient_id: string
-          p_variables?: Json
           p_sender_id?: string
-          p_priority?: Database["public"]["Enums"]["notification_priority"]
-          p_related_entity_type?: string
-          p_related_entity_id?: string
-          p_action_url?: string
         }
         Returns: string
       }
@@ -1871,13 +1871,13 @@ export type Database = {
       }
       get_agreements_with_role_paginated: {
         Args: {
-          p_limit?: number
-          p_offset?: number
-          p_status?: string
-          p_headquarter_id?: string
           p_season_id?: string
           p_search?: string
           p_role_id?: string
+          p_status?: string
+          p_limit?: number
+          p_offset?: number
+          p_headquarter_id?: string
         }
         Returns: Json
       }
@@ -1888,10 +1888,10 @@ export type Database = {
       get_companion_student_attendance_issues: {
         Args: { last_n_items?: number }
         Returns: {
+          missed_workshops_count: number
           student_id: string
           student_first_name: string
           student_last_name: string
-          missed_workshops_count: number
           total_workshops_count: number
           attendance_percentage: number
         }[]
@@ -1916,31 +1916,16 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
-      get_headquarter_agreements_with_role: {
-        Args: { p_headquarter_id: string }
-        Returns: {
-          id: string
-          user_id: string
-          headquarter_id: string
-          role_id: string
-          season_id: string
-          name: string
-          last_name: string
-          email: string
-          phone: string
-          document_number: string
-          status: string
-          created_at: string
-          updated_at: string
-          role: Json
-          user_email: string
-          headquarter_name: string
-          season_name: string
-          season_status: string
-        }[]
-      }
       get_headquarter_dashboard_stats: {
         Args: { target_hq_id: string }
+        Returns: Json
+      }
+      get_headquarter_quick_stats: {
+        Args: { p_headquarter_id: string }
+        Returns: Json
+      }
+      get_home_dashboard_stats: {
+        Args: { p_user_id: string; p_role_level: number }
         Returns: Json
       }
       get_hq_agreement_breakdown: {
@@ -1961,6 +1946,10 @@ export type Database = {
         Args: { months_back?: number }
         Returns: Json
       }
+      get_my_agreement_summary: {
+        Args: { p_user_id: string }
+        Returns: Json
+      }
       get_my_pending_actions: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1975,8 +1964,16 @@ export type Database = {
           assigned_at: string
         }[]
       }
+      get_organization_overview: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       get_prospect_to_active_avg_time: {
         Args: { target_hq_id?: string }
+        Returns: Json
+      }
+      get_recent_activities: {
+        Args: { p_user_id: string; p_role_level: number; p_limit?: number }
         Returns: Json
       }
       get_student_progress_stats: {

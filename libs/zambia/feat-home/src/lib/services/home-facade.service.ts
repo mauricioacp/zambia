@@ -2,6 +2,32 @@ import { Injectable, inject, signal } from '@angular/core';
 import { SupabaseService } from '@zambia/data-access-supabase';
 import { AuthService } from '@zambia/data-access-auth';
 
+// Define custom RPC function types
+// These types define the signatures for our custom Supabase functions
+// that are not yet included in the auto-generated types
+type CustomRpcFunctions = {
+  get_home_dashboard_stats: {
+    Args: { p_user_id: string; p_role_level: number };
+    Returns: DashboardStats;
+  };
+  get_my_agreement_summary: {
+    Args: { p_user_id: string };
+    Returns: AgreementSummary;
+  };
+  get_recent_activities: {
+    Args: { p_user_id: string; p_role_level: number; p_limit: number };
+    Returns: Array<Record<string, unknown>>;
+  };
+  get_headquarter_quick_stats: {
+    Args: { p_headquarter_id: string };
+    Returns: HeadquarterMetrics;
+  };
+  get_organization_overview: {
+    Args: Record<PropertyKey, never>;
+    Returns: OrganizationMetrics;
+  };
+};
+
 export interface OrganizationMetrics {
   total_headquarters: number;
   total_active_agreements: number;
@@ -52,39 +78,35 @@ export class HomepageFacadeService {
   isLoading = signal(false);
   error = signal<string | null>(null);
 
+  // Type-safe wrapper for custom RPC functions
+  private async callRpc<K extends keyof CustomRpcFunctions>(
+    functionName: K,
+    args: CustomRpcFunctions[K]['Args']
+  ): Promise<{ data: CustomRpcFunctions[K]['Returns'] | null; error: { message: string } | null }> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await this.supabase.rpc(functionName as any, args);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return result as any;
+  }
+
   async loadDashboardStats(userId: string, roleLevel: number): Promise<DashboardStats | null> {
     try {
       this.isLoading.set(true);
       this.error.set(null);
 
-      // TODO: Implement actual RPC call when database functions are created
-      // const { data, error } = await this.supabase
-      //   .rpc('get_home_dashboard_stats', {
-      //     p_user_id: userId,
-      //     p_role_level: roleLevel,
-      //   });
+      const { data, error } = await this.callRpc('get_home_dashboard_stats', {
+        p_user_id: userId,
+        p_role_level: roleLevel,
+      });
 
-      // Mock data for now
-      const mockData: DashboardStats = {
-        tier: roleLevel >= 51 ? 3 : roleLevel >= 20 ? 2 : 1,
-        metrics:
-          roleLevel >= 51
-            ? {
-                total_headquarters: 10,
-                total_active_agreements: 150,
-                total_students: 1200,
-                system_health: { status: 'healthy' },
-              }
-            : {
-                active_agreements_count: 25,
-                facilitators_count: 5,
-                companions_count: 8,
-                students: { active: 120, inactive: 10, prospects: 15 },
-              },
-      };
+      if (error) {
+        console.error('Error calling get_home_dashboard_stats:', error);
+        this.error.set(error.message);
+        return null;
+      }
 
-      this.dashboardStats.set(mockData);
-      return mockData;
+      this.dashboardStats.set(data);
+      return data;
     } catch (error) {
       console.error('Error in loadDashboardStats:', error);
       this.error.set('Failed to load dashboard data');
@@ -96,20 +118,16 @@ export class HomepageFacadeService {
 
   async loadMyAgreementSummary(userId: string): Promise<AgreementSummary | null> {
     try {
-      // TODO: Implement actual RPC call when database functions are created
-      // const { data, error } = await this.supabase
-      //   .rpc('get_my_agreement_summary', {
-      //     p_user_id: userId,
-      //   });
+      const { data, error } = await this.callRpc('get_my_agreement_summary', {
+        p_user_id: userId,
+      });
 
-      // Mock data for now
-      return {
-        id: '123',
-        status: 'active',
-        role: 'student',
-        headquarter_id: '456',
-        headquarter_name: 'Madrid HQ',
-      };
+      if (error) {
+        console.error('Error calling get_my_agreement_summary:', error);
+        return null;
+      }
+
+      return data;
     } catch (error) {
       console.error('Error in loadMyAgreementSummary:', error);
       return null;
@@ -118,19 +136,18 @@ export class HomepageFacadeService {
 
   async loadRecentActivities(userId: string, roleLevel: number, limit = 10): Promise<Array<Record<string, unknown>>> {
     try {
-      // TODO: Implement actual RPC call when database functions are created
-      // const { data, error } = await this.supabase
-      //   .rpc('get_recent_activities', {
-      //     p_user_id: userId,
-      //     p_role_level: roleLevel,
-      //     p_limit: limit,
-      //   });
+      const { data, error } = await this.callRpc('get_recent_activities', {
+        p_user_id: userId,
+        p_role_level: roleLevel,
+        p_limit: limit,
+      });
 
-      // Mock data for now
-      return [
-        { id: '1', type: 'agreement_created', timestamp: new Date().toISOString() },
-        { id: '2', type: 'workshop_scheduled', timestamp: new Date().toISOString() },
-      ];
+      if (error) {
+        console.error('Error calling get_recent_activities:', error);
+        return [];
+      }
+
+      return data || [];
     } catch (error) {
       console.error('Error in loadRecentActivities:', error);
       return [];
@@ -139,23 +156,16 @@ export class HomepageFacadeService {
 
   async loadHeadquarterQuickStats(headquarterId: string): Promise<HeadquarterMetrics | null> {
     try {
-      // TODO: Implement actual RPC call when database functions are created
-      // const { data, error } = await this.supabase
-      //   .rpc('get_headquarter_quick_stats', {
-      //     p_headquarter_id: headquarterId,
-      //   });
+      const { data, error } = await this.callRpc('get_headquarter_quick_stats', {
+        p_headquarter_id: headquarterId,
+      });
 
-      // Mock data for now
-      return {
-        active_agreements_count: 25,
-        facilitators_count: 5,
-        companions_count: 8,
-        students: {
-          active: 120,
-          inactive: 10,
-          prospects: 15,
-        },
-      };
+      if (error) {
+        console.error('Error calling get_headquarter_quick_stats:', error);
+        return null;
+      }
+
+      return data;
     } catch (error) {
       console.error('Error in loadHeadquarterQuickStats:', error);
       return null;
@@ -164,20 +174,14 @@ export class HomepageFacadeService {
 
   async loadOrganizationOverview(): Promise<OrganizationMetrics | null> {
     try {
-      // TODO: Implement actual RPC call when database functions are created
-      // const { data, error } = await this.supabase
-      //   .rpc('get_organization_overview');
+      const { data, error } = await this.callRpc('get_organization_overview', {});
 
-      // Mock data for now
-      return {
-        total_headquarters: 10,
-        total_active_agreements: 150,
-        total_students: 1200,
-        system_health: {
-          status: 'healthy',
-          message: 'All systems operational',
-        },
-      };
+      if (error) {
+        console.error('Error calling get_organization_overview:', error);
+        return null;
+      }
+
+      return data;
     } catch (error) {
       console.error('Error in loadOrganizationOverview:', error);
       return null;
