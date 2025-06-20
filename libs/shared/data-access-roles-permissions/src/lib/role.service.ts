@@ -1,5 +1,5 @@
 import { computed, inject, Injectable } from '@angular/core';
-import { AuthService } from '@zambia/data-access-auth';
+import { UserMetadataService } from '@zambia/data-access-auth';
 import {
   ROLE,
   ROLE_GROUPS,
@@ -30,15 +30,11 @@ export interface NavigationSection {
   providedIn: 'root',
 })
 export class RoleService {
-  private auth = inject(AuthService);
+  private userMetadataService = inject(UserMetadataService);
   private translate = inject(TranslateService);
 
-  userRole = computed(() => this.auth.session()?.user.user_metadata?.['role'] as RoleCode | null);
-  roleLevel = computed(() => this.auth.session()?.user.user_metadata?.['role_level'] as RoleCode | null);
-  roleId = computed(() => this.auth.session()?.user.user_metadata?.['role_id'] as RoleCode | null);
-  hqId = computed(() => this.auth.session()?.user.user_metadata?.['hq_id'] as RoleCode | null);
-  seasonId = computed(() => this.auth.session()?.user.user_metadata?.['season_id'] as RoleCode | null);
-  agreementId = computed(() => this.auth.session()?.user.user_metadata?.['agreement_id'] as RoleCode | null);
+  userRole = computed(() => this.userMetadataService.userMetadata().role as RoleCode | null);
+  roleLevel = computed(() => this.userMetadataService.userMetadata().roleLevel);
 
   hasRole(role: RoleCode): boolean {
     return this.userRole() === role;

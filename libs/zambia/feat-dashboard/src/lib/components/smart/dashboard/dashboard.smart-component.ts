@@ -15,7 +15,7 @@ import {
   WindowService,
 } from '@zambia/ui-components';
 import { RouterOutlet } from '@angular/router';
-import { AuthService } from '@zambia/data-access-auth';
+import { AuthService, UserMetadataService } from '@zambia/data-access-auth';
 import { RoleService } from '@zambia/data-access-roles-permissions';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -45,7 +45,7 @@ import { TranslateModule } from '@ngx-translate/core';
       <z-sidebar [isOpen]="layoutService.sidebarOpen()">
         <z-sidebar-header
           sidebar-header
-          title="{{ authService.userName() }}"
+          title="{{ userMetadataService.displayName() }}"
           (closeClicked)="layoutService.toggleSidebar()"
         >
         </z-sidebar-header>
@@ -107,6 +107,7 @@ import { TranslateModule } from '@ngx-translate/core';
 export class DashboardSmartComponent {
   layoutService = inject(LayoutService);
   authService = inject(AuthService);
+  userMetadataService = inject(UserMetadataService);
   roleService = inject(RoleService);
   windowService = inject(WindowService);
 

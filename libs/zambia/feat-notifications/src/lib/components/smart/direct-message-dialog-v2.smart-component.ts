@@ -7,7 +7,7 @@ import { POLYMORPHEUS_CONTEXT } from '@taiga-ui/polymorpheus';
 import { TranslateModule } from '@ngx-translate/core';
 import { NotificationApiService } from '@zambia/shared/data-access-notifications';
 import { NotificationService } from '@zambia/data-access-generic';
-import { AuthService } from '@zambia/data-access-auth';
+import { AuthService, UserMetadataService } from '@zambia/data-access-auth';
 import { debounceTime, distinctUntilChanged, switchMap, catchError, of } from 'rxjs';
 import type { UserSearchResult } from '@zambia/shared/data-access-notifications';
 
@@ -182,6 +182,7 @@ export class DirectMessageDialogV2SmartComponent {
   private readonly notificationApi = inject(NotificationApiService);
   private readonly notificationService = inject(NotificationService);
   private readonly authService = inject(AuthService);
+  private readonly userMetadataService = inject(UserMetadataService);
 
   constructor(
     @Inject(POLYMORPHEUS_CONTEXT)
@@ -285,9 +286,8 @@ export class DirectMessageDialogV2SmartComponent {
     this.isSending.set(true);
 
     try {
-      // Get sender name from auth service
-      const session = this.authService.session();
-      const senderName = this.authService.userName() || session?.user?.email || 'User';
+      // Get sender name from user metadata service
+      const senderName = this.userMetadataService.displayName();
 
       await this.notificationApi.sendDirectNotification({
         recipient_id: recipient.id,

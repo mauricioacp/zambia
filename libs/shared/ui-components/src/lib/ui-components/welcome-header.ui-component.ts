@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 
 export interface WelcomeHeaderData {
   title: string;
-  subtitle: string;
+  subtitle?: string;
+  beforeTitleText?: string;
   statusText?: string;
   showStatus?: boolean;
 }
@@ -27,12 +28,19 @@ export interface WelcomeHeaderData {
         >
           <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div>
+              @if (data().beforeTitleText) {
+                <span class="mb-1 text-xl font-semibold text-gray-700 sm:text-sm dark:text-gray-300">
+                  {{ data()?.beforeTitleText }}
+                </span>
+              }
               <h1 class="mb-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
                 {{ data().title }}
               </h1>
-              <p class="text-lg text-gray-600 dark:text-gray-300">
-                {{ data().subtitle }}
-              </p>
+              @if (data().subtitle) {
+                <p class="text-lg text-gray-600 dark:text-gray-300">
+                  {{ data().subtitle }}
+                </p>
+              }
             </div>
 
             <!-- Status Indicator -->
@@ -42,7 +50,7 @@ export interface WelcomeHeaderData {
                   <div class="h-2 w-2 rounded-full bg-emerald-500"></div>
                 </div>
                 <span class="text-sm font-medium text-gray-600 dark:text-gray-300">
-                  {{ data().statusText || 'System Active' }}
+                  {{ data().statusText ?? 'System Active' }}
                 </span>
               </div>
             }

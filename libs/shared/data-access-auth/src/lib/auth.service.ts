@@ -9,11 +9,10 @@ import { SupabaseService } from '@zambia/data-access-supabase';
 })
 export class AuthService {
   private router = inject(Router);
-  readonly #supabaseService = inject(SupabaseService);
+  private readonly supabaseServiceClient = inject(SupabaseService).getClient();
   readonly #session = signal<Session | null>(null);
   readonly #loading = signal<boolean>(true);
   readonly #acting = signal<boolean>(false);
-  readonly #supabase = this.#supabaseService.getClient();
 
   readonly acting = this.#acting.asReadonly();
   readonly loading = this.#loading.asReadonly();
@@ -21,16 +20,8 @@ export class AuthService {
 
   readonly isAuthenticated = computed(() => !!this.#session());
 
-  readonly userName = computed(() => {
-    const session = this.session();
-    if (!session) return '';
-    const email = session.user?.email || '';
-    const name = (session.user?.user_metadata?.['name'] as string) || '';
-    return name || email.split('@')[0] || 'Usuario';
-  });
-
   constructor() {
-    this.#supabase.auth
+    this.supabaseServiceClient.auth
       .getSession()
       .then(({ data }) => {
         this.#session.set(data.session);
@@ -39,7 +30,7 @@ export class AuthService {
         this.#loading.set(false);
       });
 
-    this.#supabase.auth.onAuthStateChange((_event, session) => {
+    this.supabaseServiceClient.auth.onAuthStateChange((_event, session) => {
       this.#session.set(session);
       if (this.#loading()) {
         this.#loading.set(false);
@@ -51,7 +42,7 @@ export class AuthService {
     this.#acting.set(true);
     this.#loading.set(true);
 
-    const { data, error } = await this.#supabase.auth.signInWithPassword({
+    const { data, error } = await this.supabaseServiceClient.auth.signInWithPassword({
       email,
       password,
     });
@@ -74,13 +65,7 @@ export class AuthService {
 
     try {
       this.#session.set(null);
-
-      const { error } = await this.#supabase.auth.signOut();
-
-      if (error) {
-        console.error('[AuthService] Error during signOut:', error);
-      }
-
+      const { error } = await this.supabaseServiceClient.auth.signOut();
       await this.router.navigate(['/auth'], { replaceUrl: true });
 
       return { error };

@@ -11,6 +11,7 @@ export const ROLE = {
   COMMUNITY_LEADER: 'community_leader',
   COORDINATION_LEADER: 'coordination_leader',
   LEGAL_ADVISOR: 'legal_advisor',
+  UTOPIK_FOUNDATION_USER: 'utopik_foundation_user',
   /* level 70 */
   COORDINATOR: 'coordinator',
   KONSEJO_MEMBER: 'konsejo_member',
@@ -41,6 +42,7 @@ export const ROLES_NAMES = new Map<RoleCode, string>([
   [ROLE.COORDINATION_LEADER, 'Líder de Koordinación'],
   [ROLE.COORDINATOR, 'Koordinador'],
   [ROLE.LEGAL_ADVISOR, 'Asesor Legal'],
+  [ROLE.UTOPIK_FOUNDATION_USER, 'Usuario de fundación utópika'],
   [ROLE.KONSEJO_MEMBER, 'Miembro del Konsejo de Dirección'],
   [ROLE.HEADQUARTER_MANAGER, 'Director/a Local'],
   [ROLE.PEDAGOGICAL_MANAGER, 'Director/a Pedagógico Local'],
@@ -66,7 +68,7 @@ export const ROLE_GROUPS = {
     ROLE.COORDINATION_LEADER,
     ROLE.LEGAL_ADVISOR,
   ],
-  COORDINATION_TEAM: [ROLE.COORDINATOR, ROLE.KONSEJO_MEMBER],
+  COORDINATION_TEAM: [ROLE.COORDINATOR, ROLE.KONSEJO_MEMBER, ROLE.UTOPIK_FOUNDATION_USER],
   HEADQUARTERS_MANAGEMENT: [
     ROLE.HEADQUARTER_MANAGER,
     ROLE.PEDAGOGICAL_MANAGER,
@@ -84,16 +86,12 @@ export function getRoleName(roleCode: RoleCode): string {
   return ROLES_NAMES.get(roleCode) || roleCode;
 }
 
-export function filterRoleGroups<T extends ROLE_GROUP[]>(
-  ...excludeGroups: T
-): Record<Exclude<ROLE_GROUP, T[number]>, RoleCode[]> {
-  const result = { ...ROLE_GROUPS };
-
-  excludeGroups.forEach((group) => {
-    delete result[group];
+export function getRoleGroupNameByRoleCode(roleCode: RoleCode): string {
+  const groupEntry = Object.entries(ROLE_GROUPS).find(([, rolesInGroup]) => {
+    return rolesInGroup.includes(roleCode);
   });
 
-  return result as Record<Exclude<ROLE_GROUP, T[number]>, RoleCode[]>;
+  return groupEntry ? groupEntry[0] : '';
 }
 
 export const NAVIGATION_CONFIG = {
@@ -152,4 +150,3 @@ export const NAVIGATION_SECTIONS = [
 ] as const;
 
 export type NavigationItemKey = keyof typeof NAVIGATION_CONFIG;
-export type NavigationConfig = (typeof NAVIGATION_CONFIG)[NavigationItemKey];
