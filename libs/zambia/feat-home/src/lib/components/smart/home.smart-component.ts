@@ -110,6 +110,7 @@ export class HomeSmartComponent implements OnInit {
     title: this.translateService.instant('panel.title'),
     beforeTitleText: `${this.translateService.instant('dashboard.home.welcome')}, ${this.userDisplayName()}`,
     showStatus: true,
+    subtitle: `${this.translateService.instant('role')}: ${this.userRole()}`,
   }));
 
   loadingAgreements = signal(false);

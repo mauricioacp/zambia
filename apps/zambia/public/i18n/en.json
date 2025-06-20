@@ -84,6 +84,26 @@
   "dashboard.home.myProfileDesc": "View and update your information",
   "dashboard.home.myDocuments": "My Documents",
   "dashboard.home.myDocumentsDesc": "Access your agreement documents",
+  "dashboard.administration.title": "Administration Dashboard",
+  "dashboard.administration.organization": "Organization",
+  "dashboard.administration.headquarters": "Headquarters",
+  "dashboard.administration.activeSeasons": "Active Seasons",
+  "dashboard.administration.users": "Users",
+  "dashboard.administration.totalUsers": "Total Users",
+  "dashboard.administration.students": "Students",
+  "dashboard.administration.collaborators": "Collaborators",
+  "dashboard.administration.agreements": "Agreements",
+  "dashboard.administration.totalAgreements": "Total Agreements",
+  "dashboard.administration.prospect": "Prospect",
+  "dashboard.administration.active": "Active",
+  "dashboard.administration.operations": "Operations",
+  "dashboard.administration.workshops": "Workshops",
+  "dashboard.administration.events": "Events",
+  "dashboard.administration.avgConversion": "Avg. Conversion Time",
+  "dashboard.administration.keyMetrics": "Key Metrics",
+  "dashboard.administration.agreementsThisYear": "Agreements This Year",
+  "dashboard.administration.graduationRate": "Graduation Rate",
+  "dashboard.administration.pendingReview": "Pending Review",
   "nav.homepage": "Home",
   "nav.home": "Dashboard Home",
   "nav.main_panel": "Dashboard",
@@ -428,5 +448,10 @@
   },
   "COMMON": {
     "RETRY": "Retry"
+  },
+  "common": {
+    "refresh": "Refresh",
+    "tryAgain": "Try Again",
+    "days": "days"
   }
 }
