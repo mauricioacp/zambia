@@ -31,11 +31,8 @@ import { WelcomeHeaderUiComponent } from '@zambia/ui-components';
   imports: [CommonModule, NgComponentOutlet, TuiLoader, TranslateModule, TuiSkeleton, WelcomeHeaderUiComponent],
   template: `
     <div class="container mx-auto px-6 py-8 sm:px-8">
-      <!-- Welcome Header -->
       <z-welcome-header [data]="welcomeHeaderData()" />
-      <!-- END Welcome Header -->
 
-      <!-- Reusable Templates -->
       <ng-template #dashboardSkeleton>
         <div class="space-y-4">
           <div [tuiSkeleton]="true" class="h-32 rounded-2xl"></div>
@@ -57,7 +54,7 @@ import { WelcomeHeaderUiComponent } from '@zambia/ui-components';
       <!-- Role-based Dashboard Content -->
       <div class="mt-8">
         @defer (when !isLoading(); prefetch on idle) {
-          <ng-container [ngComponentOutlet]="dashboardComponent()" [ngComponentOutletInputs]="dashboardInputs()" />
+          <ng-container [ngComponentOutlet]="dashboardComponent()" />
         } @placeholder {
           <ng-container [ngTemplateOutlet]="dashboardSkeleton"></ng-container>
         } @loading (after 100ms; minimum 1s) {

@@ -36,49 +36,6 @@ export interface KpiData {
               [attr.aria-label]="kpiData().title + ' icon'"
             />
           </div>
-
-          <!-- Trend Indicator -->
-          @if (!loading()) {
-            <div class="flex items-center gap-1">
-              @switch (kpiData().trend) {
-                @case ('up') {
-                  <svg class="h-4 w-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M7 17l9.2-9.2M17 17V7H7"
-                    ></path>
-                  </svg>
-                }
-                @case ('down') {
-                  <svg class="h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M17 7l-9.2 9.2M7 7v10h10"
-                    ></path>
-                  </svg>
-                }
-                @case ('stable') {
-                  <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
-                  </svg>
-                }
-              }
-              <span
-                class="text-xs font-medium"
-                [ngClass]="{
-                  'text-emerald-600 dark:text-emerald-400': kpiData().trend === 'up',
-                  'text-red-600 dark:text-red-400': kpiData().trend === 'down',
-                  'text-gray-600 dark:text-gray-400': kpiData().trend === 'stable',
-                }"
-              >
-                {{ kpiData().trendPercentage }}%
-              </span>
-            </div>
-          }
         </div>
 
         <!-- Title and Value -->
