@@ -1,26 +1,48 @@
 import { computed, inject, Injectable, resource } from '@angular/core';
 import { SupabaseService } from '@zambia/data-access-supabase';
 import { NotificationService } from '@zambia/data-access-generic';
-import { Database } from '@zambia/types-supabase';
+import { Database, Tables } from '@zambia/types-supabase';
 
-export interface GlobalDashboardStatsResponse {
-  total_headquarters: number;
-  total_collaborators: number;
-  total_students: number;
-  total_agreements_all_time: number;
-  total_agreements_prospect: number;
-  total_agreements_active: number;
-  total_agreements_inactive: number;
-  total_agreements_graduated: number;
-  total_agreements_this_year: number;
-  percentage_agreements_active: number;
-  percentage_agreements_prospect: number;
-  percentage_agreements_graduated: number;
-  total_active_seasons: number;
-  total_workshops_active_seasons: number;
-  total_events_active_seasons: number;
-  avg_days_prospect_to_active: number;
-}
+// Type aliases for better readability
+type Country = Tables<'countries'>;
+type Headquarter = Tables<'headquarters'>;
+
+// Status enums
+const AgreementStatus = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+  GRADUATED: 'graduated',
+  PROSPECT: 'prospect',
+} as const;
+
+const EntityStatus = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+} as const;
+
+// Role codes for leadership positions
+const LEADERSHIP_ROLES = [
+  'superadmin',
+  'general_director',
+  'executive_leader',
+  'pedagogical_leader',
+  'innovation_leader',
+  'communication_leader',
+  'community_leader',
+  'coordination_leader',
+  'legal_advisor',
+  'utopik_foundation_user',
+  'coordinator',
+  'konsejo_member',
+] as const;
+
+const COLLABORATOR_ROLES = [
+  'headquarter_manager',
+  'manager_assistant',
+  'facilitator',
+  'companion',
+  'collaborator',
+] as const;
 
 export interface AgreementRoleStatistics {
   [roleName: string]: {
@@ -32,38 +54,27 @@ export interface AgreementRoleStatistics {
   };
 }
 
-export interface GlobalDashboardStats {
-  organization: {
-    totalHeadquarters: number;
-    totalActiveSeasons: number;
+export interface DashboardStatistics {
+  countries: {
+    total: number;
+    active: number;
+    inactive: number;
   };
+  headquarters: {
+    total: number;
+    active: number;
+    inactive: number;
+    byCountry: Record<string, number>;
+  };
+  agreements: AgreementRoleStatistics;
   users: {
     totalCollaborators: number;
     totalStudents: number;
-    totalUsers: number;
-  };
-  agreements: {
-    total: number;
-    prospect: number;
-    active: number;
-    inactive: number;
-    graduated: number;
-    thisYear: number;
-    percentages: {
-      active: number;
-      prospect: number;
-      graduated: number;
-    };
-  };
-  agreementsByRole?: AgreementRoleStatistics;
-  operations: {
-    totalWorkshops: number;
-    totalEvents: number;
-    avgDaysProspectToActive: number;
+    totalLeadership: number;
   };
 }
 
-// Type for the agreement with role data returned from get_agreements_with_role RPC
+// Type for the agreement with role data
 type AgreementWithRole = Database['public']['Functions']['get_agreements_with_role']['Returns'][0];
 
 // Type for the role JSON structure
@@ -82,161 +93,259 @@ export class AdministrationDashboardFacadeService {
   private supabase = inject(SupabaseService);
   private notificationService = inject(NotificationService);
 
-  globalStats = computed(() => this.globalDashboardStats.value());
-  hasError = computed(() => this.globalDashboardStats.error());
-  errorMessage = computed(() => this.globalDashboardStats.error());
-  isLoading = computed(() => this.globalDashboardStats.isLoading());
-
-  globalDashboardStats = resource({
-    loader: async (): Promise<GlobalDashboardStats> => {
+  private countriesResource = resource({
+    loader: async (): Promise<Country[]> => {
       try {
-        const { data, error } = await this.supabase.getClient().rpc('get_global_dashboard_stats');
+        const { data, error } = await this.supabase.getClient().from('countries').select('*').order('name');
 
-        if (error) {
-          console.error('Error fetching global dashboard stats:', error);
-          throw new Error(error.message || 'Failed to fetch dashboard statistics');
-        }
-
-        const stats = data as unknown as GlobalDashboardStatsResponse;
-
-        if (!stats) {
-          throw new Error('No data returned from dashboard statistics');
-        }
-
-        return this.transformGlobalStats(stats);
+        if (error) throw error;
+        return data || [];
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-        this.notificationService.showError(`Failed to load dashboard: ${errorMessage}`);
+        console.error('Error fetching countries:', error);
+        this.notificationService.showError('Failed to load countries data');
         throw error;
       }
     },
   });
 
-  refreshDashboard(): void {
-    this.globalDashboardStats.reload();
+  private headquartersResource = resource({
+    loader: async (): Promise<Headquarter[]> => {
+      try {
+        const { data, error } = await this.supabase.getClient().from('headquarters').select('*').order('name');
+
+        if (error) throw error;
+        return data || [];
+      } catch (error) {
+        console.error('Error fetching headquarters:', error);
+        this.notificationService.showError('Failed to load headquarters data');
+        throw error;
+      }
+    },
+  });
+
+  private agreementsResource = resource({
+    loader: async (): Promise<AgreementRoleStatistics> => {
+      try {
+        const allAgreements = await this.fetchAllAgreements();
+        return this.processAgreementsByRole(allAgreements);
+      } catch (error) {
+        console.error('Error fetching agreements by role:', error);
+        this.notificationService.showError('Failed to load agreement statistics');
+        throw error;
+      }
+    },
+  });
+
+  private async fetchAllAgreements(): Promise<AgreementWithRole[]> {
+    const allAgreements: AgreementWithRole[] = [];
+    const batchSize = 1000;
+    let offset = 0;
+    let hasMore = true;
+
+    while (hasMore) {
+      const { data, error } = await this.supabase.getClient().rpc('get_agreements_with_role_paginated', {
+        p_limit: batchSize,
+        p_offset: offset,
+        p_status: undefined,
+        p_headquarter_id: undefined,
+        p_season_id: undefined,
+        p_search: undefined,
+        p_role_id: undefined,
+      });
+
+      if (error) throw error;
+
+      if (!data || typeof data !== 'object') {
+        throw new Error('Invalid data format returned from paginated agreements');
+      }
+
+      const paginatedData = data as {
+        data: AgreementWithRole[];
+        pagination: {
+          total: number;
+          limit: number;
+          offset: number;
+          page: number;
+          pages: number;
+        };
+      };
+
+      if (!paginatedData.data || !Array.isArray(paginatedData.data)) {
+        throw new Error('No data array returned from paginated agreements');
+      }
+
+      allAgreements.push(...paginatedData.data);
+
+      const fetchedCount = offset + paginatedData.data.length;
+      hasMore = fetchedCount < paginatedData.pagination.total && paginatedData.data.length === batchSize;
+      offset += batchSize;
+
+      if (offset > 100000) {
+        console.warn('Breaking pagination loop as safety measure at 100k records');
+        break;
+      }
+    }
+
+    console.log(`Fetched ${allAgreements.length} total agreements`);
+    return allAgreements;
   }
 
-  safeGlobalStats = computed(() => {
-    const stats = this.globalDashboardStats.value();
-    if (!stats) {
-      return {
-        organization: { totalHeadquarters: 0, totalActiveSeasons: 0 },
-        users: { totalCollaborators: 0, totalStudents: 0, totalUsers: 0 },
-        agreements: {
+  private processAgreementsByRole(agreements: AgreementWithRole[]): AgreementRoleStatistics {
+    const roleStats: AgreementRoleStatistics = {};
+
+    agreements.forEach((agreement) => {
+      const roleData = agreement.role as RoleData | null;
+      const roleCode = roleData?.role_code || 'unknown';
+      const status = agreement.status || 'unknown';
+
+      if (!roleStats[roleCode]) {
+        roleStats[roleCode] = {
           total: 0,
-          prospect: 0,
           active: 0,
           inactive: 0,
           graduated: 0,
-          thisYear: 0,
-          percentages: { active: 0, prospect: 0, graduated: 0 },
-        },
-        operations: { totalWorkshops: 0, totalEvents: 0, avgDaysProspectToActive: 0 },
-      };
-    }
-    return stats;
-  });
+          prospect: 0,
+        };
+      }
 
-  private transformGlobalStats(raw: GlobalDashboardStatsResponse): GlobalDashboardStats {
-    return {
-      organization: {
-        totalHeadquarters: raw.total_headquarters,
-        totalActiveSeasons: raw.total_active_seasons,
-      },
-      users: {
-        totalCollaborators: raw.total_collaborators,
-        totalStudents: raw.total_students,
-        totalUsers: raw.total_collaborators + raw.total_students,
-      },
-      agreements: {
-        total: raw.total_agreements_all_time,
-        prospect: raw.total_agreements_prospect,
-        active: raw.total_agreements_active,
-        inactive: raw.total_agreements_inactive,
-        graduated: raw.total_agreements_graduated,
-        thisYear: raw.total_agreements_this_year,
-        percentages: {
-          active: raw.percentage_agreements_active,
-          prospect: raw.percentage_agreements_prospect,
-          graduated: raw.percentage_agreements_graduated,
-        },
-      },
-      operations: {
-        totalWorkshops: raw.total_workshops_active_seasons,
-        totalEvents: raw.total_events_active_seasons,
-        avgDaysProspectToActive: raw.avg_days_prospect_to_active,
-      },
-    };
+      roleStats[roleCode].total++;
+
+      switch (status) {
+        case AgreementStatus.ACTIVE:
+          roleStats[roleCode].active++;
+          break;
+        case AgreementStatus.INACTIVE:
+          roleStats[roleCode].inactive++;
+          break;
+        case AgreementStatus.GRADUATED:
+          roleStats[roleCode].graduated++;
+          break;
+        case AgreementStatus.PROSPECT:
+          roleStats[roleCode].prospect++;
+          break;
+      }
+    });
+
+    return roleStats;
   }
 
-  agreementsByRoleStats = resource({
-    loader: async (): Promise<AgreementRoleStatistics> => {
-      try {
-        const { data, error } = await this.supabase.getClient().rpc('get_agreements_with_role');
+  countries = computed(() => this.countriesResource.value() || []);
+  countriesLoading = computed(() => this.countriesResource.isLoading());
+  countriesError = computed(() => this.countriesResource.error());
 
-        if (error) {
-          console.error('Error fetching agreements by role:', error);
-          throw new Error(error.message || 'Failed to fetch agreement statistics');
-        }
+  headquarters = computed(() => this.headquartersResource.value() || []);
+  headquartersLoading = computed(() => this.headquartersResource.isLoading());
+  headquartersError = computed(() => this.headquartersResource.error());
 
-        if (!data || !Array.isArray(data)) {
-          throw new Error('No data returned from agreement statistics');
-        }
+  agreementsByRole = computed(() => this.agreementsResource.value() || {});
+  agreementsLoading = computed(() => this.agreementsResource.isLoading());
+  agreementsError = computed(() => this.agreementsResource.error());
 
-        const roleStats: AgreementRoleStatistics = {};
+  statistics = computed<DashboardStatistics>(() => {
+    const countries = this.countries();
+    const headquarters = this.headquarters();
+    const agreements = this.agreementsByRole();
 
-        // Type assertion for the data array
-        const agreements = data as AgreementWithRole[];
+    const countryStats = {
+      total: countries.length,
+      active: countries.filter((c) => c.status === EntityStatus.ACTIVE).length,
+      inactive: countries.filter((c) => c.status === EntityStatus.INACTIVE).length,
+    };
 
-        agreements.forEach((agreement) => {
-          // Parse the role JSON data
-          const roleData = agreement.role as RoleData | null;
-          const roleName = roleData?.role_name || 'Unknown';
-          const status = agreement.status || 'unknown';
+    const headquarterStats = {
+      total: headquarters.length,
+      active: headquarters.filter((h) => h.status === EntityStatus.ACTIVE).length,
+      inactive: headquarters.filter((h) => h.status === EntityStatus.INACTIVE).length,
+      byCountry: headquarters.reduce(
+        (acc, hq) => {
+          const countryId = hq.country_id || 'unknown';
+          acc[countryId] = (acc[countryId] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>
+      ),
+    };
 
-          if (!roleStats[roleName]) {
-            roleStats[roleName] = {
-              total: 0,
-              active: 0,
-              inactive: 0,
-              graduated: 0,
-              prospect: 0,
-            };
-          }
+    let totalCollaborators = 0;
+    let totalStudents = 0;
+    let totalLeadership = 0;
 
-          roleStats[roleName].total++;
-
-          switch (status.toLowerCase()) {
-            case 'active':
-              roleStats[roleName].active++;
-              break;
-            case 'inactive':
-              roleStats[roleName].inactive++;
-              break;
-            case 'graduated':
-              roleStats[roleName].graduated++;
-              break;
-            case 'prospect':
-              roleStats[roleName].prospect++;
-              break;
-          }
-        });
-
-        return roleStats;
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-        this.notificationService.showError(`Failed to load agreement statistics: ${errorMessage}`);
-        throw error;
+    Object.entries(agreements).forEach(([roleCode, stats]) => {
+      if (roleCode === 'student') {
+        totalStudents += stats.total;
+      } else if (LEADERSHIP_ROLES.includes(roleCode as (typeof LEADERSHIP_ROLES)[number])) {
+        totalLeadership += stats.total;
+        totalCollaborators += stats.total; // Leadership are also collaborators
+      } else if (COLLABORATOR_ROLES.includes(roleCode as (typeof COLLABORATOR_ROLES)[number])) {
+        totalCollaborators += stats.total;
+      } else if (roleCode !== 'unknown') {
+        // Any other role is considered a collaborator
+        totalCollaborators += stats.total;
       }
-    },
+    });
+
+    return {
+      countries: countryStats,
+      headquarters: headquarterStats,
+      agreements: agreements,
+      users: {
+        totalCollaborators,
+        totalStudents,
+        totalLeadership,
+      },
+    };
   });
 
-  agreementsByRole = computed(() => (this.agreementsByRoleStats.hasValue() ? this.agreementsByRoleStats.value() : {}));
-  agreementsByRoleLoading = computed(() => this.agreementsByRoleStats.isLoading());
-  agreementsByRoleError = computed(() => this.agreementsByRoleStats.error());
+  isLoading = computed(() => this.countriesLoading() || this.headquartersLoading() || this.agreementsLoading());
 
-  refreshAllDashboardData(): void {
-    this.refreshDashboard();
-    this.agreementsByRoleStats.reload();
+  hasError = computed(() => !!(this.countriesError() || this.headquartersError() || this.agreementsError()));
+
+  errorMessage = computed(() => {
+    if (this.countriesError()) return 'Failed to load countries data';
+    if (this.headquartersError()) return 'Failed to load headquarters data';
+    if (this.agreementsError()) return 'Failed to load agreements data';
+    return 'An error occurred while loading dashboard data';
+  });
+
+  refreshDashboard(): void {
+    this.countriesResource.reload();
+    this.headquartersResource.reload();
+    this.agreementsResource.reload();
+  }
+
+  getRoleStats(roleCode: string) {
+    const agreements = this.agreementsByRole();
+    return (
+      agreements[roleCode] || {
+        total: 0,
+        active: 0,
+        inactive: 0,
+        graduated: 0,
+        prospect: 0,
+      }
+    );
+  }
+
+  getTotalAgreements() {
+    const agreements = this.agreementsByRole();
+    return Object.values(agreements).reduce((total, roleStats) => total + roleStats.total, 0);
+  }
+
+  getAgreementsByStatus(status: string) {
+    const agreements = this.agreementsByRole();
+    return Object.values(agreements).reduce((total, roleStats) => {
+      switch (status) {
+        case AgreementStatus.ACTIVE:
+          return total + roleStats.active;
+        case AgreementStatus.INACTIVE:
+          return total + roleStats.inactive;
+        case AgreementStatus.GRADUATED:
+          return total + roleStats.graduated;
+        case AgreementStatus.PROSPECT:
+          return total + roleStats.prospect;
+        default:
+          return total;
+      }
+    }, 0);
   }
 }
