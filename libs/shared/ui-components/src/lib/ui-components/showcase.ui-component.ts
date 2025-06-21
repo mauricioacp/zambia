@@ -103,7 +103,7 @@ interface HeadquarterManagementAction {
     <div class="mb-8">
       <h2 class="mb-4 text-xl font-semibold text-gray-800 dark:text-white">KPI Cards</h2>
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        @for (kpi of kpiCardsData(); track kpi.id) {
+        @for (kpi of kpiCardsData(); track kpi.title) {
           <z-kpi-card [kpiData]="kpi" [loading]="false" (cardClicked)="onKpiCardClick($event)" />
         }
       </div>
@@ -1067,41 +1067,29 @@ export class ShowcaseUiComponent {
   // KPI Card data
   protected kpiCardsData = signal<KpiData[]>([
     {
-      id: '1',
       title: 'Total Headquarters',
       value: 45,
-      trend: 'up',
-      trendPercentage: 12.5,
       icon: '@tui.home',
       iconBgClass: 'bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700',
       route: '/dashboard/headquarters',
     },
     {
-      id: '2',
       title: 'Active Students',
       value: 1245,
-      trend: 'up',
-      trendPercentage: 8.3,
       icon: '@tui.users',
       iconBgClass: 'bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700',
       route: '/dashboard/students',
     },
     {
-      id: '3',
       title: 'Total Agreements',
       value: 890,
-      trend: 'down',
-      trendPercentage: 2.1,
       icon: '@tui.file',
       iconBgClass: 'bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700',
       route: '/dashboard/agreements',
     },
     {
-      id: '4',
       title: 'Active Workshops',
       value: 23,
-      trend: 'stable',
-      trendPercentage: 0,
       icon: '@tui.calendar',
       iconBgClass: 'bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700',
       route: '/dashboard/workshops',

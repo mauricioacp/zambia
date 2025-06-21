@@ -4,11 +4,8 @@ import { TuiIcon } from '@taiga-ui/core';
 import { TuiSkeleton } from '@taiga-ui/kit';
 
 export interface KpiData {
-  id: string;
   title: string;
   value: number;
-  trend: 'up' | 'down' | 'stable';
-  trendPercentage: number;
   icon: string;
   iconBgClass: string;
   route: string;
