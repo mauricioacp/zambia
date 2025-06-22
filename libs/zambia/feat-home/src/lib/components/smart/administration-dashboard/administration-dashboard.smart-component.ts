@@ -4,14 +4,22 @@ import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TuiIcon, TuiButton } from '@taiga-ui/core';
 import { AdministrationDashboardFacadeService } from '../../../services/administration-dashboard-facade.service';
-import { KpiData } from '@zambia/ui-components';
+import { KpiData, SectionHeaderUiComponent } from '@zambia/ui-components';
 import { TuiButtonLoading } from '@taiga-ui/kit';
 import { KpiCardUiComponent } from '@zambia/ui-components';
 
 @Component({
   selector: 'z-administration-dashboard',
   standalone: true,
-  imports: [CommonModule, TuiButtonLoading, TranslateModule, TuiIcon, TuiButton, KpiCardUiComponent],
+  imports: [
+    CommonModule,
+    TuiButtonLoading,
+    TranslateModule,
+    TuiIcon,
+    TuiButton,
+    KpiCardUiComponent,
+    SectionHeaderUiComponent,
+  ],
   template: `
     <div class="space-y-8">
       <!-- Header with Refresh -->
@@ -48,10 +56,10 @@ import { KpiCardUiComponent } from '@zambia/ui-components';
 
       <!-- Organization Overview -->
       <div>
-        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
-          {{ 'dashboard.administration.organizationOverview' | translate }}
-        </h2>
-        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <z-section-header [icon]="'@tui.building-2'" [iconColor]="'sky'" [compact]="true" [showDescription]="false">
+          <span title>{{ 'dashboard.administration.organizationOverview' | translate }}</span>
+        </z-section-header>
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           @for (kpi of organizationKpis(); track kpi.title) {
             <z-kpi-card
               [kpiData]="kpi"
@@ -64,10 +72,11 @@ import { KpiCardUiComponent } from '@zambia/ui-components';
 
       <!-- Leadership Team -->
       <div>
-        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
-          {{ 'dashboard.administration.leadershipTeam' | translate }}
-        </h2>
-        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <z-section-header [icon]="'@tui.crown'" [iconColor]="'purple'" [variant]="'gradient'" [compact]="true">
+          <span title>{{ 'dashboard.administration.leadershipTeam' | translate }}</span>
+          <span description>{{ 'dashboard.administration.leadershipSubtitle' | translate }}</span>
+        </z-section-header>
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           @for (kpi of leadershipKpis(); track kpi.title) {
             <z-kpi-card
               [kpiData]="kpi"
@@ -80,9 +89,9 @@ import { KpiCardUiComponent } from '@zambia/ui-components';
 
       <!-- Operations Team -->
       <div>
-        <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
-          {{ 'dashboard.administration.operationsTeam' | translate }}
-        </h2>
+        <z-section-header [icon]="'@tui.users'" [iconColor]="'emerald'" [compact]="true" [showDescription]="false">
+          <span title>{{ 'dashboard.administration.operationsTeam' | translate }}</span>
+        </z-section-header>
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           @for (kpi of operationsKpis(); track kpi.title) {
             <z-kpi-card
@@ -147,14 +156,6 @@ export class AdministrationDashboardSmartComponent {
         subtitle: `${this.translate.instant('dashboard.administration.active')}: ${this.dashboardService.getAgreementsByStatus('active')} | ${this.translate.instant('dashboard.administration.prospect')}: ${this.dashboardService.getAgreementsByStatus('prospect')} | ${this.translate.instant('dashboard.administration.graduated')}: ${this.dashboardService.getAgreementsByStatus('graduated')}`,
         route: '/administration/agreements',
       },
-      {
-        icon: '@tui.users',
-        title: this.translate.instant('dashboard.administration.totalUsers'),
-        value: stats.users.totalCollaborators + stats.users.totalStudents,
-        iconBgClass: 'bg-indigo-500',
-        subtitle: `${this.translate.instant('dashboard.administration.collaborators')}: ${stats.users.totalCollaborators} | ${this.translate.instant('dashboard.administration.students')}: ${stats.users.totalStudents}`,
-        route: '/administration/users',
-      },
     ];
   });
 
@@ -169,14 +170,6 @@ export class AdministrationDashboardSmartComponent {
         iconBgClass: 'bg-amber-500',
         subtitle: this.translate.instant('dashboard.administration.leadershipSubtitle'),
         route: '/administration/users?filter=leadership',
-      },
-      {
-        icon: '@tui.shield',
-        title: this.translate.instant('dashboard.administration.superAdmin'),
-        value: this.dashboardService.getRoleStats('superadmin').total,
-        iconBgClass: 'bg-red-600',
-        subtitle: this.buildRoleSubtitle('superadmin'),
-        route: '/administration/users?filter=superadmin',
       },
       {
         icon: '@tui.briefcase',

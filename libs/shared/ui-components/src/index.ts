@@ -73,3 +73,5 @@ export * from './lib/ui-components/student-agreement-card.ui-component';
 export * from './lib/ui-components/status-dashboard-card.ui-component';
 
 export * from './lib/ui-components/glass-container.ui-component';
+
+export * from './lib/ui-components/section-header.ui-component';

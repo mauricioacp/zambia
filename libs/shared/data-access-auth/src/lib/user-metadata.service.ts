@@ -82,17 +82,8 @@ export class UserMetadataService {
     }
   });
 
-  displayName = computed(() => {
+  userDisplayName = computed(() => {
     const metadata = this.userMetadata();
-    if (metadata.firstName && metadata.lastName) {
-      return `${metadata.firstName} ${metadata.lastName}`;
-    }
-    if (metadata.firstName) {
-      return metadata.firstName;
-    }
-    if (metadata.email) {
-      return metadata.email.split('@')[0];
-    }
-    return 'User';
+    return metadata.firstName && metadata.lastName ? `${metadata.firstName} ${metadata.lastName}` : metadata.email;
   });
 }

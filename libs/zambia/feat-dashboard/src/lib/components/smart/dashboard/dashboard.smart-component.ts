@@ -45,7 +45,7 @@ import { TranslateModule } from '@ngx-translate/core';
       <z-sidebar [isOpen]="layoutService.sidebarOpen()">
         <z-sidebar-header
           sidebar-header
-          title="{{ userMetadataService.displayName() }}"
+          title="{{ userMetadataService.userDisplayName() }}"
           (closeClicked)="layoutService.toggleSidebar()"
         >
         </z-sidebar-header>

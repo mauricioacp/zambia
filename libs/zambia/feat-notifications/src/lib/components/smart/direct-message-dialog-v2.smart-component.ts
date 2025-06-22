@@ -287,7 +287,7 @@ export class DirectMessageDialogV2SmartComponent {
 
     try {
       // Get sender name from user metadata service
-      const senderName = this.userMetadataService.displayName();
+      const senderName = this.userMetadataService.userDisplayName();
 
       await this.notificationApi.sendDirectNotification({
         recipient_id: recipient.id,
