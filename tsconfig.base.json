@@ -38,10 +38,12 @@
       "@zambia/shared/data-access-notifications": ["libs/shared/data-access-notifications/src/index.ts"],
       "@zambia/types-supabase": ["libs/shared/types-supabase/src/index.ts"],
       "@zambia/ui-components": ["libs/shared/ui-components/src/index.ts"],
+      "@zambia/ui-table-primitives": ["libs/shared/ui-table-primitives/src/index.ts"],
       "@zambia/util-config": ["libs/shared/util-config/src/index.ts"],
       "@zambia/util-constants": ["libs/shared/util-constants/src/index.ts"],
       "@zambia/util-roles-definitions": ["libs/shared/util-roles-definitions/src/index.ts"],
-      "@zambia/util-roles-permissions": ["libs/shared/util-guards/src/index.ts"]
+      "@zambia/util-roles-permissions": ["libs/shared/util-guards/src/index.ts"],
+      "@zambia/util-table-helpers": ["libs/shared/util-table-helpers/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

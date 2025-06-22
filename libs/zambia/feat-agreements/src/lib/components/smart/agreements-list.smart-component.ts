@@ -31,6 +31,13 @@ import {
   TableColumn,
   WindowService,
 } from '@zambia/ui-components';
+import { AgreementSmartTableComponent } from './agreement-smart-table.smart-component';
+import { AgreementSearchCriteria } from '../ui/agreement-search-modal.ui-component';
+import {
+  AgreementAdvancedSearchComponent,
+  FilterOption,
+  AdvancedSearchData,
+} from '../ui/agreement-advanced-search.ui-component';
 
 import {
   TuiButton,
@@ -49,6 +56,7 @@ import { ICONS } from '@zambia/util-constants';
 import { UserCreationSuccessModalComponent } from './user-creation-success-modal.component';
 import { PasswordResetModalComponent } from './password-reset-modal.component';
 import { HasRoleDirective } from '@zambia/util-roles-permissions';
+import { CountriesFacadeService } from '@zambia/feat-countries';
 
 interface AgreementListData {
   id: string;
@@ -82,6 +90,7 @@ interface StatCard {
     TranslateModule,
     ReactiveFormsModule,
     EnhancedTableUiComponent,
+    AgreementSmartTableComponent,
     TuiIcon,
     TuiButton,
     TuiSkeleton,
@@ -236,8 +245,7 @@ interface StatCard {
                       [formControl]="roleFilter"
                       [placeholder]="'all_roles' | translate"
                     />
-                    <tui-data-list-wrapper *tuiTextfieldDropdown new [items]="roleFilterOptions()">
-                    </tui-data-list-wrapper>
+                    <tui-data-list-wrapper *tuiTextfieldDropdown [items]="roleFilterOptions()"> </tui-data-list-wrapper>
                   </tui-textfield>
                 </div>
               </div>
@@ -296,6 +304,38 @@ interface StatCard {
             </div>
           </div>
         }
+
+        <!-- New Refactored Table for Comparison -->
+        <div class="mt-8">
+          <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">New Refactored Table (for comparison)</h2>
+          <div
+            class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+          >
+            <z-agreement-smart-table
+              [agreements]="agreementsData()"
+              [loading]="isLoading()"
+              [emptyStateTitle]="'No agreements found'"
+              [emptyStateDescription]="'There are no agreements to display.'"
+              [enablePagination]="true"
+              [enableFiltering]="true"
+              [enableColumnVisibility]="true"
+              [enableAdvancedSearch]="true"
+              [pageSize]="25"
+              [pageSizeOptions]="[10, 25, 50, 100]"
+              (createClick)="onCreateAgreement()"
+              (rowClick)="onRowClick($event)"
+              (editClick)="onEditAgreement($event)"
+              (deleteClick)="onDeleteAgreement($event)"
+              (downloadClick)="onDownloadAgreement($event)"
+              (advancedSearch)="onAdvancedSearchCriteria($event)"
+              (createUserClick)="onCreateUserFromRefactoredTable($event)"
+              (deactivateUserClick)="onDeactivateUserFromRefactoredTable($event)"
+              (resetPasswordClick)="onResetPasswordFromRefactoredTable($event)"
+              (sendMessageClick)="onSendMessageFromRefactoredTable($event)"
+              (deactivateAgreementClick)="onDeactivateAgreementFromRefactoredTable($event)"
+            />
+          </div>
+        </div>
       </div>
     </div>
   `,
@@ -312,6 +352,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   private agreementsFacade = inject(AgreementsFacadeService);
+  private countriesFacade = inject(CountriesFacadeService);
   private roleService = inject(RoleService);
   private router = inject(Router);
   private dialogs = inject(TuiDialogService);
@@ -544,6 +585,8 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
 
   private loadInitialData(): void {
     this.agreementsFacade.agreements.reload();
+    this.countriesFacade.countries.reload();
+    this.agreementsFacade.loadHeadquarters();
   }
 
   protected onPageChange = (page: number): void => {
@@ -902,8 +945,211 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     }
   }
 
+  protected lastSearchCriteria = signal<AgreementSearchCriteria | null>(null);
+
+  // Computed data for search
+  protected countries = computed(() => {
+    const countriesData = this.countriesFacade.countriesResource();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return countriesData?.map((c: any) => ({ id: c.id, name: c.name })) || [];
+  });
+
+  protected headquarters = computed(() => {
+    const hqData = this.agreementsFacade.headquartersResource();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return hqData?.map((hq: any) => ({ id: hq.id, name: hq.name })) || [];
+  });
+
   protected async onSearchAgreements(): Promise<void> {
-    // TODO: Implement search modal for agreements
-    this.notificationService.showInfo(this.translate.instant('feature_coming_soon'));
+    const searchData: AdvancedSearchData = {
+      roles: this.getRoleOptions(),
+      countries: this.countries(),
+      headquarters: this.headquarters(),
+      initialCriteria: this.lastSearchCriteria(),
+    };
+
+    const dialog = this.dialogs.open<AgreementSearchCriteria | null>(
+      new PolymorpheusComponent(AgreementAdvancedSearchComponent),
+      {
+        data: searchData,
+        dismissible: true,
+        size: 'l',
+      }
+    );
+
+    dialog.subscribe((criteria) => {
+      if (criteria) {
+        this.lastSearchCriteria.set(criteria);
+        this.onAdvancedSearchCriteria(criteria);
+      }
+    });
+  }
+
+  private getRoleOptions(): FilterOption[] {
+    // Get unique roles from agreements
+    const roles = new Map<string, string>();
+    this.agreementsData().forEach((agreement) => {
+      if (agreement.role_id && agreement.role?.role_name) {
+        roles.set(agreement.role_id, agreement.role.role_name);
+      }
+    });
+
+    return Array.from(roles.entries()).map(([id, name]) => ({ id, name }));
+  }
+
+  // Methods for the new refactored table
+  protected onEditAgreement(agreement: AgreementWithShallowRelations): void {
+    this.router.navigate(['/dashboard/agreements', agreement.id, 'edit']);
+  }
+
+  protected onDeleteAgreement(agreement: AgreementWithShallowRelations): void {
+    // Similar to deactivate for now
+    this.onDeactivateAgreement({
+      id: agreement.id,
+      name: agreement.name || '',
+      lastName: agreement.last_name || '',
+      email: agreement.email,
+      role: agreement.role?.role_name || '',
+      status: this.mapStatus(agreement.status || 'pending'),
+      headquarter: agreement.headquarter_name || '',
+      createdAt: agreement.created_at || '',
+      verificationType: 'pending',
+      userId: agreement.user_id || undefined,
+      phone: agreement.phone || undefined,
+      documentNumber: agreement.document_number || undefined,
+    });
+  }
+
+  protected async onDownloadAgreement(agreement: AgreementWithShallowRelations): Promise<void> {
+    // Download single agreement as PDF or document
+    this.notificationService.showInfo(`Download functionality coming soon for agreement: ${agreement.name}`);
+  }
+
+  protected async onAdvancedSearchCriteria(criteria: AgreementSearchCriteria): Promise<void> {
+    try {
+      this.isProcessing.set(true);
+
+      // Perform the search
+      const searchResult = await this.agreementsFacade.searchAgreements(criteria);
+
+      if (searchResult.totalCount === 0) {
+        this.notificationService.showWarning(
+          this.translate.instant('no_results_found_for_search', {
+            term: criteria.searchTerm,
+          })
+        );
+      } else {
+        this.notificationService.showSuccess(
+          this.translate.instant('search_completed', {
+            count: searchResult.totalCount,
+            time: (searchResult.searchTime / 1000).toFixed(2),
+          })
+        );
+
+        // Update the search parameters in the facade to trigger a reload
+        this.agreementsFacade.search.set(criteria.searchTerm);
+
+        // Optionally, you could also apply role filters
+        if (criteria.roleFilters && criteria.roleFilters.length > 0) {
+          // Apply role filter logic here
+          console.log('Applying role filters:', criteria.roleFilters);
+        }
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      this.notificationService.showError(this.translate.instant('search_error'));
+    } finally {
+      this.isProcessing.set(false);
+    }
+  }
+
+  // New methods for refactored table actions
+  protected onCreateUserFromRefactoredTable(agreement: AgreementWithShallowRelations): void {
+    this.onCreateUserFromAgreement({
+      id: agreement.id,
+      name: agreement.name || '',
+      lastName: agreement.last_name || '',
+      email: agreement.email,
+      role: agreement.role?.role_name || '',
+      status: this.mapStatus(agreement.status || 'pending'),
+      headquarter: agreement.headquarter_name || '',
+      createdAt: agreement.created_at || '',
+      verificationType: 'pending',
+      userId: agreement.user_id || undefined,
+      phone: agreement.phone || undefined,
+      documentNumber: agreement.document_number || undefined,
+    });
+  }
+
+  protected onDeactivateUserFromRefactoredTable(agreement: AgreementWithShallowRelations): void {
+    this.onDeactivateUser({
+      id: agreement.id,
+      name: agreement.name || '',
+      lastName: agreement.last_name || '',
+      email: agreement.email,
+      role: agreement.role?.role_name || '',
+      status: this.mapStatus(agreement.status || 'pending'),
+      headquarter: agreement.headquarter_name || '',
+      createdAt: agreement.created_at || '',
+      verificationType: 'pending',
+      userId: agreement.user_id || undefined,
+      phone: agreement.phone || undefined,
+      documentNumber: agreement.document_number || undefined,
+    });
+  }
+
+  protected onResetPasswordFromRefactoredTable(agreement: AgreementWithShallowRelations): void {
+    this.onResetPassword({
+      id: agreement.id,
+      name: agreement.name || '',
+      lastName: agreement.last_name || '',
+      email: agreement.email,
+      role: agreement.role?.role_name || '',
+      status: this.mapStatus(agreement.status || 'pending'),
+      headquarter: agreement.headquarter_name || '',
+      createdAt: agreement.created_at || '',
+      verificationType: 'pending',
+      userId: agreement.user_id || undefined,
+      phone: agreement.phone || undefined,
+      documentNumber: agreement.document_number || undefined,
+    });
+  }
+
+  protected onSendMessageFromRefactoredTable(agreement: AgreementWithShallowRelations): void {
+    this.onSendMessage({
+      id: agreement.id,
+      name: agreement.name || '',
+      lastName: agreement.last_name || '',
+      email: agreement.email,
+      role: agreement.role?.role_name || '',
+      status: this.mapStatus(agreement.status || 'pending'),
+      headquarter: agreement.headquarter_name || '',
+      createdAt: agreement.created_at || '',
+      verificationType: 'pending',
+      userId: agreement.user_id || undefined,
+      phone: agreement.phone || undefined,
+      documentNumber: agreement.document_number || undefined,
+    });
+  }
+
+  protected onDeactivateAgreementFromRefactoredTable(agreement: AgreementWithShallowRelations): void {
+    this.onDeactivateAgreement({
+      id: agreement.id,
+      name: agreement.name || '',
+      lastName: agreement.last_name || '',
+      email: agreement.email,
+      role: agreement.role?.role_name || '',
+      status: this.mapStatus(agreement.status || 'pending'),
+      headquarter: agreement.headquarter_name || '',
+      createdAt: agreement.created_at || '',
+      verificationType: 'pending',
+      userId: agreement.user_id || undefined,
+      phone: agreement.phone || undefined,
+      documentNumber: agreement.document_number || undefined,
+    });
+  }
+
+  protected onEmptyRowClick(_agreement: AgreementListData): void {
+    // Do nothing - navigation is handled by the View action only
   }
 }

@@ -12,6 +12,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Build**: Nx 20 monorepo
 - **Backend**: Supabase (PostgreSQL + Auth)
 - **UI**: TaigaUI + Tailwind CSS
+- for taiga ui components you can check docs here: https://github.com/taiga-family/taiga-ui/blob/main/projects/demo/src/llms.txt
+- ALWAYS check docs when you dont have enough context of examples
 - **i18n**: ngx-translate (EN/ES)
 
 ## 🏗️ Architecture Quick Reference

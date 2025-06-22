@@ -12,6 +12,8 @@ import { SupabaseService } from '@zambia/data-access-supabase';
 import { RoleService } from '@zambia/data-access-roles-permissions';
 import { AkademyEdgeFunctionsService, NotificationService } from '@zambia/data-access-generic';
 import { Database } from '@zambia/types-supabase';
+import { AgreementSearchService, AgreementSearchServiceResult } from './agreement-search.service';
+import { AgreementSearchCriteria } from '../components/ui/agreement-search-modal.ui-component';
 
 export type Agreement = Database['public']['Tables']['agreements']['Row'];
 export type Headquarter = Database['public']['Tables']['headquarters']['Row'];
@@ -113,6 +115,7 @@ export class AgreementsFacadeService {
   private roleService = inject(RoleService);
   private akademyEdgeFunctionsService = inject(AkademyEdgeFunctionsService);
   private notificationService = inject(NotificationService);
+  private agreementSearchService = inject(AgreementSearchService);
 
   agreementId: WritableSignal<string> = signal('');
   agreementsResource = linkedSignal(() => this.agreements.value() ?? []);
@@ -627,4 +630,16 @@ export class AgreementsFacadeService {
   headquartersResource = linkedSignal(() => this.headquarters.value() ?? []);
   rolesResource = linkedSignal(() => this.roles.value() ?? []);
   seasonsResource = linkedSignal(() => this.seasons.value() ?? []);
+
+  /**
+   * Search agreements with filters
+   */
+  searchAgreements(criteria: AgreementSearchCriteria): Promise<AgreementSearchServiceResult> {
+    return this.agreementSearchService
+      .searchAgreements(criteria)
+      .toPromise()
+      .then(
+        (result: AgreementSearchServiceResult | undefined) => result || { agreements: [], totalCount: 0, searchTime: 0 }
+      );
+  }
 }
