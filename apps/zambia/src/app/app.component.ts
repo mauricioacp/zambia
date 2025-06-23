@@ -3,6 +3,7 @@ import { RouterModule } from '@angular/router';
 import { APP_CONFIG } from '@zambia/util-config';
 import { TuiRoot } from '@taiga-ui/core';
 import { ThemeService, CURRENT_THEME, IS_DARK_THEME, LanguageService } from '@zambia/ui-components';
+import * as Sentry from '@sentry/browser';
 
 @Component({
   imports: [RouterModule, TuiRoot],
@@ -34,5 +35,11 @@ export class AppComponent {
 
   constructor() {
     console.log(this.config.PROD ? 'PROD' : 'DEV');
+    Sentry.init({
+      dsn: 'https://ea4ca286152e4285a573932511600fff@glitchtip-q00soko4s8gkck4sos4ww8s8.cappady.com/1',
+      tracesSampleRate: 0.01,
+    });
+
+    Sentry.captureException(new Error('Test error'));
   }
 }
