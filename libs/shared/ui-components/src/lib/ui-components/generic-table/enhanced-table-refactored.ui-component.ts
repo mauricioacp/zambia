@@ -32,7 +32,6 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs';
 import { injectCurrentTheme } from '../../layout/theme.service';
 import { TranslatePipe } from '@ngx-translate/core';
 
-// Import our new primitive components
 import {
   TablePaginationComponent,
   TableColumnVisibilityComponent,
@@ -48,7 +47,6 @@ import {
 
 import { TableAction, TableColumn } from './enhanced-table.ui-component';
 
-// Re-export to avoid duplication errors
 export type { TableAction, TableColumn };
 
 @Component({
@@ -74,7 +72,6 @@ export type { TableAction, TableColumn };
     TuiChip,
     TuiLineClamp,
     TuiHint,
-    // Our primitive components
     TablePaginationComponent,
     TableColumnVisibilityComponent,
     TableSearchTriggerComponent,

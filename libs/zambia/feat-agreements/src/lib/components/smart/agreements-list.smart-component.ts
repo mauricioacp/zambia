@@ -16,21 +16,14 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { AgreementsFacadeService, AgreementWithShallowRelations } from '../../services/agreements-facade.service';
+import { AgreementsFacadeService } from '../../services/agreements-facade.service';
+import { SearchAgreementResult } from '../../types/search-agreements.types';
 import { RoleService } from '@zambia/data-access-roles-permissions';
 import { ExportService, NotificationService, AkademyEdgeFunctionsService } from '@zambia/data-access-generic';
 import { DirectMessageService } from '@zambia/shared/data-access-notifications';
 import { DirectMessageDialogV2SmartComponent } from '@zambia/feat-notifications';
 
-import {
-  EnhancedTableUiComponent,
-  ExportModalUiComponent,
-  ExportOptions,
-  injectCurrentTheme,
-  TableAction,
-  TableColumn,
-  WindowService,
-} from '@zambia/ui-components';
+import { ExportModalUiComponent, ExportOptions, injectCurrentTheme, WindowService } from '@zambia/ui-components';
 import { AgreementSmartTableComponent } from './agreement-smart-table.smart-component';
 import { AgreementSearchCriteria } from '../ui/agreement-search-modal.ui-component';
 import {
@@ -38,17 +31,12 @@ import {
   FilterOption,
   AdvancedSearchData,
 } from '../ui/agreement-advanced-search.ui-component';
+import { AgreementTextSearchComponent } from '../ui/agreement-text-search.ui-component';
+import { RoleFilterCheckboxComponent } from '../ui/role-filter-checkbox.ui-component';
+import { HeadquarterFilterCheckboxComponent } from '../ui/headquarter-filter-checkbox.ui-component';
 
-import {
-  TuiButton,
-  TuiDialogService,
-  TuiIcon,
-  TuiLink,
-  TuiTextfieldComponent,
-  TuiTextfieldDropdownDirective,
-  TuiTextfieldOptionsDirective,
-} from '@taiga-ui/core';
-import { TuiBreadcrumbs, TuiSkeleton, TuiDataListWrapper, TuiSelect, TuiChevron } from '@taiga-ui/kit';
+import { TuiButton, TuiDialogService, TuiIcon, TuiLink } from '@taiga-ui/core';
+import { TuiBreadcrumbs, TuiSkeleton } from '@taiga-ui/kit';
 import { TuiItem } from '@taiga-ui/cdk';
 
 import { ROLE } from '@zambia/util-roles-definitions';
@@ -57,21 +45,6 @@ import { UserCreationSuccessModalComponent } from './user-creation-success-modal
 import { PasswordResetModalComponent } from './password-reset-modal.component';
 import { HasRoleDirective } from '@zambia/util-roles-permissions';
 import { CountriesFacadeService } from '@zambia/feat-countries';
-
-interface AgreementListData {
-  id: string;
-  name: string;
-  lastName: string;
-  email: string;
-  role: string;
-  status: 'pending' | 'active' | 'inactive' | 'completed';
-  headquarter: string;
-  createdAt: string;
-  verificationType: 'verified' | 'pending' | 'rejected';
-  userId?: string;
-  phone?: string;
-  documentNumber?: string;
-}
 
 interface StatCard {
   id: string;
@@ -89,8 +62,10 @@ interface StatCard {
     CommonModule,
     TranslateModule,
     ReactiveFormsModule,
-    EnhancedTableUiComponent,
     AgreementSmartTableComponent,
+    AgreementTextSearchComponent,
+    RoleFilterCheckboxComponent,
+    HeadquarterFilterCheckboxComponent,
     TuiIcon,
     TuiButton,
     TuiSkeleton,
@@ -99,12 +74,6 @@ interface StatCard {
     TuiLink,
     RouterLink,
     HasRoleDirective,
-    TuiDataListWrapper,
-    TuiSelect,
-    TuiChevron,
-    TuiTextfieldComponent,
-    TuiTextfieldDropdownDirective,
-    TuiTextfieldOptionsDirective,
   ],
   template: `
     <div class="min-h-screen bg-gray-50 dark:bg-slate-800">
@@ -206,90 +175,42 @@ interface StatCard {
         }
       </div>
 
-      <!-- Agreements Table -->
-      <div class="container mx-auto px-4 pb-6 sm:px-6 sm:pb-8">
-        <!-- Enhanced Table Section -->
-        <div
-          class="mb-8 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
-        >
-          <div class="border-b border-gray-200 px-6 py-4 dark:border-slate-700">
-            <div class="flex items-center justify-between">
-              <h2 class="flex items-center gap-3 text-xl font-bold text-gray-900 dark:text-white">
-                <tui-icon icon="@tui.file-text" class="text-green-500"></tui-icon>
-                {{ 'agreements_list' | translate }}
-              </h2>
-              <div class="flex items-center gap-4">
-                <!-- Search Button -->
-                <button
-                  tuiButton
-                  appearance="secondary"
-                  size="m"
-                  iconStart="@tui.search"
-                  (click)="onSearchAgreements()"
-                  class="border-sky-500 text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/20"
-                >
-                  {{ 'search' | translate }}
-                </button>
-                <!-- Role Filter -->
-                <div class="w-48">
-                  <label
-                    for="roleFilterSelect"
-                    class="mb-2 block text-sm font-medium text-gray-600 dark:text-slate-400"
-                  >
-                    {{ 'filter_by_role' | translate }}
-                  </label>
-                  <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full">
-                    <input
-                      id="roleFilterSelect"
-                      tuiSelect
-                      [formControl]="roleFilter"
-                      [placeholder]="'all_roles' | translate"
-                    />
-                    <tui-data-list-wrapper *tuiTextfieldDropdown [items]="roleFilterOptions()"> </tui-data-list-wrapper>
-                  </tui-textfield>
-                </div>
-              </div>
-            </div>
+      <!-- Filters Section -->
+      <div class="container mx-auto px-4 py-4 sm:px-6">
+        <div class="flex flex-wrap items-end gap-4">
+          <!-- Text Search -->
+          <div class="max-w-md flex-1">
+            <z-agreement-text-search />
           </div>
-          @defer (on viewport; prefetch on idle) {
-            <z-enhanced-table
-              [items]="filteredTableData()"
-              [columns]="tableColumns"
-              [loading]="isLoading()"
-              [actions]="tableActions"
-              [title]="''"
-              [description]="''"
-              [enableFiltering]="true"
-              [enableColumnVisibility]="true"
-              [showCreateButton]="false"
-              [pageSize]="25"
-              [pageSizeOptions]="[10, 25, 50, 100]"
-              [searchableColumns]="['name', 'email', 'role']"
-              [emptyStateTitle]="'no.agreements.found' | translate"
-              [emptyStateDescription]="'no_agreements_description' | translate"
-              [emptyStateIcon]="'@tui.file-text'"
+
+          <!-- Role Filter -->
+          <div>
+            <z-role-filter-checkbox
+              [(selectedRoles)]="selectedRoleFilters"
+              (rolesChanged)="onRoleFiltersChange($event)"
             />
-          } @placeholder {
-            <div class="rounded-xl bg-white p-8 shadow-sm dark:bg-slate-800 dark:shadow-slate-900/20">
-              <div class="space-y-4">
-                @for (i of [1, 2, 3, 4, 5]; track i) {
-                  <div class="h-12 w-full rounded-lg bg-gray-200/50 dark:bg-gray-700/50" [tuiSkeleton]="true"></div>
-                }
-              </div>
-            </div>
-          } @loading {
-            <div class="rounded-xl bg-white p-8 shadow-sm dark:bg-slate-800 dark:shadow-slate-900/20">
-              <div class="space-y-4">
-                @for (i of [1, 2, 3, 4, 5]; track i) {
-                  <div
-                    class="h-12 w-full animate-pulse rounded-lg bg-gray-200/50 dark:bg-gray-700/50"
-                    [tuiSkeleton]="true"
-                  ></div>
-                }
-              </div>
-            </div>
+          </div>
+
+          <!-- Headquarter Filter -->
+          <div>
+            <z-headquarter-filter-checkbox
+              [(selectedHeadquarters)]="selectedHeadquarterFilters"
+              (headquartersChanged)="onHeadquarterFiltersChange($event)"
+            />
+          </div>
+
+          <!-- Clear All Filters -->
+          @if (hasActiveFilters()) {
+            <button tuiButton appearance="secondary" size="m" iconStart="@tui.filter-x" (click)="clearAllFilters()">
+              {{ 'clear_filters' | translate }}
+            </button>
           }
         </div>
+      </div>
+
+      <!-- Agreements Table -->
+      <div class="container mx-auto px-4 pb-6 sm:px-6 sm:pb-8">
+        <!-- Agreements Table -->
 
         @if (errorMessage()) {
           <div class="mt-6 rounded-xl border border-red-200/50 bg-red-50 p-6 dark:border-red-800/50 dark:bg-red-900/20">
@@ -303,11 +224,7 @@ interface StatCard {
               </div>
             </div>
           </div>
-        }
-
-        <!-- New Refactored Table for Comparison -->
-        <div class="mt-8">
-          <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">New Refactored Table (for comparison)</h2>
+        } @else {
           <div
             class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
           >
@@ -323,19 +240,18 @@ interface StatCard {
               [pageSize]="25"
               [pageSizeOptions]="[10, 25, 50, 100]"
               (createClick)="onCreateAgreement()"
-              (rowClick)="onRowClick($event)"
               (editClick)="onEditAgreement($event)"
               (deleteClick)="onDeleteAgreement($event)"
               (downloadClick)="onDownloadAgreement($event)"
               (advancedSearch)="onAdvancedSearchCriteria($event)"
-              (createUserClick)="onCreateUserFromRefactoredTable($event)"
-              (deactivateUserClick)="onDeactivateUserFromRefactoredTable($event)"
-              (resetPasswordClick)="onResetPasswordFromRefactoredTable($event)"
-              (sendMessageClick)="onSendMessageFromRefactoredTable($event)"
-              (deactivateAgreementClick)="onDeactivateAgreementFromRefactoredTable($event)"
+              (createUserClick)="onCreateUserFromAgreement($event)"
+              (deactivateUserClick)="onDeactivateUser($event)"
+              (resetPasswordClick)="onResetPassword($event)"
+              (sendMessageClick)="onSendMessage($event)"
+              (deactivateAgreementClick)="onDeactivateAgreement($event)"
             />
           </div>
-        </div>
+        }
       </div>
     </div>
   `,
@@ -356,13 +272,13 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   private roleService = inject(RoleService);
   private router = inject(Router);
   private dialogs = inject(TuiDialogService);
-  private notificationService = inject(NotificationService);
   private exportService = inject(ExportService);
   private translate = inject(TranslateService);
   private edgeFunctions = inject(AkademyEdgeFunctionsService);
   private directMessageService = inject(DirectMessageService);
   private destroyRef = inject(DestroyRef);
   private windowService = inject(WindowService);
+  private notificationService = inject(NotificationService);
 
   protected currentTheme = injectCurrentTheme();
   protected buttonSize = computed(() => (this.windowService.isMobile() ? 'm' : 'l'));
@@ -374,12 +290,14 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   protected errorMessage = computed(() => this.agreementsFacade.loadingError());
 
   protected agreementsData = computed(() => this.agreementsFacade.agreements.value()?.data || []);
-  protected tableData = computed(() => this.transformAgreementsData(this.agreementsData()));
   protected hasData = computed(() => (this.agreementsData()?.length || 0) > 0);
   protected statsCards = computed(() => this.getStatsCards());
 
   protected roleFilter = new FormControl('');
   protected roleFilterValue = signal('');
+
+  protected selectedRoleFilters = signal<string[]>([]);
+  protected selectedHeadquarterFilters = signal<string[]>([]);
 
   protected currentPage = this.agreementsFacade.currentPage;
   protected pageSize = this.agreementsFacade.pageSize;
@@ -392,6 +310,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   protected canEdit = computed(() =>
     this.roleService.isInAnyGroup(['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'])
   );
+
   protected canDelete = computed(() => this.roleService.isInAnyGroup(['ADMINISTRATION']));
 
   protected allowedRolesForAgreementCreation = () => ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'];
@@ -409,153 +328,8 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
 
   private roleFilterMap: Record<string, string> = {};
 
-  protected filteredTableData = computed(() => {
-    const tableData = this.tableData();
-    const selectedDisplayText = this.roleFilterValue();
-    const filter = this.roleFilterMap[selectedDisplayText] || 'all';
-
-    if (!filter || filter === 'all') {
-      return tableData;
-    }
-
-    return tableData.filter((agreement) => {
-      const roleName = agreement.role?.toLowerCase() || '';
-
-      switch (filter) {
-        case 'student':
-          return roleName.includes('student') || roleName.includes('alumno');
-        case 'facilitator':
-          return roleName.includes('facilitator') || roleName.includes('facilitador');
-        case 'companion':
-          return roleName.includes('companion') || roleName.includes('acompañante');
-        case 'manager':
-          return roleName.includes('manager') || roleName.includes('responsable');
-        case 'assistant':
-          return roleName.includes('assistant') || roleName.includes('asistente');
-        case 'coordinator':
-          return roleName.includes('coordinator') || roleName.includes('coordinador');
-        case 'director':
-          return roleName.includes('director');
-        default:
-          return true;
-      }
-    });
-  });
-
-  protected tableColumns: TableColumn[] = [
-    {
-      key: 'name',
-      label: this.translate.instant('user_name'),
-      type: 'avatar',
-      sortable: true,
-      searchable: true,
-      width: 250,
-    },
-    {
-      key: 'email',
-      label: this.translate.instant('user_email'),
-      type: 'text',
-      sortable: true,
-      searchable: true,
-      width: 250,
-    },
-    {
-      key: 'role',
-      label: this.translate.instant('role'),
-      type: 'text',
-      sortable: true,
-      searchable: true,
-      width: 150,
-    },
-    {
-      key: 'headquarter',
-      label: this.translate.instant('headquarter_name'),
-      type: 'text',
-      sortable: true,
-      searchable: true,
-      width: 180,
-    },
-    {
-      key: 'status',
-      label: this.translate.instant('agreement_status'),
-      type: 'status',
-      sortable: true,
-      width: 120,
-    },
-    {
-      key: 'createdAt',
-      label: this.translate.instant('agreement_start_date'),
-      type: 'date',
-      sortable: true,
-      width: 150,
-    },
-    {
-      key: 'actions',
-      label: this.translate.instant('actions'),
-      type: 'actions',
-      sortable: false,
-      width: 200,
-    },
-  ];
-
-  protected tableActions: TableAction<AgreementListData>[] = [
-    {
-      label: this.translate.instant('view_agreement'),
-      icon: '@tui.eye',
-      color: 'primary',
-      handler: (item: AgreementListData) => this.onRowClick(item),
-      visible: () => true,
-    },
-    {
-      label: this.translate.instant('create_user'),
-      icon: '@tui.user-plus',
-      color: 'primary',
-      handler: (item: AgreementListData) => this.onCreateUserFromAgreement(item),
-      visible: (item: AgreementListData) => {
-        const roleLevel = Number(this.roleService.roleLevel() || 0);
-        const hasValidStatus = item.status === 'pending' || item.status === 'inactive';
-        const hasNoUser = !item.userId;
-        return roleLevel >= 30 && hasValidStatus && hasNoUser;
-      },
-    },
-    {
-      label: this.translate.instant('deactivate_user'),
-      icon: '@tui.user-x',
-      color: 'warning',
-      handler: (item: AgreementListData) => this.onDeactivateUser(item),
-      visible: (item: AgreementListData) =>
-        Number(this.roleService.roleLevel() || 0) >= 50 && item.status === 'active' && item.userId !== undefined,
-    },
-    {
-      label: this.translate.instant('reset_password'),
-      icon: '@tui.key',
-      color: 'secondary',
-      handler: (item: AgreementListData) => this.onResetPassword(item),
-      visible: (item: AgreementListData) =>
-        Number(this.roleService.roleLevel() || 0) >= 1 && item.status === 'active' && item.userId !== undefined,
-    },
-    {
-      label: this.translate.instant('send_message'),
-      icon: '@tui.message-circle',
-      color: 'primary',
-      handler: (item: AgreementListData) => this.onSendMessage(item),
-      visible: (item: AgreementListData) => item.status === 'active' && item.userId !== undefined,
-    },
-    {
-      label: this.translate.instant('deactivate_agreement'),
-      icon: '@tui.pause',
-      color: 'warning',
-      handler: (item: AgreementListData) => this.onDeactivateAgreement(item),
-      visible: (item: AgreementListData) => this.canEdit() && item.status === 'active',
-    },
-  ];
-
   ngOnInit(): void {
-    this.loadInitialData();
     this.initializeRoleFilter();
-    console.log('Current user role:', this.roleService.userRole());
-    console.log('Current role level:', this.roleService.roleLevel());
-    console.log('Is superadmin:', this.roleService.hasRole(ROLE.SUPERADMIN));
   }
 
   private initializeRoleFilter(): void {
@@ -583,12 +357,6 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private loadInitialData(): void {
-    this.agreementsFacade.agreements.reload();
-    this.countriesFacade.countries.reload();
-    this.agreementsFacade.loadHeadquarters();
-  }
-
   protected onPageChange = (page: number): void => {
     this.agreementsFacade.onPageChange(page);
   };
@@ -596,25 +364,6 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   protected onPageSizeChange = (size: number): void => {
     this.agreementsFacade.onPageSizeChange(size);
   };
-
-  private transformAgreementsData(agreements: AgreementWithShallowRelations[]): AgreementListData[] {
-    const transformed = agreements.map((agreement) => ({
-      id: agreement.id,
-      name: agreement.name || this.translate.instant('no_name'),
-      lastName: agreement.last_name || '',
-      email: agreement.email || this.translate.instant('no_email'),
-      role: agreement.role?.role_name || this.translate.instant('no_role'),
-      status: this.mapStatus(agreement.status || 'pending'),
-      headquarter: agreement.headquarter_name || this.translate.instant('no_headquarter'),
-      createdAt: agreement.created_at || '',
-      verificationType: 'pending' as 'pending' | 'verified' | 'rejected',
-      userId: agreement.user_id || undefined,
-      phone: agreement.phone || undefined,
-      documentNumber: agreement.document_number || undefined,
-    }));
-
-    return transformed;
-  }
 
   private getStatsCards(): StatCard[] {
     const data = this.agreementsData();
@@ -667,34 +416,17 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     ];
   }
 
-  private mapStatus(status: string): 'pending' | 'active' | 'inactive' | 'completed' {
-    const statusMap: Record<string, 'pending' | 'active' | 'inactive' | 'completed'> = {
-      pending: 'pending',
-      active: 'active',
-      inactive: 'inactive',
-      completed: 'completed',
-      draft: 'pending',
-      approved: 'active',
-      prospect: 'pending',
-    };
-    return statusMap[status] || 'pending';
-  }
-
-  protected onRowClick(agreement: AgreementListData): void {
-    this.router.navigate(['/dashboard/agreements', agreement.id]);
-  }
-
   protected onCreateAgreement(): void {
     console.log('Create agreement modal - to be implemented');
     this.notificationService.showInfo(this.translate.instant('feature_coming_soon'));
   }
 
-  protected async onDeactivateAgreement(agreement: AgreementListData): Promise<void> {
+  protected async onDeactivateAgreement(agreement: SearchAgreementResult): Promise<void> {
     try {
       this.isProcessing.set(true);
       await this.agreementsFacade.deactivateAgreement(agreement.id);
       this.notificationService.showSuccess(
-        this.translate.instant('agreement_deactivation_success', { name: `${agreement.name} ${agreement.lastName}` })
+        this.translate.instant('agreement_deactivation_success', { name: `${agreement.name} ${agreement.last_name}` })
       );
     } catch (error) {
       console.error('Error deactivating agreement:', error);
@@ -739,23 +471,25 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     }
   }
 
-  private handleExport(agreements: AgreementWithShallowRelations[], options: ExportOptions): void {
+  private handleExport(agreements: SearchAgreementResult[], options: ExportOptions): void {
     const exportData = agreements.map((agreement) => ({
       name: agreement.name || '',
       lastName: agreement.last_name || '',
       email: agreement.email || '',
       role: agreement.role?.role_name || '',
       status: agreement.status || '',
-      headquarter: agreement.headquarter_name || '',
+      headquarter: agreement.headquarter?.headquarter_name || '',
       createdAt: agreement.created_at || '',
     }));
 
-    const exportColumns = this.tableColumns
-      .filter((col) => col.key !== 'actions')
-      .map((col) => ({
-        key: col.key,
-        label: col.label,
-      }));
+    const exportColumns = [
+      { key: 'name', label: this.translate.instant('user_name') },
+      { key: 'email', label: this.translate.instant('user_email') },
+      { key: 'role', label: this.translate.instant('role') },
+      { key: 'headquarter', label: this.translate.instant('headquarter_name') },
+      { key: 'status', label: this.translate.instant('agreement_status') },
+      { key: 'createdAt', label: this.translate.instant('agreement_start_date') },
+    ];
 
     const date = new Date().toISOString().split('T')[0];
     const filename = `agreements_${date}`;
@@ -803,7 +537,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected async onCreateUserFromAgreement(agreement: AgreementListData): Promise<void> {
+  protected async onCreateUserFromAgreement(agreement: SearchAgreementResult): Promise<void> {
     try {
       this.isProcessing.set(true);
       const response = await this.edgeFunctions.createUser({ agreement_id: agreement.id });
@@ -820,7 +554,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
           role: response.data.role_name,
           user_metadata: {
             first_name: agreement.name || '',
-            last_name: agreement.lastName || '',
+            last_name: agreement.last_name || '',
             phone: response.data.phone,
           },
         };
@@ -844,15 +578,15 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected async onDeactivateUser(agreement: AgreementListData): Promise<void> {
-    if (!agreement.userId) {
+  protected async onDeactivateUser(agreement: SearchAgreementResult): Promise<void> {
+    if (!agreement.user_id) {
       this.notificationService.showError(this.translate.instant('no_user_id_found'));
       return;
     }
 
     try {
       this.isProcessing.set(true);
-      const response = await this.edgeFunctions.deactivateUser({ user_id: agreement.userId });
+      const response = await this.edgeFunctions.deactivateUser({ user_id: agreement.user_id });
 
       if (response.error) {
         this.notificationService.showError(
@@ -864,7 +598,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
       if (response.data) {
         this.notificationService.showSuccess(
           this.translate.instant('user_deactivation_success', {
-            name: `${agreement.name} ${agreement.lastName}`,
+            name: `${agreement.name} ${agreement.last_name || ''}`,
           })
         );
         this.agreementsFacade.agreements.reload();
@@ -877,8 +611,8 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected async onResetPassword(agreement: AgreementListData): Promise<void> {
-    if (!agreement.userId) {
+  protected async onResetPassword(agreement: SearchAgreementResult): Promise<void> {
+    if (!agreement.user_id) {
       this.notificationService.showError(this.translate.instant('no_user_id_found'));
       return;
     }
@@ -889,7 +623,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
         size: 'm',
         data: {
           name: agreement.name,
-          lastName: agreement.lastName,
+          lastName: agreement.last_name || '',
           email: agreement.email,
         },
         label: this.translate.instant('reset_password'),
@@ -901,15 +635,15 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
       });
   }
 
-  protected async onSendMessage(agreement: AgreementListData): Promise<void> {
-    if (!agreement.userId) {
+  protected async onSendMessage(agreement: SearchAgreementResult): Promise<void> {
+    if (!agreement.user_id) {
       this.notificationService.showError(this.translate.instant('no_user_id_found'));
       return;
     }
 
     const sent = await this.directMessageService.openSendMessageDialog(
       new PolymorpheusComponent(DirectMessageDialogV2SmartComponent),
-      agreement.userId
+      agreement.user_id
     );
 
     if (sent) {
@@ -917,16 +651,19 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async performPasswordReset(agreement: AgreementListData, formData: { newPassword: string }): Promise<void> {
+  private async performPasswordReset(
+    agreement: SearchAgreementResult,
+    formData: { newPassword: string }
+  ): Promise<void> {
     try {
       this.isProcessing.set(true);
       const response = await this.edgeFunctions.resetPassword({
         email: agreement.email,
-        document_number: agreement.documentNumber || '',
+        document_number: agreement.document_number || '',
         new_password: formData.newPassword,
         phone: agreement.phone || '',
-        first_name: agreement.name,
-        last_name: agreement.lastName,
+        first_name: agreement.name || '',
+        last_name: agreement.last_name || '',
       });
 
       if (response.error) {
@@ -989,8 +726,8 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     // Get unique roles from agreements
     const roles = new Map<string, string>();
     this.agreementsData().forEach((agreement) => {
-      if (agreement.role_id && agreement.role?.role_name) {
-        roles.set(agreement.role_id, agreement.role.role_name);
+      if (agreement.role?.role_id && agreement.role?.role_name) {
+        roles.set(agreement.role.role_id, agreement.role.role_name);
       }
     });
 
@@ -998,29 +735,16 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   }
 
   // Methods for the new refactored table
-  protected onEditAgreement(agreement: AgreementWithShallowRelations): void {
+  protected onEditAgreement(agreement: SearchAgreementResult): void {
     this.router.navigate(['/dashboard/agreements', agreement.id, 'edit']);
   }
 
-  protected onDeleteAgreement(agreement: AgreementWithShallowRelations): void {
+  protected onDeleteAgreement(agreement: SearchAgreementResult): void {
     // Similar to deactivate for now
-    this.onDeactivateAgreement({
-      id: agreement.id,
-      name: agreement.name || '',
-      lastName: agreement.last_name || '',
-      email: agreement.email,
-      role: agreement.role?.role_name || '',
-      status: this.mapStatus(agreement.status || 'pending'),
-      headquarter: agreement.headquarter_name || '',
-      createdAt: agreement.created_at || '',
-      verificationType: 'pending',
-      userId: agreement.user_id || undefined,
-      phone: agreement.phone || undefined,
-      documentNumber: agreement.document_number || undefined,
-    });
+    this.onDeactivateAgreement(agreement);
   }
 
-  protected async onDownloadAgreement(agreement: AgreementWithShallowRelations): Promise<void> {
+  protected async onDownloadAgreement(agreement: SearchAgreementResult): Promise<void> {
     // Download single agreement as PDF or document
     this.notificationService.showInfo(`Download functionality coming soon for agreement: ${agreement.name}`);
   }
@@ -1064,92 +788,56 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   }
 
   // New methods for refactored table actions
-  protected onCreateUserFromRefactoredTable(agreement: AgreementWithShallowRelations): void {
-    this.onCreateUserFromAgreement({
-      id: agreement.id,
-      name: agreement.name || '',
-      lastName: agreement.last_name || '',
-      email: agreement.email,
-      role: agreement.role?.role_name || '',
-      status: this.mapStatus(agreement.status || 'pending'),
-      headquarter: agreement.headquarter_name || '',
-      createdAt: agreement.created_at || '',
-      verificationType: 'pending',
-      userId: agreement.user_id || undefined,
-      phone: agreement.phone || undefined,
-      documentNumber: agreement.document_number || undefined,
-    });
-  }
 
-  protected onDeactivateUserFromRefactoredTable(agreement: AgreementWithShallowRelations): void {
-    this.onDeactivateUser({
-      id: agreement.id,
-      name: agreement.name || '',
-      lastName: agreement.last_name || '',
-      email: agreement.email,
-      role: agreement.role?.role_name || '',
-      status: this.mapStatus(agreement.status || 'pending'),
-      headquarter: agreement.headquarter_name || '',
-      createdAt: agreement.created_at || '',
-      verificationType: 'pending',
-      userId: agreement.user_id || undefined,
-      phone: agreement.phone || undefined,
-      documentNumber: agreement.document_number || undefined,
-    });
-  }
-
-  protected onResetPasswordFromRefactoredTable(agreement: AgreementWithShallowRelations): void {
-    this.onResetPassword({
-      id: agreement.id,
-      name: agreement.name || '',
-      lastName: agreement.last_name || '',
-      email: agreement.email,
-      role: agreement.role?.role_name || '',
-      status: this.mapStatus(agreement.status || 'pending'),
-      headquarter: agreement.headquarter_name || '',
-      createdAt: agreement.created_at || '',
-      verificationType: 'pending',
-      userId: agreement.user_id || undefined,
-      phone: agreement.phone || undefined,
-      documentNumber: agreement.document_number || undefined,
-    });
-  }
-
-  protected onSendMessageFromRefactoredTable(agreement: AgreementWithShallowRelations): void {
-    this.onSendMessage({
-      id: agreement.id,
-      name: agreement.name || '',
-      lastName: agreement.last_name || '',
-      email: agreement.email,
-      role: agreement.role?.role_name || '',
-      status: this.mapStatus(agreement.status || 'pending'),
-      headquarter: agreement.headquarter_name || '',
-      createdAt: agreement.created_at || '',
-      verificationType: 'pending',
-      userId: agreement.user_id || undefined,
-      phone: agreement.phone || undefined,
-      documentNumber: agreement.document_number || undefined,
-    });
-  }
-
-  protected onDeactivateAgreementFromRefactoredTable(agreement: AgreementWithShallowRelations): void {
-    this.onDeactivateAgreement({
-      id: agreement.id,
-      name: agreement.name || '',
-      lastName: agreement.last_name || '',
-      email: agreement.email,
-      role: agreement.role?.role_name || '',
-      status: this.mapStatus(agreement.status || 'pending'),
-      headquarter: agreement.headquarter_name || '',
-      createdAt: agreement.created_at || '',
-      verificationType: 'pending',
-      userId: agreement.user_id || undefined,
-      phone: agreement.phone || undefined,
-      documentNumber: agreement.document_number || undefined,
-    });
-  }
-
-  protected onEmptyRowClick(_agreement: AgreementListData): void {
+  protected onEmptyRowClick(/* agreement: SearchAgreementResult */): void {
     // Do nothing - navigation is handled by the View action only
+  }
+
+  // Filter methods
+  protected hasActiveFilters = computed(() => {
+    return this.selectedRoleFilters().length > 0 || this.selectedHeadquarterFilters().length > 0;
+  });
+
+  protected onRoleFiltersChange(roles: string[]): void {
+    if (roles.length === 0) {
+      this.agreementsFacade.updateFilters({ roleIds: [] });
+    } else {
+      // Convert role codes to role IDs
+      const allRoles = this.agreementsFacade.roles.value() || [];
+      const roleIds: string[] = [];
+
+      for (const roleCode of roles) {
+        const role = allRoles.find((r) => r.code === roleCode);
+        if (role) {
+          roleIds.push(role.id);
+        } else {
+          console.warn(`Role with code ${roleCode} not found`);
+        }
+      }
+
+      this.agreementsFacade.updateFilters({ roleIds });
+    }
+  }
+
+  protected onHeadquarterFiltersChange(headquarters: string[]): void {
+    // Update the facade with the new headquarter filters
+    this.agreementsFacade.updateFilters({ headquarterIds: headquarters });
+  }
+
+  protected clearAllFilters(): void {
+    this.selectedRoleFilters.set([]);
+    this.selectedHeadquarterFilters.set([]);
+    this.agreementsFacade.updateFilters({
+      search: null,
+      headquarterIds: [],
+      seasonId: null,
+      status: null,
+      roleIds: [],
+    });
+  }
+
+  protected onAgreementSelected(agreement: SearchAgreementResult): void {
+    // Navigate to the selected agreement
+    this.router.navigate(['/dashboard/agreements', agreement.id]);
   }
 }

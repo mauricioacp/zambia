@@ -33,6 +33,7 @@
       "@zambia/feat-notifications": ["libs/zambia/feat-notifications/src/index.ts"],
       "@zambia/feat-profile": ["libs/zambia/feat-profile/src/index.ts"],
       "@zambia/feat-shell": ["libs/zambia/feat-shell/src/index.ts"],
+      "@zambia/feat-smart-table": ["libs/zambia/feat-smart-table/src/index.ts"],
       "@zambia/feat-students": ["libs/zambia/feat-students/src/index.ts"],
       "@zambia/feat-workshops": ["libs/zambia/feat-workshops/src/index.ts"],
       "@zambia/shared/data-access-notifications": ["libs/shared/data-access-notifications/src/index.ts"],

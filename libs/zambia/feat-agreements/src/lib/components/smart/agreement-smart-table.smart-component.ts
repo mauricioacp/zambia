@@ -6,47 +6,32 @@ import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
+import { ConfirmationModalUiComponent, ConfirmationData } from '@zambia/ui-components';
 import {
-  EnhancedTableRefactoredComponent,
-  TableColumn,
-  TableAction,
-  ConfirmationModalUiComponent,
-  ConfirmationData,
-} from '@zambia/ui-components';
+  EnhancedTableComponent,
+  TableColumnWithTemplate,
+  TableActionButton,
+  EnhancedTableConfig,
+} from '@zambia/feat-smart-table';
 import { AgreementSearchModalComponent, AgreementSearchCriteria } from '../ui/agreement-search-modal.ui-component';
-import { AgreementWithShallowRelations, AgreementsFacadeService } from '../../services/agreements-facade.service';
+import { AgreementsFacadeService } from '../../services/agreements-facade.service';
+import { SearchAgreementResult } from '../../types/search-agreements.types';
 import { RoleService } from '@zambia/data-access-roles-permissions';
 import { CountriesFacadeService } from '@zambia/feat-countries';
 
 @Component({
   selector: 'z-agreement-smart-table',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterModule, EnhancedTableRefactoredComponent],
+  imports: [CommonModule, RouterModule, EnhancedTableComponent],
   template: `
-    <z-enhanced-table-refactored
+    <z-enhanced-table
       [items]="agreements()"
       [columns]="tableColumns"
       [loading]="loading()"
-      [trackBy]="'id'"
-      [title]="''"
-      [description]="''"
-      [showCreateButton]="false"
-      [createButtonLabel]="''"
-      [createButtonIcon]="''"
-      [emptyStateTitle]="emptyStateTitle()"
-      [emptyStateDescription]="emptyStateDescription()"
-      [emptyStateIcon]="'@tui.file-text'"
-      [showEmptyStateAction]="false"
       [actions]="tableActions()"
-      [enablePagination]="enablePagination()"
-      [enableFiltering]="enableFiltering()"
-      [enableColumnVisibility]="enableColumnVisibility()"
-      [enableAdvancedSearch]="enableAdvancedSearch()"
-      [pageSize]="pageSize()"
-      [pageSizeOptions]="pageSizeOptions()"
-      [searchableColumns]="searchableColumns"
+      [config]="tableConfig()"
       (createClick)="createClick.emit()"
-      (rowClick)="onRowClick($event)"
+      (rowClick)="onRowClick()"
       (advancedSearchClick)="openAdvancedSearch()"
     />
   `,
@@ -66,14 +51,12 @@ export class AgreementSmartTableComponent {
   private agreementsFacade = inject(AgreementsFacadeService);
   private countriesFacade = inject(CountriesFacadeService);
 
-  // Action subjects for debouncing
-  private createUserSubject = new Subject<AgreementWithShallowRelations>();
-  private deactivateUserSubject = new Subject<AgreementWithShallowRelations>();
-  private deactivateAgreementSubject = new Subject<AgreementWithShallowRelations>();
-  private deleteSubject = new Subject<AgreementWithShallowRelations>();
+  private createUserSubject = new Subject<SearchAgreementResult>();
+  private deactivateUserSubject = new Subject<SearchAgreementResult>();
+  private deactivateAgreementSubject = new Subject<SearchAgreementResult>();
+  private deleteSubject = new Subject<SearchAgreementResult>();
 
-  // Inputs
-  agreements = input.required<AgreementWithShallowRelations[]>();
+  agreements = input.required<SearchAgreementResult[]>();
   loading = input<boolean>(false);
   emptyStateTitle = input<string>('No agreements found');
   emptyStateDescription = input<string>('There are no agreements to display.');
@@ -84,23 +67,20 @@ export class AgreementSmartTableComponent {
   pageSize = input<number>(10);
   pageSizeOptions = input<number[]>([10, 25, 50, 100]);
 
-  // Outputs
   createClick = output<void>();
-  rowClick = output<AgreementWithShallowRelations>();
-  editClick = output<AgreementWithShallowRelations>();
-  deleteClick = output<AgreementWithShallowRelations>();
-  downloadClick = output<AgreementWithShallowRelations>();
+  rowClick = output<SearchAgreementResult>();
+  editClick = output<SearchAgreementResult>();
+  deleteClick = output<SearchAgreementResult>();
+  downloadClick = output<SearchAgreementResult>();
   advancedSearch = output<AgreementSearchCriteria>();
-  createUserClick = output<AgreementWithShallowRelations>();
-  deactivateUserClick = output<AgreementWithShallowRelations>();
-  resetPasswordClick = output<AgreementWithShallowRelations>();
-  sendMessageClick = output<AgreementWithShallowRelations>();
-  deactivateAgreementClick = output<AgreementWithShallowRelations>();
+  createUserClick = output<SearchAgreementResult>();
+  deactivateUserClick = output<SearchAgreementResult>();
+  resetPasswordClick = output<SearchAgreementResult>();
+  sendMessageClick = output<SearchAgreementResult>();
+  deactivateAgreementClick = output<SearchAgreementResult>();
 
-  // State
   lastSearchCriteria = signal<AgreementSearchCriteria | null>(null);
 
-  // Computed data
   countries = computed(() => {
     const countriesData = this.countriesFacade.countriesResource();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -131,72 +111,83 @@ export class AgreementSmartTableComponent {
       this.handleDeleteDebounced(item);
     });
 
-    // Load initial data
     this.countriesFacade.countries.reload();
-    this.agreementsFacade.loadHeadquarters();
+    this.agreementsFacade.headquarters.reload();
   }
 
-  // Table configuration
-  tableColumns: TableColumn[] = [
+  tableColumns: TableColumnWithTemplate<SearchAgreementResult>[] = [
     {
       key: 'name',
       label: 'User',
       type: 'avatar',
-      searchable: true,
-      width: 250,
+      width: '250',
     },
     {
       key: 'email',
       label: 'Email',
       type: 'text',
-      searchable: true,
-      width: 220,
+      width: '220',
     },
     {
       key: 'role.role_name',
       label: 'Role',
       type: 'badge',
-      searchable: true,
-      width: 150,
+      width: '150',
     },
     {
-      key: 'headquarter_name',
+      key: 'headquarter.headquarter_name',
       label: 'Headquarters',
       type: 'text',
-      searchable: true,
-      width: 200,
+      width: '200',
     },
     {
       key: 'status',
       label: 'Status',
       type: 'status',
-      searchable: true,
-      width: 120,
+      width: '120',
     },
     {
       key: 'created_at',
       label: 'Created',
       type: 'date',
-      width: 150,
+      width: '150',
     },
     {
       key: 'actions',
       label: 'Actions',
       type: 'actions',
-      width: 150,
+      width: '150',
       align: 'right',
     },
   ];
 
-  searchableColumns = ['name', 'email', 'role.role_name', 'headquarter_name', 'status'];
+  searchableColumns = ['name', 'email', 'role.role_name', 'headquarter.headquarter_name', 'status'];
 
   // Computed properties
-  tableActions = computed<TableAction<AgreementWithShallowRelations>[]>(() => {
+  tableConfig = computed<EnhancedTableConfig<SearchAgreementResult>>(() => ({
+    title: '',
+    description: '',
+    showCreateButton: false,
+    emptyStateTitle: this.emptyStateTitle(),
+    emptyStateDescription: this.emptyStateDescription(),
+    emptyStateIcon: '@tui.file-text',
+    showEmptyStateAction: false,
+    enablePagination: this.enablePagination(),
+    enableFiltering: this.enableFiltering(),
+    enableColumnVisibility: this.enableColumnVisibility(),
+    enableAdvancedSearch: this.enableAdvancedSearch(),
+    pageSize: this.pageSize(),
+    pageSizeOptions: this.pageSizeOptions(),
+    searchableColumns: this.searchableColumns,
+    trackBy: 'id',
+  }));
+
+  tableActions = computed<TableActionButton<SearchAgreementResult>[]>(() => {
     const roleLevel = Number(this.roleService.roleLevel() || 0);
     const canEdit = this.roleService.hasAnyRole(['superadmin', 'general_director']);
     const canDelete = this.roleService.hasRole('superadmin');
 
-    const actions: TableAction<AgreementWithShallowRelations>[] = [
+    const actions: TableActionButton<SearchAgreementResult>[] = [
       {
         label: 'View',
         icon: '@tui.eye',
@@ -255,7 +246,7 @@ export class AgreementSmartTableComponent {
     if (canEdit) {
       actions.push({
         label: 'Edit',
-        icon: '@tui.edit',
+        icon: '@tui.pencil',
         color: 'warning',
         handler: (item) => this.editClick.emit(item),
       });
@@ -318,7 +309,7 @@ export class AgreementSmartTableComponent {
     this.advancedSearch.emit(criteria);
   }
 
-  private handleDeleteDebounced(item: AgreementWithShallowRelations): void {
+  private handleDeleteDebounced(item: SearchAgreementResult): void {
     const confirmData: ConfirmationData = {
       title: 'Delete Agreement',
       message: `Are you sure you want to delete the agreement for ${item.name || 'this user'}? This action cannot be undone.`,
@@ -340,7 +331,7 @@ export class AgreementSmartTableComponent {
       });
   }
 
-  private handleDeactivateUserDebounced(item: AgreementWithShallowRelations): void {
+  private handleDeactivateUserDebounced(item: SearchAgreementResult): void {
     const confirmData: ConfirmationData = {
       title: 'Deactivate User',
       message: `Are you sure you want to deactivate the user account for ${item.name || 'this user'}? They will no longer be able to access the system.`,
@@ -362,7 +353,7 @@ export class AgreementSmartTableComponent {
       });
   }
 
-  private handleDeactivateAgreementDebounced(item: AgreementWithShallowRelations): void {
+  private handleDeactivateAgreementDebounced(item: SearchAgreementResult): void {
     const confirmData: ConfirmationData = {
       title: 'Deactivate Agreement',
       message: `Are you sure you want to deactivate the agreement for ${item.name || 'this user'}? The agreement will be marked as inactive.`,
@@ -384,7 +375,7 @@ export class AgreementSmartTableComponent {
       });
   }
 
-  private handleCreateUserDebounced(item: AgreementWithShallowRelations): void {
+  private handleCreateUserDebounced(item: SearchAgreementResult): void {
     const confirmData: ConfirmationData = {
       title: 'Create User Account',
       message: `Are you sure you want to create a user account for ${item.name || 'this agreement'}? An email with login credentials will be sent to ${item.email}.`,
@@ -406,7 +397,7 @@ export class AgreementSmartTableComponent {
       });
   }
 
-  onRowClick(_event: AgreementWithShallowRelations): void {
+  onRowClick(/* event: AgreementWithShallowRelations */): void {
     // Do nothing on row click - navigation is handled by the View action only
   }
 }

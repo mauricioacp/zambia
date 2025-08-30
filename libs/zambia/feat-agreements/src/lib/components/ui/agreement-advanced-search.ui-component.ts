@@ -1,15 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import {
-  TuiButton,
-  TuiIcon,
-  TuiTextfieldComponent,
-  TuiTextfieldDirective,
-  TuiTextfieldOptionsDirective,
-  TuiOption,
-  TuiDialogContext,
-} from '@taiga-ui/core';
+import { TuiButton, TuiIcon, TuiTextfield, TuiDialogContext } from '@taiga-ui/core';
 import { TuiChip, TuiSelect, TuiDataListWrapper } from '@taiga-ui/kit';
 import { TranslateModule } from '@ngx-translate/core';
 import { POLYMORPHEUS_CONTEXT } from '@taiga-ui/polymorpheus';
@@ -37,13 +29,10 @@ export interface AdvancedSearchData {
     TranslateModule,
     TuiButton,
     TuiIcon,
-    TuiTextfieldComponent,
-    TuiTextfieldDirective,
-    TuiTextfieldOptionsDirective,
+    TuiTextfield,
     TuiChip,
     TuiSelect,
     TuiDataListWrapper,
-    TuiOption,
   ],
   template: `
     <div class="flex h-full flex-col">
