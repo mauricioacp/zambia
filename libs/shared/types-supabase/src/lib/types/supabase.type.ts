@@ -17,9 +17,9 @@ export type Database = {
     Functions: {
       graphql: {
         Args: {
+          variables?: Json
           operationName?: string
           query?: string
-          variables?: Json
           extensions?: Json
         }
         Returns: Json
@@ -1651,10 +1651,10 @@ export type Database = {
     Functions: {
       assign_workflow_action: {
         Args: {
+          p_due_date?: string
           p_stage_instance_id: string
           p_action_type: string
           p_assigned_to: string
-          p_due_date?: string
           p_priority?: string
           p_data?: Json
         }
@@ -1678,14 +1678,14 @@ export type Database = {
       }
       create_notification_from_template: {
         Args: {
-          p_template_code: string
-          p_recipient_id: string
-          p_variables?: Json
-          p_sender_id?: string
           p_priority?: Database["public"]["Enums"]["notification_priority"]
           p_related_entity_type?: string
           p_related_entity_id?: string
+          p_template_code: string
+          p_recipient_id: string
+          p_sender_id?: string
           p_action_url?: string
+          p_variables?: Json
         }
         Returns: string
       }
@@ -1694,7 +1694,7 @@ export type Database = {
         Returns: string
       }
       fn_can_access_agreement: {
-        Args: { p_agreement_hq_id: string; p_agreement_user_id: string }
+        Args: { p_agreement_user_id: string; p_agreement_hq_id: string }
         Returns: boolean
       }
       fn_get_current_agreement_id: {
@@ -1750,7 +1750,7 @@ export type Database = {
         Returns: boolean
       }
       fn_is_role_level_below: {
-        Args: { p_role_id: string; p_level_threshold: number }
+        Args: { p_level_threshold: number; p_role_id: string }
         Returns: boolean
       }
       fn_is_student_or_higher: {
@@ -1762,123 +1762,11 @@ export type Database = {
         Returns: boolean
       }
       fn_is_valid_facilitator_for_hq: {
-        Args: { p_user_id: string; p_headquarter_id: string }
+        Args: { p_headquarter_id: string; p_user_id: string }
         Returns: boolean
       }
-      get_agreement_by_role_id: {
-        Args: { role_id: string }
-        Returns: {
-          address: string | null
-          age_verification: boolean | null
-          created_at: string | null
-          document_number: string | null
-          email: string | null
-          ethical_document_agreement: boolean | null
-          fts_name_lastname: unknown | null
-          headquarter_id: string | null
-          id: string | null
-          last_name: string | null
-          mailing_agreement: boolean | null
-          name: string | null
-          phone: string | null
-          role: Json | null
-          season_id: string | null
-          signature_data: string | null
-          status: string | null
-          updated_at: string | null
-          user_id: string | null
-          volunteering_agreement: boolean | null
-        }[]
-      }
-      get_agreement_with_role_by_id: {
+      get_agreement_by_id: {
         Args: { p_agreement_id: string }
-        Returns: Json
-      }
-      get_agreements_by_role: {
-        Args: { role_name: string }
-        Returns: {
-          address: string | null
-          age_verification: boolean | null
-          created_at: string | null
-          document_number: string | null
-          email: string | null
-          ethical_document_agreement: boolean | null
-          fts_name_lastname: unknown | null
-          headquarter_id: string | null
-          id: string | null
-          last_name: string | null
-          mailing_agreement: boolean | null
-          name: string | null
-          phone: string | null
-          role: Json | null
-          season_id: string | null
-          signature_data: string | null
-          status: string | null
-          updated_at: string | null
-          user_id: string | null
-          volunteering_agreement: boolean | null
-        }[]
-      }
-      get_agreements_by_role_string: {
-        Args: { role_string: string }
-        Returns: {
-          address: string | null
-          age_verification: boolean | null
-          created_at: string | null
-          document_number: string | null
-          email: string | null
-          ethical_document_agreement: boolean | null
-          fts_name_lastname: unknown | null
-          headquarter_id: string | null
-          id: string | null
-          last_name: string | null
-          mailing_agreement: boolean | null
-          name: string | null
-          phone: string | null
-          role: Json | null
-          season_id: string | null
-          signature_data: string | null
-          status: string | null
-          updated_at: string | null
-          user_id: string | null
-          volunteering_agreement: boolean | null
-        }[]
-      }
-      get_agreements_with_role: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          address: string | null
-          age_verification: boolean | null
-          created_at: string | null
-          document_number: string | null
-          email: string | null
-          ethical_document_agreement: boolean | null
-          fts_name_lastname: unknown | null
-          headquarter_id: string | null
-          id: string | null
-          last_name: string | null
-          mailing_agreement: boolean | null
-          name: string | null
-          phone: string | null
-          role: Json | null
-          season_id: string | null
-          signature_data: string | null
-          status: string | null
-          updated_at: string | null
-          user_id: string | null
-          volunteering_agreement: boolean | null
-        }[]
-      }
-      get_agreements_with_role_paginated: {
-        Args: {
-          p_limit?: number
-          p_offset?: number
-          p_status?: string
-          p_headquarter_id?: string
-          p_season_id?: string
-          p_search?: string
-          p_role_id?: string
-        }
         Returns: Json
       }
       get_companion_effectiveness_metrics: {
@@ -1888,9 +1776,9 @@ export type Database = {
       get_companion_student_attendance_issues: {
         Args: { last_n_items?: number }
         Returns: {
+          student_last_name: string
           student_id: string
           student_first_name: string
-          student_last_name: string
           missed_workshops_count: number
           total_workshops_count: number
           attendance_percentage: number
@@ -1916,31 +1804,16 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
-      get_headquarter_agreements_with_role: {
-        Args: { p_headquarter_id: string }
-        Returns: {
-          id: string
-          user_id: string
-          headquarter_id: string
-          role_id: string
-          season_id: string
-          name: string
-          last_name: string
-          email: string
-          phone: string
-          document_number: string
-          status: string
-          created_at: string
-          updated_at: string
-          role: Json
-          user_email: string
-          headquarter_name: string
-          season_name: string
-          season_status: string
-        }[]
-      }
       get_headquarter_dashboard_stats: {
         Args: { target_hq_id: string }
+        Returns: Json
+      }
+      get_headquarter_quick_stats: {
+        Args: { p_headquarter_id: string }
+        Returns: Json
+      }
+      get_home_dashboard_stats: {
+        Args: { p_agreement_id: string }
         Returns: Json
       }
       get_hq_agreement_breakdown: {
@@ -1950,15 +1823,19 @@ export type Database = {
       get_hq_agreement_ranking_this_year: {
         Args: Record<PropertyKey, never>
         Returns: {
+          agreements_graduated_count: number
           headquarter_id: string
           headquarter_name: string
           agreements_this_year_count: number
-          agreements_graduated_count: number
           graduation_percentage: number
         }[]
       }
       get_hq_graduation_ranking: {
         Args: { months_back?: number }
+        Returns: Json
+      }
+      get_my_agreement_summary: {
+        Args: { p_agreement_id: string }
         Returns: Json
       }
       get_my_pending_actions: {
@@ -1975,8 +1852,16 @@ export type Database = {
           assigned_at: string
         }[]
       }
+      get_organization_overview: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       get_prospect_to_active_avg_time: {
         Args: { target_hq_id?: string }
+        Returns: Json
+      }
+      get_recent_activities: {
+        Args: { p_agreement_id: string; p_role_level: number; p_limit?: number }
         Returns: Json
       }
       get_student_progress_stats: {
@@ -2005,12 +1890,12 @@ export type Database = {
           p_category?: string
         }
         Returns: {
+          title: string
           id: string
           type: Database["public"]["Enums"]["notification_type"]
           priority: Database["public"]["Enums"]["notification_priority"]
           sender_id: string
           sender_name: string
-          title: string
           body: string
           data: Json
           is_read: boolean
@@ -2051,6 +1936,21 @@ export type Database = {
         Args: { p_action_id: string; p_reason: string; p_comment?: string }
         Returns: boolean
       }
+      search_agreements: {
+        Args: {
+          p_search_query?: string
+          p_limit?: number
+          p_offset?: number
+          p_status?: string
+          p_headquarter_id?: string
+          p_season_id?: string
+          p_role_id?: string
+          p_role_name?: string
+          p_country?: string
+          p_use_fts?: boolean
+        }
+        Returns: Json
+      }
       search_users_vector: {
         Args: {
           p_query: string
@@ -2074,11 +1974,11 @@ export type Database = {
         Args: {
           p_role_codes: string[]
           p_title: string
-          p_body: string
           p_min_role_level?: number
           p_type?: Database["public"]["Enums"]["notification_type"]
-          p_priority?: Database["public"]["Enums"]["notification_priority"]
+          p_body: string
           p_data?: Json
+          p_priority?: Database["public"]["Enums"]["notification_priority"]
         }
         Returns: number
       }

@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
       [class.-translate-x-full]="!isOpen()"
       [class.translate-x-0]="isOpen()"
       [class.lg:translate-x-0]="isOpen()"
-      class="fixed top-0 bottom-0 left-0 z-50 flex h-full w-full flex-col border-r border-gray-200 bg-gray-800 pl-14 transition-transform duration-500 ease-out lg:w-72 dark:border-gray-800 dark:text-gray-200"
+      class="fixed top-0 bottom-0 left-0 z-50 flex h-full w-72 flex-col border-r border-gray-200 bg-gray-800 pl-14 transition-transform duration-500 ease-out dark:border-gray-800 dark:text-gray-200"
       aria-label="Main Sidebar Navigation"
     >
       <ng-content select="[sidebar-mini]" />

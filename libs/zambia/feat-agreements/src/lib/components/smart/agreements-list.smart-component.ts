@@ -16,31 +16,27 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { AgreementsFacadeService, AgreementWithShallowRelations } from '../../services/agreements-facade.service';
+import { AgreementsFacadeService } from '../../services/agreements-facade.service';
+import { SearchAgreementResult } from '../../types/search-agreements.types';
 import { RoleService } from '@zambia/data-access-roles-permissions';
 import { ExportService, NotificationService, AkademyEdgeFunctionsService } from '@zambia/data-access-generic';
 import { DirectMessageService } from '@zambia/shared/data-access-notifications';
 import { DirectMessageDialogV2SmartComponent } from '@zambia/feat-notifications';
 
+import { ExportModalUiComponent, ExportOptions, injectCurrentTheme, WindowService } from '@zambia/ui-components';
+import { AgreementSmartTableComponent } from './agreement-smart-table.smart-component';
+import { AgreementSearchCriteria } from '../ui/agreement-search-modal.ui-component';
 import {
-  EnhancedTableUiComponent,
-  ExportModalUiComponent,
-  ExportOptions,
-  injectCurrentTheme,
-  TableAction,
-  TableColumn,
-} from '@zambia/ui-components';
+  AgreementAdvancedSearchComponent,
+  FilterOption,
+  AdvancedSearchData,
+} from '../ui/agreement-advanced-search.ui-component';
+import { AgreementTextSearchComponent } from '../ui/agreement-text-search.ui-component';
+import { RoleFilterCheckboxComponent } from '../ui/role-filter-checkbox.ui-component';
+import { HeadquarterFilterCheckboxComponent } from '../ui/headquarter-filter-checkbox.ui-component';
 
-import {
-  TuiButton,
-  TuiDialogService,
-  TuiIcon,
-  TuiLink,
-  TuiTextfieldComponent,
-  TuiTextfieldDropdownDirective,
-  TuiTextfieldOptionsDirective,
-} from '@taiga-ui/core';
-import { TuiBreadcrumbs, TuiSkeleton, TuiDataListWrapper, TuiSelect, TuiChevron } from '@taiga-ui/kit';
+import { TuiButton, TuiDialogService, TuiIcon, TuiLink } from '@taiga-ui/core';
+import { TuiBreadcrumbs, TuiSkeleton } from '@taiga-ui/kit';
 import { TuiItem } from '@taiga-ui/cdk';
 
 import { ROLE } from '@zambia/util-roles-definitions';
@@ -48,21 +44,7 @@ import { ICONS } from '@zambia/util-constants';
 import { UserCreationSuccessModalComponent } from './user-creation-success-modal.component';
 import { PasswordResetModalComponent } from './password-reset-modal.component';
 import { HasRoleDirective } from '@zambia/util-roles-permissions';
-
-interface AgreementListData {
-  id: string;
-  name: string;
-  lastName: string;
-  email: string;
-  role: string;
-  status: 'pending' | 'active' | 'inactive' | 'completed';
-  headquarter: string;
-  createdAt: string;
-  verificationType: 'verified' | 'pending' | 'rejected';
-  userId?: string;
-  phone?: string;
-  documentNumber?: string;
-}
+import { CountriesFacadeService } from '@zambia/feat-countries';
 
 interface StatCard {
   id: string;
@@ -80,7 +62,10 @@ interface StatCard {
     CommonModule,
     TranslateModule,
     ReactiveFormsModule,
-    EnhancedTableUiComponent,
+    AgreementSmartTableComponent,
+    AgreementTextSearchComponent,
+    RoleFilterCheckboxComponent,
+    HeadquarterFilterCheckboxComponent,
     TuiIcon,
     TuiButton,
     TuiSkeleton,
@@ -89,18 +74,12 @@ interface StatCard {
     TuiLink,
     RouterLink,
     HasRoleDirective,
-    TuiDataListWrapper,
-    TuiSelect,
-    TuiChevron,
-    TuiTextfieldComponent,
-    TuiTextfieldDropdownDirective,
-    TuiTextfieldOptionsDirective,
   ],
   template: `
     <div class="min-h-screen bg-gray-50 dark:bg-slate-800">
       <!-- Header Section -->
       <div class="border-b border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900">
-        <div class="container mx-auto px-6 py-6">
+        <div class="container mx-auto px-4 py-4 sm:px-6 sm:py-6">
           <!-- Breadcrumbs -->
           <tui-breadcrumbs class="mb-6">
             <a *tuiItem routerLink="/dashboard" tuiLink iconStart="@tui.house">
@@ -111,28 +90,30 @@ interface StatCard {
             </span>
           </tui-breadcrumbs>
 
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-4">
-              <div class="rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 p-4 shadow-lg">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
+              <div class="mx-auto rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 p-4 shadow-lg sm:mx-0">
                 <tui-icon [icon]="ICONS.AGREEMENTS" class="text-3xl text-white"></tui-icon>
               </div>
               <div>
-                <h1 class="mb-1 text-3xl font-bold text-gray-800 dark:text-white">
+                <h1 class="mb-1 text-2xl font-bold text-gray-800 sm:text-3xl dark:text-white">
                   {{ 'agreements' | translate }}
                 </h1>
-                <p class="text-gray-600 dark:text-slate-400">{{ 'agreements_description' | translate }}</p>
+                <p class="text-sm text-gray-600 sm:text-base dark:text-slate-400">
+                  {{ 'agreements_description' | translate }}
+                </p>
               </div>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
               <button
                 tuiButton
                 appearance="secondary"
-                size="l"
+                [size]="buttonSize()"
                 iconStart="@tui.download"
                 [attr.tuiTheme]="currentTheme()"
                 (click)="onExportAgreements()"
                 [disabled]="isProcessing() || !hasData()"
-                class="border-emerald-500 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                class="w-full border-emerald-500 text-emerald-600 hover:bg-emerald-50 sm:w-auto dark:hover:bg-emerald-900/20"
               >
                 {{ 'export' | translate }}
               </button>
@@ -140,12 +121,12 @@ interface StatCard {
                 *zHasRole="[ROLE.SUPERADMIN]"
                 tuiButton
                 appearance="secondary"
-                size="l"
+                [size]="buttonSize()"
                 iconStart="@tui.database"
                 [attr.tuiTheme]="currentTheme()"
                 (click)="onMigrateFromStrapi()"
                 [disabled]="isProcessing()"
-                class="border-purple-500 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+                class="w-full border-purple-500 text-purple-600 hover:bg-purple-50 sm:w-auto dark:hover:bg-purple-900/20"
               >
                 {{ 'migrate_from_strapi' | translate }}
               </button>
@@ -153,12 +134,12 @@ interface StatCard {
                 *zHasRole="allowedRolesForAgreementCreation()"
                 tuiButton
                 appearance="primary"
-                size="l"
+                [size]="buttonSize()"
                 iconStart="@tui.plus"
                 [attr.tuiTheme]="currentTheme()"
                 (click)="onCreateAgreement()"
                 [disabled]="isProcessing()"
-                class="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700"
+                class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 sm:w-auto"
               >
                 {{ 'create_agreement' | translate }}
               </button>
@@ -168,7 +149,7 @@ interface StatCard {
       </div>
 
       <!-- Statistics Cards -->
-      <div class="container mx-auto px-6 py-8">
+      <div class="container mx-auto px-4 py-6 sm:px-6 sm:py-8">
         @if (isLoading()) {
           <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             @for (i of [1, 2, 3, 4]; track i) {
@@ -194,91 +175,42 @@ interface StatCard {
         }
       </div>
 
-      <!-- Agreements Table -->
-      <div class="container mx-auto px-6 pb-8">
-        <!-- Enhanced Table Section -->
-        <div
-          class="mb-8 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
-        >
-          <div class="border-b border-gray-200 px-6 py-4 dark:border-slate-700">
-            <div class="flex items-center justify-between">
-              <h2 class="flex items-center gap-3 text-xl font-bold text-gray-900 dark:text-white">
-                <tui-icon icon="@tui.file-text" class="text-green-500"></tui-icon>
-                {{ 'agreements_list' | translate }}
-              </h2>
-              <div class="flex items-center gap-4">
-                <!-- Search Button -->
-                <button
-                  tuiButton
-                  appearance="secondary"
-                  size="m"
-                  iconStart="@tui.search"
-                  (click)="onSearchAgreements()"
-                  class="border-sky-500 text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/20"
-                >
-                  {{ 'search' | translate }}
-                </button>
-                <!-- Role Filter -->
-                <div class="w-48">
-                  <label
-                    for="roleFilterSelect"
-                    class="mb-2 block text-sm font-medium text-gray-600 dark:text-slate-400"
-                  >
-                    {{ 'filter_by_role' | translate }}
-                  </label>
-                  <tui-textfield tuiChevron tuiTextfieldSize="m" class="w-full">
-                    <input
-                      id="roleFilterSelect"
-                      tuiSelect
-                      [formControl]="roleFilter"
-                      [placeholder]="'all_roles' | translate"
-                    />
-                    <tui-data-list-wrapper *tuiTextfieldDropdown new [items]="roleFilterOptions()">
-                    </tui-data-list-wrapper>
-                  </tui-textfield>
-                </div>
-              </div>
-            </div>
+      <!-- Filters Section -->
+      <div class="container mx-auto px-4 py-4 sm:px-6">
+        <div class="flex flex-wrap items-end gap-4">
+          <!-- Text Search -->
+          <div class="max-w-md flex-1">
+            <z-agreement-text-search />
           </div>
-          @defer (on viewport; prefetch on idle) {
-            <z-enhanced-table
-              [items]="filteredTableData()"
-              [columns]="tableColumns"
-              [loading]="isLoading()"
-              [actions]="tableActions"
-              [title]="''"
-              [description]="''"
-              [enableFiltering]="true"
-              [enableColumnVisibility]="true"
-              [showCreateButton]="false"
-              [pageSize]="25"
-              [pageSizeOptions]="[10, 25, 50, 100]"
-              [searchableColumns]="['name', 'email', 'role']"
-              [emptyStateTitle]="'no.agreements.found' | translate"
-              [emptyStateDescription]="'no_agreements_description' | translate"
-              [emptyStateIcon]="'@tui.file-text'"
+
+          <!-- Role Filter -->
+          <div>
+            <z-role-filter-checkbox
+              [(selectedRoles)]="selectedRoleFilters"
+              (rolesChanged)="onRoleFiltersChange($event)"
             />
-          } @placeholder {
-            <div class="rounded-xl bg-white p-8 shadow-sm dark:bg-slate-800 dark:shadow-slate-900/20">
-              <div class="space-y-4">
-                @for (i of [1, 2, 3, 4, 5]; track i) {
-                  <div class="h-12 w-full rounded-lg bg-gray-200/50 dark:bg-gray-700/50" [tuiSkeleton]="true"></div>
-                }
-              </div>
-            </div>
-          } @loading {
-            <div class="rounded-xl bg-white p-8 shadow-sm dark:bg-slate-800 dark:shadow-slate-900/20">
-              <div class="space-y-4">
-                @for (i of [1, 2, 3, 4, 5]; track i) {
-                  <div
-                    class="h-12 w-full animate-pulse rounded-lg bg-gray-200/50 dark:bg-gray-700/50"
-                    [tuiSkeleton]="true"
-                  ></div>
-                }
-              </div>
-            </div>
+          </div>
+
+          <!-- Headquarter Filter -->
+          <div>
+            <z-headquarter-filter-checkbox
+              [(selectedHeadquarters)]="selectedHeadquarterFilters"
+              (headquartersChanged)="onHeadquarterFiltersChange($event)"
+            />
+          </div>
+
+          <!-- Clear All Filters -->
+          @if (hasActiveFilters()) {
+            <button tuiButton appearance="secondary" size="m" iconStart="@tui.filter-x" (click)="clearAllFilters()">
+              {{ 'clear_filters' | translate }}
+            </button>
           }
         </div>
+      </div>
+
+      <!-- Agreements Table -->
+      <div class="container mx-auto px-4 pb-6 sm:px-6 sm:pb-8">
+        <!-- Agreements Table -->
 
         @if (errorMessage()) {
           <div class="mt-6 rounded-xl border border-red-200/50 bg-red-50 p-6 dark:border-red-800/50 dark:bg-red-900/20">
@@ -291,6 +223,33 @@ interface StatCard {
                 <p class="text-red-700 dark:text-red-300">{{ errorMessage() }}</p>
               </div>
             </div>
+          </div>
+        } @else {
+          <div
+            class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+          >
+            <z-agreement-smart-table
+              [agreements]="agreementsData()"
+              [loading]="isLoading()"
+              [emptyStateTitle]="'No agreements found'"
+              [emptyStateDescription]="'There are no agreements to display.'"
+              [enablePagination]="true"
+              [enableFiltering]="true"
+              [enableColumnVisibility]="true"
+              [enableAdvancedSearch]="true"
+              [pageSize]="25"
+              [pageSizeOptions]="[10, 25, 50, 100]"
+              (createClick)="onCreateAgreement()"
+              (editClick)="onEditAgreement($event)"
+              (deleteClick)="onDeleteAgreement($event)"
+              (downloadClick)="onDownloadAgreement($event)"
+              (advancedSearch)="onAdvancedSearchCriteria($event)"
+              (createUserClick)="onCreateUserFromAgreement($event)"
+              (deactivateUserClick)="onDeactivateUser($event)"
+              (resetPasswordClick)="onResetPassword($event)"
+              (sendMessageClick)="onSendMessage($event)"
+              (deactivateAgreementClick)="onDeactivateAgreement($event)"
+            />
           </div>
         }
       </div>
@@ -309,17 +268,20 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   private agreementsFacade = inject(AgreementsFacadeService);
+  private countriesFacade = inject(CountriesFacadeService);
   private roleService = inject(RoleService);
   private router = inject(Router);
   private dialogs = inject(TuiDialogService);
-  private notificationService = inject(NotificationService);
   private exportService = inject(ExportService);
   private translate = inject(TranslateService);
   private edgeFunctions = inject(AkademyEdgeFunctionsService);
   private directMessageService = inject(DirectMessageService);
   private destroyRef = inject(DestroyRef);
+  private windowService = inject(WindowService);
+  private notificationService = inject(NotificationService);
 
   protected currentTheme = injectCurrentTheme();
+  protected buttonSize = computed(() => (this.windowService.isMobile() ? 'm' : 'l'));
   protected ICONS = ICONS;
   protected ROLE = ROLE;
   protected isProcessing = signal(false);
@@ -328,12 +290,14 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   protected errorMessage = computed(() => this.agreementsFacade.loadingError());
 
   protected agreementsData = computed(() => this.agreementsFacade.agreements.value()?.data || []);
-  protected tableData = computed(() => this.transformAgreementsData(this.agreementsData()));
   protected hasData = computed(() => (this.agreementsData()?.length || 0) > 0);
   protected statsCards = computed(() => this.getStatsCards());
 
   protected roleFilter = new FormControl('');
   protected roleFilterValue = signal('');
+
+  protected selectedRoleFilters = signal<string[]>([]);
+  protected selectedHeadquarterFilters = signal<string[]>([]);
 
   protected currentPage = this.agreementsFacade.currentPage;
   protected pageSize = this.agreementsFacade.pageSize;
@@ -346,6 +310,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   protected canEdit = computed(() =>
     this.roleService.isInAnyGroup(['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'])
   );
+
   protected canDelete = computed(() => this.roleService.isInAnyGroup(['ADMINISTRATION']));
 
   protected allowedRolesForAgreementCreation = () => ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'];
@@ -363,153 +328,8 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
 
   private roleFilterMap: Record<string, string> = {};
 
-  protected filteredTableData = computed(() => {
-    const tableData = this.tableData();
-    const selectedDisplayText = this.roleFilterValue();
-    const filter = this.roleFilterMap[selectedDisplayText] || 'all';
-
-    if (!filter || filter === 'all') {
-      return tableData;
-    }
-
-    return tableData.filter((agreement) => {
-      const roleName = agreement.role?.toLowerCase() || '';
-
-      switch (filter) {
-        case 'student':
-          return roleName.includes('student') || roleName.includes('alumno');
-        case 'facilitator':
-          return roleName.includes('facilitator') || roleName.includes('facilitador');
-        case 'companion':
-          return roleName.includes('companion') || roleName.includes('acompañante');
-        case 'manager':
-          return roleName.includes('manager') || roleName.includes('responsable');
-        case 'assistant':
-          return roleName.includes('assistant') || roleName.includes('asistente');
-        case 'coordinator':
-          return roleName.includes('coordinator') || roleName.includes('coordinador');
-        case 'director':
-          return roleName.includes('director');
-        default:
-          return true;
-      }
-    });
-  });
-
-  protected tableColumns: TableColumn[] = [
-    {
-      key: 'name',
-      label: this.translate.instant('user_name'),
-      type: 'avatar',
-      sortable: true,
-      searchable: true,
-      width: 250,
-    },
-    {
-      key: 'email',
-      label: this.translate.instant('user_email'),
-      type: 'text',
-      sortable: true,
-      searchable: true,
-      width: 250,
-    },
-    {
-      key: 'role',
-      label: this.translate.instant('role'),
-      type: 'text',
-      sortable: true,
-      searchable: true,
-      width: 150,
-    },
-    {
-      key: 'headquarter',
-      label: this.translate.instant('headquarter_name'),
-      type: 'text',
-      sortable: true,
-      searchable: true,
-      width: 180,
-    },
-    {
-      key: 'status',
-      label: this.translate.instant('agreement_status'),
-      type: 'status',
-      sortable: true,
-      width: 120,
-    },
-    {
-      key: 'createdAt',
-      label: this.translate.instant('agreement_start_date'),
-      type: 'date',
-      sortable: true,
-      width: 150,
-    },
-    {
-      key: 'actions',
-      label: this.translate.instant('actions'),
-      type: 'actions',
-      sortable: false,
-      width: 200,
-    },
-  ];
-
-  protected tableActions: TableAction<AgreementListData>[] = [
-    {
-      label: this.translate.instant('view_agreement'),
-      icon: '@tui.eye',
-      color: 'primary',
-      handler: (item: AgreementListData) => this.onRowClick(item),
-      visible: () => true,
-    },
-    {
-      label: this.translate.instant('create_user'),
-      icon: '@tui.user-plus',
-      color: 'primary',
-      handler: (item: AgreementListData) => this.onCreateUserFromAgreement(item),
-      visible: (item: AgreementListData) => {
-        const roleLevel = Number(this.roleService.roleLevel() || 0);
-        const hasValidStatus = item.status === 'pending' || item.status === 'inactive';
-        const hasNoUser = !item.userId;
-        return roleLevel >= 30 && hasValidStatus && hasNoUser;
-      },
-    },
-    {
-      label: this.translate.instant('deactivate_user'),
-      icon: '@tui.user-x',
-      color: 'warning',
-      handler: (item: AgreementListData) => this.onDeactivateUser(item),
-      visible: (item: AgreementListData) =>
-        Number(this.roleService.roleLevel() || 0) >= 50 && item.status === 'active' && item.userId !== undefined,
-    },
-    {
-      label: this.translate.instant('reset_password'),
-      icon: '@tui.key',
-      color: 'secondary',
-      handler: (item: AgreementListData) => this.onResetPassword(item),
-      visible: (item: AgreementListData) =>
-        Number(this.roleService.roleLevel() || 0) >= 1 && item.status === 'active' && item.userId !== undefined,
-    },
-    {
-      label: this.translate.instant('send_message'),
-      icon: '@tui.message-circle',
-      color: 'primary',
-      handler: (item: AgreementListData) => this.onSendMessage(item),
-      visible: (item: AgreementListData) => item.status === 'active' && item.userId !== undefined,
-    },
-    {
-      label: this.translate.instant('deactivate_agreement'),
-      icon: '@tui.pause',
-      color: 'warning',
-      handler: (item: AgreementListData) => this.onDeactivateAgreement(item),
-      visible: (item: AgreementListData) => this.canEdit() && item.status === 'active',
-    },
-  ];
-
   ngOnInit(): void {
-    this.loadInitialData();
     this.initializeRoleFilter();
-    console.log('Current user role:', this.roleService.userRole());
-    console.log('Current role level:', this.roleService.roleLevel());
-    console.log('Is superadmin:', this.roleService.hasRole(ROLE.SUPERADMIN));
   }
 
   private initializeRoleFilter(): void {
@@ -537,10 +357,6 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private loadInitialData(): void {
-    this.agreementsFacade.agreements.reload();
-  }
-
   protected onPageChange = (page: number): void => {
     this.agreementsFacade.onPageChange(page);
   };
@@ -548,25 +364,6 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   protected onPageSizeChange = (size: number): void => {
     this.agreementsFacade.onPageSizeChange(size);
   };
-
-  private transformAgreementsData(agreements: AgreementWithShallowRelations[]): AgreementListData[] {
-    const transformed = agreements.map((agreement) => ({
-      id: agreement.id,
-      name: agreement.name || this.translate.instant('no_name'),
-      lastName: agreement.last_name || '',
-      email: agreement.email || this.translate.instant('no_email'),
-      role: agreement.role?.role_name || this.translate.instant('no_role'),
-      status: this.mapStatus(agreement.status || 'pending'),
-      headquarter: agreement.headquarter_name || this.translate.instant('no_headquarter'),
-      createdAt: agreement.created_at || '',
-      verificationType: 'pending' as 'pending' | 'verified' | 'rejected',
-      userId: agreement.user_id || undefined,
-      phone: agreement.phone || undefined,
-      documentNumber: agreement.document_number || undefined,
-    }));
-
-    return transformed;
-  }
 
   private getStatsCards(): StatCard[] {
     const data = this.agreementsData();
@@ -619,34 +416,17 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     ];
   }
 
-  private mapStatus(status: string): 'pending' | 'active' | 'inactive' | 'completed' {
-    const statusMap: Record<string, 'pending' | 'active' | 'inactive' | 'completed'> = {
-      pending: 'pending',
-      active: 'active',
-      inactive: 'inactive',
-      completed: 'completed',
-      draft: 'pending',
-      approved: 'active',
-      prospect: 'pending',
-    };
-    return statusMap[status] || 'pending';
-  }
-
-  protected onRowClick(agreement: AgreementListData): void {
-    this.router.navigate(['/dashboard/agreements', agreement.id]);
-  }
-
   protected onCreateAgreement(): void {
     console.log('Create agreement modal - to be implemented');
     this.notificationService.showInfo(this.translate.instant('feature_coming_soon'));
   }
 
-  protected async onDeactivateAgreement(agreement: AgreementListData): Promise<void> {
+  protected async onDeactivateAgreement(agreement: SearchAgreementResult): Promise<void> {
     try {
       this.isProcessing.set(true);
       await this.agreementsFacade.deactivateAgreement(agreement.id);
       this.notificationService.showSuccess(
-        this.translate.instant('agreement_deactivation_success', { name: `${agreement.name} ${agreement.lastName}` })
+        this.translate.instant('agreement_deactivation_success', { name: `${agreement.name} ${agreement.last_name}` })
       );
     } catch (error) {
       console.error('Error deactivating agreement:', error);
@@ -691,23 +471,25 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     }
   }
 
-  private handleExport(agreements: AgreementWithShallowRelations[], options: ExportOptions): void {
+  private handleExport(agreements: SearchAgreementResult[], options: ExportOptions): void {
     const exportData = agreements.map((agreement) => ({
       name: agreement.name || '',
       lastName: agreement.last_name || '',
       email: agreement.email || '',
       role: agreement.role?.role_name || '',
       status: agreement.status || '',
-      headquarter: agreement.headquarter_name || '',
+      headquarter: agreement.headquarter?.headquarter_name || '',
       createdAt: agreement.created_at || '',
     }));
 
-    const exportColumns = this.tableColumns
-      .filter((col) => col.key !== 'actions')
-      .map((col) => ({
-        key: col.key,
-        label: col.label,
-      }));
+    const exportColumns = [
+      { key: 'name', label: this.translate.instant('user_name') },
+      { key: 'email', label: this.translate.instant('user_email') },
+      { key: 'role', label: this.translate.instant('role') },
+      { key: 'headquarter', label: this.translate.instant('headquarter_name') },
+      { key: 'status', label: this.translate.instant('agreement_status') },
+      { key: 'createdAt', label: this.translate.instant('agreement_start_date') },
+    ];
 
     const date = new Date().toISOString().split('T')[0];
     const filename = `agreements_${date}`;
@@ -755,7 +537,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected async onCreateUserFromAgreement(agreement: AgreementListData): Promise<void> {
+  protected async onCreateUserFromAgreement(agreement: SearchAgreementResult): Promise<void> {
     try {
       this.isProcessing.set(true);
       const response = await this.edgeFunctions.createUser({ agreement_id: agreement.id });
@@ -772,7 +554,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
           role: response.data.role_name,
           user_metadata: {
             first_name: agreement.name || '',
-            last_name: agreement.lastName || '',
+            last_name: agreement.last_name || '',
             phone: response.data.phone,
           },
         };
@@ -796,15 +578,15 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected async onDeactivateUser(agreement: AgreementListData): Promise<void> {
-    if (!agreement.userId) {
+  protected async onDeactivateUser(agreement: SearchAgreementResult): Promise<void> {
+    if (!agreement.user_id) {
       this.notificationService.showError(this.translate.instant('no_user_id_found'));
       return;
     }
 
     try {
       this.isProcessing.set(true);
-      const response = await this.edgeFunctions.deactivateUser({ user_id: agreement.userId });
+      const response = await this.edgeFunctions.deactivateUser({ user_id: agreement.user_id });
 
       if (response.error) {
         this.notificationService.showError(
@@ -816,7 +598,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
       if (response.data) {
         this.notificationService.showSuccess(
           this.translate.instant('user_deactivation_success', {
-            name: `${agreement.name} ${agreement.lastName}`,
+            name: `${agreement.name} ${agreement.last_name || ''}`,
           })
         );
         this.agreementsFacade.agreements.reload();
@@ -829,8 +611,8 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected async onResetPassword(agreement: AgreementListData): Promise<void> {
-    if (!agreement.userId) {
+  protected async onResetPassword(agreement: SearchAgreementResult): Promise<void> {
+    if (!agreement.user_id) {
       this.notificationService.showError(this.translate.instant('no_user_id_found'));
       return;
     }
@@ -841,7 +623,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
         size: 'm',
         data: {
           name: agreement.name,
-          lastName: agreement.lastName,
+          lastName: agreement.last_name || '',
           email: agreement.email,
         },
         label: this.translate.instant('reset_password'),
@@ -853,15 +635,15 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
       });
   }
 
-  protected async onSendMessage(agreement: AgreementListData): Promise<void> {
-    if (!agreement.userId) {
+  protected async onSendMessage(agreement: SearchAgreementResult): Promise<void> {
+    if (!agreement.user_id) {
       this.notificationService.showError(this.translate.instant('no_user_id_found'));
       return;
     }
 
     const sent = await this.directMessageService.openSendMessageDialog(
       new PolymorpheusComponent(DirectMessageDialogV2SmartComponent),
-      agreement.userId
+      agreement.user_id
     );
 
     if (sent) {
@@ -869,16 +651,19 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async performPasswordReset(agreement: AgreementListData, formData: { newPassword: string }): Promise<void> {
+  private async performPasswordReset(
+    agreement: SearchAgreementResult,
+    formData: { newPassword: string }
+  ): Promise<void> {
     try {
       this.isProcessing.set(true);
       const response = await this.edgeFunctions.resetPassword({
         email: agreement.email,
-        document_number: agreement.documentNumber || '',
+        document_number: agreement.document_number || '',
         new_password: formData.newPassword,
         phone: agreement.phone || '',
-        first_name: agreement.name,
-        last_name: agreement.lastName,
+        first_name: agreement.name || '',
+        last_name: agreement.last_name || '',
       });
 
       if (response.error) {
@@ -897,8 +682,162 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     }
   }
 
+  protected lastSearchCriteria = signal<AgreementSearchCriteria | null>(null);
+
+  // Computed data for search
+  protected countries = computed(() => {
+    const countriesData = this.countriesFacade.countriesResource();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return countriesData?.map((c: any) => ({ id: c.id, name: c.name })) || [];
+  });
+
+  protected headquarters = computed(() => {
+    const hqData = this.agreementsFacade.headquartersResource();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return hqData?.map((hq: any) => ({ id: hq.id, name: hq.name })) || [];
+  });
+
   protected async onSearchAgreements(): Promise<void> {
-    // TODO: Implement search modal for agreements
-    this.notificationService.showInfo(this.translate.instant('feature_coming_soon'));
+    const searchData: AdvancedSearchData = {
+      roles: this.getRoleOptions(),
+      countries: this.countries(),
+      headquarters: this.headquarters(),
+      initialCriteria: this.lastSearchCriteria(),
+    };
+
+    const dialog = this.dialogs.open<AgreementSearchCriteria | null>(
+      new PolymorpheusComponent(AgreementAdvancedSearchComponent),
+      {
+        data: searchData,
+        dismissible: true,
+        size: 'l',
+      }
+    );
+
+    dialog.subscribe((criteria) => {
+      if (criteria) {
+        this.lastSearchCriteria.set(criteria);
+        this.onAdvancedSearchCriteria(criteria);
+      }
+    });
+  }
+
+  private getRoleOptions(): FilterOption[] {
+    // Get unique roles from agreements
+    const roles = new Map<string, string>();
+    this.agreementsData().forEach((agreement) => {
+      if (agreement.role?.role_id && agreement.role?.role_name) {
+        roles.set(agreement.role.role_id, agreement.role.role_name);
+      }
+    });
+
+    return Array.from(roles.entries()).map(([id, name]) => ({ id, name }));
+  }
+
+  // Methods for the new refactored table
+  protected onEditAgreement(agreement: SearchAgreementResult): void {
+    this.router.navigate(['/dashboard/agreements', agreement.id, 'edit']);
+  }
+
+  protected onDeleteAgreement(agreement: SearchAgreementResult): void {
+    // Similar to deactivate for now
+    this.onDeactivateAgreement(agreement);
+  }
+
+  protected async onDownloadAgreement(agreement: SearchAgreementResult): Promise<void> {
+    // Download single agreement as PDF or document
+    this.notificationService.showInfo(`Download functionality coming soon for agreement: ${agreement.name}`);
+  }
+
+  protected async onAdvancedSearchCriteria(criteria: AgreementSearchCriteria): Promise<void> {
+    try {
+      this.isProcessing.set(true);
+
+      // Perform the search
+      const searchResult = await this.agreementsFacade.searchAgreements(criteria);
+
+      if (searchResult.totalCount === 0) {
+        this.notificationService.showWarning(
+          this.translate.instant('no_results_found_for_search', {
+            term: criteria.searchTerm,
+          })
+        );
+      } else {
+        this.notificationService.showSuccess(
+          this.translate.instant('search_completed', {
+            count: searchResult.totalCount,
+            time: (searchResult.searchTime / 1000).toFixed(2),
+          })
+        );
+
+        // Update the search parameters in the facade to trigger a reload
+        this.agreementsFacade.search.set(criteria.searchTerm);
+
+        // Optionally, you could also apply role filters
+        if (criteria.roleFilters && criteria.roleFilters.length > 0) {
+          // Apply role filter logic here
+          console.log('Applying role filters:', criteria.roleFilters);
+        }
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      this.notificationService.showError(this.translate.instant('search_error'));
+    } finally {
+      this.isProcessing.set(false);
+    }
+  }
+
+  // New methods for refactored table actions
+
+  protected onEmptyRowClick(/* agreement: SearchAgreementResult */): void {
+    // Do nothing - navigation is handled by the View action only
+  }
+
+  // Filter methods
+  protected hasActiveFilters = computed(() => {
+    return this.selectedRoleFilters().length > 0 || this.selectedHeadquarterFilters().length > 0;
+  });
+
+  protected onRoleFiltersChange(roles: string[]): void {
+    if (roles.length === 0) {
+      this.agreementsFacade.updateFilters({ roleIds: [] });
+    } else {
+      // Convert role codes to role IDs
+      const allRoles = this.agreementsFacade.roles.value() || [];
+      const roleIds: string[] = [];
+
+      for (const roleCode of roles) {
+        const role = allRoles.find((r) => r.code === roleCode);
+        if (role) {
+          roleIds.push(role.id);
+        } else {
+          console.warn(`Role with code ${roleCode} not found`);
+        }
+      }
+
+      this.agreementsFacade.updateFilters({ roleIds });
+    }
+  }
+
+  protected onHeadquarterFiltersChange(headquarters: string[]): void {
+    // Update the facade with the new headquarter filters
+    this.agreementsFacade.updateFilters({ headquarterIds: headquarters });
+  }
+
+  protected clearAllFilters(): void {
+    this.selectedRoleFilters.set([]);
+    this.selectedHeadquarterFilters.set([]);
+    this.agreementsFacade.updateFilters({
+      search: null,
+      headquarterIds: [],
+      seasonId: null,
+      status: null,
+      roleIds: [],
+    });
+  }
+
+  protected onAgreementSelected(agreement: SearchAgreementResult): void {
+    // Navigate to the selected agreement
+    this.router.navigate(['/dashboard/agreements', agreement.id]);
   }
 }

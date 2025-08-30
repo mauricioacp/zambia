@@ -20,7 +20,7 @@ import {
 } from '@zambia/data-access-generic';
 import { EnhancedTableUiComponent, type TableColumn, type TableAction } from '@zambia/ui-components';
 import { ICONS } from '@zambia/util-constants';
-import { injectCurrentTheme } from '@zambia/ui-components';
+import { injectCurrentTheme, WindowService } from '@zambia/ui-components';
 import { HasRoleDirective } from '@zambia/util-roles-permissions';
 import { ROLE, ROLE_GROUPS } from '@zambia/util-roles-definitions';
 import { RoleService } from '@zambia/data-access-roles-permissions';
@@ -45,7 +45,7 @@ import { RoleService } from '@zambia/data-access-roles-permissions';
     <div class="min-h-screen bg-gray-50 dark:bg-slate-800">
       <!-- Header Section -->
       <div class="border-b border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900">
-        <div class="container mx-auto px-6 py-6">
+        <div class="container mx-auto px-4 py-4 sm:px-6 sm:py-6">
           <!-- Breadcrumbs -->
           <tui-breadcrumbs class="mb-6">
             <a *tuiItem routerLink="/dashboard" tuiLink iconStart="@tui.house">
@@ -56,28 +56,30 @@ import { RoleService } from '@zambia/data-access-roles-permissions';
             </span>
           </tui-breadcrumbs>
 
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-4">
-              <div class="rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-4 shadow-lg">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
+              <div class="mx-auto rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-4 shadow-lg sm:mx-0">
                 <tui-icon [icon]="ICONS.COUNTRIES" class="text-3xl text-white"></tui-icon>
               </div>
               <div>
-                <h1 class="mb-1 text-3xl font-bold text-gray-800 dark:text-white">
+                <h1 class="mb-1 text-2xl font-bold text-gray-800 sm:text-3xl dark:text-white">
                   {{ 'countries' | translate }}
                 </h1>
-                <p class="text-gray-600 dark:text-slate-400">{{ 'countries_description' | translate }}</p>
+                <p class="text-sm text-gray-600 sm:text-base dark:text-slate-400">
+                  {{ 'countries_description' | translate }}
+                </p>
               </div>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
               <button
                 tuiButton
                 appearance="secondary"
-                size="l"
+                [size]="buttonSize()"
                 iconStart="@tui.download"
                 [attr.tuiTheme]="currentTheme()"
                 (click)="onExportCountries()"
                 [disabled]="isProcessing() || !statsData()?.total"
-                class="border-emerald-500 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                class="w-full border-emerald-500 text-emerald-600 hover:bg-emerald-50 sm:w-auto dark:hover:bg-emerald-900/20"
               >
                 {{ 'export' | translate }}
               </button>
@@ -85,12 +87,12 @@ import { RoleService } from '@zambia/data-access-roles-permissions';
                 *zHasRole="allowedRolesForCountryCreation()"
                 tuiButton
                 appearance="primary"
-                size="l"
+                [size]="buttonSize()"
                 iconStart="@tui.plus"
                 [attr.tuiTheme]="currentTheme()"
                 (click)="onCreateCountry()"
                 [disabled]="isProcessing()"
-                class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
+                class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 sm:w-auto"
               >
                 {{ 'create_country' | translate }}
               </button>
@@ -100,7 +102,7 @@ import { RoleService } from '@zambia/data-access-roles-permissions';
       </div>
 
       <!-- Stats Cards -->
-      <div class="container mx-auto px-6 py-8">
+      <div class="container mx-auto px-4 py-6 sm:px-6 sm:py-8">
         @defer (on viewport; prefetch on idle) {
           @if (statsData()) {
             <div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
@@ -258,9 +260,11 @@ export class CountriesListSmartComponent {
   private supabaseService = inject(SupabaseService);
   private exportService = inject(ExportService);
   private roleService = inject(RoleService);
+  private windowService = inject(WindowService);
 
   isProcessing = signal(false);
   currentTheme = injectCurrentTheme();
+  buttonSize = computed(() => (this.windowService.isMobile() ? 'm' : 'l'));
 
   ICONS = ICONS;
 

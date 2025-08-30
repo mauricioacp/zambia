@@ -48,6 +48,11 @@ Thumbs.db
 .env.*
 !.env.*.example
 apps/zambia/.env
+
+# Environment files
+apps/zambia/src/environments/environment.ts
+apps/zambia/src/environments/environment.development.ts
+apps/zambia/src/environments/environment.production.ts
 apps/zambia/.env.*
 /apps/zambia/src/environments/environment.production.ts
 /.claude/settings.local.json

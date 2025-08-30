@@ -72,20 +72,64 @@ export class AgreementsService {
   agreementsResource = resource<PaginatedAgreements, AgreementsRpcParams>({
     request: () => this.agreementsParams(),
     loader: async ({ request: rpcParams }: ResourceLoaderParams<AgreementsRpcParams>): Promise<PaginatedAgreements> => {
-      const { data, error } = await this.supabase.getClient().rpc('get_agreements_with_role_paginated', rpcParams);
+      const { data, error } = await this.supabase.getClient().rpc('search_agreements', {
+        p_limit: rpcParams.p_limit,
+        p_offset: rpcParams.p_offset,
+        p_status: rpcParams.p_status,
+        p_headquarter_id: rpcParams.p_headquarter_id,
+        p_season_id: rpcParams.p_season_id,
+        p_search_query: rpcParams.p_search,
+        p_role_id: rpcParams.p_role_id,
+      });
 
       if (error) {
         console.error('Error fetching agreements:', error);
         throw error;
       }
 
+      // The new search_agreements RPC returns a different structure
       const rawResponse = data as unknown as {
-        data: AgreementViewRow[];
+        data: Array<{
+          id: string;
+          name: string | null;
+          last_name: string | null;
+          email: string;
+          phone: string | null;
+          document_number: string | null;
+          birth_date: string | null;
+          gender: string | null;
+          address: string | null;
+          status: string | null;
+          ethical_document_agreement: boolean | null;
+          mailing_agreement: boolean | null;
+          volunteering_agreement: boolean | null;
+          age_verification: boolean | null;
+          created_at: string | null;
+          updated_at: string | null;
+          user_id: string | null;
+          season_id: string;
+          season_name: string;
+          role: {
+            role_id: string;
+            role_name: string;
+            role_description: string;
+            role_code: string;
+            role_level: number;
+          };
+          headquarter: {
+            headquarter_id: string;
+            headquarter_name: string;
+            headquarter_address: string | null;
+            country_id: string;
+            country_name: string;
+          };
+        }>;
         pagination: PaginationMetadata;
+        filters: unknown;
       };
 
       if (!rawResponse || !rawResponse.data || !rawResponse.pagination) {
-        console.warn('Received unexpected data structure from get_agreements_with_role_paginated RPC.');
+        console.warn('Received unexpected data structure from search_agreements RPC.');
         return {
           data: [],
           pagination: {
@@ -98,24 +142,41 @@ export class AgreementsService {
         };
       }
 
+      // Map the new response structure to AgreementWithRole format
       const parsedData: AgreementWithRole[] = rawResponse.data.map((item) => {
-        let parsedRole: RoleInAgreement | null = null;
-
-        try {
-          if (item.role && typeof item.role === 'object') {
-            const roleObj = item.role as Record<string, unknown>;
-            if ('role_id' in roleObj && 'role_name' in roleObj) {
-              parsedRole = roleObj as unknown as RoleInAgreement;
+        const role: RoleInAgreement | null = item.role
+          ? {
+              role_id: item.role.role_id,
+              role_name: item.role.role_name,
+              role_description: item.role.role_description,
+              role_code: item.role.role_code,
+              role_level: item.role.role_level,
             }
-          }
-        } catch (e) {
-          console.warn('Error parsing role data:', e);
-        }
+          : null;
 
+        // Map to the old structure expected by AgreementWithRole
         return {
-          ...item,
-          role: parsedRole,
-        };
+          id: item.id,
+          name: item.name,
+          last_name: item.last_name,
+          email: item.email,
+          phone: item.phone,
+          document_number: item.document_number,
+          address: item.address,
+          status: item.status,
+          headquarter_id: item.headquarter.headquarter_id,
+          season_id: item.season_id,
+          ethical_document_agreement: item.ethical_document_agreement,
+          mailing_agreement: item.mailing_agreement,
+          volunteering_agreement: item.volunteering_agreement,
+          age_verification: item.age_verification,
+          signature_data: null,
+          created_at: item.created_at,
+          updated_at: item.updated_at,
+          user_id: item.user_id,
+          fts_name_lastname: null,
+          role: role,
+        } as AgreementWithRole;
       });
 
       return {

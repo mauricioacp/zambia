@@ -103,6 +103,12 @@ export const NAVIGATION_CONFIG = {
     translationKey: 'nav.homepage',
     // No allowedGroups means all authenticated users
   },
+  home: {
+    route: '/dashboard/home',
+    icon: 'layout-dashboard',
+    translationKey: 'nav.home',
+    // No allowedGroups means all authenticated users
+  },
   panel: {
     route: '/dashboard/panel',
     icon: 'newspaper',
@@ -137,7 +143,7 @@ export const NAVIGATION_CONFIG = {
 
 export const NAVIGATION_SECTIONS = [
   {
-    items: ['homepage', 'panel'] as const,
+    items: ['homepage', 'home', 'panel'] as const,
   },
   {
     headerKey: 'nav.management' as const,
