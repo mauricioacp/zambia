@@ -1,10 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TuiIcon, TuiButton } from '@taiga-ui/core';
-import { AdministrationDashboardFacadeService } from '../../../services/administration-dashboard-facade.service';
-import { KpiData, SectionHeaderUiComponent } from '@zambia/ui-components';
+import { SectionHeaderUiComponent } from '@zambia/ui-components';
 import { TuiButtonLoading } from '@taiga-ui/kit';
 import { KpiCardUiComponent } from '@zambia/ui-components';
 
@@ -64,7 +63,7 @@ import { KpiCardUiComponent } from '@zambia/ui-components';
             <z-kpi-card
               [kpiData]="kpi"
               [loading]="dashboardService.isLoading()"
-              (actionClick)="handleQuickAction(kpi.route || '')"
+              (cardClicked)="handleQuickAction(kpi.route || '')"
             />
           }
         </div>
@@ -78,11 +77,7 @@ import { KpiCardUiComponent } from '@zambia/ui-components';
         </z-section-header>
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           @for (kpi of leadershipKpis(); track kpi.title) {
-            <z-kpi-card
-              [kpiData]="kpi"
-              [loading]="dashboardService.isLoading()"
-              (actionClick)="handleQuickAction(kpi.route || '')"
-            />
+            <z-kpi-card [kpiData]="kpi" [loading]="dashboardService.isLoading()" />
           }
         </div>
       </div>
@@ -97,7 +92,7 @@ import { KpiCardUiComponent } from '@zambia/ui-components';
             <z-kpi-card
               [kpiData]="kpi"
               [loading]="dashboardService.isLoading()"
-              (actionClick)="handleQuickAction(kpi.route || '')"
+              (cardClicked)="handleQuickAction(kpi.route || '')"
             />
           }
         </div>
@@ -116,120 +111,120 @@ import { KpiCardUiComponent } from '@zambia/ui-components';
 export class AdministrationDashboardSmartComponent {
   private router = inject(Router);
   private translate = inject(TranslateService);
-  protected dashboardService = inject(AdministrationDashboardFacadeService);
-
-  private buildRoleSubtitle(roleCode: string): string {
-    const stats = this.dashboardService.getRoleStats(roleCode);
-    const active = this.translate.instant('dashboard.administration.active');
-    const inactive = this.translate.instant('dashboard.administration.inactive');
-    const graduated = this.translate.instant('dashboard.administration.graduated');
-    return roleCode === 'student'
-      ? `${active}: ${stats.active} | ${inactive}: ${stats.inactive} | ${graduated}: ${stats.graduated}`
-      : `${active}: ${stats.active} | ${inactive}: ${stats.inactive}`;
-  }
-
-  protected organizationKpis = computed<KpiData[]>(() => {
-    const stats = this.dashboardService.statistics();
-
-    return [
-      {
-        icon: '@tui.flag',
-        title: this.translate.instant('dashboard.administration.countries'),
-        value: stats.countries.total,
-        iconBgClass: 'bg-blue-500',
-        subtitle: `${this.translate.instant('dashboard.administration.active')}: ${stats.countries.active} | ${this.translate.instant('dashboard.administration.inactive')}: ${stats.countries.inactive}`,
-        route: '/administration/countries',
-      },
-      {
-        icon: '@tui.building',
-        title: this.translate.instant('dashboard.administration.headquarters'),
-        value: stats.headquarters.total,
-        iconBgClass: 'bg-sky-500',
-        subtitle: `${this.translate.instant('dashboard.administration.active')}: ${stats.headquarters.active} | ${this.translate.instant('dashboard.administration.inactive')}: ${stats.headquarters.inactive}`,
-        route: '/administration/headquarters',
-      },
-      {
-        icon: '@tui.file-text',
-        title: this.translate.instant('dashboard.administration.agreements'),
-        value: this.dashboardService.getTotalAgreements(),
-        iconBgClass: 'bg-purple-500',
-        subtitle: `${this.translate.instant('dashboard.administration.active')}: ${this.dashboardService.getAgreementsByStatus('active')} | ${this.translate.instant('dashboard.administration.prospect')}: ${this.dashboardService.getAgreementsByStatus('prospect')} | ${this.translate.instant('dashboard.administration.graduated')}: ${this.dashboardService.getAgreementsByStatus('graduated')}`,
-        route: '/administration/agreements',
-      },
-    ];
-  });
-
-  protected leadershipKpis = computed<KpiData[]>(() => {
-    const stats = this.dashboardService.statistics();
-
-    return [
-      {
-        icon: '@tui.crown',
-        title: this.translate.instant('dashboard.administration.leadership'),
-        value: stats.users.totalLeadership,
-        iconBgClass: 'bg-amber-500',
-        subtitle: this.translate.instant('dashboard.administration.leadershipSubtitle'),
-        route: '/administration/users?filter=leadership',
-      },
-      {
-        icon: '@tui.briefcase',
-        title: this.translate.instant('dashboard.administration.generalDirector'),
-        value: this.dashboardService.getRoleStats('general_director').total,
-        iconBgClass: 'bg-purple-600',
-        subtitle: this.buildRoleSubtitle('general_director'),
-        route: '/administration/users?filter=general_director',
-      },
-      {
-        icon: '@tui.users',
-        title: this.translate.instant('dashboard.administration.executiveLeader'),
-        value: this.dashboardService.getRoleStats('executive_leader').total,
-        iconBgClass: 'bg-indigo-600',
-        subtitle: this.buildRoleSubtitle('executive_leader'),
-        route: '/administration/users?filter=executive_leader',
-      },
-    ];
-  });
-
-  protected operationsKpis = computed<KpiData[]>(() => {
-    return [
-      {
-        icon: '@tui.building-2',
-        title: this.translate.instant('dashboard.administration.headquarterManagers'),
-        value: this.dashboardService.getRoleStats('headquarter_manager').total,
-        iconBgClass: 'bg-blue-600',
-        subtitle: this.buildRoleSubtitle('headquarter_manager'),
-        route: '/administration/users?filter=managers',
-      },
-      {
-        icon: '@tui.presentation',
-        title: this.translate.instant('dashboard.administration.facilitators'),
-        value: this.dashboardService.getRoleStats('facilitator').total,
-        iconBgClass: 'bg-teal-500',
-        subtitle: this.buildRoleSubtitle('facilitator'),
-        route: '/administration/users?filter=facilitators',
-      },
-      {
-        icon: '@tui.heart-handshake',
-        title: this.translate.instant('dashboard.administration.companions'),
-        value: this.dashboardService.getRoleStats('companion').total,
-        iconBgClass: 'bg-rose-500',
-        subtitle: this.buildRoleSubtitle('companion'),
-        route: '/administration/users?filter=companions',
-      },
-      {
-        icon: '@tui.graduation-cap',
-        title: this.translate.instant('dashboard.administration.students'),
-        value: this.dashboardService.getRoleStats('student').total,
-        iconBgClass: 'bg-violet-500',
-        subtitle: this.buildRoleSubtitle('student'),
-        route: '/administration/users?filter=students',
-      },
-    ];
-  });
-
-  handleQuickAction(route: string) {
-    if (route.startsWith('/')) {
-      this.router.navigate([route]);
-    }
-  }
+  // protected dashboardService = inject(AdministrationDashboardFacadeService);
+  //
+  // private buildRoleSubtitle(roleCode: string): string {
+  //   const stats = this.dashboardService.getRoleStats(roleCode);
+  //   const active = this.translate.instant('dashboard.administration.active');
+  //   const inactive = this.translate.instant('dashboard.administration.inactive');
+  //   const graduated = this.translate.instant('dashboard.administration.graduated');
+  //   return roleCode === 'student'
+  //     ? `${active}: ${stats.active} | ${inactive}: ${stats.inactive} | ${graduated}: ${stats.graduated}`
+  //     : `${active}: ${stats.active} | ${inactive}: ${stats.inactive}`;
+  // }
+  //
+  // protected organizationKpis = computed<KpiData[]>(() => {
+  //   const stats = this.dashboardService.statistics();
+  //
+  //   return [
+  //     {
+  //       icon: '@tui.flag',
+  //       title: this.translate.instant('dashboard.administration.countries'),
+  //       value: stats.countries.total,
+  //       iconBgClass: 'bg-blue-500',
+  //       subtitle: `${this.translate.instant('dashboard.administration.active')}: ${stats.countries.active} | ${this.translate.instant('dashboard.administration.inactive')}: ${stats.countries.inactive}`,
+  //       route: '/administration/countries',
+  //     },
+  //     {
+  //       icon: '@tui.building',
+  //       title: this.translate.instant('dashboard.administration.headquarters'),
+  //       value: stats.headquarters.total,
+  //       iconBgClass: 'bg-sky-500',
+  //       subtitle: `${this.translate.instant('dashboard.administration.active')}: ${stats.headquarters.active} | ${this.translate.instant('dashboard.administration.inactive')}: ${stats.headquarters.inactive}`,
+  //       route: '/administration/headquarters',
+  //     },
+  //     {
+  //       icon: '@tui.file-text',
+  //       title: this.translate.instant('dashboard.administration.agreements'),
+  //       value: this.dashboardService.getTotalAgreements(),
+  //       iconBgClass: 'bg-purple-500',
+  //       subtitle: `${this.translate.instant('dashboard.administration.active')}: ${this.dashboardService.getAgreementsByStatus('active')} | ${this.translate.instant('dashboard.administration.prospect')}: ${this.dashboardService.getAgreementsByStatus('prospect')} | ${this.translate.instant('dashboard.administration.graduated')}: ${this.dashboardService.getAgreementsByStatus('graduated')}`,
+  //       route: '/administration/agreements',
+  //     },
+  //   ];
+  // });
+  //
+  // protected leadershipKpis = computed<KpiData[]>(() => {
+  //   const stats = this.dashboardService.statistics();
+  //
+  //   return [
+  //     {
+  //       icon: '@tui.crown',
+  //       title: this.translate.instant('dashboard.administration.leadership'),
+  //       value: stats.users.totalLeadership,
+  //       iconBgClass: 'bg-amber-500',
+  //       subtitle: this.translate.instant('dashboard.administration.leadershipSubtitle'),
+  //       route: '/administration/users?filter=leadership',
+  //     },
+  //     {
+  //       icon: '@tui.briefcase',
+  //       title: this.translate.instant('dashboard.administration.generalDirector'),
+  //       value: this.dashboardService.getRoleStats('general_director').total,
+  //       iconBgClass: 'bg-purple-600',
+  //       subtitle: this.buildRoleSubtitle('general_director'),
+  //       route: '/administration/users?filter=general_director',
+  //     },
+  //     {
+  //       icon: '@tui.users',
+  //       title: this.translate.instant('dashboard.administration.executiveLeader'),
+  //       value: this.dashboardService.getRoleStats('executive_leader').total,
+  //       iconBgClass: 'bg-indigo-600',
+  //       subtitle: this.buildRoleSubtitle('executive_leader'),
+  //       route: '/administration/users?filter=executive_leader',
+  //     },
+  //   ];
+  // });
+  //
+  // protected operationsKpis = computed<KpiData[]>(() => {
+  //   return [
+  //     {
+  //       icon: '@tui.building-2',
+  //       title: this.translate.instant('dashboard.administration.headquarterManagers'),
+  //       value: this.dashboardService.getRoleStats('headquarter_manager').total,
+  //       iconBgClass: 'bg-blue-600',
+  //       subtitle: this.buildRoleSubtitle('headquarter_manager'),
+  //       route: '/administration/users?filter=managers',
+  //     },
+  //     {
+  //       icon: '@tui.presentation',
+  //       title: this.translate.instant('dashboard.administration.facilitators'),
+  //       value: this.dashboardService.getRoleStats('facilitator').total,
+  //       iconBgClass: 'bg-teal-500',
+  //       subtitle: this.buildRoleSubtitle('facilitator'),
+  //       route: '/administration/users?filter=facilitators',
+  //     },
+  //     {
+  //       icon: '@tui.heart-handshake',
+  //       title: this.translate.instant('dashboard.administration.companions'),
+  //       value: this.dashboardService.getRoleStats('companion').total,
+  //       iconBgClass: 'bg-rose-500',
+  //       subtitle: this.buildRoleSubtitle('companion'),
+  //       route: '/administration/users?filter=companions',
+  //     },
+  //     {
+  //       icon: '@tui.graduation-cap',
+  //       title: this.translate.instant('dashboard.administration.students'),
+  //       value: this.dashboardService.getRoleStats('student').total,
+  //       iconBgClass: 'bg-violet-500',
+  //       subtitle: this.buildRoleSubtitle('student'),
+  //       route: '/administration/users?filter=students',
+  //     },
+  //   ];
+  // });
+  //
+  // handleQuickAction(route: string) {
+  //   if (route.startsWith('/')) {
+  //     this.router.navigate([route]);
+  //   }
+  // }
 }

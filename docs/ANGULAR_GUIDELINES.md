@@ -39,7 +39,7 @@ This project uses Angular v19 with modern patterns and syntax. Always follow the
 
 ### Signals and Reactivity
 
-- **Prefer signals over observables** for local component state
+- **Prefer signals to observables** for local component state
 - **Use linkedSignal()** for dependent state that needs to be writable
 - **Use resource()** for async data loading
 - **Use computed()** for derived values
@@ -71,19 +71,6 @@ export class ExampleComponent {
   itemSelected = output<Item>();
 }
 ```
-
-### Component Styling
-
-- **Use inline styles with template literals** for component-specific styles
-- **Leverage CSS custom properties** for theming
-- **Use :host selector** for component root styling
-- **Follow the established design system** (TaigaUI + Tailwind CSS)
-
-### Custom Events and Outputs
-
-- **Use output()** function for component events
-- **Use descriptive event names** that indicate the action
-- **Emit minimal, focused data** in events
 
 Example:
 
@@ -234,46 +221,6 @@ export class UserCardComponent {
 - **Avoid function calls** in expressions for performance
 - **Prefer component properties** over method calls in templates
 
-### Code Organization
-
-#### Whitespace and Formatting
-
-- **Use proper indentation** for template readability
-- **Consider `preserveWhitespaces: false`** in component metadata for optimization
-- **Be mindful of significant whitespace** in inline text content
-- **Angular automatically collapses** unnecessary whitespace
-
-#### Template Variables
-
-- **Scope `@let` variables** to current view and descendants
-- **Cannot reassign `@let` variables** after declaration
-- **Use descriptive variable names** that indicate their purpose
-
-## Theme Integration
-
-### Using Theme Signals
-
-The Zambia project provides convenient theme signals that can be injected anywhere in your components without needing to inject the full ThemeService:
-
-```typescript
-import { injectCurrentTheme, injectIsDarkTheme, themeClass, themeValue } from '@zambia/ui-components';
-
-export class MyComponent {
-  // Direct injection of theme signals
-  currentTheme = injectCurrentTheme();
-  isDarkTheme = injectIsDarkTheme();
-
-  // Theme-specific CSS classes
-  buttonClass = themeClass(
-    'bg-blue-600 text-white', // light theme
-    'bg-blue-500 text-white' // dark theme
-  );
-
-  // Theme-specific values
-  iconSize = themeValue(20, 24); // smaller in light, larger in dark
-}
-```
-
 ### Template Usage
 
 ```html
@@ -286,33 +233,4 @@ export class MyComponent {
 } @else {
 <div class="light-specific-content">Light mode content</div>
 }
-
-<!-- Theme-specific classes -->
-<button [class]="buttonClass()">Click me</button>
 ```
-
-### Advanced Theme Utilities
-
-```typescript
-import { isTheme, oppositeTheme, AppTheme } from '@zambia/ui-components';
-
-export class AdvancedComponent {
-  // Check for specific theme
-  isLightTheme = isTheme(AppTheme.LIGHT);
-
-  // Get opposite theme
-  toggleToTheme = oppositeTheme();
-
-  // Complex theme-based logic
-  complexClass = computed(() => {
-    if (this.isDarkTheme()) {
-      return 'dark:bg-slate-800 dark:text-white dark:border-slate-600';
-    }
-    return 'bg-white text-gray-800 border-gray-200';
-  });
-}
-```
-
-### Setup Requirements
-
-The theme signals are provided at the app level in `app.component.ts`. No additional setup is required in child components - just inject and use!

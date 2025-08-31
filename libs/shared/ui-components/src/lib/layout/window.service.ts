@@ -14,8 +14,6 @@ export class WindowService {
   private windowSize = signal<WindowSize>('desktop');
 
   isMobile = computed(() => this.windowSize() === 'mobile');
-  isTablet = computed(() => this.windowSize() === 'tablet');
-  isDesktop = computed(() => this.windowSize() === 'desktop');
 
   size = computed(() => this.windowSize());
 

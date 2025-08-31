@@ -7,7 +7,6 @@ Quick reference for common Nx/Angular commands in the Zambia project.
 ### Development
 
 ```bash
-npm run dev                    # Start dev server
 npm run build                  # Build for development
 npm run build:prod             # Build for production
 npm start                      # Start Storybook

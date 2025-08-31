@@ -12,6 +12,14 @@ import { SupabaseService } from '@zambia/data-access-supabase';
 import { RoleService } from '@zambia/data-access-roles-permissions';
 import { AkademyEdgeFunctionsService, NotificationService } from '@zambia/data-access-generic';
 import { Database } from '@zambia/types-supabase';
+import { AgreementSearchService, AgreementSearchServiceResult } from './agreement-search.service';
+import { AgreementSearchCriteria } from '../components/ui/agreement-search-modal.ui-component';
+import {
+  SearchAgreementsParams,
+  SearchAgreementsResponse,
+  SearchAgreementResult,
+  SearchAgreementsPagination,
+} from '../types/search-agreements.types';
 
 export type Agreement = Database['public']['Tables']['agreements']['Row'];
 export type Headquarter = Database['public']['Tables']['headquarters']['Row'];
@@ -39,41 +47,6 @@ export interface AgreementFormData {
   age_verification: boolean | null;
 }
 
-export interface RoleInAgreement {
-  role_id: string;
-  role_name: string;
-  role_description: string | null;
-  role_code: string;
-  role_level: number;
-}
-
-export interface AgreementWithShallowRelations {
-  id: string;
-  name: string | null;
-  last_name: string | null;
-  email: string;
-  phone: string | null;
-  document_number: string | null;
-  birth_date: string | null;
-  gender: string | null;
-  address: string | null;
-  headquarter_id: string;
-  role_id: string;
-  season_id: string;
-  status: string | null;
-  ethical_document_agreement: boolean | null;
-  mailing_agreement: boolean | null;
-  volunteering_agreement: boolean | null;
-  age_verification: boolean | null;
-  created_at: string | null;
-  updated_at: string | null;
-  user_id: string | null;
-  role: RoleInAgreement | null;
-  headquarter_name?: string;
-  country_name?: string;
-  season_name?: string;
-}
-
 export interface AgreementDetails extends Agreement {
   headquarters?: Pick<Headquarter, 'id' | 'name' | 'address' | 'status'> & {
     countries?: Pick<Country, 'id' | 'name' | 'code'>;
@@ -82,27 +55,9 @@ export interface AgreementDetails extends Agreement {
   seasons?: Pick<Season, 'id' | 'name' | 'start_date' | 'end_date'>;
 }
 
-export interface PaginationMetadata {
-  total: number;
-  limit: number;
-  offset: number;
-  page: number;
-  pages: number;
-}
-
 export interface PaginatedAgreements {
-  data: AgreementWithShallowRelations[];
-  pagination: PaginationMetadata;
-}
-
-export interface AgreementsRpcParams {
-  p_limit: number;
-  p_offset: number;
-  p_status?: string;
-  p_headquarter_id?: string;
-  p_season_id?: string;
-  p_search?: string;
-  p_role_id?: string;
+  data: SearchAgreementResult[];
+  pagination: SearchAgreementsPagination;
 }
 
 @Injectable({
@@ -113,6 +68,7 @@ export class AgreementsFacadeService {
   private roleService = inject(RoleService);
   private akademyEdgeFunctionsService = inject(AkademyEdgeFunctionsService);
   private notificationService = inject(NotificationService);
+  private agreementSearchService = inject(AgreementSearchService);
 
   agreementId: WritableSignal<string> = signal('');
   agreementsResource = linkedSignal(() => this.agreements.value() ?? []);
@@ -124,8 +80,11 @@ export class AgreementsFacadeService {
   isLoading = signal(false);
   status = signal<string | null>(null);
   headquarterId = signal<string | null>(null);
+  headquarterIds = signal<string[]>([]);
   seasonId = signal<string | null>(null);
   search = signal<string | null>(null);
+  roleId = signal<string | null>(null);
+  roleIds = signal<string[]>([]);
 
   totalPages = computed(() => Math.ceil(this.totalItems() / this.pageSize()));
   hasNextPage = computed(() => this.currentPage() < this.totalPages());
@@ -136,8 +95,8 @@ export class AgreementsFacadeService {
   saveError = signal<string | null>(null);
   saveSuccess = signal<boolean>(false);
 
-  private agreementsParams = computed<AgreementsRpcParams>(() => {
-    const params: AgreementsRpcParams = {
+  private agreementsParams = computed<SearchAgreementsParams>(() => {
+    const params: SearchAgreementsParams = {
       p_limit: this.pageSize(),
       p_offset: (this.currentPage() - 1) * this.pageSize(),
     };
@@ -145,81 +104,73 @@ export class AgreementsFacadeService {
     const status = this.status();
     if (status) params.p_status = status;
 
-    const headquarterId = this.headquarterId();
-    if (headquarterId) params.p_headquarter_id = headquarterId;
+    // Handle single or multiple headquarters
+    const headquarterIds = this.headquarterIds();
+    if (headquarterIds.length === 1) {
+      params.p_headquarter_id = headquarterIds[0];
+    }
+    // For multiple headquarters, we'll handle it in the loader
 
     const seasonId = this.seasonId();
     if (seasonId) params.p_season_id = seasonId;
 
     const search = this.search();
-    if (search) params.p_search = search;
+    if (search) params.p_search_query = search;
+
+    // Handle single or multiple roles
+    const roleIds = this.roleIds();
+    if (roleIds.length === 1) {
+      params.p_role_id = roleIds[0];
+    }
+    // For multiple roles, we'll handle it in the loader
 
     return params;
   });
 
-  agreements = resource<PaginatedAgreements, AgreementsRpcParams>({
+  agreements = resource<PaginatedAgreements, SearchAgreementsParams>({
     request: () => this.agreementsParams(),
-    loader: async ({ request }: ResourceLoaderParams<AgreementsRpcParams>): Promise<PaginatedAgreements> => {
+    loader: async ({ request }: ResourceLoaderParams<SearchAgreementsParams>): Promise<PaginatedAgreements> => {
       this.isLoading.set(true);
       try {
-        const { data, error } = await this.supabase.getClient().rpc('get_agreements_with_role_paginated', request);
+        // For now, use the new search_agreements RPC
+        // TODO: Handle multiple filters if needed
+        const { data, error } = await this.supabase.getClient().rpc('search_agreements', request);
 
         if (error) {
           console.error('Error fetching agreements:', error);
           throw error;
         }
 
-        const response = data as unknown as { data: AgreementWithShallowRelations[]; pagination: PaginationMetadata };
+        // Cast the JSON response to our typed response
+        const response = data as unknown as SearchAgreementsResponse;
 
         if (!response || !response.data || !response.pagination) {
-          console.warn('Received unexpected data structure from get_agreements_with_role_paginated RPC.');
+          console.warn('Received unexpected data structure from search_agreements RPC.');
           return {
             data: [],
             pagination: {
               total: 0,
-              limit: request.p_limit,
-              offset: request.p_offset,
-              page: Math.floor(request.p_offset / request.p_limit) + 1,
+              limit: request.p_limit || 10,
+              offset: request.p_offset || 0,
+              page: Math.floor((request.p_offset || 0) / (request.p_limit || 10)) + 1,
               pages: 0,
             },
           };
         }
 
-        const { data: headquartersData, error: hqError } = await this.supabase
-          .getClient()
-          .from('headquarters')
-          .select('id, name');
-
-        if (hqError) {
-          console.error('Error fetching headquarters:', hqError);
-        }
-
-        const headquarterMap = new Map<string, string>();
-        if (headquartersData) {
-          headquartersData.forEach((hq) => {
-            headquarterMap.set(hq.id, hq.name);
-          });
-        }
-
-        const mappedData = response.data.map((agreement: AgreementWithShallowRelations) => ({
-          ...agreement,
-          headquarter_name: headquarterMap.get(agreement.headquarter_id) || 'Unknown Headquarter',
-          country_name: agreement.country_name,
-          season_name: agreement.season_name,
-        }));
-
-        if (mappedData.length > 0) {
+        if (response.data.length > 0) {
           console.log('Sample agreement data:', {
-            id: mappedData[0].id,
-            name: mappedData[0].name,
-            headquarter_name: mappedData[0].headquarter_name,
-            headquarter_id: mappedData[0].headquarter_id,
+            id: response.data[0].id,
+            name: response.data[0].name,
+            headquarter_name: response.data[0].headquarter.headquarter_name,
+            headquarter_id: response.data[0].headquarter.headquarter_id,
+            role: response.data[0].role,
           });
         }
 
         this.totalItems.set(response.pagination.total);
         return {
-          data: mappedData,
+          data: response.data,
           pagination: response.pagination,
         };
       } finally {
@@ -306,75 +257,6 @@ export class AgreementsFacadeService {
       return data as Season[];
     },
   });
-
-  loadAgreementById() {
-    this.agreementById.reload();
-  }
-
-  loadAgreements() {
-    this.agreements.reload();
-  }
-
-  loadHeadquarters() {
-    this.headquarters.reload();
-  }
-
-  loadRoles() {
-    this.roles.reload();
-  }
-
-  loadSeasons() {
-    this.seasons.reload();
-  }
-
-  initCreateForm() {
-    this.isEditing.set(false);
-    this.saveError.set(null);
-    this.saveSuccess.set(false);
-    this.formData.set({
-      name: '',
-      last_name: '',
-      email: '',
-      phone: '',
-      document_number: '',
-      birth_date: null,
-      gender: null,
-      address: '',
-      headquarter_id: '',
-      role_id: '',
-      season_id: '',
-      status: 'active',
-      ethical_document_agreement: false,
-      mailing_agreement: false,
-      volunteering_agreement: false,
-      age_verification: false,
-    });
-  }
-
-  initEditForm(agreement: AgreementDetails) {
-    this.isEditing.set(true);
-    this.saveError.set(null);
-    this.saveSuccess.set(false);
-    this.formData.set({
-      id: agreement.id,
-      name: agreement.name,
-      last_name: agreement.last_name,
-      email: agreement.email,
-      phone: agreement.phone,
-      document_number: agreement.document_number,
-      birth_date: agreement.birth_date,
-      gender: agreement.gender,
-      address: agreement.address,
-      headquarter_id: agreement.headquarter_id,
-      role_id: agreement.role_id,
-      season_id: agreement.season_id,
-      status: agreement.status,
-      ethical_document_agreement: agreement.ethical_document_agreement,
-      mailing_agreement: agreement.mailing_agreement,
-      volunteering_agreement: agreement.volunteering_agreement,
-      age_verification: agreement.age_verification,
-    });
-  }
 
   async activateAgreement(agreementId: string): Promise<void> {
     try {
@@ -546,20 +428,26 @@ export class AgreementsFacadeService {
     filters: Partial<{
       status: string | null;
       headquarterId: string | null;
+      headquarterIds: string[];
       seasonId: string | null;
       search: string | null;
+      roleId: string | null;
+      roleIds: string[];
     }>
   ): void {
     if (filters.status !== undefined) this.status.set(filters.status);
     if (filters.headquarterId !== undefined) this.headquarterId.set(filters.headquarterId);
+    if (filters.headquarterIds !== undefined) this.headquarterIds.set(filters.headquarterIds);
     if (filters.seasonId !== undefined) this.seasonId.set(filters.seasonId);
     if (filters.search !== undefined) this.search.set(filters.search);
+    if (filters.roleId !== undefined) this.roleId.set(filters.roleId);
+    if (filters.roleIds !== undefined) this.roleIds.set(filters.roleIds);
 
     this.currentPage.set(1);
   }
 
-  async exportAgreements(): Promise<AgreementWithShallowRelations[]> {
-    const exportParams: AgreementsRpcParams = {
+  async exportAgreements(): Promise<SearchAgreementResult[]> {
+    const exportParams: SearchAgreementsParams = {
       p_limit: this.totalItems() || 1000, // Export all or max 1000
       p_offset: 0,
     };
@@ -567,51 +455,31 @@ export class AgreementsFacadeService {
     const status = this.status();
     if (status) exportParams.p_status = status;
 
-    const headquarterId = this.headquarterId();
-    if (headquarterId) exportParams.p_headquarter_id = headquarterId;
+    const headquarterIds = this.headquarterIds();
+    if (headquarterIds.length === 1) {
+      exportParams.p_headquarter_id = headquarterIds[0];
+    }
 
     const seasonId = this.seasonId();
     if (seasonId) exportParams.p_season_id = seasonId;
 
     const search = this.search();
-    if (search) exportParams.p_search = search;
+    if (search) exportParams.p_search_query = search;
 
-    // TODO: Get current user role ID from auth context
-    // if (roleId) exportParams.p_role_id = roleId;
+    const roleIds = this.roleIds();
+    if (roleIds.length === 1) {
+      exportParams.p_role_id = roleIds[0];
+    }
 
-    const { data, error } = await this.supabase.getClient().rpc('get_agreements_with_role_paginated', exportParams);
+    const { data, error } = await this.supabase.getClient().rpc('search_agreements', exportParams);
 
     if (error) {
       console.error('Error exporting agreements:', error);
       throw error;
     }
 
-    const typedData = data as unknown as { data: AgreementWithShallowRelations[] };
-    const agreements = typedData?.data || [];
-
-    // Fetch headquarters to map names
-    const { data: headquartersData, error: hqError } = await this.supabase
-      .getClient()
-      .from('headquarters')
-      .select('id, name');
-
-    if (hqError) {
-      console.error('Error fetching headquarters for export:', hqError);
-    }
-
-    // Create a map of headquarter IDs to names
-    const headquarterMap = new Map<string, string>();
-    if (headquartersData) {
-      headquartersData.forEach((hq) => {
-        headquarterMap.set(hq.id, hq.name);
-      });
-    }
-
-    // Map agreements with headquarter names
-    return agreements.map((agreement) => ({
-      ...agreement,
-      headquarter_name: headquarterMap.get(agreement.headquarter_id) || 'Unknown Headquarter',
-    }));
+    const response = data as unknown as SearchAgreementsResponse;
+    return response?.data || [];
   }
 
   isAgreementsLoading = computed(() => this.agreements.isLoading() || this.isLoading());
@@ -627,4 +495,36 @@ export class AgreementsFacadeService {
   headquartersResource = linkedSignal(() => this.headquarters.value() ?? []);
   rolesResource = linkedSignal(() => this.roles.value() ?? []);
   seasonsResource = linkedSignal(() => this.seasons.value() ?? []);
+
+  searchAgreements(criteria: AgreementSearchCriteria): Promise<AgreementSearchServiceResult> {
+    return this.agreementSearchService
+      .searchAgreements(criteria)
+      .toPromise()
+      .then(
+        (result: AgreementSearchServiceResult | undefined) => result || { agreements: [], totalCount: 0, searchTime: 0 }
+      );
+  }
+
+  // Text search implementation using the new search_agreements RPC
+  async searchAgreementsByName(query: string): Promise<SearchAgreementResult[]> {
+    if (!query || query.trim().length < 2) {
+      return [];
+    }
+
+    const params: SearchAgreementsParams = {
+      p_search_query: query,
+      p_limit: 100,
+      p_offset: 0,
+    };
+
+    const { data, error } = await this.supabase.getClient().rpc('search_agreements', params);
+
+    if (error) {
+      console.error('Search error:', error);
+      return [];
+    }
+
+    const response = data as unknown as SearchAgreementsResponse;
+    return response?.data || [];
+  }
 }

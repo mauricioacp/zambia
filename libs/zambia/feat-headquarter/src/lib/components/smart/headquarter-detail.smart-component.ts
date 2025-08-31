@@ -22,7 +22,7 @@ import {
 import { HeadquarterFormModalSmartComponent } from './headquarter-form-modal.smart-component';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { NotificationService } from '@zambia/data-access-generic';
-import { AgreementsFacadeService, AgreementWithShallowRelations } from '@zambia/feat-agreements';
+import { AgreementsFacadeService, SearchAgreementResult } from '@zambia/feat-agreements';
 import { TuiBreadcrumbs, TuiDataListWrapper, TuiSelect, TuiChevron } from '@taiga-ui/kit';
 import {
   TuiButton,
@@ -747,13 +747,13 @@ export class HeadquarterDetailSmartComponent {
   currentEditionStudents = computed(() => {
     const agreements = this.agreementsList();
     if (!agreements) return [];
-    return agreements.filter((agreement: AgreementWithShallowRelations) => agreement.status !== 'graduated');
+    return agreements.filter((agreement: SearchAgreementResult) => agreement.status !== 'graduated');
   });
 
   previousStudents = computed(() => {
     const agreements = this.agreementsList();
     if (!agreements) return [];
-    return agreements.filter((agreement: AgreementWithShallowRelations) => agreement.status === 'graduated');
+    return agreements.filter((agreement: SearchAgreementResult) => agreement.status === 'graduated');
   });
 
   studentMetrics = computed(() => {
@@ -761,11 +761,11 @@ export class HeadquarterDetailSmartComponent {
 
     return {
       total: agreements.length,
-      active: agreements.filter((a: AgreementWithShallowRelations) => a.status === 'active').length,
-      prospects: agreements.filter((a: AgreementWithShallowRelations) => a.status === 'prospect').length,
-      inactive: agreements.filter((a: AgreementWithShallowRelations) => a.status === 'inactive').length,
-      graduated: agreements.filter((a: AgreementWithShallowRelations) => a.status === 'graduated').length,
-      currentEdition: agreements.filter((a: AgreementWithShallowRelations) => a.status !== 'graduated').length,
+      active: agreements.filter((a: SearchAgreementResult) => a.status === 'active').length,
+      prospects: agreements.filter((a: SearchAgreementResult) => a.status === 'prospect').length,
+      inactive: agreements.filter((a: SearchAgreementResult) => a.status === 'inactive').length,
+      graduated: agreements.filter((a: SearchAgreementResult) => a.status === 'graduated').length,
+      currentEdition: agreements.filter((a: SearchAgreementResult) => a.status !== 'graduated').length,
     };
   });
 
@@ -774,24 +774,22 @@ export class HeadquarterDetailSmartComponent {
 
     return {
       total: agreements.length,
-      facilitators: agreements.filter((a: AgreementWithShallowRelations) =>
+      facilitators: agreements.filter((a: SearchAgreementResult) =>
         a.role?.role_code?.toLowerCase().includes('facilitator')
       ).length,
-      companions: agreements.filter((a: AgreementWithShallowRelations) =>
+      companions: agreements.filter((a: SearchAgreementResult) =>
         a.role?.role_code?.toLowerCase().includes('companion')
       ).length,
-      managers: agreements.filter((a: AgreementWithShallowRelations) =>
-        a.role?.role_code?.toLowerCase().includes('manager')
-      ).length,
-      assistants: agreements.filter((a: AgreementWithShallowRelations) =>
+      managers: agreements.filter((a: SearchAgreementResult) => a.role?.role_code?.toLowerCase().includes('manager'))
+        .length,
+      assistants: agreements.filter((a: SearchAgreementResult) =>
         a.role?.role_code?.toLowerCase().includes('assistant')
       ).length,
-      coordinators: agreements.filter((a: AgreementWithShallowRelations) =>
+      coordinators: agreements.filter((a: SearchAgreementResult) =>
         a.role?.role_code?.toLowerCase().includes('coordinator')
       ).length,
-      directors: agreements.filter((a: AgreementWithShallowRelations) =>
-        a.role?.role_code?.toLowerCase().includes('director')
-      ).length,
+      directors: agreements.filter((a: SearchAgreementResult) => a.role?.role_code?.toLowerCase().includes('director'))
+        .length,
     };
   });
 
@@ -858,8 +856,8 @@ export class HeadquarterDetailSmartComponent {
       console.log('Role structure:', agreements[0].role);
     }
 
-    return agreements.filter((agreement: AgreementWithShallowRelations) => {
-      // Handle role structure from AgreementWithShallowRelations
+    return agreements.filter((agreement: SearchAgreementResult) => {
+      // Handle role structure from SearchAgreementResult
       const role = agreement.role;
       if (!role) return false;
 
@@ -981,7 +979,7 @@ export class HeadquarterDetailSmartComponent {
     },
   ]);
 
-  studentsActions = computed((): TableAction<AgreementWithShallowRelations>[] => [
+  studentsActions = computed((): TableAction<SearchAgreementResult>[] => [
     {
       label: this.translate.instant('view'),
       icon: '@tui.eye',
@@ -1041,7 +1039,7 @@ export class HeadquarterDetailSmartComponent {
     },
   ]);
 
-  agreementsActions = computed((): TableAction<AgreementWithShallowRelations>[] => [
+  agreementsActions = computed((): TableAction<SearchAgreementResult>[] => [
     {
       label: this.translate.instant('view'),
       icon: '@tui.eye',
@@ -1189,11 +1187,11 @@ export class HeadquarterDetailSmartComponent {
     this.router.navigate(['/dashboard/workshops', workshop.id]);
   }
 
-  onStudentView(student: AgreementWithShallowRelations): void {
+  onStudentView(student: SearchAgreementResult): void {
     this.router.navigate(['/dashboard/agreements', student.id]);
   }
 
-  onAgreementView(agreement: AgreementWithShallowRelations): void {
+  onAgreementView(agreement: SearchAgreementResult): void {
     this.router.navigate(['/dashboard/agreements', agreement.id]);
   }
 

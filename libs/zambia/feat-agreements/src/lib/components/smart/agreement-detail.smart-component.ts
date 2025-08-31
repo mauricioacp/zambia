@@ -361,7 +361,6 @@ export class AgreementDetailSmartComponent {
   constructor() {
     effect(() => {
       this.agreementsFacade.agreementId.set(this.agreementId());
-      this.agreementsFacade.loadAgreementById();
     });
 
     effect(() => {
@@ -465,8 +464,7 @@ export class AgreementDetailSmartComponent {
         } else {
           await this.agreementsFacade.activateAgreement(agreement.id);
         }
-        // Reload data
-        this.agreementsFacade.loadAgreementById();
+        this.agreementsFacade.agreementById.reload();
       } catch (error) {
         console.error(`Failed to ${action} agreement:`, error);
       } finally {

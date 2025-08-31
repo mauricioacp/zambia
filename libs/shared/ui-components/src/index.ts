@@ -3,7 +3,6 @@ export * from './lib/assets/logo-svg';
 export * from './lib/layout/layout.service';
 export * from './lib/layout/window.service';
 export * from './lib/layout/theme.service';
-export * from './lib/layout/theme.utils';
 export * from './lib/layout/language.service';
 
 export * from './lib/ui-components/sidebar/sidebar.ui-component';
@@ -51,9 +50,8 @@ export * from './lib/ui-components/data-badge.ui-component';
 
 export * from './lib/ui-components/card/card.component';
 
-export * from './lib/layout/masonry.component';
-
 export * from './lib/ui-components/generic-table/enhanced-table.ui-component';
+export * from './lib/ui-components/generic-table/enhanced-table-refactored.ui-component';
 export * from './lib/directives/column-template.directive';
 
 export * from './lib/ui-components/export-modal/export-modal.ui-component';
@@ -75,3 +73,5 @@ export * from './lib/ui-components/status-dashboard-card.ui-component';
 export * from './lib/ui-components/glass-container.ui-component';
 
 export * from './lib/ui-components/section-header.ui-component';
+
+export * from './lib/ui-components/cards/data-card.ui-component';
