@@ -1,19 +1,12 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NotificationsButtonComponent } from './notifications-button.component';
 import { ThemeToggleComponent } from './theme-toggle.component';
 import { SidebarToggleComponent } from './sidebar-toggle.component';
 import { LanguageToggleComponent } from './language-toggle.component';
 
 @Component({
   selector: 'z-page-header',
-  imports: [
-    CommonModule,
-    NotificationsButtonComponent,
-    ThemeToggleComponent,
-    SidebarToggleComponent,
-    LanguageToggleComponent,
-  ],
+  imports: [CommonModule, ThemeToggleComponent, SidebarToggleComponent, LanguageToggleComponent],
   template: `
     <header
       id="page-header"
@@ -47,7 +40,7 @@ import { LanguageToggleComponent } from './language-toggle.component';
         <div class="flex items-center gap-2">
           <z-language-toggle />
           <z-theme-toggle />
-          <z-notifications-button />
+          <!-- todo <z-notifications-button />-->
         </div>
         <!-- END Right Section -->
       </div>

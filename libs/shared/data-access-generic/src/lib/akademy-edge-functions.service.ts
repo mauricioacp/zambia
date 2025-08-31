@@ -11,6 +11,8 @@ import {
   DeactivateUserResponse,
   MigrationResponse,
   ApiResponse,
+  SendEmailRequest,
+  SendEmailResponse,
 } from './akademy-edge-functions.types';
 
 @Injectable({
@@ -141,14 +143,14 @@ export class AkademyEdgeFunctionsService {
     return response;
   }
 
-  clearError(): void {
-    this.lastError.set(null);
+  async sendEmail(request: SendEmailRequest): Promise<ApiResponse<SendEmailResponse>> {
+    return await this.invokeFunction<SendEmailResponse>('akademy-app/email', {
+      method: 'POST',
+      body: request,
+    });
   }
 
-  clearData(): void {
-    this.migrationData.set(null);
-    this.userCreationData.set(null);
-    this.passwordResetData.set(null);
-    this.userDeactivationData.set(null);
+  clearError(): void {
+    this.lastError.set(null);
   }
 }

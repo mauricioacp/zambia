@@ -77,3 +77,5 @@ export * from './lib/ui-components/section-header.ui-component';
 export * from './lib/ui-components/cards/data-card.ui-component';
 
 export * from './lib/ui-components/content-page-container.component';
+
+export * from './lib/ui-components/page-header-with-actions.ui-component';

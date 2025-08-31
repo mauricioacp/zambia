@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, resource, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TuiAutoColorPipe, TuiInitialsPipe, TuiTextfield, TuiLoader } from '@taiga-ui/core';
-import { TuiAvatar } from '@taiga-ui/kit';
+import { TuiAutoColorPipe, TuiInitialsPipe, TuiTextfield, TuiLoader, TuiIcon } from '@taiga-ui/core';
+import { TuiAvatar, TuiTooltip } from '@taiga-ui/kit';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { AgreementsFacadeService } from '../../services/agreements-facade.service';
@@ -22,19 +22,22 @@ import { Router } from '@angular/router';
     TuiAutoColorPipe,
     TuiInitialsPipe,
     TuiLoader,
+    TuiTooltip,
+    TuiIcon,
   ],
   template: `
     <div class="relative">
-      <tui-textfield>
-        <input
-          tuiTextfield
-          [(ngModel)]="searchInputValue"
-          placeholder="{{ 'search_by_name' | translate }}"
-          iconStart="@tui.search"
-        />
+      <label for="tSearch" class="mb-2 block text-sm font-medium text-gray-700 sm:text-base dark:text-slate-300">
+        {{ 'search_by_name_label' | translate }}
+      </label>
+      <tui-textfield iconStart="@tui.search">
+        <input placeholder="{{ 'search_by_name' | translate }}" tuiTextfield [(ngModel)]="searchInputValue" />
+        <tui-icon tuiTooltip="Escribe el nombre de un colaborador o alumno..." />
       </tui-textfield>
 
       @if (searchQuery() && searchQuery().length >= 2) {
+        <!--  todo convert to taiga ui combo box component?      -->
+
         <div
           class="absolute top-full right-0 left-0 z-50 mt-1 max-h-96 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800"
         >
@@ -84,53 +87,38 @@ import { Router } from '@angular/router';
       }
     `,
   ],
+  host: {
+    class: 'min-w-[180px]',
+  },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AgreementTextSearchComponent {
   private agreementsFacade = inject(AgreementsFacadeService);
   private router = inject(Router);
-
-  // Search state
   searchInputValue = signal('');
-  isSearching = signal(false);
-  searchResults = signal<SearchAgreementResult[]>([]);
-
-  // Debounced search query
   searchQuery = debouncedSignal(this.searchInputValue, 500, '');
 
-  constructor() {
-    // React to debounced search query changes
-    effect(() => {
-      console.log('Search query changed:', this.searchQuery());
-      this.searchAgreements(this.searchQuery());
-    });
-  }
+  private resultsResource = resource({
+    request: () => this.searchQuery(),
+    loader: async ({ request }) => {
+      const query = request;
+      if (!query || query.length < 2) {
+        return [] as SearchAgreementResult[];
+      }
+      try {
+        return await this.agreementsFacade.searchAgreementsByName(query);
+      } catch (error) {
+        console.error('Search error:', error);
+        return [] as SearchAgreementResult[];
+      }
+    },
+  });
 
-  private async searchAgreements(query: string): Promise<void> {
-    if (!query || query.length < 2) {
-      this.searchResults.set([]);
-      return;
-    }
-
-    this.isSearching.set(true);
-
-    try {
-      const results = await this.agreementsFacade.searchAgreementsByName(query);
-      this.searchResults.set(results);
-    } catch (error) {
-      console.error('Search error:', error);
-      this.searchResults.set([]);
-    } finally {
-      this.isSearching.set(false);
-    }
-  }
+  isSearching = computed(() => this.resultsResource.isLoading());
+  searchResults = computed<SearchAgreementResult[]>(() => this.resultsResource.value() ?? []);
 
   selectAgreement(agreement: SearchAgreementResult): void {
-    // Clear search
     this.searchInputValue.set('');
-    this.searchResults.set([]);
-
-    // Navigate to agreement
     this.router.navigate(['/dashboard/agreements', agreement.id]);
   }
 

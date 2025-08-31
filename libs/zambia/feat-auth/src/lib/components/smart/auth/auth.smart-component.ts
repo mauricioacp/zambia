@@ -214,6 +214,7 @@ export class AuthSmartComponent implements OnInit {
   }
 
   private handleAuthError(errorKey: string): void {
+    errorKey = this.translate.instant(errorKey);
     this.signInError = errorKey;
     this.notificationService
       .showError(errorKey, {

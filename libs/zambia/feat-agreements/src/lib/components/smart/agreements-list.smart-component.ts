@@ -18,7 +18,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { AgreementsFacadeService } from '../../services/agreements-facade.service';
 import { SearchAgreementResult } from '../../types/search-agreements.types';
-import { RoleService } from '@zambia/data-access-roles-permissions';
 import { ExportService, NotificationService, AkademyEdgeFunctionsService } from '@zambia/data-access-generic';
 import { DirectMessageService } from '@zambia/shared/data-access-notifications';
 import { DirectMessageDialogV2SmartComponent } from '@zambia/feat-notifications';
@@ -29,7 +28,8 @@ import {
   ExportModalUiComponent,
   ExportOptions,
   injectCurrentTheme,
-  WindowService,
+  PageHeaderWithActionsUiComponent,
+  PageHeaderConfig,
 } from '@zambia/ui-components';
 import { AgreementSmartTableComponent } from './agreement-smart-table.smart-component';
 import { AgreementSearchCriteria } from '../ui/agreement-search-modal.ui-component';
@@ -43,14 +43,13 @@ import { RoleFilterCheckboxComponent } from '../ui/role-filter-checkbox.ui-compo
 import { HeadquarterFilterCheckboxComponent } from '../ui/headquarter-filter-checkbox.ui-component';
 
 import { TuiButton, TuiDialogService, TuiIcon, TuiLink } from '@taiga-ui/core';
-import { TuiBreadcrumbs, TuiSkeleton } from '@taiga-ui/kit';
+import { TuiBadge, TuiBreadcrumbs, TuiStatus } from '@taiga-ui/kit';
 import { TuiItem } from '@taiga-ui/cdk';
 
 import { ROLE } from '@zambia/util-roles-definitions';
 import { ICONS } from '@zambia/util-constants';
 import { UserCreationSuccessModalComponent } from './user-creation-success-modal.component';
 import { PasswordResetModalComponent } from './password-reset-modal.component';
-import { HasRoleDirective } from '@zambia/util-roles-permissions';
 import { CountriesFacadeService } from '@zambia/feat-countries';
 
 interface StatCard {
@@ -75,14 +74,15 @@ interface StatCard {
     HeadquarterFilterCheckboxComponent,
     TuiIcon,
     TuiButton,
-    TuiSkeleton,
     TuiBreadcrumbs,
     TuiItem,
     TuiLink,
     RouterLink,
-    HasRoleDirective,
     DataCardUiComponent,
     ContentPageContainerComponent,
+    PageHeaderWithActionsUiComponent,
+    TuiStatus,
+    TuiBadge,
   ],
   template: `
     <div class="min-h-screen bg-gray-50 dark:bg-slate-800">
@@ -99,61 +99,11 @@ interface StatCard {
             </span>
           </tui-breadcrumbs>
 
-          <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div class="flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
-              <div class="mx-auto rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 p-4 shadow-lg sm:mx-0">
-                <tui-icon [icon]="ICONS.AGREEMENTS" class="text-3xl text-white"></tui-icon>
-              </div>
-              <div>
-                <h1 class="mb-1 text-2xl font-bold text-gray-800 sm:text-3xl dark:text-white">
-                  {{ 'agreements' | translate }}
-                </h1>
-                <p class="text-sm text-gray-600 sm:text-base dark:text-slate-400">
-                  {{ 'agreements_description' | translate }}
-                </p>
-              </div>
-            </div>
-            <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
-              <button
-                tuiButton
-                appearance="secondary"
-                [size]="buttonSize()"
-                iconStart="@tui.download"
-                [attr.tuiTheme]="currentTheme()"
-                (click)="onExportAgreements()"
-                [disabled]="isProcessing() || !hasData()"
-                class="w-full border-emerald-500 text-emerald-600 hover:bg-emerald-50 sm:w-auto dark:hover:bg-emerald-900/20"
-              >
-                {{ 'export' | translate }}
-              </button>
-              <button
-                *zHasRole="[ROLE.SUPERADMIN]"
-                tuiButton
-                appearance="secondary"
-                [size]="buttonSize()"
-                iconStart="@tui.database"
-                [attr.tuiTheme]="currentTheme()"
-                (click)="onMigrateFromStrapi()"
-                [disabled]="isProcessing()"
-                class="w-full border-purple-500 text-purple-600 hover:bg-purple-50 sm:w-auto dark:hover:bg-purple-900/20"
-              >
-                {{ 'migrate_from_strapi' | translate }}
-              </button>
-              <button
-                *zHasRole="allowedRolesForAgreementCreation()"
-                tuiButton
-                appearance="primary"
-                [size]="buttonSize()"
-                iconStart="@tui.plus"
-                [attr.tuiTheme]="currentTheme()"
-                (click)="onCreateAgreement()"
-                [disabled]="isProcessing()"
-                class="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 sm:w-auto"
-              >
-                {{ 'create_agreement' | translate }}
-              </button>
-            </div>
-          </div>
+          <z-page-header-with-actions
+            [loading]="isLoading()"
+            [config]="headerConfig()"
+            (actionClick)="onHeaderActionClick($event)"
+          />
         </div>
       </div>
 
@@ -165,84 +115,76 @@ interface StatCard {
           }
         </div>
 
-        <!-- Filters Section -->
-        <div class="flex flex-wrap items-end gap-4 py-6">
-          <!-- Text Search -->
-          <div class="max-w-md flex-1">
+        <!-- Quick Search -->
+        <div
+          class="my-4 rounded-xl border border-gray-200 bg-white p-4 shadow-xl dark:border-slate-700 dark:bg-slate-900"
+        >
+          <tui-badge appearance="positive" size="xl" tuiStatus> {{ 'quick_search' | translate }} </tui-badge>
+          <div class="py-2">
             <z-agreement-text-search />
           </div>
-
-          <!-- Role Filter -->
-          <div>
-            <z-role-filter-checkbox
-              [(selectedRoles)]="selectedRoleFilters"
-              (rolesChanged)="onRoleFiltersChange($event)"
-            />
-          </div>
-
-          <!-- Headquarter Filter -->
-          <div>
-            <z-headquarter-filter-checkbox
-              [(selectedHeadquarters)]="selectedHeadquarterFilters"
-              (headquartersChanged)="onHeadquarterFiltersChange($event)"
-            />
-          </div>
-
-          <!-- Clear All Filters -->
-          @if (hasActiveFilters()) {
-            <button tuiButton appearance="secondary" size="m" iconStart="@tui.filter-x" (click)="clearAllFilters()">
-              {{ 'clear_filters' | translate }}
-            </button>
-          }
         </div>
 
         <!-- Agreements Table -->
-        <div class="container mx-auto px-4 pb-6 sm:px-6 sm:pb-8">
-          <!-- Agreements Table -->
-
-          @if (errorMessage()) {
-            <div
-              class="mt-6 rounded-xl border border-red-200/50 bg-red-50 p-6 dark:border-red-800/50 dark:bg-red-900/20"
-            >
-              <div class="flex items-center gap-3">
-                <tui-icon icon="@tui.alert-circle" class="text-xl text-red-600 dark:text-red-400"></tui-icon>
-                <div>
-                  <h3 class="font-semibold text-red-800 dark:text-red-200">
-                    {{ 'error_loading_agreements' | translate }}
-                  </h3>
-                  <p class="text-red-700 dark:text-red-300">{{ errorMessage() }}</p>
-                </div>
+        @if (errorMessage()) {
+          <div class="mt-6 rounded-xl border border-red-200/50 bg-red-50 p-6 dark:border-red-800/50 dark:bg-red-900/20">
+            <div class="flex items-center gap-3">
+              <tui-icon icon="@tui.alert-circle" class="text-xl text-red-600 dark:text-red-400"></tui-icon>
+              <div>
+                <h3 class="font-semibold text-red-800 dark:text-red-200">
+                  {{ 'error_loading_agreements' | translate }}
+                </h3>
+                <p class="text-red-700 dark:text-red-300">{{ errorMessage() }}</p>
               </div>
             </div>
-          } @else {
-            <div
-              class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
-            >
-              <z-agreement-smart-table
-                [agreements]="agreementsData()"
-                [loading]="isLoading()"
-                [emptyStateTitle]="'No agreements found'"
-                [emptyStateDescription]="'There are no agreements to display.'"
-                [enablePagination]="true"
-                [enableFiltering]="true"
-                [enableColumnVisibility]="true"
-                [enableAdvancedSearch]="true"
-                [pageSize]="25"
-                [pageSizeOptions]="[10, 25, 50, 100]"
-                (createClick)="onCreateAgreement()"
-                (editClick)="onEditAgreement($event)"
-                (deleteClick)="onDeleteAgreement($event)"
-                (downloadClick)="onDownloadAgreement($event)"
-                (advancedSearch)="onAdvancedSearchCriteria($event)"
-                (createUserClick)="onCreateUserFromAgreement($event)"
-                (deactivateUserClick)="onDeactivateUser($event)"
-                (resetPasswordClick)="onResetPassword($event)"
-                (sendMessageClick)="onSendMessage($event)"
-                (deactivateAgreementClick)="onDeactivateAgreement($event)"
+          </div>
+        } @else {
+          <div
+            class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+          >
+            <!-- Table Toolbar: table-only filters -->
+            <div class="flex flex-wrap items-end gap-3 border-b border-gray-200 p-4 dark:border-slate-700">
+              <!-- Role Filter -->
+              <z-role-filter-checkbox
+                [(selectedRoles)]="selectedRoleFilters"
+                (rolesChanged)="onRoleFiltersChange($event)"
               />
+              <!-- Headquarter Filter -->
+              <z-headquarter-filter-checkbox
+                [(selectedHeadquarters)]="selectedHeadquarterFilters"
+                (headquartersChanged)="onHeadquarterFiltersChange($event)"
+              />
+              @if (hasActiveFilters()) {
+                <button tuiButton appearance="secondary" size="s" iconStart="@tui.filter-x" (click)="clearAllFilters()">
+                  {{ 'clear_filters' | translate }}
+                </button>
+              }
             </div>
-          }
-        </div>
+
+            <z-agreement-smart-table
+              [agreements]="agreementsData()"
+              [loading]="isLoading()"
+              [emptyStateTitle]="'No hay acuerdos'"
+              [emptyStateDescription]="'No hay acuerdos para mostrar.'"
+              [enablePagination]="true"
+              [enableFiltering]="true"
+              [enableColumnVisibility]="true"
+              [enableAdvancedSearch]="true"
+              [pageSize]="10"
+              [pageSizeOptions]="[10, 25, 50, 100]"
+              (createClick)="onCreateAgreement()"
+              (editClick)="onEditAgreement($event)"
+              (deleteClick)="onDeleteAgreement($event)"
+              (downloadClick)="onDownloadAgreement($event)"
+              (advancedSearch)="onAdvancedSearchCriteria($event)"
+              (createUserClick)="onCreateUserFromAgreement($event)"
+              (deactivateUserClick)="onDeactivateUser($event)"
+              (resetPasswordClick)="onResetPassword($event)"
+              (sendMessageClick)="onSendMessage($event)"
+              (deactivateAgreementClick)="onDeactivateAgreement($event)"
+            />
+          </div>
+        }
       </section>
     </div>
   `,
@@ -260,7 +202,6 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
 
   private agreementsFacade = inject(AgreementsFacadeService);
   private countriesFacade = inject(CountriesFacadeService);
-  private roleService = inject(RoleService);
   private router = inject(Router);
   private dialogs = inject(TuiDialogService);
   private exportService = inject(ExportService);
@@ -268,11 +209,9 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   private edgeFunctions = inject(AkademyEdgeFunctionsService);
   private directMessageService = inject(DirectMessageService);
   private destroyRef = inject(DestroyRef);
-  private windowService = inject(WindowService);
   private notificationService = inject(NotificationService);
 
   protected currentTheme = injectCurrentTheme();
-  protected buttonSize = computed(() => (this.windowService.isMobile() ? 'm' : 'l'));
   protected ICONS = ICONS;
   protected ROLE = ROLE;
   protected isProcessing = signal(false);
@@ -295,16 +234,47 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   protected totalPages = this.agreementsFacade.totalPages;
   protected totalItems = this.agreementsFacade.totalItems;
 
-  protected canCreate = computed(() =>
-    this.roleService.isInAnyGroup(['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'])
-  );
-  protected canEdit = computed(() =>
-    this.roleService.isInAnyGroup(['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'])
-  );
+  protected onHeaderActionClick(actionId: string): void {
+    switch (actionId) {
+      case 'export':
+        this.onExportAgreements();
+        break;
+      case 'migrate':
+        this.onMigrateFromStrapi();
+        break;
+      default:
+        console.warn(`Unknown action: ${actionId}`);
+    }
+  }
 
-  protected canDelete = computed(() => this.roleService.isInAnyGroup(['ADMINISTRATION']));
-
-  protected allowedRolesForAgreementCreation = () => ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'];
+  protected headerConfig = computed(
+    (): PageHeaderConfig => ({
+      icon: this.ICONS.AGREEMENTS,
+      titleKey: 'agreements',
+      descriptionKey: 'agreements_description',
+      colorScheme: 'emerald',
+      actions: [
+        {
+          id: 'migrate',
+          labelKey: 'migrate_from_strapi',
+          icon: '@tui.database',
+          appearance: 'secondary',
+          colorScheme: 'purple',
+          disabled: this.isProcessing(),
+          roleMin: this.ROLE.SUPERADMIN,
+        },
+        {
+          id: 'export',
+          labelKey: 'export',
+          icon: '@tui.download',
+          appearance: 'secondary',
+          colorScheme: 'emerald',
+          disabled: this.isProcessing() || !this.hasData(),
+          roleMin: this.ROLE.MANAGER_ASSISTANT,
+        },
+      ],
+    })
+  );
 
   protected roleFilterOptions = computed(() => [
     this.translate.instant('all_roles'),
@@ -444,10 +414,8 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
       });
 
       dialog.subscribe({
-        next: (options) => {
-          if (options) {
-            this.handleExport(agreements, options);
-          }
+        next: (format) => {
+          this.handleExport(agreements, format);
         },
         error: (error) => {
           console.error('Export dialog error:', error);
@@ -462,7 +430,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     }
   }
 
-  private handleExport(agreements: SearchAgreementResult[], options: ExportOptions): void {
+  private handleExport(agreements: SearchAgreementResult[], format: ExportOptions): void {
     const exportData = agreements.map((agreement) => ({
       name: agreement.name || '',
       lastName: agreement.last_name || '',
@@ -470,7 +438,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
       role: agreement.role?.role_name || '',
       status: agreement.status || '',
       headquarter: agreement.headquarter?.headquarter_name || '',
-      createdAt: agreement.created_at || '',
+      createdAt: agreement.created_at ? new Date(agreement.created_at).toLocaleString('es-Es') : '',
     }));
 
     const exportColumns = [
@@ -485,7 +453,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     const date = new Date().toISOString().split('T')[0];
     const filename = `agreements_${date}`;
 
-    if (options.format === 'csv') {
+    if (format === 'csv') {
       this.exportService.exportToCSV(exportData, exportColumns, filename);
     } else {
       this.exportService.exportToExcel(exportData, exportColumns, filename);
@@ -494,7 +462,7 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
     this.notificationService.showSuccess(
       this.translate.instant('export_success', {
         count: exportData.length,
-        format: options.format.toUpperCase(),
+        format: format.toUpperCase(),
       })
     );
   }

@@ -30,6 +30,38 @@ export const ROLE = {
   STUDENT: 'student',
 };
 
+export const ROLE_LEVELS: Record<RoleCode, number> = {
+  [ROLE.SUPERADMIN]: 100,
+  [ROLE.GENERAL_DIRECTOR]: 90,
+  [ROLE.EXECUTIVE_LEADER]: 90,
+  [ROLE.PEDAGOGICAL_LEADER]: 80,
+  [ROLE.INNOVATION_LEADER]: 80,
+  [ROLE.COMMUNICATION_LEADER]: 80,
+  [ROLE.COMMUNITY_LEADER]: 80,
+  [ROLE.COORDINATION_LEADER]: 80,
+  [ROLE.LEGAL_ADVISOR]: 80,
+  [ROLE.UTOPIK_FOUNDATION_USER]: 80,
+  [ROLE.COORDINATOR]: 70,
+  [ROLE.KONSEJO_MEMBER]: 70,
+  [ROLE.HEADQUARTER_MANAGER]: 50,
+  [ROLE.PEDAGOGICAL_MANAGER]: 40,
+  [ROLE.COMMUNICATION_MANAGER]: 40,
+  [ROLE.COMPANION_DIRECTOR]: 40,
+  [ROLE.MANAGER_ASSISTANT]: 30,
+  [ROLE.COMPANION]: 20,
+  [ROLE.FACILITATOR]: 20,
+  [ROLE.STUDENT]: 1,
+};
+
+export function getRoleLevel(role: RoleCode): number {
+  return ROLE_LEVELS[role] ?? 0;
+}
+
+export function getRolesAtLeast(minRole: RoleCode): RoleCode[] {
+  const min = getRoleLevel(minRole);
+  return (Object.values(ROLE) as RoleCode[]).filter((r) => getRoleLevel(r) >= min);
+}
+
 export type RoleCode = (typeof ROLE)[keyof typeof ROLE];
 
 export const ROLES_NAMES = new Map<RoleCode, string>([

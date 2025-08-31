@@ -679,7 +679,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
           <div class="mx-auto max-w-md">
             <tui-notification status="warning" class="border border-yellow-500/20 bg-yellow-50 dark:bg-yellow-500/10">
               <div class="py-8 text-center">
-                <tui-icon icon="@tui.help-circle" class="mb-4 text-4xl text-yellow-500"></tui-icon>
+                <tui-icon icon="@tui.circle-help" class="mb-4 text-4xl text-yellow-500"></tui-icon>
                 <h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">
                   {{ 'headquarter.not.found' | translate }}
                 </h3>

@@ -695,7 +695,7 @@ export class EnhancedTableUiComponent<T extends Record<string, unknown>> {
     if (typeof status === 'string') {
       return status === 'active' ? '@tui.check' : '@tui.x';
     }
-    return '@tui.help-circle';
+    return '@tui.circle-help';
   }
 
   getVisibleActions(item: T): TableAction<T>[] {

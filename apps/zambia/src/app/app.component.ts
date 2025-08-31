@@ -2,8 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { APP_CONFIG } from '@zambia/util-config';
 import { TuiRoot } from '@taiga-ui/core';
-import { ThemeService, CURRENT_THEME, IS_DARK_THEME, LanguageService } from '@zambia/ui-components';
-import * as Sentry from '@sentry/browser';
+import { ThemeService, CURRENT_THEME, LanguageService } from '@zambia/ui-components';
 
 @Component({
   imports: [RouterModule, TuiRoot],
@@ -19,27 +18,21 @@ import * as Sentry from '@sentry/browser';
         return themeService.currentTheme;
       },
     },
-    {
-      provide: IS_DARK_THEME,
-      useFactory: () => {
-        const themeService = inject(ThemeService);
-        return themeService.isDarkTheme;
-      },
-    },
   ],
 })
 export class AppComponent {
   readonly config = inject(APP_CONFIG);
   readonly themeService = inject(ThemeService);
-  readonly languageService = inject(LanguageService);
+  // language initialization
+  private readonly languageService = inject(LanguageService);
 
   constructor() {
     console.log(this.config.PROD ? 'PROD' : 'DEV');
-    Sentry.init({
+    /* todo Sentry.init({
       dsn: 'https://ea4ca286152e4285a573932511600fff@glitchtip-q00soko4s8gkck4sos4ww8s8.cappady.com/1',
       tracesSampleRate: 0.01,
-    });
+    });*/
 
-    Sentry.captureException(new Error('Test error'));
+    // Sentry.captureException(new Error('Test error'));
   }
 }

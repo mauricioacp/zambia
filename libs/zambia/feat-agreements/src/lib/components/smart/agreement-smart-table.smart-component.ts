@@ -13,7 +13,7 @@ import {
   TableActionButton,
   EnhancedTableConfig,
 } from '@zambia/feat-smart-table';
-import { AgreementSearchModalComponent, AgreementSearchCriteria } from '../ui/agreement-search-modal.ui-component';
+import { AgreementSearchCriteria } from '../ui/agreement-search-modal.ui-component';
 import { AgreementsFacadeService } from '../../services/agreements-facade.service';
 import { SearchAgreementResult } from '../../types/search-agreements.types';
 import { RoleService } from '@zambia/data-access-roles-permissions';
@@ -31,8 +31,6 @@ import { CountriesFacadeService } from '@zambia/feat-countries';
       [actions]="tableActions()"
       [config]="tableConfig()"
       (createClick)="createClick.emit()"
-      (rowClick)="onRowClick()"
-      (advancedSearchClick)="openAdvancedSearch()"
     />
   `,
   styles: [
@@ -79,8 +77,6 @@ export class AgreementSmartTableComponent {
   sendMessageClick = output<SearchAgreementResult>();
   deactivateAgreementClick = output<SearchAgreementResult>();
 
-  lastSearchCriteria = signal<AgreementSearchCriteria | null>(null);
-
   countries = computed(() => {
     const countriesData = this.countriesFacade.countriesResource();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -94,7 +90,6 @@ export class AgreementSmartTableComponent {
   });
 
   constructor() {
-    // Set up debounced subscriptions for actions
     this.createUserSubject.pipe(debounceTime(300)).subscribe((item) => {
       this.handleCreateUserDebounced(item);
     });
@@ -163,7 +158,6 @@ export class AgreementSmartTableComponent {
 
   searchableColumns = ['name', 'email', 'role.role_name', 'headquarter.headquarter_name', 'status'];
 
-  // Computed properties
   tableConfig = computed<EnhancedTableConfig<SearchAgreementResult>>(() => ({
     title: '',
     description: '',
@@ -189,7 +183,7 @@ export class AgreementSmartTableComponent {
 
     const actions: TableActionButton<SearchAgreementResult>[] = [
       {
-        label: 'View',
+        label: 'Ver perfil',
         icon: '@tui.eye',
         color: 'primary',
         handler: (item) => this.rowClick.emit(item),
@@ -197,10 +191,9 @@ export class AgreementSmartTableComponent {
       },
     ];
 
-    // Create User action (role level >= 30)
     if (roleLevel >= 30) {
       actions.push({
-        label: 'Create User',
+        label: 'Invitar usuario a la app',
         icon: '@tui.user-plus',
         color: 'primary',
         handler: (item) => this.createUserSubject.next(item),
@@ -212,10 +205,9 @@ export class AgreementSmartTableComponent {
       });
     }
 
-    // Deactivate User action (role level >= 50)
     if (roleLevel >= 50) {
       actions.push({
-        label: 'Deactivate User',
+        label: 'Desactivar usuario',
         icon: '@tui.user-x',
         color: 'warning',
         handler: (item) => this.deactivateUserSubject.next(item),
@@ -223,25 +215,32 @@ export class AgreementSmartTableComponent {
       });
     }
 
-    // Reset Password action
-    if (roleLevel >= 1) {
+    /* todo download agreement
       actions.push({
-        label: 'Reset Password',
+      label: 'Download',
+      icon: '@tui.download',
+      color: 'secondary',
+      handler: (item) => this.downloadClick.emit(item),
+    });*/
+
+    /* todo if (roleLevel >= 1) {
+      actions.push({
+        label: 'Cambiar contraseña',
         icon: '@tui.key',
         color: 'secondary',
         handler: (item) => this.resetPasswordClick.emit(item),
         visible: (item) => item.status === 'active' && item.user_id !== undefined,
       });
-    }
+    }*/
 
-    // Send Message action
-    actions.push({
-      label: 'Send Message',
-      icon: '@tui.message-circle',
-      color: 'primary',
-      handler: (item) => this.sendMessageClick.emit(item),
-      visible: (item) => item.status === 'active' && item.user_id !== undefined,
-    });
+    /* todo
+       actions.push({
+        label: 'Enviar mensaje',
+        icon: '@tui.message-circle',
+        color: 'primary',
+        handler: (item) => this.sendMessageClick.emit(item),
+        visible: (item) => item.status === 'active' && item.user_id !== undefined,
+      });*/
 
     if (canEdit) {
       actions.push({
@@ -251,22 +250,14 @@ export class AgreementSmartTableComponent {
         handler: (item) => this.editClick.emit(item),
       });
 
-      // Deactivate Agreement action
       actions.push({
-        label: 'Deactivate Agreement',
+        label: 'Desactivar acuerdo',
         icon: '@tui.pause',
         color: 'warning',
         handler: (item) => this.deactivateAgreementSubject.next(item),
         visible: (item) => item.status === 'active',
       });
     }
-
-    actions.push({
-      label: 'Download',
-      icon: '@tui.download',
-      color: 'secondary',
-      handler: (item) => this.downloadClick.emit(item),
-    });
 
     if (canDelete) {
       actions.push({
@@ -280,34 +271,6 @@ export class AgreementSmartTableComponent {
 
     return actions;
   });
-
-  openAdvancedSearch(): void {
-    const dialog = this.dialogService.open<AgreementSearchCriteria>(
-      new PolymorpheusComponent(AgreementSearchModalComponent),
-      {
-        data: {
-          initialCriteria: this.lastSearchCriteria(),
-          countries: this.countries(),
-          headquarters: this.headquarters(),
-        },
-        dismissible: true,
-        size: 'l',
-      }
-    );
-
-    dialog.subscribe({
-      next: (criteria) => {
-        if (criteria) {
-          this.onAdvancedSearch(criteria);
-        }
-      },
-    });
-  }
-
-  onAdvancedSearch(criteria: AgreementSearchCriteria): void {
-    this.lastSearchCriteria.set(criteria);
-    this.advancedSearch.emit(criteria);
-  }
 
   private handleDeleteDebounced(item: SearchAgreementResult): void {
     const confirmData: ConfirmationData = {
@@ -377,10 +340,10 @@ export class AgreementSmartTableComponent {
 
   private handleCreateUserDebounced(item: SearchAgreementResult): void {
     const confirmData: ConfirmationData = {
-      title: 'Create User Account',
-      message: `Are you sure you want to create a user account for ${item.name || 'this agreement'}? An email with login credentials will be sent to ${item.email}.`,
-      confirmText: 'Create User',
-      cancelText: 'Cancel',
+      title: 'Invitar usuario a la app',
+      message: `Estás seguro de que quieres invitar a ${item.name || 'this agreement'}? Se enviarán las credenciales al correo: ${item.email}.`,
+      confirmText: 'Crear usuario',
+      cancelText: 'Cancelar',
       danger: false,
     };
 
@@ -395,9 +358,5 @@ export class AgreementSmartTableComponent {
           this.createUserClick.emit(item);
         }
       });
-  }
-
-  onRowClick(/* event: AgreementWithShallowRelations */): void {
-    // Do nothing on row click - navigation is handled by the View action only
   }
 }

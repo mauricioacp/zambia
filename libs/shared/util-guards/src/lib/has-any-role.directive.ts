@@ -1,9 +1,9 @@
 import { computed, Directive, effect, inject, Input, signal, TemplateRef, ViewContainerRef } from '@angular/core';
 import { RoleService } from '@zambia/data-access-roles-permissions';
-import { ROLE_GROUP, RoleCode } from '@zambia/util-roles-definitions';
+import { getRolesAtLeast, ROLE_GROUP, RoleCode } from '@zambia/util-roles-definitions';
 
 @Directive({
-  selector: '[zHasRole]',
+  selector: '[zHasRole], [zHasRoleMin]',
   standalone: true,
 })
 export class HasRoleDirective {
@@ -13,10 +13,17 @@ export class HasRoleDirective {
 
   private roles = signal<RoleCode[]>([]);
   private groups = signal<ROLE_GROUP[]>([]);
+  private minRole = signal<RoleCode | null>(null);
 
   private hasAccess = computed(() => {
     const roleArray = this.roles();
     const groupArray = this.groups();
+    const min = this.minRole();
+
+    if (min) {
+      const allowed = getRolesAtLeast(min);
+      return this.roleService.hasAnyRole(allowed);
+    }
 
     if (groupArray.length > 0) {
       return this.roleService.isInAnyGroup(groupArray);
@@ -45,6 +52,14 @@ export class HasRoleDirective {
       this.roles.set([]);
     } else {
       this.roles.set(valueArray as RoleCode[]);
+      this.groups.set([]);
+    }
+  }
+
+  @Input() set zHasRoleMin(value: RoleCode) {
+    this.minRole.set(value);
+    if (value) {
+      this.roles.set([]);
       this.groups.set([]);
     }
   }

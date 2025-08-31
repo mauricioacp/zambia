@@ -158,16 +158,6 @@ export class AgreementsFacadeService {
           };
         }
 
-        if (response.data.length > 0) {
-          console.log('Sample agreement data:', {
-            id: response.data[0].id,
-            name: response.data[0].name,
-            headquarter_name: response.data[0].headquarter.headquarter_name,
-            headquarter_id: response.data[0].headquarter.headquarter_id,
-            role: response.data[0].role,
-          });
-        }
-
         this.totalItems.set(response.pagination.total);
         return {
           data: response.data,

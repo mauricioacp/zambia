@@ -379,7 +379,7 @@ export class CountriesListSmartComponent {
     });
   }
 
-  private handleExport(countries: Country[], options: ExportOptions): void {
+  private handleExport(countries: Country[], format: ExportOptions): void {
     // Create export columns from table columns
     const exportColumns = this.exportService.createExportColumns(this.tableColumns());
 
@@ -388,7 +388,7 @@ export class CountriesListSmartComponent {
     const filename = `countries_${date}`;
 
     // Export based on selected format
-    if (options.format === 'csv') {
+    if (format === 'csv') {
       this.exportService.exportToCSV(countries, exportColumns, filename);
     } else {
       this.exportService.exportToExcel(countries, exportColumns, filename);
@@ -399,7 +399,7 @@ export class CountriesListSmartComponent {
       .showSuccess('export_success', {
         translateParams: {
           count: countries.length,
-          format: options.format.toUpperCase(),
+          format: format.toUpperCase(),
         },
       })
       .subscribe();

@@ -637,5 +637,8 @@
   "search_tip": "Escribe al menos 2 caracteres para buscar",
   "select_role": "Seleccionar Rol",
   "clear_filter": "Limpiar Filtro",
-  "select_headquarter": "Seleccionar Sede"
+  "select_headquarter": "Seleccionar Sede",
+  "search_by_name": "Buscar por nombre",
+  "search_by_name_label": "Usa este buscador avanzado para ir directamente al perfil de un colaborador o alumno",
+  "quick_search": "Búsqueda rápida"
 }

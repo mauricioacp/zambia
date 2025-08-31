@@ -1,10 +1,3 @@
-/**
- * Table utility functions
- */
-
-/**
- * Get nested object value using dot notation
- */
 export function getNestedValue<T = unknown>(obj: Record<string, unknown>, path: string): T | null {
   const keys = path.split('.');
   let value: unknown = obj;
@@ -19,9 +12,6 @@ export function getNestedValue<T = unknown>(obj: Record<string, unknown>, path: 
   return value as T;
 }
 
-/**
- * Get display value from an object
- */
 export function getDisplayValue(value: unknown): string {
   if (value === null || value === undefined) {
     return '-';
@@ -133,7 +123,7 @@ export function getStatusIcon(status: unknown): string {
       case 'in_progress':
         return '@tui.alert-circle';
       default:
-        return '@tui.help-circle';
+        return '@tui.circle-help';
     }
   }
 
@@ -141,12 +131,9 @@ export function getStatusIcon(status: unknown): string {
     return status ? '@tui.check' : '@tui.x';
   }
 
-  return '@tui.help-circle';
+  return '@tui.circle-help';
 }
 
-/**
- * Format date value
- */
 export function formatDate(value: unknown, format = 'short'): string {
   if (!value) return '-';
 
@@ -161,9 +148,6 @@ export function formatDate(value: unknown, format = 'short'): string {
   });
 }
 
-/**
- * Get action button class based on color
- */
 export function getActionButtonClass(color?: string): string {
   const baseClass = 'action-button';
 
@@ -181,9 +165,6 @@ export function getActionButtonClass(color?: string): string {
   }
 }
 
-/**
- * Debounce function
- */
 export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
