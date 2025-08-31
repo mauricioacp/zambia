@@ -72,7 +72,7 @@ import { TranslateModule } from '@ngx-translate/core';
             icon="layout-dashboard"
             [route]="'/dashboard/panel'"
           ></z-sidebar-nav-item>
-          <z-sidebar-nav-item [label]="'Mis datos'" user-nav icon="user" [route]="'settings'"></z-sidebar-nav-item>
+          <z-sidebar-nav-item [label]="'Mis datos'" user-nav icon="user" [route]="'profile'"></z-sidebar-nav-item>
           <z-sidebar-nav-item
             [label]="'Cerrar sesión'"
             user-nav
@@ -96,6 +96,7 @@ import { TranslateModule } from '@ngx-translate/core';
         <z-brand-logo brand-logo-mobile />
         <div class="flex h-16 flex-none items-center justify-center" brand-logo-mobile></div>
       </z-page-header>
+
       <z-page-container>
         <router-outlet />
       </z-page-container>
