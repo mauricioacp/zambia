@@ -23,7 +23,14 @@ import { ExportService, NotificationService, AkademyEdgeFunctionsService } from 
 import { DirectMessageService } from '@zambia/shared/data-access-notifications';
 import { DirectMessageDialogV2SmartComponent } from '@zambia/feat-notifications';
 
-import { ExportModalUiComponent, ExportOptions, injectCurrentTheme, WindowService } from '@zambia/ui-components';
+import {
+  ContentPageContainerComponent,
+  DataCardUiComponent,
+  ExportModalUiComponent,
+  ExportOptions,
+  injectCurrentTheme,
+  WindowService,
+} from '@zambia/ui-components';
 import { AgreementSmartTableComponent } from './agreement-smart-table.smart-component';
 import { AgreementSearchCriteria } from '../ui/agreement-search-modal.ui-component';
 import {
@@ -74,6 +81,8 @@ interface StatCard {
     TuiLink,
     RouterLink,
     HasRoleDirective,
+    DataCardUiComponent,
+    ContentPageContainerComponent,
   ],
   template: `
     <div class="min-h-screen bg-gray-50 dark:bg-slate-800">
@@ -149,35 +158,15 @@ interface StatCard {
       </div>
 
       <!-- Statistics Cards -->
-      <div class="container mx-auto px-4 py-6 sm:px-6 sm:py-8">
-        @if (isLoading()) {
-          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            @for (i of [1, 2, 3, 4]; track i) {
-              <div class="h-32 w-full rounded-xl bg-white shadow-sm dark:bg-slate-800" [tuiSkeleton]="true"></div>
-            }
-          </div>
-        } @else {
-          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            @for (stat of statsCards(); track stat.id) {
-              <div [class]="stat.cardClass">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-sm font-medium text-gray-600 dark:text-gray-300">{{ stat.title | translate }}</p>
-                    <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ stat.value }}</p>
-                  </div>
-                  <div class="rounded-lg p-3" [class]="stat.gradient">
-                    <tui-icon [icon]="stat.icon" class="text-white" size="s"></tui-icon>
-                  </div>
-                </div>
-              </div>
-            }
-          </div>
-        }
-      </div>
+      <section z-content-page-container>
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          @for (stat of statsCards(); track stat.id) {
+            <z-data-card [loading]="isLoading()" [stat]="stat"></z-data-card>
+          }
+        </div>
 
-      <!-- Filters Section -->
-      <div class="container mx-auto px-4 py-4 sm:px-6">
-        <div class="flex flex-wrap items-end gap-4">
+        <!-- Filters Section -->
+        <div class="flex flex-wrap items-end gap-4 py-6">
           <!-- Text Search -->
           <div class="max-w-md flex-1">
             <z-agreement-text-search />
@@ -206,53 +195,55 @@ interface StatCard {
             </button>
           }
         </div>
-      </div>
 
-      <!-- Agreements Table -->
-      <div class="container mx-auto px-4 pb-6 sm:px-6 sm:pb-8">
         <!-- Agreements Table -->
+        <div class="container mx-auto px-4 pb-6 sm:px-6 sm:pb-8">
+          <!-- Agreements Table -->
 
-        @if (errorMessage()) {
-          <div class="mt-6 rounded-xl border border-red-200/50 bg-red-50 p-6 dark:border-red-800/50 dark:bg-red-900/20">
-            <div class="flex items-center gap-3">
-              <tui-icon icon="@tui.alert-circle" class="text-xl text-red-600 dark:text-red-400"></tui-icon>
-              <div>
-                <h3 class="font-semibold text-red-800 dark:text-red-200">
-                  {{ 'error_loading_agreements' | translate }}
-                </h3>
-                <p class="text-red-700 dark:text-red-300">{{ errorMessage() }}</p>
+          @if (errorMessage()) {
+            <div
+              class="mt-6 rounded-xl border border-red-200/50 bg-red-50 p-6 dark:border-red-800/50 dark:bg-red-900/20"
+            >
+              <div class="flex items-center gap-3">
+                <tui-icon icon="@tui.alert-circle" class="text-xl text-red-600 dark:text-red-400"></tui-icon>
+                <div>
+                  <h3 class="font-semibold text-red-800 dark:text-red-200">
+                    {{ 'error_loading_agreements' | translate }}
+                  </h3>
+                  <p class="text-red-700 dark:text-red-300">{{ errorMessage() }}</p>
+                </div>
               </div>
             </div>
-          </div>
-        } @else {
-          <div
-            class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
-          >
-            <z-agreement-smart-table
-              [agreements]="agreementsData()"
-              [loading]="isLoading()"
-              [emptyStateTitle]="'No agreements found'"
-              [emptyStateDescription]="'There are no agreements to display.'"
-              [enablePagination]="true"
-              [enableFiltering]="true"
-              [enableColumnVisibility]="true"
-              [enableAdvancedSearch]="true"
-              [pageSize]="25"
-              [pageSizeOptions]="[10, 25, 50, 100]"
-              (createClick)="onCreateAgreement()"
-              (editClick)="onEditAgreement($event)"
-              (deleteClick)="onDeleteAgreement($event)"
-              (downloadClick)="onDownloadAgreement($event)"
-              (advancedSearch)="onAdvancedSearchCriteria($event)"
-              (createUserClick)="onCreateUserFromAgreement($event)"
-              (deactivateUserClick)="onDeactivateUser($event)"
-              (resetPasswordClick)="onResetPassword($event)"
-              (sendMessageClick)="onSendMessage($event)"
-              (deactivateAgreementClick)="onDeactivateAgreement($event)"
-            />
-          </div>
-        }
-      </div>
+          } @else {
+            <div
+              class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+            >
+              <z-agreement-smart-table
+                [agreements]="agreementsData()"
+                [loading]="isLoading()"
+                [emptyStateTitle]="'No agreements found'"
+                [emptyStateDescription]="'There are no agreements to display.'"
+                [enablePagination]="true"
+                [enableFiltering]="true"
+                [enableColumnVisibility]="true"
+                [enableAdvancedSearch]="true"
+                [pageSize]="25"
+                [pageSizeOptions]="[10, 25, 50, 100]"
+                (createClick)="onCreateAgreement()"
+                (editClick)="onEditAgreement($event)"
+                (deleteClick)="onDeleteAgreement($event)"
+                (downloadClick)="onDownloadAgreement($event)"
+                (advancedSearch)="onAdvancedSearchCriteria($event)"
+                (createUserClick)="onCreateUserFromAgreement($event)"
+                (deactivateUserClick)="onDeactivateUser($event)"
+                (resetPasswordClick)="onResetPassword($event)"
+                (sendMessageClick)="onSendMessage($event)"
+                (deactivateAgreementClick)="onDeactivateAgreement($event)"
+              />
+            </div>
+          }
+        </div>
+      </section>
     </div>
   `,
   styles: `

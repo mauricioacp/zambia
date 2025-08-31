@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TuiIcon } from '@taiga-ui/core';
+import { TuiSkeleton } from '@taiga-ui/kit';
 
 export interface StatCard {
   id: string;
@@ -14,9 +15,9 @@ export interface StatCard {
 @Component({
   selector: 'z-data-card',
   standalone: true,
-  imports: [TranslatePipe, TuiIcon],
+  imports: [TranslatePipe, TuiIcon, TuiSkeleton],
   template: `
-    <div [class]="cardClasses()">
+    <div [class]="cardClasses()" [tuiSkeleton]="loading()">
       <div class="flex items-center justify-between">
         <div>
           <p class="text-sm font-medium text-gray-600 dark:text-gray-300">{{ stat().title | translate }}</p>
@@ -37,6 +38,7 @@ export interface StatCard {
 })
 export class DataCardUiComponent {
   stat = input.required<StatCard>();
+  loading = input<boolean>(true);
   customClasses = input<string>('');
 
   private readonly baseClasses =

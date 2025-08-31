@@ -48,7 +48,7 @@ export * from './lib/ui-components/showcase.ui-component';
 
 export * from './lib/ui-components/data-badge.ui-component';
 
-export * from './lib/ui-components/card/card.component';
+export * from './lib/ui-components/cards/card.component';
 
 export * from './lib/ui-components/generic-table/enhanced-table.ui-component';
 export * from './lib/ui-components/generic-table/enhanced-table-refactored.ui-component';
@@ -75,3 +75,5 @@ export * from './lib/ui-components/glass-container.ui-component';
 export * from './lib/ui-components/section-header.ui-component';
 
 export * from './lib/ui-components/cards/data-card.ui-component';
+
+export * from './lib/ui-components/content-page-container.component';
