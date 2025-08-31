@@ -30,6 +30,9 @@ import {
   injectCurrentTheme,
   PageHeaderWithActionsUiComponent,
   PageHeaderConfig,
+  ConfirmationData,
+  ConfirmationModalUiComponent,
+  InformationModalUiComponent,
 } from '@zambia/ui-components';
 import { AgreementSmartTableComponent } from './agreement-smart-table.smart-component';
 import { AgreementSearchCriteria } from '../ui/agreement-search-modal.ui-component';
@@ -48,7 +51,6 @@ import { TuiItem } from '@taiga-ui/cdk';
 
 import { ROLE } from '@zambia/util-roles-definitions';
 import { ICONS } from '@zambia/util-constants';
-import { UserCreationSuccessModalComponent } from './user-creation-success-modal.component';
 import { PasswordResetModalComponent } from './password-reset-modal.component';
 import { CountriesFacadeService } from '@zambia/feat-countries';
 
@@ -506,29 +508,21 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
         return;
       }
 
-      if (response.data) {
-        const userData = {
-          email: response.data.email,
-          password: response.data.password,
-          role: response.data.role_name,
-          user_metadata: {
-            first_name: agreement.name || '',
-            last_name: agreement.last_name || '',
-            phone: response.data.phone,
-          },
-        };
+      const confirmData: ConfirmationData = {
+        title: this.translate.instant('user_created_successfully'),
+        message: `Se ha enviado un correo a ${response?.data?.email} con los datos de acceso.
+        Por favor, comunique al nuevo usuario que registre su bandeja de entrada para completar su registro.`,
+        confirmText: 'Entendido',
+        danger: false,
+      };
 
-        this.dialogs
-          .open<void>(new PolymorpheusComponent(UserCreationSuccessModalComponent), {
-            dismissible: true,
-            size: 'm',
-            data: userData,
-            label: this.translate.instant('user_created_successfully'),
-          })
-          .subscribe();
+      this.dialogs.open<boolean>(new PolymorpheusComponent(InformationModalUiComponent), {
+        data: confirmData,
+        dismissible: true,
+        size: 's',
+      });
 
-        this.agreementsFacade.agreements.reload();
-      }
+      this.agreementsFacade.agreements.reload();
     } catch (error) {
       console.error('User creation error:', error);
       this.notificationService.showError(this.translate.instant('user_creation_error'));

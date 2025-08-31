@@ -451,7 +451,6 @@ export class AgreementDetailSmartComponent {
     const isCurrentlyActive = agreement.status === 'active';
     const action = isCurrentlyActive ? 'deactivate' : 'activate';
 
-    // Show confirmation modal
     const confirmed = await this.showConfirmationModal(`${action}_agreement_confirmation`, {
       name: `${agreement.name} ${agreement.last_name}`,
     });
@@ -486,7 +485,7 @@ export class AgreementDetailSmartComponent {
       });
 
       dialogRef.subscribe((result) => {
-        resolve(!!result);
+        resolve(result);
       });
     });
   }
