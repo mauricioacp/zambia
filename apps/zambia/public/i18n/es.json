@@ -640,5 +640,6 @@
   "select_headquarter": "Seleccionar Sede",
   "search_by_name": "Buscar por nombre",
   "search_by_name_label": "Usa este buscador avanzado para ir directamente al perfil de un colaborador o alumno",
-  "quick_search": "Búsqueda rápida"
+  "quick_search": "Búsqueda rápida",
+  "associated_rol": "Rol asociado a la cuenta"
 }

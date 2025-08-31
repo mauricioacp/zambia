@@ -5,26 +5,11 @@ import {
   ROLE_GROUPS,
   RoleCode,
   ROLE_GROUP,
-  NAVIGATION_CONFIG,
-  NAVIGATION_SECTIONS,
   getRoleName,
-  NavigationItemKey,
+  NAVIGATION_SECTIONS,
+  NavigationSection,
 } from '@zambia/util-roles-definitions';
 import { TranslateService } from '@ngx-translate/core';
-
-export interface NavigationItem {
-  key: NavigationItemKey;
-  route: string;
-  icon: string;
-  translationKey: string;
-  text: string;
-  allowedGroups?: readonly ROLE_GROUP[];
-}
-
-export interface NavigationSection {
-  headerKey?: string;
-  items: NavigationItem[];
-}
 
 @Injectable({
   providedIn: 'root',
@@ -91,24 +76,14 @@ export class RoleService {
     if (!role) return [];
 
     return NAVIGATION_SECTIONS.map((section) => ({
-      headerKey: 'headerKey' in section ? section.headerKey : undefined,
-      items: section.items
-        .map((itemKey) => {
-          const config = NAVIGATION_CONFIG[itemKey];
-          const hasAccess =
-            !('allowedGroups' in config) ||
-            !config.allowedGroups ||
-            this.isInAnyGroup([...config.allowedGroups] as ROLE_GROUP[]);
+      ...section,
+      items: section.items.filter((item) => {
+        if (!item.allowedGroups || item.allowedGroups.length === 0) {
+          return true;
+        }
 
-          return hasAccess
-            ? ({
-                ...config,
-                key: itemKey,
-                text: config.translationKey,
-              } as NavigationItem)
-            : null;
-        })
-        .filter((item): item is NavigationItem => item !== null),
+        return this.isInAnyGroup([...item.allowedGroups] as ROLE_GROUP[]);
+      }),
     })).filter((section) => section.items.length > 0);
   });
 }

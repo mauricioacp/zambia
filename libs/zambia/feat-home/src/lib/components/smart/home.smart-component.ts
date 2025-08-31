@@ -89,7 +89,7 @@ export class HomeSmartComponent {
     title: this.translateService.instant('panel.title'),
     beforeTitleText: `${this.translateService.instant('dashboard.home.welcome')}, ${this.userDisplayName()}`,
     showStatus: true,
-    subtitle: `${this.translateService.instant('role')}: ${this.userRole()}`,
+    subtitle: `${this.translateService.instant('associated_rol')}: ${this.userRole()}`,
   }));
 
   dashboardComponent = computed(() => {

@@ -50,7 +50,7 @@ import { TranslateModule } from '@ngx-translate/core';
         >
         </z-sidebar-header>
         <z-sidebar-nav sidebar-nav>
-          @for (section of roleService.getNavigationItems(); track section) {
+          @for (section of roleService.getNavigationItems(); track section.section) {
             @if (section.headerKey) {
               <z-sidebar-nav-section-header [text]="section.headerKey | translate"> </z-sidebar-nav-section-header>
             }
@@ -70,7 +70,7 @@ import { TranslateModule } from '@ngx-translate/core';
             [label]="'Panel de gestión'"
             main-nav
             icon="layout-dashboard"
-            [route]="'/dashboard/panel'"
+            [route]="'/dashboard/homepage'"
           ></z-sidebar-nav-item>
           <z-sidebar-nav-item [label]="'Mis datos'" user-nav icon="user" [route]="'profile'"></z-sidebar-nav-item>
           <z-sidebar-nav-item

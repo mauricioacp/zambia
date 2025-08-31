@@ -315,22 +315,22 @@ export class CountriesListSmartComponent {
       color: 'primary',
       handler: (country: Country) => this.onViewCountry(country),
     },
-    {
-      label: this.translate.instant('edit'),
-      icon: '@tui.pencil',
-      color: 'warning',
-      handler: (country: Country) => this.onEditCountry(country),
-      disabled: () => this.isProcessing(),
-      visible: () => this.hasTopManagementAccess(),
-    },
-    {
-      label: this.translate.instant('delete'),
-      icon: '@tui.trash',
-      color: 'danger',
-      handler: (country: Country) => this.onDeleteCountry(country),
-      disabled: () => this.isProcessing(),
-      visible: () => this.hasTopManagementAccess(),
-    },
+    // { todo handle permission system by role level
+    //   label: this.translate.instant('edit'),
+    //   icon: '@tui.pencil',
+    //   color: 'warning',
+    //   handler: (country: Country) => this.onEditCountry(country),
+    //   disabled: () => this.isProcessing(),
+    //   visible: () => this.hasTopManagementAccess(),
+    // },
+    // {
+    //   label: this.translate.instant('delete'),
+    //   icon: '@tui.trash',
+    //   color: 'danger',
+    //   handler: (country: Country) => this.onDeleteCountry(country),
+    //   disabled: () => this.isProcessing(),
+    //   visible: () => this.hasTopManagementAccess(),
+    // },
   ]);
 
   searchableColumns = computed(() => ['name', 'code']);
