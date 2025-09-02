@@ -61,7 +61,7 @@ export class AgreementSmartTableComponent {
   enablePagination = input<boolean>(true);
   enableFiltering = input<boolean>(true);
   enableColumnVisibility = input<boolean>(true);
-  enableAdvancedSearch = input<boolean>(true);
+  enableAdvancedSearch = input<boolean>(false);
   pageSize = input<number>(10);
   pageSizeOptions = input<number[]>([10, 25, 50, 100]);
 

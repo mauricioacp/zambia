@@ -11,9 +11,9 @@ import {
 import { CommonModule, NgClass } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AgreementDetails, AgreementsFacadeService } from '../../services/agreements-facade.service';
-import { TuiSkeleton, TuiBreadcrumbs } from '@taiga-ui/kit';
+import { TuiSkeleton, TuiBreadcrumbs, TuiComment } from '@taiga-ui/kit';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { TuiIcon, TuiButton, TuiLink, TuiDialogService } from '@taiga-ui/core';
+import { TuiIcon, TuiButton, TuiLink, TuiDialogService, TuiAlertComponent } from '@taiga-ui/core';
 import { TuiItem } from '@taiga-ui/cdk';
 import { ICONS } from '@zambia/util-constants';
 import { ConfirmationModalUiComponent, ConfirmationData, injectCurrentTheme } from '@zambia/ui-components';
@@ -40,6 +40,8 @@ interface TableRow {
     TuiLink,
     TuiBreadcrumbs,
     TuiItem,
+    TuiAlertComponent,
+    TuiComment,
   ],
   template: `
     <div class="min-h-screen bg-gray-50 dark:bg-slate-800">
@@ -76,7 +78,11 @@ interface TableRow {
         </div>
 
         <!-- Enhanced Header with Status Indicators -->
+
         <div class="container mx-auto px-6 py-8">
+          <div tuiComment="bottom" style="background: var(--tui-background-base-alt)">
+            Próximamente podrás cambiar datos de acuerdos y "desactivar" aquellos que ya no son parte de la sede
+          </div>
           <div
             class="mb-8 rounded-2xl border border-gray-200/50 bg-white/90 p-8 shadow-lg shadow-gray-900/5 backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20"
           >
@@ -125,13 +131,15 @@ interface TableRow {
               </div>
 
               <!-- Action Buttons -->
+
               <div class="flex gap-3">
                 <!-- Edit Agreement -->
                 <button
                   tuiButton
+                  [disabled]="true"
                   appearance="secondary"
                   size="m"
-                  iconStart="@tui.edit"
+                  iconStart="@tui.pencil"
                   [attr.tuiTheme]="currentTheme()"
                   (click)="onEditAgreement()"
                   class="border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
@@ -147,7 +155,7 @@ interface TableRow {
                   [iconStart]="getActionIcon(agreementData()?.status)"
                   [attr.tuiTheme]="currentTheme()"
                   (click)="onToggleAgreementStatus()"
-                  [disabled]="isProcessing()"
+                  [disabled]="isProcessing() || true"
                   [ngClass]="getActionButtonClasses(agreementData()?.status)"
                 >
                   {{ getActionText(agreementData()?.status) | translate }}
@@ -202,7 +210,7 @@ interface TableRow {
                         class="inline-flex items-center gap-1 text-sm font-medium"
                         [ngClass]="item.value ? 'text-emerald-600' : 'text-red-600'"
                       >
-                        <tui-icon [icon]="item.value ? '@tui.check-circle' : '@tui.x-circle'" size="xs" />
+                        <tui-icon [icon]="item.value ? '@tui.circle-check' : '@tui.x'" size="xs" />
                         {{ (item.value ? 'yes' : 'no') | translate }}
                       </span>
                     </div>

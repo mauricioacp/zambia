@@ -143,6 +143,5 @@ export class HeadquarterFilterCheckboxComponent {
 
   applyFilters(): void {
     this.dropdownOpen.set(false);
-    // The effect will automatically emit the changes
   }
 }

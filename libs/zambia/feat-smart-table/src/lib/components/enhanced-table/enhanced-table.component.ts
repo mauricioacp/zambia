@@ -13,7 +13,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { TuiTable } from '@taiga-ui/addon-table';
 import {
@@ -176,7 +176,7 @@ import {
                       (click)="onHeaderClick(column)"
                     >
                       <div class="flex items-center gap-2">
-                        {{ column.label }}
+                        {{ column.label | translate }}
                         @if (column.sortable && isColumnSorted(column)) {
                           <tui-icon [icon]="getSortIcon(column)" class="h-4 w-4" />
                         }
@@ -241,7 +241,7 @@ import {
                           }
                           @case ('date') {
                             <tui-chip appearance="info">
-                              {{ getCellValue(item, column) | date: 'mediumDate' }}
+                              {{ getCellValue(item, column) | date: 'dd MMM, yyyy' }}
                             </tui-chip>
                           }
                           @case ('badge') {
@@ -250,7 +250,7 @@ import {
                           @case ('status') {
                             <span [tuiStatus]="getStatusColorForCell(item, column)">
                               <tui-icon [icon]="getStatusIconForCell(item, column)" />
-                              {{ getCellValue(item, column) }}
+                              {{ getCellValue(item, column) | translate }}
                             </span>
                           }
                           @case ('actions') {
@@ -408,6 +408,7 @@ import {
 })
 export class EnhancedTableComponent<T extends Record<string, unknown>> {
   readonly tableState = inject(TableStateService<T>);
+  readonly translate = inject(TranslateService);
 
   items = input.required<T[]>();
   columns = input.required<TableColumnWithTemplate<T>[]>();
@@ -610,10 +611,11 @@ export class EnhancedTableComponent<T extends Record<string, unknown>> {
   getSubtitle(item: T, column: TableColumnWithTemplate<T>): string | null {
     const key = column.key;
     if (key === 'name' && 'code' in item) {
-      return `Code: ${item['code']}`;
+      return `Código: ${item['code']}`;
     }
     if (key === 'name' && 'status' in item) {
-      return `Status: ${item['status']}`;
+      const status = item['status'];
+      return `Estado: ${this.translate.instant(`${status}`)}`;
     }
     return null;
   }

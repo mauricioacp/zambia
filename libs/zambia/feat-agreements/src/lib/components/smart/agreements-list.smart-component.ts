@@ -171,7 +171,6 @@ interface StatCard {
               [enablePagination]="true"
               [enableFiltering]="true"
               [enableColumnVisibility]="true"
-              [enableAdvancedSearch]="true"
               [pageSize]="10"
               [pageSizeOptions]="[10, 25, 50, 100]"
               (createClick)="onCreateAgreement()"
@@ -773,7 +772,6 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   }
 
   protected onHeadquarterFiltersChange(headquarters: string[]): void {
-    // Update the facade with the new headquarter filters
     this.agreementsFacade.updateFilters({ headquarterIds: headquarters });
   }
 

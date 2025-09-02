@@ -18,7 +18,7 @@ export function getDisplayValue(value: unknown): string {
   }
 
   if (typeof value === 'boolean') {
-    return value ? 'Yes' : 'No';
+    return value ? 'Si' : 'No';
   }
 
   if (typeof value === 'number') {
@@ -121,7 +121,8 @@ export function getStatusIcon(status: unknown): string {
       case 'pending':
       case 'warning':
       case 'in_progress':
-        return '@tui.alert-circle';
+      case 'prospect':
+        return '@tui.circle-alert';
       default:
         return '@tui.circle-help';
     }
