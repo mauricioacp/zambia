@@ -1,44 +1,25 @@
 import { computed, inject, Injectable } from '@angular/core';
-import { AuthService } from '@zambia/data-access-auth';
+import { UserMetadataService } from '@zambia/data-access-auth';
 import {
   ROLE,
   ROLE_GROUPS,
   RoleCode,
   ROLE_GROUP,
-  NAVIGATION_CONFIG,
-  NAVIGATION_SECTIONS,
   getRoleName,
-  NavigationItemKey,
+  NAVIGATION_SECTIONS,
+  NavigationSection,
 } from '@zambia/util-roles-definitions';
 import { TranslateService } from '@ngx-translate/core';
-
-export interface NavigationItem {
-  key: NavigationItemKey;
-  route: string;
-  icon: string;
-  translationKey: string;
-  text: string;
-  allowedGroups?: readonly ROLE_GROUP[];
-}
-
-export interface NavigationSection {
-  headerKey?: string;
-  items: NavigationItem[];
-}
 
 @Injectable({
   providedIn: 'root',
 })
 export class RoleService {
-  private auth = inject(AuthService);
+  private userMetadataService = inject(UserMetadataService);
   private translate = inject(TranslateService);
 
-  userRole = computed(() => this.auth.session()?.user.user_metadata?.['role'] as RoleCode | null);
-  roleLevel = computed(() => this.auth.session()?.user.user_metadata?.['role_level'] as RoleCode | null);
-  roleId = computed(() => this.auth.session()?.user.user_metadata?.['role_id'] as RoleCode | null);
-  hqId = computed(() => this.auth.session()?.user.user_metadata?.['hq_id'] as RoleCode | null);
-  seasonId = computed(() => this.auth.session()?.user.user_metadata?.['season_id'] as RoleCode | null);
-  agreementId = computed(() => this.auth.session()?.user.user_metadata?.['agreement_id'] as RoleCode | null);
+  userRole = computed(() => this.userMetadataService.userMetadata().role as RoleCode | null);
+  roleLevel = computed(() => this.userMetadataService.userMetadata().roleLevel);
 
   hasRole(role: RoleCode): boolean {
     return this.userRole() === role;
@@ -95,24 +76,14 @@ export class RoleService {
     if (!role) return [];
 
     return NAVIGATION_SECTIONS.map((section) => ({
-      headerKey: 'headerKey' in section ? section.headerKey : undefined,
-      items: section.items
-        .map((itemKey) => {
-          const config = NAVIGATION_CONFIG[itemKey];
-          const hasAccess =
-            !('allowedGroups' in config) ||
-            !config.allowedGroups ||
-            this.isInAnyGroup([...config.allowedGroups] as ROLE_GROUP[]);
+      ...section,
+      items: section.items.filter((item) => {
+        if (!item.allowedGroups || item.allowedGroups.length === 0) {
+          return true;
+        }
 
-          return hasAccess
-            ? ({
-                ...config,
-                key: itemKey,
-                text: config.translationKey,
-              } as NavigationItem)
-            : null;
-        })
-        .filter((item): item is NavigationItem => item !== null),
+        return this.isInAnyGroup([...item.allowedGroups] as ROLE_GROUP[]);
+      }),
     })).filter((section) => section.items.length > 0);
   });
 }

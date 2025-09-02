@@ -212,7 +212,7 @@ import { TuiItem } from '@taiga-ui/cdk';
           <div class="mx-auto max-w-md">
             <tui-notification status="warning" class="border border-yellow-500/20 bg-yellow-500/10">
               <div class="py-8 text-center">
-                <tui-icon icon="@tui.help-circle" class="mb-4 text-4xl text-yellow-500"></tui-icon>
+                <tui-icon icon="@tui.circle-help" class="mb-4 text-4xl text-yellow-500"></tui-icon>
                 <h3 class="mb-2 text-xl font-bold text-white">{{ 'country.not.found' | translate }}</h3>
                 <p class="mb-6 text-slate-400">{{ 'country_not_found_description' | translate }}</p>
                 <button tuiButton appearance="secondary" size="m" routerLink="/dashboard/countries">

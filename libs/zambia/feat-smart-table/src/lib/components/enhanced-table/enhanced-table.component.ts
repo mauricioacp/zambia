@@ -13,7 +13,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { TuiTable } from '@taiga-ui/addon-table';
 import {
@@ -176,7 +176,7 @@ import {
                       (click)="onHeaderClick(column)"
                     >
                       <div class="flex items-center gap-2">
-                        {{ column.label }}
+                        {{ column.label | translate }}
                         @if (column.sortable && isColumnSorted(column)) {
                           <tui-icon [icon]="getSortIcon(column)" class="h-4 w-4" />
                         }
@@ -241,7 +241,7 @@ import {
                           }
                           @case ('date') {
                             <tui-chip appearance="info">
-                              {{ getCellValue(item, column) | date: 'mediumDate' }}
+                              {{ getCellValue(item, column) | date: 'dd MMM, yyyy' }}
                             </tui-chip>
                           }
                           @case ('badge') {
@@ -250,7 +250,7 @@ import {
                           @case ('status') {
                             <span [tuiStatus]="getStatusColorForCell(item, column)">
                               <tui-icon [icon]="getStatusIconForCell(item, column)" />
-                              {{ getCellValue(item, column) }}
+                              {{ getCellValue(item, column) | translate }}
                             </span>
                           }
                           @case ('actions') {
@@ -407,10 +407,9 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EnhancedTableComponent<T extends Record<string, unknown>> {
-  // Injected services
   readonly tableState = inject(TableStateService<T>);
+  readonly translate = inject(TranslateService);
 
-  // Inputs
   items = input.required<T[]>();
   columns = input.required<TableColumnWithTemplate<T>[]>();
   actions = input<TableActionButton<T>[]>([]);
@@ -429,22 +428,17 @@ export class EnhancedTableComponent<T extends Record<string, unknown>> {
     trackBy: 'id',
   });
 
-  // Outputs
   createClick = output<void>();
   rowClick = output<T>();
   advancedSearchClick = output<void>();
 
-  // Content children
   @ContentChildren(ColumnTemplateDirective)
   columnTemplates?: QueryList<ColumnTemplateDirective<T>>;
 
-  // Computed values
   searchedItems = computed(() => {
     const items = this.items();
     const searchTerm = this.tableState.searchTerm();
     const searchableColumns = this.config().searchableColumns || [];
-
-    // Apply search pipe logic
     const searchPipe = new TableSearchPipe();
     return searchPipe.transform(items, searchTerm, searchableColumns);
   });
@@ -498,7 +492,7 @@ export class EnhancedTableComponent<T extends Record<string, unknown>> {
     if (searchable.length === 0) {
       return 'Search in all columns...';
     }
-    return `Search in ${searchable.length} column${searchable.length > 1 ? 's' : ''}...`;
+    return `Buscar en ${searchable.length} columna${searchable.length > 1 ? 's' : ''}...`;
   });
 
   columnConfigs = computed<TableColumnConfig[]>(() => {
@@ -512,7 +506,6 @@ export class EnhancedTableComponent<T extends Record<string, unknown>> {
     }));
   });
 
-  // Config objects for primitive components
   paginationConfig = computed<TablePaginationConfig>(() => ({
     currentPage: this.tableState.currentPage(),
     pageSize: this.tableState.pageSize(),
@@ -543,16 +536,13 @@ export class EnhancedTableComponent<T extends Record<string, unknown>> {
     showSpinner: true,
   }));
 
-  // Track by function
   trackByFn = trackByField<T>(this.config().trackBy);
 
   constructor() {
-    // Update table state when items change
     effect(() => {
       this.tableState.setItems(this.filteredItems());
     });
 
-    // Initialize page size from config
     effect(() => {
       const pageSize = this.config().pageSize;
       if (pageSize) {
@@ -561,7 +551,6 @@ export class EnhancedTableComponent<T extends Record<string, unknown>> {
     });
   }
 
-  // Event handlers
   onSearchInput(event: Event): void {
     const target = event.target as HTMLInputElement;
     this.tableState.setSearchTerm(target.value);
@@ -593,7 +582,6 @@ export class EnhancedTableComponent<T extends Record<string, unknown>> {
     action.handler(item);
   }
 
-  // Helper methods
   getColumnTemplate(columnKey: string): TemplateRef<unknown> | null {
     if (!this.columnTemplates) {
       return null;
@@ -608,7 +596,6 @@ export class EnhancedTableComponent<T extends Record<string, unknown>> {
       return getDisplayValue(column.valueGetter(item));
     }
 
-    // Check if the key contains a dot (nested property)
     const key = column.key as string;
     if (key.includes('.')) {
       return getDisplayValue(getNestedValue(item as Record<string, unknown>, key));
@@ -624,10 +611,11 @@ export class EnhancedTableComponent<T extends Record<string, unknown>> {
   getSubtitle(item: T, column: TableColumnWithTemplate<T>): string | null {
     const key = column.key;
     if (key === 'name' && 'code' in item) {
-      return `Code: ${item['code']}`;
+      return `Código: ${item['code']}`;
     }
     if (key === 'name' && 'status' in item) {
-      return `Status: ${item['status']}`;
+      const status = item['status'];
+      return `Estado: ${this.translate.instant(`${status}`)}`;
     }
     return null;
   }

@@ -1,0 +1,1527 @@
+Project Overview
+===============
+
+Project Statistics:
+Total Files: 5
+Total Size: 77.26 KB
+
+File Types:
+  .ts: 3 files
+  .html: 1 files
+  .scss: 1 files
+
+Detected Technologies:
+  - TypeScript
+
+Folder Structure (Tree)
+=====================
+Legend: ✓ = Included in output, ✗ = Excluded from output
+
+├── facade.service.ts (1.84 KB) ✓
+├── pdf.service.ts (49.18 KB) ✓
+├── register-form.ui-component.html (11.35 KB) ✓
+├── register-form.ui-component.scss (256 B) ✓
+└── register-form.ui-component.ts (14.64 KB) ✓
+
+==============
+
+File Name: facade.service.ts
+Size: 1.84 KB
+Code:
+import {inject, Injectable} from '@angular/core';
+import {AuthenticationService} from '@akademia-org/frontend/data-access-auth';
+import {BehaviorSubject, Observable, switchMap, take, tap} from 'rxjs';
+import {AgreementForm, AgreementResponse, AuthenticationResult, CreateUser} from '@akademia-org/frontend/types';
+import {PdfService} from '@akademia-org/util/services';
+
+@Injectable({
+    providedIn: 'root',
+})
+export class FacadeService {
+    private readonly authenticationService = inject(AuthenticationService);
+    private readonly pdfService = inject(PdfService);
+    public success = new BehaviorSubject(false);
+
+    public authenticate(login: string, password: string): Observable<AuthenticationResult> {
+        return this.authenticationService.authenticate(login, password);
+    }
+
+    createAgreement(data: AgreementForm, login: string, password: string, signatureDataUrl: string): Observable<AuthenticationResult> {
+        return this.authenticationService
+            .createAgreement(data)
+            .pipe(
+                switchMap((response: AgreementResponse) => {
+                    const createUser: CreateUser = this.authenticationService.mapToCreateUser(
+                        data,
+                        login,
+                        password,
+                        response.data.id
+                    );
+                    this.generatePdf(data, signatureDataUrl);
+                    return this.authenticationService.register(createUser);
+                }),
+                take(1),
+                tap(() => this.success.next(true))
+            )
+    }
+
+    private generatePdf(data: AgreementForm, signatureDataUrl: string) {
+        const isStudent = data.role === 'Alumno';
+        this.pdfService.generatePdf(data, isStudent ? 'ACUERDO_ALUMNO' : 'ACUERDO_COLABORADOR', signatureDataUrl);
+    }
+}
+
+-------- [ Separator ] ------
+
+File Name: pdf.service.ts
+Size: 49.18 KB
+Code:
+import {Injectable} from '@angular/core';
+import {AgreementForm} from '@akademia-org/frontend/types';
+// @ts-ignore
+import {jsPDF as JSPDF} from 'jspdf';
+
+export type PdfType = 'ACUERDO_ALUMNO' | 'ACUERDO_COLABORADOR';
+
+@Injectable({
+    providedIn: 'root',
+})
+export class PdfService {
+    generatePdf(data: AgreementForm, type: PdfType, signatureDataUrl: string) {
+        switch (type) {
+            case 'ACUERDO_ALUMNO':
+                this.createStudentPdf(data, signatureDataUrl);
+                break;
+            case 'ACUERDO_COLABORADOR':
+                this.createCollaboratorPdf(data, signatureDataUrl);
+                break;
+        }
+    }
+
+    async createCollaboratorPdf(data: AgreementForm, signatureDataUrl: string) {
+        const {doc, name, country, documentNumber, address, role, pageHeight, lineHeight, textMargin} =
+            this.extractValues(data);
+        doc.setFillColor(8, 91, 133);
+        doc.rect(0, 0, 210, 30, 'F'); // Dibujar rectángulo de fondo
+        doc.addImage('./assets/images/logo-sm.png', 'PNG', 10, 5, 20, 20);
+        doc.setFontSize(18);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(255, 255, 255); // Color del texto en blanco
+        doc.text('ACUERDO DE INCORPORACIÓN DE VOLUNTARIO/A', 40, 20);
+
+        // Contenido
+        let yOffset = 40;
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(0, 0, 0); // Color del texto en negro
+        doc.text(
+            `En Barcelona, a ${new Date().getDate()} de ${this.getMonth()} de ${new Date().getFullYear()}`,
+            10,
+            yOffset
+        ); // fecha
+        yOffset += 10;
+        doc.text('REUNIDOS', 100, yOffset, {align: 'center'}); // subtítulo
+        yOffset += 15;
+        doc.setFontSize(14); // contenido
+        const text = `Por un lado, FUNDACIÓN UTOPIKA, con domicilio en 08017 Barcelona, C/ Milanesat, 33, 1º, 2ª, con NIF número G16989576 e inscrita con el número 3253 en el Registro de Entidades del Departamento de Justicia de la Generalitat de Catalunya, y en su representación D. Juan Diego de Olano Gavín, mayor de edad, con domicilio a estos efectos en el propio de la Fundación, con DNI número 46.148.123A, actuando como apoderado en virtud de la escritura de poder otorgada en fecha 25 de enero de 2022, ante el Notario del Ilustre Colegio de Cataluña, Don José Marqueño Ellacuría, bajo el número 173 de su Protocolo. En adelante “LA AKADEMIA”. Por otro lado, Don/Doña ${name}, mayor de edad, de nacionalidad ${country}, con DNI/Pasaporte número ${documentNumber} y domicilio ${address}, actuando en su propio nombre y representación. En adelante “EL/LA VOLUNTARIO/A”. Los firmantes se reconocen mutuamente capacidad y representación suficientes para obligarse, en especial para este acto y, en su virtud`;
+        const lines: string[] = doc.splitTextToSize(text, 180); // Divide el texto en líneas que se ajusten a un tamaño de 180
+
+        this.justifyContent(doc, lines);
+        doc.text(lines, 10, yOffset); // Muestra las líneas
+
+        yOffset += 90;
+        doc.text('MANIFIESTAN', 100, yOffset, {align: 'center'}); // subtítulo
+        yOffset += 10;
+        const manifiestan =
+            'I.- Que “La Akademia” es un proyecto educativo que, de forma completamente gratuita, promueve la educación emocional entre jóvenes. Su finalidad es acompañar a jóvenes sensibles y curiosos/as para que aprendan a ser felices, descubran quiénes verdaderamente son y encuentren el sentido que quieren darle a sus vidas. A través del autoconocimiento y la responsabilidad personal, inspira a que los jóvenes sanen su autoestima, cultiven la confianza en sí mismos/as y desarrollen todo su potencial, emprendiendo una función profesional útil, creativa y con sentido en la nueva Era del Conocimiento. La Akademia tiene como objetivo democratizar el conocimiento y la sabiduría entre los jóvenes, convirtiendo la juventud en una etapa de aprendizaje y conocimiento, para permitir que la educación emocional esté al alcance de cualquier persona.\n' +
+            '\n' +
+            'II.- Que el proyecto educativo La Akademia está respaldado y se encuentra adscrito a la entidad sin ánimo de lucro FUNDACIÓN UTÓPIKA.\n' +
+            '\n' +
+            'III.- Que una de las formas mediante la cual LA AKADEMIA promueve la educación emocional entre los jóvenes es impartiendo clases de educación emocional en sus centros.\n' +
+            '\n' +
+            'IV.- Que EL/LA VOLUNTARIO/A está interesado/a en contribuir a democratizar el conocimiento y \n' +
+            'la sabiduría entre los jóvenes y por ello quiere pasar a formar parte del proyecto La Akademia como:' +
+            role +
+            '.\n' +
+            '\n' +
+            'V.- Que, en virtud de las consideraciones precedentes, los firmantes, por su propia voluntad, han acordado celebrar el presente Acuerdo de Incorporación de Voluntario/a (en adelante “el Acuerdo”) con sujeción a las siguientes,\n' +
+            '\n' +
+            'CLÁUSULAS\n' +
+            '\n' +
+            'PRIMERA.- OBJETO DEL ACUERDO\n' +
+            '\n' +
+            '1.1.- Mediante la suscripción y firma del presente documento, EL/LA VOLUNTARIO/A pasa a formar parte del proyecto de LA AKADEMIA ejerciendo de voluntario/a a todos los efectos.\n' +
+            '\n' +
+            '1.2.- La incorporación de EL/LA VOLUNTARIO/A tiene por exclusiva finalidad desempeñar las funciones propias del rol que asume, con carácter altruista, sin que en ningún caso su relación pueda ser considerada laboral.\n' +
+            '\n' +
+            '\n' +
+            'SEGUNDA.- FORMACIÓN, FUNCIONES Y ACTIVIDADES DEL VOLUNTARIO/A\n' +
+            '\n' +
+            'EL/LA VOLUNTARIO/A debe ostentar la formación mínima de la educación primaria.\n' +
+            '\n' +
+            'Las funciones y actividades que llevará a cabo EL/LA VOLUNTARIO/A serán las correspondientes al rol asignado en base al Exponen IV y estarán recogidas en el corresponde Manual de actividades y funciones.\n' +
+            '\n' +
+            '\n' +
+            'TERCERA.- COMPROMISOS DEL/LA VOLUNTARIO/A\n' +
+            '\n' +
+            '3.1.- EL/LA VOLUNTARIO/A se compromete a dedicar una intervención debida en atención a los hitos akadémicos que deban cumplirse.\n' +
+            '\n' +
+            '3.2.- La participación y desempeño de las funciones propias del rol que asume EL/LA VOLUNTARIO/A se deberán realizar siguiendo las pautas establecidas en los correspondientes manuales de LA AKADEMIA y participando en todas las reuniones necesarias para mantener la calidad del proyecto.\n' +
+            '\n' +
+            '3.3.- En todo caso EL/LA VOLUNTARIO/A se compromete a:\n' +
+            '\n' +
+            'Cumplir los compromisos adquiridos con LA AKADEMIA, respetando sus fines y objetivos. EL/LA VOLUNTARIO/A declara haber leído el Código Ético de LA AKADEMIA (http://www.laakademia.org), comprometiéndose a respetarlo y hacerlo respetar en todo momento, lo que constituye un requisito indispensable para poder participar en el proyecto.\n' +
+            'Guardar la debida confidencialidad de la información recibida y conocida en el desarrollo de su acción voluntaria.\n' +
+            'Rechazar cualquier contraprestación material o económica que pudiera recibir bien de las personas destinatarias de la acción voluntaria, bien de otras personas relacionadas con ella.\n' +
+            'Respetar los derechos de las personas destinatarias de la acción voluntaria.\n' +
+            'Actuar con la diligencia debida y de forma solidaria.\n' +
+            'Participar en las tareas formativas previstas por LA AKADEMIA para las actividades y funciones confiadas, así como en las que con carácter permanente se precisen para mantener la calidad de la actividad.\n' +
+            'Seguir las instrucciones de LA AKADEMIA que tengan relación con el desarrollo de las actividades encomendadas y recopilar los datos e información que sirvan para la mejora de la organización.\n' +
+            'Utilizar debidamente su acreditación personal de su condición de voluntario/a de LA AKADEMIA y los distintivos de la misma.\n' +
+            'Respetar y cuidar los recursos materiales que ponga a su disposición LA AKADEMIA y sus colaboradores/as. \n' +
+            'Cumplir las medidas de seguridad y salud existentes.\n' +
+            'Observar estrictamente las normas sobre protección y tratamiento de datos de carácter personal de acuerdo con lo establecido en el marco legal aplicable.\n' +
+            '\n' +
+            '3.4.- EL/LA VOLUNTARIO/A declara expresamente que conoce la existencia de las siguientes prohibiciones y se obliga a no efectuar ninguna de ellas:\n' +
+            '\n' +
+            'Entregar material bibliográfico o audiovisual careciendo de derecho a hacerlo.\n' +
+            'Entregar claves de cursos o conferencias que estén a la venta actualmente.\n' +
+            'Efectuar interacciones comerciales.\n' +
+            'Efectuar invitaciones a proyectos de negocios.\n' +
+            'Efectuar invitaciones a sistemas de multinivel, network marketing o cualquier otro sistema de redes de mercado.\n' +
+            'Efectuar invitaciones a modelos de inversión, Forex, trading, etc.\n' +
+            'Efectuar invitaciones a esquemas de reclutamiento.\n' +
+            'Efectuar invitaciones a eventos religiosos.\n' +
+            'Efectuar invitaciones a movimientos políticos partidarios.\n' +
+            'Efectuar mentorías rentadas o consultorías pagas.\n' +
+            'Impartir cursos con fines de lucro.\n' +
+            '\n' +
+            '3.5.- EL/LA VOLUNTARIO/A se compromete a relacionarse con el alumnado dejando de lado el paternalismo y huyendo del fomento del ego espiritual. Esto es:\n' +
+            '\n' +
+            'Facilitar desde lo que somos y no desde lo que sabemos.\n' +
+            'Nutrir y escuchar a los jóvenes desde la humildad, dándoles protagonismo.\n' +
+            'Tratar a los jóvenes como adultos iguales, no desde una actitud de superioridad.\n' +
+            'Animar y permitir al alumnado experimentar los talleres y la formación desde la práctica, y no sólo desde la teoría.\n' +
+            '\n' +
+            'CUARTA.- DERECHOS DEL/LA VOLUNTARIO/A\n' +
+            '\n' +
+            'EL/LA VOLUNTARIO/A en su condición de tal, ostenta los siguientes derechos:\n' +
+            '\n' +
+            'Recibir regularmente información, orientación y apoyo, así como los medios materiales necesarios para el ejercicio de las funciones que tiene encomendadas.\n' +
+            'Recibir en todo momento, a cargo de LA AKADEMIA, y adaptada a sus condiciones personales, la formación necesaria para el correcto desarrollo de las actividades que tenga asignadas.\n' +
+            'Ser tratado/a en condiciones de igualdad, sin discriminación, respetando su libertad, identidad, dignidad y los demás derechos fundamentales reconocidos en los convenios, tratados internacionales y en la Constitución.\n' +
+            'Participar activamente en LA AKADEMIA, colaborando en la elaboración, diseño, ejecución y evaluación de los programas o proyectos, de acuerdo con sus estatutos o normas de aplicación y, en la medida que éstas lo permitan, en el gobierno y administración de LA AKADEMIA.\n' +
+            'Estar cubierto/a, a cargo de LA AKADEMIA, de los riesgos de accidente y enfermedad derivados directamente del ejercicio de la acción voluntaria y de responsabilidad civil en los casos en los que la legislación sectorial lo exija, a través de un seguro u otra garantía financiera.\n' +
+            'Disponer de una acreditación identificativa de su condición de voluntario/a en la que conste, además, la entidad de voluntariado en la que participa.\n' +
+            'Realizar su actividad de acuerdo con el principio de accesibilidad universal adaptado a la actividad que desarrolle.\n' +
+            'Obtener reconocimiento por parte de LA AKADEMIA, por el valor social de su contribución y por las competencias, aptitudes y destrezas adquiridas como consecuencia del ejercicio de su labor de voluntariado.\n' +
+            '\n' +
+            'QUINTA.- OBLIGACIONES DE LA AKADEMIA\n' +
+            '\n' +
+            'LA AKADEMIA, como responsable del proyecto y entidad de voluntariado, deberá garantizar:\n' +
+            '\n' +
+            'El correcto y adecuado desarrollo del proyecto de voluntariado, efectuando un seguimiento y evaluación de las actividades programadas, garantizando la consecución de los objetivos previstos conforme a los principios de eficacia y rentabilidad social.\n' +
+            'La protección de la dignidad e intimidad personal y familiar de EL/LA VOLUNTARIO/A.\n' +
+            'Proporcionar a EL/LA VOLUNTARIO/A, de manera regular y de acuerdo con sus condiciones personales, la formación necesaria, tanto básica como específica, para el correcto desarrollo de sus actividades.\n' +
+            'El cumplimiento de las medidas técnicas y de seguridad y salud que se deban adoptar de conformidad con la normativa específica en vigor a la que esté sometida la actividad desarrollada.\n' +
+            'Ofrecer a EL/LA VOLUNTARIO/A sistemas internos de información y orientación. \n' +
+            'Facilitar la participación de EL/LA VOLUNTARIO/A en la elaboración, diseño, ejecución y evaluación de los programas en que intervenga y, en la medida que lo permita la normativa de aplicación, en los procesos de gestión y toma de decisiones de LA AKADEMIA.\n' +
+            'Facilitar a EL/LA VOLUNTARIO/A una acreditación que le habilite e identifique para el desarrollo de su actividad.\n' +
+            'Expedir a EL/LA VOLUNTARIO/A un certificado indicando la duración y las actividades efectuadas en los programas en los que haya participado.\n' +
+            'Llevar un registro de acuerdos de incorporación y de altas y bajas de los voluntarios.\n' +
+            'Elaborar sus propias normas de funcionamiento interno.\n' +
+            '\n' +
+            '\n' +
+            'SEXTA.- DERECHOS DE LA AKADEMIA\n' +
+            'LA AKADEMIA, como responsable del proyecto y entidad de voluntariado, tendrá los siguientes derechos:\n' +
+            'Seleccionar a los voluntario/as, sin discriminación alguna por razón de sexo, identidad sexual, orientación sexual, nacionalidad, origen racial o étnico, religión, convicciones ideológicas o sindicales, discapacidad, edad, o cualquier otra condición o circunstancia personal o social, de acuerdo con sus fines u objetivos, la naturaleza y características del cometido a desarrollar y las normas establecidas en su estatuto de funcionamiento interno.\n' +
+            'Concurrir a las medidas de fomento de la acción voluntaria establecidas por las Administraciones públicas o entidades privadas y recibir las medidas de apoyo material y técnico, orientadas al adecuado desarrollo de sus actuaciones.\n' +
+            'Participar a través de las federaciones, confederaciones o uniones de entidades de voluntariado en el diseño y ejecución de las políticas públicas de las administraciones.\n' +
+            'Cualesquiera otros derechos reconocidos por el resto del ordenamiento jurídico.\n' +
+            '\n' +
+            '\n' +
+            'SÉPTIMA.- RESPONSABILIDAD DE LA AKADEMIA\n' +
+            '\n' +
+            'LA AKADEMIA se responsabiliza de los riesgos de accidente y enfermedad de EL/LA VOLUNTARIO/A derivados directamente del ejercicio de la acción voluntaria y de responsabilidad civil en los casos en los que la legislación sectorial lo exija, suscribiendo un seguro u otra garantía financiera.\n' +
+            '\n' +
+            '\n' +
+            '\n' +
+            'OCTAVA.- POLÍTICA DE GASTOS\n' +
+            '\n' +
+            'El desempeño de las actividades por parte de EL/LA VOLUNTARIO/A no entraña ningún tipo de retribución, entregando altruistamente su tiempo, capacidades y conocimientos. \n' +
+            '\n' +
+            'Sin perjuicio de lo anterior, LA AKADEMIA reembolsará a EL/LA VOLUNTARIO/A aquellos gastos que se le ocasionen o se generen como consecuencia directa de la acción voluntaria en el programa de LA AKADEMIA y estén debidamente justificados y previamente aprobados por el Konsejo.\n' +
+            '\n' +
+            'LA AKADEMIA también sufragará todos los gastos y costes necesarios para el correcto desarrollo y ejecución del proyecto previamente consensuados y aprobados por la Dirección/Konsejo.\n' +
+            '\n' +
+            '\n' +
+            'NOVENA.- DURACIÓN\n' +
+            '\n' +
+            'El presente acuerdo se mantendrá en vigencia a partir de la fecha de inicio del curso y por tiempo indefinido hasta que alguna de las dos partes solicite el cese de este, enviando un correo a laakademia@fundacionutopika.org.\n' +
+            '\n' +
+            'Si EL/LA VOLUNTARIO/A quiere rescindir el presente Acuerdo lo deberá comunicar por escrito a la coordinación nacional con una antelación mínima de un (1) mes, proponiendo a una persona que podría sustituirlo/a (que la Dirección libremente aceptará o rechazará). EL/LA VOLUNTARIO/A se compromete a formar y acompañar a esta persona en el traspaso de funciones, asegurando la continuidad y calidad del proyecto y, en especial, asegurando el respeto máximo a los derechos de las personas destinatarias de la acción voluntaria.\n' +
+            '\n' +
+            'DÉCIMA.- SUSPENSIÓN DE LA ACCIÓN VOLUNTARIA\n' +
+            '\n' +
+            'LA AKADEMIA se reserva el derecho a suspender con carácter inmediato la acción voluntaria de EL/LA VOLUNTARIO/A cuando se vea perjudicada gravemente la calidad o los fines de sus programas o proyectos por su causa, o infrinja gravemente el presente Acuerdo de Incorporación, todo ello asegurando en todo caso el respeto máximo a los derechos de las personas destinatarias de la acción voluntaria.\n' +
+            '\n' +
+            'DÉCIMOPRIMERA.- DECLARACIÓN RESPONSABLE\n' +
+            '\n' +
+            'EL/LA VOLUNTARIO/A, por la presente, declara expresamente no tener antecedentes penales no cancelados por delitos de violencia doméstica o de género, por atentar contra la vida, la integridad física, la libertad, la integridad moral o la libertad e indemnidad sexual del otro cónyuge o de los hijos/as, o por delitos de tráfico ilegal o inmigración clandestina de personas, o por delitos de terrorismo.\n' +
+            '\n' +
+            '\n' +
+            'DÉCIMOSEGUNDA.- RESOLUCIÓN DE CONFLICTOS\n' +
+            '\n' +
+            'En caso de que surja una controversia derivada o relacionada con el presente Acuerdo o, en general, entre EL/LA VOLUNTARIO/A y LA AKADEMIA, cualquiera de los firmantes invitará al otro a iniciar negociaciones para resolver la controversia. Toda invitación a negociar se hará por escrito, de la manera habitual en la que los firmantes se comuniquen por escrito.\n' +
+            '\n' +
+            'Si las partes firmantes no llegan a un acuerdo dentro de quince (15) días naturales desde que una parte haya invitado por escrito a la otra a negociar, la controversia será exclusiva y definitivamente resuelta vía arbitral de conformidad con lo dispuesto en la Ley 60/2003, de 23 de diciembre, de Arbitraje.\n' +
+            '\n' +
+            '\n' +
+            'DÉCIMOTERCERA.- PROTECCIÓN DE DATOS Y USO DE LA IMAGEN\n' +
+            '\n' +
+            'De conformidad con el Reglamento General 2016/679 (UE) de Protección de Datos y la Ley Orgánica 3/2018, de 5 de diciembre, de Protección de Datos Personales y garantía de los derechos digitales, LA AKADEMIA informa a EL/LA VOLUNTARIO/A que mediante la suscripción del presente Acuerdo y su incorporación como voluntario/a, sus datos han sido incluidos en el sistema de tratamiento titularidad de FUNDACIÓN UTÓPIKA, con la finalidad de gestionar su participación como voluntario/a en el proyecto La Akademia. LA AKADEMIA informa que los datos de EL/LA VOLUNTARIO/A se mantendrán en dicho sistema de tratamiento durante el plazo estrictamente necesario para cumplir con la finalidad mencionada, sin perjuicio de los plazos establecidos por las disposiciones legales o las autoridades públicas. Los datos podrán ser cedidos a empresas proveedoras de servicios de LA AKADEMIA cuando ello sea estrictamente necesario para garantizar el correcto y adecuado desarrollo de la relación con EL/LA VOLUNTARIO/A, y los terceros destinatarios de los datos siempre se encontrarán situados dentro del Espacio Económico Europeo.\n' +
+            '\n' +
+            'Asimismo, LA AKADEMIA informa que los datos que EL/LA VOLUNTARIO/A facilita mediante el presente Acuerdo o durante su participación en el proyecto, se tratarán conforme a la existencia y vigencia del consentimiento, y que EL/LA VOLUNTARIO/A, en calidad de titular de los datos e interesado/a, podrá solicitar más información relativa al sistema de tratamiento de datos personales, así como ejercitar los derechos de acceso, rectificación, limitación del tratamiento, oposición, revocación del consentimiento, de no ser objeto de decisiones basadas únicamente en el tratamiento automatizado de sus datos, de portabilidad o de supresión, dirigiendo su petición al correo electrónico siguiente: direccion@laakademia.org  o a la dirección de correo postal c/ Aribau nº191-193, 1º 2ª, 08021, Barcelona. Asimismo, en caso de considerar que sus derechos han sido vulnerados, podrá presentar una reclamación ante la Autoridad de Control competente (en el caso de España, la Agencia Española de Protección de Datos).\n' +
+            '\n' +
+            'Mediante la firma del presente Acuerdo, EL/LA VOLUNTARIO/A otorga su consentimiento expreso, informado e inequívoco para que FUNDACIÓN UTÓPIKA proceda o siga procediendo al tratamiento de sus datos, en las formas descritas en los apartados anteriores.\n' +
+            '  \n' +
+            'Asimismo, y de acuerdo con lo que establece la Ley 1/1982, de 5 de mayo, sobre el derecho al honor, a la intimidad personal y familiar y a la propia imagen, EL/LA VOLUNTARIO/A mediante la firma del presente Acuerdo otorga de manera inequívoca su consentimiento explícito para que LA AKADEMIA pueda utilizar sus imágenes captadas en el seno de sus actividades de voluntario/a del proyecto de LA AKADEMIA, con la finalidad de realizar vídeos, poder utilizarlas, publicarlas o difundirlas de cualquier otro modo permitido por la ley a través de sus medios de comunicación corporativos (como pudiera ser su página web y/o sus perfiles de redes sociales), utilizarlas para ilustrar materiales o para acciones corporativas, sin ningún tipo de fin comercial.\n' +
+            '\n' +
+            'Asimismo, EL/LA VOLUNTARIO/A, mediante la firma del presente Acuerdo otorga de manera inequívoca su consentimiento explícito para que LA AKADEMIA pueda tratar sus datos personales con la finalidad de poder remitirle comunicaciones informativas y publicitarias relacionadas con LA AKADEMIA.\n' +
+            '\n' +
+            'Por último, EL/LA VOLUNTARIO/A, mediante la firma del presente Acuerdo otorga de manera inequívoca su consentimiento explícito para que LA AKADEMIA pueda tratar sus datos personales con la finalidad de segmentar el mercado con el fin de ejecutar las acciones comerciales de forma más acorde con los intereses específicos de cada grupo de interesados, así como para poder remitirle información relacionada con LA AKADEMIA que sea más acorde con sus intereses.\n' +
+            '\n' +
+            '\n' +
+            'DÉCIMOCUARTA.- LEY APLICABLE\n' +
+            '\n' +
+            'El presente Acuerdo será regido por la legislación española. Todo lo no regulado expresamente en el presente Acuerdo de Incorporación será regulado y regido por lo establecido en la Ley 45/2015, de 14 octubre de 2015, de Voluntariado.\n' +
+            'Asimismo, se adjunta al presente documento, como Anexo I, un análisis de las leyes autonómicas de voluntariado de cada una de las Comunidades Autónomas en las que La Akademia tiene presencia. El presente contrato de ajustará a lo dispuesto en ese Anexo.\n' +
+            '\n' +
+            'DÉCIMOQUINTA.- FIRMA\n' +
+            '\n' +
+            'Los firmantes acuerdan que, si fuese preciso, el presente Acuerdo podrá ser suscrito por los firmantes en sus respectivos domicilios y remitido a la otra parte, debidamente firmado, vía correo electrónico o vía sistema de firma digital, dando validez a este sistema para la firma del contrato privado.\n' +
+            '\n' +
+            '\n' +
+            'Y en prueba de conformidad con todo lo anteriormente expuesto firman el presente documento por duplicado ejemplar y a un solo efecto en el lugar y fecha expresados en el encabezamiento.\n';
+
+        const lines2: string[] = doc.splitTextToSize(manifiestan, doc.internal.pageSize.width - 2 * textMargin); // Divide el texto en líneas que se ajusten a un tamaño de 180
+        this.justifyContent(doc, lines2);
+        for (let i = 0; i < lines2.length; i++) {
+            if (yOffset > pageHeight - 20) {
+                // si la posición vertical supera la altura de la página menos un margen
+                doc.addPage(); // se añade una nueva página
+                yOffset = 20; // se reinicia la posición vertical para la nueva página
+            }
+
+            doc.text(lines2[i], textMargin, yOffset); // se escribe la línea de texto en la posición actual
+            yOffset += lineHeight; // se incrementa la posición vertical para la siguiente línea
+        }
+
+        const pageWidth = doc.internal.pageSize.width;
+
+        // Aquí está el código para agregar la firma y los nombres
+
+        const signImageHeight = 10; // Tamaño de la firma, puedes ajustarlo según tus necesidades
+        const signImageWidth = 30; // Tamaño de la firma, puedes ajustarlo según tus necesidades
+        const yOffset2 = doc.internal.pageSize.height - 50; // Puedes ajustar esto para mover la posición vertical de las firmas
+
+        const loadImage = (src: string) => {
+            return new Promise<HTMLImageElement>((resolve, reject) => {
+                const img = new Image();
+                img.src = src;
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+            });
+        };
+
+        const signImage = await loadImage('assets/images/sign.png');
+
+        const signImageWidth2 = 30; // Define el ancho de la imagen
+        const signImageHeight2 = 20; // Define el alto de la imagen
+
+        doc.setFontSize(10);
+        doc.text('_________________________', 20, yOffset2);
+        doc.text('FUNDACIÓN UTOPIKA', 20, yOffset2 + 10);
+        doc.text('D. Juan Diego de Olano Gavín', 20, yOffset2 + 20);
+        doc.addImage(signImage, 'PNG', 25, yOffset2 - 20, signImageWidth2, signImageHeight2);
+        doc.text('_________________________', pageWidth - signImageWidth - 20, yOffset2, {align: 'right'});
+        doc.text(`EL/LA VOLUNTARIO/A`, pageWidth - signImageWidth - 20, yOffset2 + 10, {align: 'right'});
+        doc.text(`Don/Doña ${name}`, pageWidth - signImageWidth - 20, yOffset2 + 20, {align: 'right'});
+        doc.addImage(
+            signatureDataUrl,
+            'PNG',
+            pageWidth - signImageWidth - 60,
+            yOffset2 - 15,
+            signImageWidth,
+            signImageHeight
+        );
+
+        // download doc
+        const fileName = `Acuerdo_${name}.pdf`;
+        doc.save(fileName);
+
+        doc.output('blob');
+    }
+
+    async createStudentPdf(data: AgreementForm, signatureDataUrl: string) {
+        const {doc, name, country, documentNumber, address, role, pageHeight, lineHeight, textMargin} =
+            this.extractValues(data);
+        doc.setFillColor(8, 91, 133);
+        doc.rect(0, 0, 210, 30, 'F'); // Dibujar rectángulo de fondo
+        doc.addImage('./assets/images/logo-sm.png', 'PNG', 10, 5, 20, 20);
+        doc.setFontSize(18);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(255, 255, 255); // Color del texto en blanco
+        doc.text('ACUERDO DE INCORPORACIÓN DE VOLUNTARIO/A', 40, 20);
+
+        // Contenido
+        let yOffset = 40;
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(0, 0, 0); // Color del texto en negro
+        doc.text(
+            `En Barcelona, a ${new Date().getDate()} de ${this.getMonth()} de ${new Date().getFullYear()}`,
+            10,
+            yOffset
+        ); // fecha
+        yOffset += 10;
+        doc.text('REUNIDOS', 100, yOffset, {align: 'center'}); // subtítulo
+        yOffset += 15;
+        doc.setFontSize(14);
+        const text = `Por un lado, FUNDACIÓN UTOPIKA, con domicilio en 08017 Barcelona, C/ Milanesat, 33, 1º, 2ª, con NIF número G16989576 e inscrita con el número 3253 en el Registro de Entidades del Departamento de Justicia de la Generalitat de Catalunya, y en su representación D. Juan Diego de Olano Gavín, mayor de edad, con domicilio a estos efectos en el propio de la Fundación, con DNI número 46.148.123A, actuando como apoderado en virtud de la escritura de poder otorgada en fecha 25 de enero de 2022, ante el Notario del Ilustre Colegio de Cataluña, Don José Marqueño Ellacuría, bajo el número 173 de su Protocolo. En adelante “LA AKADEMIA”. Por otro lado, Don/Doña ${name}, mayor de edad, de nacionalidad ${country}, con DNI/Pasaporte número ${documentNumber} y domicilio ${address}, actuando en su propio nombre y representación. En adelante “EL/LA ALUMNO/A”. Los firmantes se reconocen mutuamente capacidad y representación suficientes para obligarse, en especial para este acto y, en su virtud`;
+
+        const lines: string[] = doc.splitTextToSize(text, 180); // Divide el texto en líneas que se ajusten a un tamaño de 180
+
+        this.justifyContent(doc, lines);
+        doc.text(lines, 10, yOffset); // Muestra las líneas
+
+        yOffset += 90;
+        doc.text('MANIFIESTAN', 100, yOffset, {align: 'center'}); // subtítulo
+        yOffset += 10;
+        const manifiestan =
+            'I.- Que “La Akademia” es un proyecto educativo que, de forma completamente gratuita,' +
+            'promueve la educación emocional entre jóvenes. Su finalidad es acompañar a jóvenes sensibles ' +
+            'y curiosos/as para que aprendan a ser felices, descubran quiénes verdaderamente son y ' +
+            'encuentren el sentido que quieren darle a sus vidas. A través del autoconocimiento y la' +
+            'responsabilidad personal, inspira a que los jóvenes sanen su autoestima, cultiven la confianza en ' +
+            'sí mismos/as y desarrollen todo su potencial, emprendiendo una función profesional útil, ' +
+            'creativa y con sentido en la nueva Era del Conocimiento. La Akademia tiene como objetivo ' +
+            'democratizar el conocimiento y la sabiduría entre los jóvenes, convirtiendo la juventud en una ' +
+            'etapa de aprendizaje y conocimiento, para permitir que la educación emocional esté al alcance ' +
+            'de cualquier persona.\n' +
+            '\n' +
+            'II.- Que el proyecto educativo La Akademia está respaldado y se encuentra adscrito a la entidad ' +
+            'sin ánimo de lucro FUNDACIÓN UTÓPIKA.\n' +
+            '\n' +
+            'III.- Que una de las formas mediante la cual LA AKADEMIA promueve la educación emocional ' +
+            'entre los jóvenes es impartiendo clases de educación emocional en sus centros.\n' +
+            '\n' +
+            'IV.-Que EL/LA ALUMNO/A siente curiosidad por conocerse a sí mismo/a y está interesado/a en ' +
+            'disponer de herramientas prácticas para aprender a ser feliz y mejorar su forma de relacionarse ' +
+            'con los demás y, por todo ello, está interesado/a en formar parte del proyecto La Akademia ' +
+            'como alumno/a de las clases de educación emocional.\n' +
+            '\n' +
+            'V.-Que, en virtud de las consideraciones precedentes, los firmantes, por su propia voluntad, han ' +
+            'acordado celebrar el presente Acuerdo de Participación (en adelante “el Acuerdo”) con sujeción ' +
+            'a las siguientes,\n' +
+            '\n' +
+            'CLÁUSULAS\n' +
+            '\n' +
+            '1.1.- Mediante la suscripción y firma del presente documento, EL/LA ALUMNO/A se inscribe al ' +
+            'curso de clases de educación emocional que forman parte del proyecto educativo de LA ' +
+            'AKADEMIA y, esta última, se compromete a impartir en favor de EL/LA ALUMNO/A tres (3) horas ' +
+            'de clase de educación emocional a la semana.\n' +
+            '\n' +
+            '1.2.- Las clases se impartirán en el centro educativo que LA AKADEMIA indique a EL/LA ' +
+            'ALUMNO/A y en los horarios que previamente LA AKADEMIA haya informado a EL/LA ' +
+            'ALUMNO/A.\n' +
+            '\n' +
+            'SEGUNDA.- COMPROMISOS Y DERECHOS DEL/LA ALUMNO/A\n' +
+            '\n' +
+            '2.1.- En señal de respeto a su decisión personal de inscribirse, de respeto al trabajo y dedicación' +
+            'de todos los que colaboran de forma voluntaria para que esto sea posible y de las personas que ' +
+            'se hayan podido quedar sin esta oportunidad con motivo de su admisión, ocupando una plaza, ' +
+            'EL/LA ALUMNO/A se compromete a asistir, salvo causa justificada, a todas las sesiones que ' +
+            'componen el curso de LA AKADEMIA, en su condición de alumno/a en las mismas.\n' +
+            '\n' +
+            '2.2.- EL/LA ALUMNO/A se compromete a cuidar de su bienestar físico y emocional durante el ' +
+            'curso y a informar de cualquier situación que afecte al mismo, que tenga lugar antes o durante ' +
+            'su paso por los cursos, sesiones o clases de LA AKADEMIA.\n' +
+            '\n' +
+            '2.3.- Dado que el proyecto está descentralizado, EL/LA ALUMNO/A se compromete ' +
+            'expresamente a leer y cumplir el Código Ético de LA AKADEMIA y a informar a la organización de ' +
+            'cualquier incumplimiento del mismo que pudiera presenciar. Especialmente reconoce conocer y ' +
+            'entenderla prohibición de realizar cualquier tipo de grabación de los talleres y sesiones, así como ' +
+            'de consumir o promocionar cualquier tipo de droga ilegal, bebida alcohólica o sustancia que ' +
+            'perjudique la salud.\n' +
+            '\n' +
+            '2.4.- EL/LA ALUMNO/A se compromete a llevar el material de protección de la salud que pudiera ' +
+            'resultar necesario y a cumplir con las medidas de seguridad e higiene que estén vigentes cuando ' +
+            'asista y realice actividades en LA AKADEMIA.' +
+            '\n' +
+            '2.5.- EL/LA ALUMNO/A tendrá derecho a solicitar la intervención de LA AKADEMIA para ' +
+            'solucionar los conflictos surgidos con los/as formadores/as o acompañantes voluntarios/as.' +
+            '\n' +
+            '2.6.- EL/LA ALUMNO/A declara expresamente que conoce la existencia de las siguientes ' +
+            'prohibiciones y se obliga a no efectuar ninguna de ellas durante el tiempo que dure el curso:\n' +
+            '• Entregar material bibliográfico o audiovisual careciendo de derecho a hacerlo.\n' +
+            '• Entregar claves de cursos o conferencias que estén a la venta actualmente.\n' +
+            '• Efectuar interacciones comerciales.\n' +
+            '• Efectuar invitaciones a proyectos de negocios.\n' +
+            '• Efectuar invitaciones a sistemas de multinivel, network marketing o cualquier otro\n' +
+            '• sistema de redes de mercado.\n' +
+            '• Efectuar invitaciones a modelos de inversión, Forex, trading, etc.\n' +
+            '• Efectuar invitaciones a esquemas de reclutamiento.\n' +
+            '• Efectuar invitaciones a eventos religiosos.\n' +
+            '• Efectuar invitaciones a movimientos políticos partidarios.\n' +
+            '• Efectuar mentorías rentadas o consultorías pagas.\n' +
+            '• Impartir cursos con fines de lucro.\n' +
+            '\n' +
+            'TERCERA.- OBLIGACIONES DE LA AKADEMIA\n' +
+            '\n' +
+            'LA AKADEMIA, como responsable del proyecto, deberá garantizar:\n' +
+            '\n' +
+            '• El correcto y adecuado desarrollo de los cursos, clases, talleres y sesiones.\n' +
+            '• La protección de la dignidad e intimidad personal y familiar de EL/LA ALUMNO/A.\n' +
+            '• Facilitar a EL/LA ALUMNO/A la información y orientación suficiente y comprensible de ' +
+            'acuerdo con sus condiciones personales, tanto al inicio del curso como durante su ' +
+            'transcurso, sobre las características del proyecto de LA AKADEMIA.\n' +
+            '• La sustitución del/la formador/a voluntario/a asignado/a, siempre que existan razones ' +
+            'que así lo justifiquen y se dispongan de los medios suficientes para proceder con dicha ' +
+            'sustitución.\n' +
+            '• El cumplimiento de las medidas técnicas y de seguridad y salud que se deban adoptar de ' +
+            'conformidad con la normativa específica en vigor a la que esté sometida la actividad ' +
+            'desarrollada.\n' +
+            'CUARTA.- EXCLUSIÓN DE RESPONSABILIDAD\n' +
+            '\n' +
+            'EL/LA ALUMNO/A reconoce expresamente que los/as formadores/as y acompañantes ' +
+            'únicamente exponen una visión, comprometiéndose a no creerse nada de lo que digan, sin antes ' +
+            'contrastarlo en base a su propia percepción y experiencia.\n' +
+            'En este sentido, EL/LA ALUMNO/A reconoce expresamente que él/ella es el/la responsable de ' +
+            'todas las decisiones y elecciones que adopte durante su proceso de participación en los cursos y ' +
+            'talleres de LA AKADEMIA, así como de las consecuencias que se deriven de las mismas, quedando' +
+            'la organización, sus colaboradores/as y voluntarios/as exentos/as de cualquier tipo de ' +
+            'responsabilidad por hechos que pudieran tener origen en su participación.\n' +
+            '\n' +
+            'QUINTA.- DURACIÓN\n' +
+            '\n' +
+            'El presente acuerdo se mantendrá en vigencia a partir de la fecha de inicio del curso y será válido durante la duración del mismo.\n' +
+            'El presente Acuerdo no podrá ser prorrogado salvo acuerdo expreso y por escrito de ambas \n' +
+            'partes firmantes.\n' +
+            'Se reconoce el derecho que asiste a EL/LA ALUMNO/A a prescindir o rechazar en cualquier ' +
+            'momento la acción voluntaria, esto es, a rescindir el presente Acuerdo de Participación en ' +
+            'cualquier momento, mediante renuncia por escrito o por cualquier otro procedimiento que deje ' +
+            'constancia de su decisión.\n' +
+            '\n' +
+            'SEXTA.- PROTECCIÓN DE DATOS Y USO DE LA IMAGEN\n' +
+            '\n' +
+            'De conformidad con el Reglamento General 2016/679 (UE) de Protección de Datos y la Ley ' +
+            'Orgánica 3/2018, de 5 de diciembre, de Protección de Datos Personales y garantía de los ' +
+            'derechos digitales, LA AKADEMIA informa a EL/LA ALUMNO/A que mediante su inscripción en ' +
+            'los cursos y talleres de LA AKADEMIA y la suscripción del presente Acuerdo, sus datos han sido ' +
+            'incluidos en el sistema de tratamiento titularidad de FUNDACIÓN UTÓPIKA, con la finalidad de ' +
+            'gestionar su participación como alumno/a y beneficiario/a de los cursos, talleres, clases y ' +
+            'sesiones que forman parte del proyecto La Akademia. LA AKADEMIA informa que los datos de ' +
+            'EL/LA ALUMNO/A se mantendrán en dicho sistema de tratamiento durante el plazo ' +
+            'estrictamente necesario para cumplir con la finalidad mencionada, sin perjuicio de los plazos ' +
+            'establecidos por las disposiciones legales o las autoridades públicas. Los datos podrán ser ' +
+            'cedidos a empresas proveedoras de servicios de LA AKADEMIA cuando ello sea estrictamente ' +
+            'necesario para el correcto y adecuado desarrollo de los cursos o talleres, y los terceros ' +
+            'destinatarios de los datos siempre se encontrarán situados dentro del Espacio Económico ' +
+            'Europeo.\n' +
+            'Asimismo, LA AKADEMIA informa que los datos que EL/LA ALUMNO/A facilita mediante el ' +
+            'presente Acuerdo o durante su participación en el proyecto, se tratarán conforme a la existencia ' +
+            'y vigencia del consentimiento, y que EL/LA ALUMNO/A, en calidad de titular de los datos e ' +
+            'interesado/a, podrá solicitar más información relativa al sistema de tratamiento de datos ' +
+            'personales, así como ejercitar los derechos de acceso, rectificación, limitación del tratamiento, ' +
+            'oposición, revocación del consentimiento, de no ser objeto de decisiones basadas únicamente ' +
+            'en el tratamiento automatizado de sus datos, de portabilidad o de supresión, dirigiendo su ' +
+            'petición al correo electrónico siguiente: direccion@laakademia.org o a la dirección de correo ' +
+            'postal c/ Aribau nº191-193, 1º 2ª, 08021, Barcelona. Asimismo, en caso de considerar que sus ' +
+            'derechos han sido vulnerados, EL/LA ALUMNO/A podrá presentar una reclamación ante la ' +
+            'Autoridad de Control competente (en el caso de España, la Agencia Española de Protección de ' +
+            'Datos -AEPD).\n' +
+            'Mediante la firma del presente Acuerdo, EL/LA ALUMNO/A otorga su consentimiento expreso, ' +
+            'informado e inequívoco para que FUNDACIÓN UTÓPIKA proceda o siga procediendo al ' +
+            'tratamiento de sus datos, en las formas descritas en los apartados anteriores.' +
+            ' \n' +
+            'Asimismo, y de acuerdo con lo que establece la Ley 1/1982, de 5 de mayo, sobre el derecho al ' +
+            'honor, a la intimidad personal y familiar y a la propia imagen, EL/LA ALUMNO/A mediante la ' +
+            'firma del presente Acuerdo otorga de manera inequívoca su consentimiento explícito para ' +
+            'utilizar sus imágenes captadas en el entorno de los cursos y talleres de LA AKADEMIA, con la ' +
+            'finalidad de realizar vídeos, poder utilizarlas, publicarlas o difundirlas de cualquier otro modo ' +
+            'permitido por la ley a través de sus medios de comunicación corporativos (como pudiera ser su ' +
+            'página web y/o sus perfiles de redes sociales), utilizarlas para ilustrar materiales o para acciones ' +
+            'corporativas, sin ningún tipo de fin comercial.\n' +
+            '\n' +
+            'Asimismo, EL/LA ALUMNO/A mediante la firma del presente Acuerdo otorga de manera ' +
+            'inequívoca su consentimiento explícito para que LA AKADEMIA pueda tratar sus datos ' +
+            'personales con la finalidad de poder remitirle comunicaciones informativas y publicitarias ' +
+            'relacionadas con LA AKADEMIA.\n' +
+            '\n' +
+            'Por último, EL/LA ALUMNO/A mediante la firma del presente Acuerdo otorga de manera ' +
+            'inequívoca su consentimiento explícito para que LA AKADEMIA pueda tratar sus datos ' +
+            'personales con la finalidad de segmentar el mercado con el fin de ejecutar las acciones ' +
+            'comerciales de forma más acorde con los intereses específicos de cada grupo de interesados/as, ' +
+            'así como para poder remitirle información relacionada con LA AKADEMIA que sea más acorde ' +
+            'con sus intereses.\n' +
+            '\n' +
+            'SÉPTIMA.- LEY APLICABLE\n' +
+            '\n' +
+            'El presente Acuerdo será regido por la legislación española.\n' +
+            'OCTAVA.- FIRMA\n' +
+            '\n' +
+            'Los firmantes acuerdan que, si fuese preciso, el presente Acuerdo podrá ser suscrito por los ' +
+            'firmantes en sus respectivos domicilios y remitido a la otra parte, debidamente firmado, vía ' +
+            'correo electrónico o vía sistema de firma digital, dando validez a este sistema para la firma del ' +
+            'contrato privado.' +
+            'Y en prueba de conformidad con todo lo anteriormente expuesto firman el presente documento ' +
+            'por duplicado ejemplar y a un solo efecto en el lugar y fecha expresados en el encabezamiento.';
+
+        const lines2: string[] = doc.splitTextToSize(manifiestan, doc.internal.pageSize.width - 2 * textMargin); // Divide el texto en líneas que se ajusten a un tamaño de 180
+        this.justifyContent(doc, lines2);
+        for (let i = 0; i < lines2.length; i++) {
+            if (yOffset > pageHeight - 20) {
+                // si la posición vertical supera la altura de la página menos un margen
+                doc.addPage(); // se añade una nueva página
+                yOffset = 20; // se reinicia la posición vertical para la nueva página
+            }
+
+            doc.text(lines2[i], textMargin, yOffset); // se escribe la línea de texto en la posición actual
+            yOffset += lineHeight; // se incrementa la posición vertical para la siguiente línea
+        }
+
+        const pageWidth = doc.internal.pageSize.width;
+
+        // Aquí está el código para agregar la firma y los nombres
+
+        const signImageHeight = 10; // Tamaño de la firma, puedes ajustarlo según tus necesidades
+        const signImageWidth = 30; // Tamaño de la firma, puedes ajustarlo según tus necesidades
+        const yOffset2 = doc.internal.pageSize.height - 50; // Puedes ajustar esto para mover la posición vertical de las firmas
+
+        const loadImage = (src: string) => {
+            return new Promise<HTMLImageElement>((resolve, reject) => {
+                const img = new Image();
+                img.src = src;
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+            });
+        };
+
+        const signImage = await loadImage('assets/images/sign.png');
+
+        const signImageWidth2 = 30; // Define el ancho de la imagen
+        const signImageHeight2 = 20; // Define el alto de la imagen
+
+        doc.setFontSize(10);
+        doc.text('_________________________', 20, yOffset2);
+        doc.text('FUNDACIÓN UTOPIKA', 20, yOffset2 + 10);
+        doc.text('D. Juan Diego de Olano Gavín', 20, yOffset2 + 20);
+        doc.addImage(signImage, 'PNG', 25, yOffset2 - 20, signImageWidth2, signImageHeight2);
+        doc.text('_________________________', pageWidth - signImageWidth - 20, yOffset2, {align: 'right'});
+        doc.text(`EL/LA ALUMNO/A`, pageWidth - signImageWidth - 20, yOffset2 + 10, {align: 'right'});
+        doc.text(`Don/Doña ${name}`, pageWidth - signImageWidth - 20, yOffset2 + 20, {align: 'right'});
+        doc.addImage(
+            signatureDataUrl,
+            'PNG',
+            pageWidth - signImageWidth - 60,
+            yOffset2 - 15,
+            signImageWidth,
+            signImageHeight
+        );
+
+        // download doc
+        const fileName = `Acuerdo_${name}.pdf`;
+        doc.save(fileName);
+
+        doc.output('blob');
+    }
+
+    extractValues(data: AgreementForm) {
+        const doc = new JSPDF();
+        const name = data.name + ' ' + data.lastName;
+        const country = data.country;
+        const documentNumber = data.documentNumber;
+        const address = data.address;
+        const role = data.role;
+        const pageHeight = doc.internal.pageSize.height;
+        const lineHeight = 7;
+        const textMargin = 10;
+
+        return {
+            doc,
+            name,
+            country,
+            documentNumber,
+            address,
+            role,
+            pageHeight,
+            lineHeight,
+            textMargin,
+        };
+    }
+
+    private getMonth(): string {
+        const month = new Date().getMonth();
+        switch (month) {
+            case 0:
+                return 'enero';
+            case 1:
+                return 'febrero';
+            case 2:
+                return 'marzo';
+            case 3:
+                return 'abril';
+            case 4:
+                return 'mayo';
+            case 5:
+                return 'junio';
+            case 6:
+                return 'julio';
+            case 7:
+                return 'agosto';
+            case 8:
+                return 'septiembre';
+            case 9:
+                return 'octubre';
+            case 10:
+                return 'noviembre';
+            case 11:
+                return 'diciembre';
+        }
+        return '';
+    }
+
+    private justifyContent(doc: any, lines: string[]) {
+        console.log(lines.length);
+        lines = lines.map(line => {
+            const words = line.split(' ');
+            if (words.length === 1) {
+                return line;
+            }
+
+            const diff = 185 - doc.getTextWidth(line);
+            const spaceWidth = doc.getTextWidth(' ');
+            const extraSpacesCount = Math.floor(diff / spaceWidth / (words.length - 1));
+            const extraSpaces = new Array(extraSpacesCount + 2).join(' ');
+
+            return words.join(extraSpaces);
+        });
+    }
+}
+
+-------- [ Separator ] ------
+
+File Name: register-form.ui-component.html
+Size: 11.35 KB
+Code:
+<form autocomplete="off" class=" space-y-4" [formGroup]="signUpForm">
+  <div class="text-center">
+    <p class="text-sm text-muted">Registra tu participación con este formulario.</p>
+  </div>
+
+  <div class="space-y-3 text-left">
+    <div class="form__group">
+      <div class="relative">
+        <label for="name" class="block mb-2 text-sm font-medium text-gray-900 ">Nombres</label>
+        <tui-input
+          class="b-form mb-2"
+          id="name"
+          formControlName="name"
+
+          tuiTextfieldSize="m"
+          [tuiTextfieldCustomContent]="signUpForm.get('name')?.valid ? success : wrong"
+        >
+          Nombres
+          <input
+            autocomplete="off"
+            placeholder="Nombres"
+            tuiTextfield
+          />
+        </tui-input>
+        <tui-error
+          formControlName="name"
+          [error]="[] | tuiFieldError | async"
+        ></tui-error>
+
+      </div>
+
+      <div class="relative">
+        <label for="lastName" class="block mb-2 text-sm font-medium text-gray-900 ">Apellidos</label>
+        <tui-input
+          class="b-form mb-2"
+          id="lastName"
+          formControlName="lastName"
+
+          tuiTextfieldSize="m"
+          [tuiTextfieldCustomContent]="signUpForm.get('lastName')?.valid ? success : wrong"
+        >
+          Apellidos
+        </tui-input>
+        <tui-error
+          formControlName="lastName"
+          [error]="[] | tuiFieldError | async"
+        ></tui-error>
+
+      </div>
+
+      <div class="relative">
+        <label for="email" class="block mb-2 text-sm font-medium text-gray-900 ">Correo Electrónico</label>
+        <tui-input
+          class="b-form mb-2"
+          id="email"
+          formControlName="email"
+
+          tuiTextfieldSize="m"
+          [tuiTextfieldCustomContent]="signUpForm.get('email')?.valid ? success : wrong"
+        >
+          Correo Electrónico
+        </tui-input>
+        <tui-error
+          formControlName="email"
+          [error]="[] | tuiFieldError | async"
+        ></tui-error>
+
+      </div>
+
+      <div class="relative">
+        <label for="confirmEmail" class="block mb-2 text-sm font-medium text-gray-900 ">Confirma tu correo</label>
+        <tui-input
+          class="b-form mb-2"
+          id="confirmEmail"
+          formControlName="confirmEmail"
+
+          tuiTextfieldSize="m"
+          [tuiTextfieldCustomContent]="signUpForm.get('confirmEmail')?.valid ? success : wrong"
+        >
+          Confirma tu correo
+        </tui-input>
+        <tui-error
+          formControlName="confirmEmail"
+          [error]="[] | tuiFieldError | async"
+        ></tui-error>
+      </div>
+
+      <div class="relative">
+        <label for="password" class="block mb-2 text-sm font-medium text-gray-900 ">Crea una contraseña</label>
+        <tui-input-password
+          formControlName="password"
+          id="password"
+          class="mb-2"
+          [tuiTextfieldCustomContent]="signUpForm.get('password')?.valid ? success : wrong"
+
+          tuiTextfieldSize="m"
+        >
+          Contraseña
+          <input
+            placeholder="Contraseña"
+            tuiTextfield
+          />
+        </tui-input-password>
+        <tui-error
+          formControlName="password"
+          [error]="[] | tuiFieldError | async"
+        ></tui-error>
+      </div>
+
+      <div class="relative">
+        <label for="confirmPassword" class="block mb-2 text-sm font-medium text-gray-900 ">Confirmar nueva Contraseña</label>
+        <tui-input-password
+          formControlName="confirmPassword"
+          id="confirmPassword"
+          class="mb-2"
+          [tuiTextfieldCustomContent]="signUpForm.get('confirmPassword')?.valid ? success : wrong"
+
+          tuiTextfieldSize="m"
+        >
+          Confirmar Contraseña
+          <input
+            placeholder="Confirmar Contraseña"
+            tuiTextfield
+          />
+        </tui-input-password>
+        <tui-error
+          formControlName="confirmPassword"
+          [error]="[] | tuiFieldError | async"
+        ></tui-error>
+      </div>
+
+      <div class="relative">
+        <label for="documentNumber" class="block mb-2 text-sm font-medium text-gray-900 ">DNI/Pasaporte</label>
+        <tui-input
+          class="b-form mb-2"
+          id="documentNumber"
+          formControlName="documentNumber"
+
+          tuiTextfieldSize="m"
+          [tuiTextfieldCustomContent]="signUpForm.get('documentNumber')?.valid ? success : wrong"
+        >
+          DNI/Pasaporte
+        </tui-input>
+        <tui-error
+          formControlName="documentNumber"
+          [error]="[] | tuiFieldError | async"
+        ></tui-error>
+      </div>
+
+
+      <div class="relative">
+        <label for="phone" class="block mb-2 text-sm font-medium text-gray-900 ">Teléfono</label>
+        <tui-input-phone-international
+          id="phone"
+          class="b-form mb-2"
+          formControlName="phone"
+          [countries]="(countries | tuiSortCountries | async) || []"
+          (countryIsoCodeChange)="setCountryName($event)"
+          tuiTextfieldSize="m"
+          [(countryIsoCode)]="countryIsoCode"
+          [tuiTextfieldCustomContent]="signUpForm.get('phone')?.valid ? success : wrong"
+        >
+          Teléfono
+        </tui-input-phone-international>
+        <tui-error
+          formControlName="phone"
+          [error]="[] | tuiFieldError | async"
+        ></tui-error>
+      </div>
+
+      <div class="relative">
+        <label for="address" class="block mb-2 text-sm font-medium text-gray-900 ">Dirección de residencia</label>
+        <tui-input
+          class="b-form mb-2"
+          id="address"
+          formControlName="address"
+
+          tuiTextfieldSize="m"
+          [tuiTextfieldCustomContent]="signUpForm.get('address')?.valid ? success : wrong"
+        >
+          Dirección de residencia
+        </tui-input>
+        <tui-error
+          formControlName="address"
+          [error]="[] | tuiFieldError | async"
+        ></tui-error>
+      </div>
+
+
+      <label for="headquarters" class="block mb-2 text-sm font-medium text-gray-900 ">País - Sede</label>
+      <section class="grid grid-cols-4 gap-2">
+        <form [formGroup]="countryForm">
+          <tui-input [readOnly]="true" [tuiTextfieldSize]="'m'" formControlName="countryName" placeholder="País">
+            País
+            <input tuiTextfield/>
+          </tui-input>
+        </form>
+        <tui-select
+          class="b-form mb-2 col-span-3"
+          id="headquarters"
+          formControlName="headquarters"
+
+          tuiTextfieldSize="m"
+          [tuiTextfieldCustomContent]="signUpForm.get('headquarters')?.valid ? success : wrong"
+        >
+          Sede
+          <input
+            placeholder="Sede"
+            tuiTextfield
+          />
+          <tui-data-list-wrapper
+            *tuiDataList
+            [items]="headQuartersFromStrapi[countryIsoCode] ?? []"
+          ></tui-data-list-wrapper>
+        </tui-select>
+        <tui-error
+          formControlName="headquarters"
+          [error]="[] | tuiFieldError | async"
+        ></tui-error>
+      </section>
+
+      <div class="relative">
+        <label for="role" class="block mb-2 text-sm font-medium text-gray-900 ">Rol</label>
+        <tui-select
+          class="b-form mb-2"
+          id="role"
+          formControlName="role"
+
+          tuiTextfieldSize="m"
+          [tuiTextfieldCustomContent]="signUpForm.get('role')?.valid ? success : wrong"
+        >
+          Si cumples más de un Rol solo selecciona el que más te identifique
+          <input
+            placeholder="Si cumples más de un Rol solo selecciona el que más te identifique"
+            tuiTextfield
+          />
+          <tui-data-list-wrapper
+            *tuiDataList
+            [items]="roles"
+          ></tui-data-list-wrapper>
+        </tui-select>
+        <tui-error
+          formControlName="role"
+          [error]="[] | tuiFieldError | async"
+        ></tui-error>
+      </div>
+
+      <div class="relative">
+        <tui-checkbox-labeled formControlName="volunteeringAgreement">
+          He leído el acuerdo para ser voluntario de La Akademia.
+          <div>
+            <a icon="tuiIconFile"
+               tuiLink
+               [href]="volunteeringAgreementUrl" target="_blank"
+            >
+              Acuerdo de
+              voluntariado
+            </a>
+          </div>
+        </tui-checkbox-labeled>
+
+        <tui-error
+          formControlName="volunteeringAgreement"
+          [error]="[] | tuiFieldError | async"
+        ></tui-error>
+
+        <tui-checkbox-labeled
+          formControlName="ethicalDocumentAgreement"
+          class="tui-space_top-3"
+        >
+          He leído el código ético de La Akademia.
+          <div>
+            <a icon="tuiIconFile"
+               tuiLink
+               [href]="ethicalDocumentAgreementUrl" target="_blank"
+            >
+              Código ético
+            </a>
+          </div>
+        </tui-checkbox-labeled>
+        <tui-error
+          formControlName="ethicalDocumentAgreement"
+          [error]="[] | tuiFieldError | async"
+        ></tui-error>
+
+        <tui-checkbox-labeled
+          formControlName="ageVerification"
+          class="tui-space_top-3"
+        >
+          Confirmo que soy mayor de edad.
+        </tui-checkbox-labeled>
+        <tui-error
+          formControlName="ageVerification"
+          [error]="[] | tuiFieldError | async"
+        ></tui-error>
+
+        <tui-checkbox-labeled
+          formControlName="mailingAgreement"
+          class="tui-space_top-3"
+        >
+          Acepto recibir comunicaciones relacionadas con la Akademia y la Fundación Utópika.
+        </tui-checkbox-labeled>
+
+        <tui-error
+          formControlName="mailingAgreement"
+          [error]="[] | tuiFieldError | async"
+        ></tui-error>
+
+      </div>
+
+      <div class="my-3">
+        <label for="signDataPath" class="form-label mb-3">Firmado
+          por {{ signUpForm.value.name }} {{ signUpForm.value.lastName }}
+          en calidad de {{ signUpForm.value.role }} para la sede {{ signUpForm.value.headquarters }}</label>
+        <input type="hidden" id="signDataPath" formControlName="signDataPath">
+
+        <canvas class="mt-1.5" #signatureCanvas width="400" height="200" (mousedown)="startDrawing($event)"
+                (mousemove)="draw($event)" (mouseup)="stopDrawing()" (touchstart)="startDrawing($event)"
+                (touchmove)="draw($event)" (touchend)="stopDrawing()"></canvas>
+
+        <tui-error
+          formControlName="signDataPath"
+          [error]="[] | tuiFieldError | async"
+        ></tui-error>
+
+        <div class="my-3 d-grid mobile-my-2">
+          <button appearance="secondary-destructive" tuiButton [size]="'s'" (click)="clearCanvas($event)">Borrar Firma
+          </button>
+        </div>
+      </div>
+
+
+    </div>
+
+    <!-- Submit Button -->
+    <button
+      tuiButton
+      type="button"
+      (click)="submit()"
+      [showLoader]="loading"
+      [size]="'m'"
+      class="tui-space_right-3 tui-space_bottom-2"
+    >
+      Enviar Formulario
+    </button>
+  </div>
+</form>
+<ng-template #success>
+  <tui-svg
+    src="tuiIconCheck"
+    class="success icon"
+  ></tui-svg>
+</ng-template>
+<ng-template #wrong>
+  <tui-svg
+    src="tuiIconXCircle"
+    class="error"
+  ></tui-svg>
+</ng-template>
+
+-------- [ Separator ] ------
+
+File Name: register-form.ui-component.scss
+Size: 256 B
+Code:
+.text-muted{
+    font-size: 1.2rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+    color: #6c757d;
+}
+canvas {
+  border: 1px solid #ced4da;
+  display: block;
+  margin-bottom: 10px;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+}
+
+-------- [ Separator ] ------
+
+File Name: register-form.ui-component.ts
+Size: 14.64 KB
+Code:
+import {
+    AfterViewInit,
+    Component,
+    ElementRef,
+    EventEmitter,
+    HostListener,
+    inject,
+    OnInit,
+    Output,
+    ViewChild,
+} from '@angular/core';
+import {AsyncPipe, DOCUMENT, NgClass, NgIf} from '@angular/common';
+import {
+    AbstractControl,
+    FormBuilder,
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+    ValidatorFn,
+    Validators,
+} from '@angular/forms';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
+import {
+    TuiButtonModule,
+    TuiErrorModule,
+    TuiFlagPipeModule,
+    TuiLinkModule,
+    TuiSvgModule,
+    TuiTextfieldControllerModule,
+} from '@taiga-ui/core';
+import {
+    TuiCheckboxLabeledModule,
+    TuiDataListWrapperModule,
+    TuiFieldErrorPipeModule,
+    TuiInputModule,
+    TuiInputPasswordModule,
+    TuiInputPhoneInternationalModule,
+    TuiSelectModule,
+    TuiSortCountriesPipeModule,
+} from '@taiga-ui/kit';
+import {AuthenticationService} from '@akademia-org/frontend/data-access-auth';
+import {NotificationService} from '@akademia-org/util/services';
+import {TuiCountryIsoCode} from '@taiga-ui/i18n';
+import {FacadeService} from '../../facade.service';
+import {tap} from 'rxjs';
+
+@Component({
+    selector: 'akademia-org-register-form',
+    standalone: true,
+    imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        RouterLink,
+        NgClass,
+        NgIf,
+        TuiSvgModule,
+        TuiTextfieldControllerModule,
+        TuiInputModule,
+        TuiInputPasswordModule,
+        TuiButtonModule,
+        TuiInputPhoneInternationalModule,
+        TuiSortCountriesPipeModule,
+        TuiFlagPipeModule,
+        TuiSelectModule,
+        TuiDataListWrapperModule,
+        TuiCheckboxLabeledModule,
+        TuiLinkModule,
+        TuiErrorModule,
+        TuiFieldErrorPipeModule,
+        AsyncPipe,
+    ],
+    templateUrl: './register-form.ui-component.html',
+    styleUrls: ['./register-form.ui-component.scss'],
+})
+export class RegisterFormUiComponent implements OnInit, AfterViewInit {
+    private readonly document = inject(DOCUMENT);
+    authService = inject(AuthenticationService);
+    activatedRoute = inject(ActivatedRoute);
+    notificationService = inject(NotificationService);
+    loading = false;
+    @Output() public outputSingUpForm = new EventEmitter();
+    @ViewChild('signatureCanvas') signatureCanvas!: ElementRef;
+    private context!: CanvasRenderingContext2D;
+    private drawing!: boolean;
+    signUpForm!: FormGroup;
+    router = inject(Router);
+    fb = inject(FormBuilder);
+    facade = inject(FacadeService);
+    volunteeringAgreementUrl = 'https://drive.google.com/file/d/1tumLp1LvTc9_PbgcAQN8ByZMnfyaK-Cf/view?usp=sharing';
+    ethicalDocumentAgreementUrl = 'https://drive.google.com/file/d/1ZwOkZlVG0tkXAk3IO-Le0tVCePW8ixKW/view?usp=sharing';
+    agreementType: 'Colaborador' | 'Alumno' = 'Colaborador';
+
+    countryForm = new FormGroup({
+        countryName: new FormControl('España'),
+    });
+
+    private el = inject(ElementRef);
+
+    readonly countries = [
+        TuiCountryIsoCode.ES,
+        TuiCountryIsoCode.AR,
+        TuiCountryIsoCode.EC,
+        TuiCountryIsoCode.MX,
+        TuiCountryIsoCode.PE,
+        TuiCountryIsoCode.CO,
+        TuiCountryIsoCode.BO,
+        TuiCountryIsoCode.UY,
+        TuiCountryIsoCode.CL,
+        TuiCountryIsoCode.CR,
+    ];
+    // readonly countries = Object.values(TuiCountryIsoCode);
+    countryIsoCode = TuiCountryIsoCode.ES;
+    headQuartersFromStrapi: {[key in TuiCountryIsoCode]?: string[]} = {
+        [TuiCountryIsoCode.AR]: [
+            'Mendoza',
+            'San Rafael',
+            'Buenos Aires',
+            'Santa Fe',
+            'Santiago del Estero',
+            'Río Cuarto',
+            'Catamarca',
+            'Mar de Plata',
+            'Córdoba',
+            'General Pico, La Pampa',
+            'San Fernando, Bs As',
+            'La Plata',
+            'Villa María',
+            'Resistencia',
+            'San Juan',
+            'Webinar-Septiembre',
+            'Webinar-Marzo',
+            'Konsejo Akademíko',
+        ],
+        [TuiCountryIsoCode.ES]: [
+            'Barcelona',
+            'Cambrils',
+            'Girona',
+            'Granollers',
+            'Mataró',
+            'Sabadell',
+            'Lleida',
+            'Tarragona',
+            'Sant Boi de Llobregat',
+            'Vic',
+            'La Senia',
+            'Reus',
+            'Elche',
+            'Ibiza',
+            'Mallorca',
+            'Murcia',
+            'Valencia',
+            'Valencia Nómada Upv',
+            'Valencia Catarroja',
+            'Tenerife',
+            'Webinar-Septiembre',
+            'Webinar-Marzo',
+            'Cartagena',
+            'Alicante',
+            'Cáceres',
+            'Almeria',
+            'Bilbao',
+            'Burgos',
+            'Córdoba',
+            'Donostia/San Sebastián',
+            'Granada',
+            'Jaén',
+            'Madrid',
+            'Málaga',
+            'Valladolid',
+            'Zaragoza',
+            'Sevilla',
+            'Coruña',
+            'Almería',
+            'Linares',
+            'Pisuerga',
+            'Logroño',
+            'Gijón',
+            'Konsejo Akademíko',
+        ],
+        [TuiCountryIsoCode.EC]: ['Quito', 'Ambato', 'Konsejo Akademíko', 'Webinar-Septiembre', 'Webinar-Marzo'],
+        [TuiCountryIsoCode.MX]: [
+            'Ciudad de México',
+            'Monterrey',
+            'Tepatitlan de Morelos',
+            'Konsejo Akademíko',
+            'Webinar-Septiembre',
+            'Webinar-Marzo',
+        ],
+        [TuiCountryIsoCode.PE]: ['Lima', 'Webinar-Septiembre', 'Webinar-Marzo'],
+        [TuiCountryIsoCode.CO]: [
+            'Medellín',
+            'Cali',
+            'Bogotá',
+            'Bucaramanga',
+            'Aburra Sur',
+            'ISA',
+            'Konsejo Akademíko',
+            'Webinar-Septiembre',
+            'Webinar-Marzo',
+        ],
+        [TuiCountryIsoCode.BO]: ['Santa Cruz', 'Konsejo Akademíko', 'Webinar-Septiembre', 'Webinar-Marzo'],
+        [TuiCountryIsoCode.UY]: ['Montevideo', 'Konsejo Akademíko', 'Webinar-Septiembre', 'Webinar-Marzo'],
+        [TuiCountryIsoCode.CL]: ['Santiago', 'Konsejo Akademíko', 'Webinar-Septiembre', 'Webinar-Marzo'],
+        [TuiCountryIsoCode.CR]: ['San José'],
+    };
+
+    roles = [
+        'Director/a Local',
+        'Miembro del Konsejo de Dirección',
+        'Acompañante',
+        'Facilitador',
+        'Equipo de comunicación',
+        'Alumno',
+    ];
+
+    matchValidator(fieldToMatch: string): ValidatorFn {
+        return (control: AbstractControl): {[key: string]: any} | null => {
+            const forbidden = control.parent?.get(fieldToMatch)?.value !== control.value;
+            return forbidden ? {notMatching: {value: control.value}} : null;
+        };
+    }
+
+    ngOnInit() {
+        this.facade.success.subscribe(success => {
+            if (success) {
+                this.loading = false;
+                this.notificationService.success('Registro creado correctamente');
+                this.router.navigate(['/']);
+            }
+        });
+        this.notificationService.thereIsError.subscribe(error => {
+            if (error) this.loading = false;
+        });
+
+        this.signUpForm = this.fb.group({
+            name: new FormControl('', [Validators.required]),
+            lastName: ['', Validators.required],
+            email: ['', [Validators.required, Validators.email]],
+            confirmEmail: ['', [Validators.required, this.matchValidator('email'), Validators.email]],
+            password: ['', [Validators.required, Validators.minLength(8)]],
+            confirmPassword: ['', [Validators.required, this.matchValidator('password')]],
+            documentNumber: ['', Validators.required],
+            phone: ['', [Validators.required]],
+            country: ['', Validators.required],
+            address: ['', Validators.required],
+            headquarters: ['', Validators.required],
+            role: ['', Validators.required],
+            volunteeringAgreement: [false, Validators.requiredTrue],
+            ethicalDocumentAgreement: [false, Validators.requiredTrue],
+            ageVerification: [false, Validators.requiredTrue],
+            mailingAgreement: [false],
+            signDataPath: ['', Validators.required],
+        });
+
+        // get Country by phone
+        this.signUpForm.controls['phone']?.valueChanges.subscribe(phone => {
+            if (phone) {
+                const country = this.countries.find(c => c === this.countryIsoCode);
+                if (country) {
+                    this.signUpForm.get('country')?.setValue(country);
+                }
+            }
+        });
+
+        this.signUpForm.controls['role']?.valueChanges.subscribe(role => {
+            if (role) {
+                if (role === 'Alumno') {
+                    this.volunteeringAgreementUrl =
+                        'https://drive.google.com/file/d/1c_-yep2dKE02Kt1RFkY7BJ3E2qDw7y5b/view?usp=sharing';
+                    this.agreementType = 'Alumno';
+                }
+            }
+        });
+    }
+
+    ngAfterViewInit(): void {
+        this.context = this.signatureCanvas.nativeElement.getContext('2d');
+        this.context.lineWidth = 2;
+        this.context.strokeStyle = 'black';
+    }
+
+    @HostListener('document:touchmove', ['$event'])
+    preventDefaultScrolling(event: TouchEvent): void {
+        event.preventDefault();
+    }
+
+    @HostListener('touchmove', ['$event'])
+    draw(event: MouseEvent | TouchEvent): void {
+        if (!this.drawing) return;
+        if (this.isEventInsideCanvas(event)) {
+            const position = this.getEventPositionRelativeToCanvas(event);
+            this.context.lineTo(position.x, position.y);
+            this.context.stroke();
+            if (this.signUpForm.get('signDataPath')) {
+                this.signUpForm.get('signDataPath')?.setValue(this.signatureCanvas.nativeElement.toDataURL());
+            }
+        }
+    }
+
+    @HostListener('touchstart', ['$event'])
+    @HostListener('mousedown', ['$event'])
+    startDrawing(event: MouseEvent | TouchEvent): void {
+        if (this.isEventInsideCanvas(event)) {
+            event.preventDefault();
+            this.drawing = true;
+            this.context.beginPath();
+            const position = this.getEventPositionRelativeToCanvas(event);
+            this.context.moveTo(position.x, position.y);
+        }
+    }
+
+    @HostListener('touchend', ['$event'])
+    @HostListener('mouseup', ['$event'])
+    stopDrawing(): void {
+        if (!this.drawing) return;
+        this.drawing = false;
+        this.context.closePath();
+    }
+
+    private isEventInsideCanvas(event: MouseEvent | TouchEvent): boolean {
+        const position = this.getEventPositionRelativeToCanvas(event);
+        return (
+            position.x >= 0 &&
+            position.x <= this.signatureCanvas.nativeElement.width &&
+            position.y >= 0 &&
+            position.y <= this.signatureCanvas.nativeElement.height
+        );
+    }
+
+    private getEventPositionRelativeToCanvas(event: MouseEvent | TouchEvent): {x: number; y: number} {
+        const clientX = 'clientX' in event ? event.clientX : event.touches[0].clientX;
+        const clientY = 'clientY' in event ? event.clientY : event.touches[0].clientY;
+        return {
+            x: clientX - this.signatureCanvas.nativeElement.getBoundingClientRect().left,
+            y: clientY - this.signatureCanvas.nativeElement.getBoundingClientRect().top,
+        };
+    }
+
+    clearCanvas(event: any): void {
+        event.preventDefault();
+        this.context.clearRect(
+            0,
+            0,
+            this.signatureCanvas.nativeElement.width,
+            this.signatureCanvas.nativeElement.height
+        );
+        this.signUpForm.get('signDataPath')?.setValue('');
+        event.preventDefault();
+    }
+
+    submit() {
+        if (this.signUpForm.valid) {
+            const phone = this.signUpForm.get('phone')?.value;
+            const phoneWithoutLetters = phone.replace(/[+]/g, '');
+            this.signUpForm.get('phone')?.setValue(phoneWithoutLetters);
+            this.loading = true;
+            const login = this.signUpForm.get('email')?.value;
+            const password = this.signUpForm.get('password')?.value;
+            const signatureDataUrl = this.signatureCanvas.nativeElement.toDataURL('image/png');
+            this.facade
+                .createAgreement(this.signUpForm.value, login, password, signatureDataUrl)
+                .pipe(
+                    tap(result => {
+                        console.log('result', result);
+                        this.router.navigate(['/auth/success']);
+                    })
+                )
+                .subscribe();
+        } else {
+            this.scrollToFirstInvalidControl();
+            this.notificationService.error('Comprueba tus datos antes de guardar, todos los valores son obligatorios');
+        }
+    }
+
+    private transLateCountryIsoCode(country: TuiCountryIsoCode) {
+        switch (country) {
+            case TuiCountryIsoCode.ES:
+                return 'España';
+            case TuiCountryIsoCode.AR:
+                return 'Argentina';
+            case TuiCountryIsoCode.EC:
+                return 'Ecuador';
+            case TuiCountryIsoCode.MX:
+                return 'México';
+            case TuiCountryIsoCode.CL:
+                return 'Chile';
+            case TuiCountryIsoCode.PE:
+                return 'Perú';
+            case TuiCountryIsoCode.CO:
+                return 'Colombia';
+            case TuiCountryIsoCode.BO:
+                return 'Bolivia';
+            case TuiCountryIsoCode.UY:
+                return 'Uruguay';
+            default:
+                return 'España';
+        }
+    }
+
+    setCountryName(tuiCountryIsoCode: TuiCountryIsoCode) {
+        this.countryForm.get('countryName')?.setValue(this.transLateCountryIsoCode(tuiCountryIsoCode));
+    }
+
+    private scrollToFirstInvalidControl() {
+        const firstInvalidControl: HTMLElement = this.el.nativeElement.querySelector('form .ng-invalid');
+
+        window.scroll({
+            top: this.getTopOffset(firstInvalidControl),
+            left: 0,
+            behavior: 'smooth',
+        });
+
+        this.notificationService.error(
+            `El campo '${firstInvalidControl.textContent}' es obligatorio, comprueba tus datos antes de guardar.`
+        );
+    }
+
+    private getTopOffset(controlEl: HTMLElement): number {
+        const labelOffset = 50;
+        return controlEl.getBoundingClientRect().top + window.scrollY - labelOffset;
+    }
+}
+
+-------- [ Separator ] ------

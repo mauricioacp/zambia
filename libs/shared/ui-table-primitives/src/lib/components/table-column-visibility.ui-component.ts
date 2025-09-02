@@ -1,33 +1,34 @@
 import { Component, input, output, signal, computed, ChangeDetectionStrategy, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TuiButton, TuiDataList, TuiDropdown } from '@taiga-ui/core';
+import { TuiButton, TuiDataList, TuiDropdown, TuiIcon } from '@taiga-ui/core';
 import { TableColumnConfig } from '../types/table-primitives.types';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'z-table-column-visibility',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, TuiButton, TuiDropdown, TuiDataList],
+  imports: [CommonModule, FormsModule, TuiButton, TuiDropdown, TuiDataList, TuiIcon, TranslatePipe],
   template: `
     <button
       tuiButton
       type="button"
       appearance="secondary"
       size="m"
-      icon="@tui.settings"
       [tuiDropdown]="columnDropdown"
       [tuiDropdownOpen]="dropdownOpen()"
       (tuiDropdownOpenChange)="dropdownOpen.set($event)"
     >
-      Columns
+      <tui-icon icon="@tui.settings" [style.height.rem]="1" />
+      Columnas
     </button>
 
     <ng-template #columnDropdown>
       <div class="w-64 p-4">
         <div class="mb-3 flex items-center justify-between">
-          <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Visible Columns</h3>
+          <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Columnas visibles</h3>
           <button tuiButton type="button" appearance="secondary" size="xs" (click)="toggleAll()">
-            {{ allVisible() ? 'Hide All' : 'Show All' }}
+            {{ allVisible() ? 'Esconder todas' : 'Mostrar todas' }}
           </button>
         </div>
 
@@ -45,7 +46,7 @@ import { TableColumnConfig } from '../types/table-primitives.types';
                 class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
               />
               <span class="text-sm text-gray-700 dark:text-gray-300">
-                {{ column.label }}
+                {{ column.label | translate }}
               </span>
             </label>
           }
@@ -53,7 +54,7 @@ import { TableColumnConfig } from '../types/table-primitives.types';
 
         <div class="mt-3 border-t border-gray-200 pt-3 dark:border-slate-700">
           <p class="text-xs text-gray-500 dark:text-gray-400">
-            {{ visibleCount() }} of {{ columns().length }} columns visible
+            visibles {{ visibleCount() }} de {{ columns().length }}
           </p>
         </div>
       </div>

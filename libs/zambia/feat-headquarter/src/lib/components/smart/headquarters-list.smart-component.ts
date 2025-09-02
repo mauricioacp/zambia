@@ -350,22 +350,22 @@ export class HeadquartersListSmartComponent {
       color: 'primary',
       handler: (headquarter: Headquarter) => this.onViewHeadquarter(headquarter),
     },
-    {
-      label: this.translate.instant('edit'),
-      icon: '@tui.pencil',
-      color: 'warning',
-      handler: (headquarter: Headquarter) => this.onEditHeadquarter(headquarter),
-      disabled: () => this.isProcessing(),
-      visible: () => this.hasManagementAccess(),
-    },
-    {
-      label: this.translate.instant('delete'),
-      icon: '@tui.trash',
-      color: 'danger',
-      handler: (headquarter: Headquarter) => this.onDeleteHeadquarter(headquarter),
-      disabled: () => this.isProcessing(),
-      visible: () => this.hasTopManagementAccess(),
-    },
+    // {
+    //   label: this.translate.instant('edit'),
+    //   icon: '@tui.pencil',
+    //   color: 'warning',
+    //   handler: (headquarter: Headquarter) => this.onEditHeadquarter(headquarter),
+    //   disabled: () => this.isProcessing(),
+    //   visible: () => this.hasManagementAccess(),
+    // },
+    // {
+    //   label: this.translate.instant('delete'),
+    //   icon: '@tui.trash',
+    //   color: 'danger',
+    //   handler: (headquarter: Headquarter) => this.onDeleteHeadquarter(headquarter),
+    //   disabled: () => this.isProcessing(),
+    //   visible: () => this.hasTopManagementAccess(),
+    // },
   ]);
 
   searchableColumns = computed(() => ['name', 'address']);
@@ -428,7 +428,7 @@ export class HeadquartersListSmartComponent {
     });
   }
 
-  private handleExport(options: ExportOptions): void {
+  private handleExport(format: ExportOptions): void {
     const transformedData = this.transformedHeadquarters();
 
     const exportData = transformedData.map((hq) => ({
@@ -441,7 +441,7 @@ export class HeadquartersListSmartComponent {
     const date = new Date().toISOString().split('T')[0];
     const filename = `headquarters_${date}`;
 
-    if (options.format === 'csv') {
+    if (format === 'csv') {
       this.exportService.exportToCSV(exportData, exportColumns, filename);
     } else {
       this.exportService.exportToExcel(exportData, exportColumns, filename);
@@ -451,7 +451,7 @@ export class HeadquartersListSmartComponent {
       .showSuccess('export_success', {
         translateParams: {
           count: transformedData.length,
-          format: options.format.toUpperCase(),
+          format: format.toUpperCase(),
         },
       })
       .subscribe();

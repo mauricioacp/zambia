@@ -16,10 +16,6 @@ export function injectCurrentTheme() {
   return inject(CURRENT_THEME);
 }
 
-export function injectIsDarkTheme() {
-  return inject(IS_DARK_THEME);
-}
-
 function getStoredTheme(platformId: object): AppTheme | null {
   if (isPlatformBrowser(platformId)) {
     const storedValue = localStorage.getItem(APP_THEME);

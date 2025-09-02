@@ -11,12 +11,18 @@ import { provideEventPlugins } from '@taiga-ui/event-plugins';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { USER_ROLE_TOKEN } from '@zambia/util-roles-permissions';
 import { RoleService } from '@zambia/data-access-roles-permissions';
+import { AuthService, SESSION_SIGNAL_TOKEN } from '@zambia/data-access-auth';
 import { TUI_LANGUAGE, TUI_SPANISH_LANGUAGE } from '@taiga-ui/i18n';
 import { of } from 'rxjs';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     { provide: APP_CONFIG, useValue: environment },
+    {
+      provide: SESSION_SIGNAL_TOKEN,
+      useFactory: (authService: AuthService) => authService.session,
+      deps: [AuthService],
+    },
     provideRouter(
       appRoutes,
       withComponentInputBinding(),

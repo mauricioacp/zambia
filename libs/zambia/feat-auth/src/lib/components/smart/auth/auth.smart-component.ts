@@ -5,7 +5,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '@zambia/data-access-auth';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { TuiButton } from '@taiga-ui/core';
 import { TuiButtonLoading } from '@taiga-ui/kit';
 import { NotificationService } from '@zambia/data-access-generic';
@@ -22,7 +22,6 @@ interface AuthFormData {
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
-    RouterLink,
     TranslatePipe,
     FormFieldComponent,
     TuiButton,
@@ -72,24 +71,26 @@ interface AuthFormData {
                     [errorMessage]="'password-min-length-error' | translate"
                   />
 
-                  <div class="flex items-center justify-between pt-2">
-                    <a routerLink="/auth/forgot-password" class="text-sm font-medium text-blue-600 hover:text-blue-500">
-                      {{ 'forgot-password' | translate }}
-                    </a>
-                  </div>
+                  <!-- todo recover password <div class="flex items-center justify-between pt-2">
+                     <a routerLink="/auth/forgot-password" class="text-sm font-medium text-blue-600 hover:text-blue-500">
+                       {{ 'forgot-password' | translate }}
+                     </a>
+                   </div> -->
 
-                  <button
-                    tuiButton
-                    type="submit"
-                    size="l"
-                    appearance="primary"
-                    class="w-full"
-                    iconStart="lucide:log-in"
-                    [disabled]="authForm.invalid"
-                    [loading]="isSubmitting()"
-                  >
-                    {{ 'log-in' | translate }}
-                  </button>
+                  <div class="pt-4">
+                    <button
+                      tuiButton
+                      type="submit"
+                      size="l"
+                      appearance="primary"
+                      class="w-full"
+                      iconStart="@tui.log-in"
+                      [disabled]="authForm.invalid"
+                      [loading]="isSubmitting()"
+                    >
+                      {{ 'log-in' | translate }}
+                    </button>
+                  </div>
 
                   @if (signInError) {
                     <div class="mt-4 text-sm text-red-600">
@@ -98,12 +99,12 @@ interface AuthFormData {
                   }
                 </form>
 
-                <div class="text-secondary mt-6 text-center text-sm">
+                <!-- todo register form new signatures <div class="text-secondary mt-6 text-center text-sm">
                   {{ 'no-account' | translate }}
                   <a class="font-medium text-blue-600 hover:text-blue-500">
                     {{ 'sign-up' | translate }}
                   </a>
-                </div>
+                </div>-->
               </section>
             </div>
           </div>
@@ -214,6 +215,7 @@ export class AuthSmartComponent implements OnInit {
   }
 
   private handleAuthError(errorKey: string): void {
+    errorKey = this.translate.instant(errorKey);
     this.signInError = errorKey;
     this.notificationService
       .showError(errorKey, {

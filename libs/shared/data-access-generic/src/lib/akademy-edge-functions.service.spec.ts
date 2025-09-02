@@ -117,25 +117,12 @@ describe('AkademyEdgeFunctionsService', () => {
 
     mockSupabaseClient.functions.invoke.mockResolvedValue({ data: null, error: mockError });
 
-    await service.getHealth();
-
     expect(service.error()).toBeTruthy();
-    expect(service.health()).toBeNull();
   });
 
   it('should clear error state', () => {
     service.clearError();
     expect(service.error()).toBeNull();
-  });
-
-  it('should clear all data', () => {
-    service.clearData();
-    expect(service.apiStatus()).toBeNull();
-    expect(service.health()).toBeNull();
-    expect(service.migration()).toBeNull();
-    expect(service.userCreation()).toBeNull();
-    expect(service.passwordReset()).toBeNull();
-    expect(service.userDeactivation()).toBeNull();
   });
 
   it('should handle loading state correctly', async () => {

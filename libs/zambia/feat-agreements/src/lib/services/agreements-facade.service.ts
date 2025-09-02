@@ -132,8 +132,7 @@ export class AgreementsFacadeService {
     loader: async ({ request }: ResourceLoaderParams<SearchAgreementsParams>): Promise<PaginatedAgreements> => {
       this.isLoading.set(true);
       try {
-        // For now, use the new search_agreements RPC
-        // TODO: Handle multiple filters if needed
+        console.log(request);
         const { data, error } = await this.supabase.getClient().rpc('search_agreements', request);
 
         if (error) {
@@ -141,7 +140,6 @@ export class AgreementsFacadeService {
           throw error;
         }
 
-        // Cast the JSON response to our typed response
         const response = data as unknown as SearchAgreementsResponse;
 
         if (!response || !response.data || !response.pagination) {
@@ -156,16 +154,6 @@ export class AgreementsFacadeService {
               pages: 0,
             },
           };
-        }
-
-        if (response.data.length > 0) {
-          console.log('Sample agreement data:', {
-            id: response.data[0].id,
-            name: response.data[0].name,
-            headquarter_name: response.data[0].headquarter.headquarter_name,
-            headquarter_id: response.data[0].headquarter.headquarter_id,
-            role: response.data[0].role,
-          });
         }
 
         this.totalItems.set(response.pagination.total);
@@ -213,7 +201,11 @@ export class AgreementsFacadeService {
 
   headquarters = resource({
     loader: async () => {
-      const { data, error } = await this.supabase.getClient().from('headquarters').select('id, name, status');
+      const { data, error } = await this.supabase
+        .getClient()
+        .from('headquarters')
+        .select('id, name, status')
+        .order('name', { ascending: true });
 
       if (error) {
         console.error('Error fetching headquarters:', error);

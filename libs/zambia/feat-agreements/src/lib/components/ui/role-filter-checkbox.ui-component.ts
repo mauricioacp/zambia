@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TuiButton, TuiDropdown, TuiDataList } from '@taiga-ui/core';
 import { TuiBadge } from '@taiga-ui/kit';
 import { TranslateModule } from '@ngx-translate/core';
-import { ROLE_GROUPS, ROLES_NAMES, RoleCode } from '@zambia/util-roles-definitions';
+import { ROLE_GROUPS, ROLES_NAMES, RoleCode, FILTER_ROLE_GROUP_WILL_DELETE_THIS } from '@zambia/util-roles-definitions';
 
 @Component({
   selector: 'z-role-filter-checkbox',
@@ -106,7 +106,7 @@ export class RoleFilterCheckboxComponent {
   roleGroups = computed(() => {
     const groups: Array<{ name: string; roles: Array<{ code: RoleCode; name: string }> }> = [];
 
-    for (const [groupName, roleIds] of Object.entries(ROLE_GROUPS)) {
+    for (const [groupName, roleIds] of Object.entries(FILTER_ROLE_GROUP_WILL_DELETE_THIS)) {
       const roles = roleIds.map((roleCode) => ({
         code: roleCode,
         name: ROLES_NAMES.get(roleCode) || roleCode,

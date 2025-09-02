@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export interface CreateUserRequest {
   agreement_id: string;
 }
@@ -63,3 +65,19 @@ export interface ApiResponse<T> {
   error?: string;
   status?: number;
 }
+
+export const SendEmailRequest = z.object({
+  userId: z.string(),
+  recipient: z.string().email(),
+  subject: z.string(),
+  msgBody: z.string(),
+});
+
+export type SendEmailRequest = z.infer<typeof SendEmailRequest>;
+
+export const SendEmailResponse = z.object({
+  data: z.string(),
+  ok: z.boolean(),
+});
+
+export type SendEmailResponse = z.infer<typeof SendEmailResponse>;

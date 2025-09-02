@@ -134,9 +134,9 @@ describe('Table Utils', () => {
       expect(getStatusIcon('success')).toBe('@tui.check');
     });
 
-    it('should return help-circle for unknown status', () => {
-      expect(getStatusIcon('unknown')).toBe('@tui.help-circle');
-      expect(getStatusIcon('custom')).toBe('@tui.help-circle');
+    it('should return circle-help for unknown status', () => {
+      expect(getStatusIcon('unknown')).toBe('@tui.circle-help');
+      expect(getStatusIcon('custom')).toBe('@tui.circle-help');
     });
 
     it('should return check/x for boolean values', () => {

@@ -15,7 +15,7 @@ import {
   WindowService,
 } from '@zambia/ui-components';
 import { RouterOutlet } from '@angular/router';
-import { AuthService } from '@zambia/data-access-auth';
+import { AuthService, UserMetadataService } from '@zambia/data-access-auth';
 import { RoleService } from '@zambia/data-access-roles-permissions';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -45,12 +45,12 @@ import { TranslateModule } from '@ngx-translate/core';
       <z-sidebar [isOpen]="layoutService.sidebarOpen()">
         <z-sidebar-header
           sidebar-header
-          title="{{ authService.userName() }}"
+          title="{{ userMetadataService.userDisplayName() }}"
           (closeClicked)="layoutService.toggleSidebar()"
         >
         </z-sidebar-header>
         <z-sidebar-nav sidebar-nav>
-          @for (section of roleService.getNavigationItems(); track section) {
+          @for (section of roleService.getNavigationItems(); track section.section) {
             @if (section.headerKey) {
               <z-sidebar-nav-section-header [text]="section.headerKey | translate"> </z-sidebar-nav-section-header>
             }
@@ -70,9 +70,9 @@ import { TranslateModule } from '@ngx-translate/core';
             [label]="'Panel de gestión'"
             main-nav
             icon="layout-dashboard"
-            [route]="'/dashboard/panel'"
+            [route]="'/dashboard/homepage'"
           ></z-sidebar-nav-item>
-          <z-sidebar-nav-item [label]="'Mis datos'" user-nav icon="user" [route]="'settings'"></z-sidebar-nav-item>
+          <z-sidebar-nav-item [label]="'Mis datos'" user-nav icon="user" [route]="'profile'"></z-sidebar-nav-item>
           <z-sidebar-nav-item
             [label]="'Cerrar sesión'"
             user-nav
@@ -96,6 +96,7 @@ import { TranslateModule } from '@ngx-translate/core';
         <z-brand-logo brand-logo-mobile />
         <div class="flex h-16 flex-none items-center justify-center" brand-logo-mobile></div>
       </z-page-header>
+
       <z-page-container>
         <router-outlet />
       </z-page-container>
@@ -107,6 +108,7 @@ import { TranslateModule } from '@ngx-translate/core';
 export class DashboardSmartComponent {
   layoutService = inject(LayoutService);
   authService = inject(AuthService);
+  userMetadataService = inject(UserMetadataService);
   roleService = inject(RoleService);
   windowService = inject(WindowService);
 
