@@ -76,6 +76,7 @@
   "dashboard.administration.konsejoMembers": "Miembros del Konsejo",
   "dashboard.administration.managers": "Gerentes",
   "dashboard.administration.graduated": "Graduado",
+  "dashboard.student.home": "Mis accesos",
   "common.refresh": "Actualizar",
   "common.tryAgain": "Intentar de Nuevo",
   "common.days": "días",
@@ -381,6 +382,7 @@
   "homepage.quickActionsDesc": "Accesos directos a funciones utilizadas frecuentemente",
   "homepage.statusDashboard": "Tablero de Estado",
   "homepage.statusDashboardDesc": "Estado en tiempo real e información operacional",
+  "home.title": "La Akademia Digital",
   "panel.title": "Panel de Control",
   "panel.subtitle": "Vista de acciones rápidas",
   "panel.analyticalReports": "Reportes Analíticos",
@@ -389,8 +391,10 @@
   "panel.viewHomepageDesc": "Accede al tablero principal y acciones rápidas",
   "panel.executiveAnalysis": "Análisis Ejecutivo",
   "panel.executiveAnalysisDesc": "Métricas estratégicas y análisis organizacional detallado",
+  "agreement.title": "Mis documentos",
+  "agreement.subtitle": "Acuerdos de mi sede",
   "profile.title": "Mi Perfil",
-  "profile.subtitle": "Administra tu información personal y preferencias",
+  "profile.subtitle": "Administra tu información personal.",
   "profile.personalInfo": "Información Personal",
   "profile.agreementInfo": "Información del Acuerdo",
   "profile.agreementConsents": "Consentimientos del Acuerdo",
@@ -417,6 +421,7 @@
   "profile.season": "Temporada",
   "profile.status": "Estado",
   "profile.activationDate": "Fecha de Activación",
+  "profile.agreementCreationDate": "Fecha del Acuerdo",
   "profile.ageVerification": "Verificación de Edad",
   "profile.ethicalDocumentAgreement": "Acuerdo de Documento Ético",
   "profile.mailingAgreement": "Acuerdo de Correo",
@@ -641,5 +646,5 @@
   "search_by_name": "Buscar por nombre",
   "search_by_name_label": "Usa este buscador avanzado para ir directamente al perfil de un colaborador o alumno",
   "quick_search": "Búsqueda rápida",
-  "associated_rol": "Rol asociado a la cuenta"
+  "associated_rol": "Mi rol"
 }

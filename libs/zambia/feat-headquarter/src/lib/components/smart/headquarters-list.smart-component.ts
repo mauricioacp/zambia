@@ -350,22 +350,22 @@ export class HeadquartersListSmartComponent {
       color: 'primary',
       handler: (headquarter: Headquarter) => this.onViewHeadquarter(headquarter),
     },
-    {
-      label: this.translate.instant('edit'),
-      icon: '@tui.pencil',
-      color: 'warning',
-      handler: (headquarter: Headquarter) => this.onEditHeadquarter(headquarter),
-      disabled: () => this.isProcessing(),
-      visible: () => this.hasManagementAccess(),
-    },
-    {
-      label: this.translate.instant('delete'),
-      icon: '@tui.trash',
-      color: 'danger',
-      handler: (headquarter: Headquarter) => this.onDeleteHeadquarter(headquarter),
-      disabled: () => this.isProcessing(),
-      visible: () => this.hasTopManagementAccess(),
-    },
+    // {
+    //   label: this.translate.instant('edit'),
+    //   icon: '@tui.pencil',
+    //   color: 'warning',
+    //   handler: (headquarter: Headquarter) => this.onEditHeadquarter(headquarter),
+    //   disabled: () => this.isProcessing(),
+    //   visible: () => this.hasManagementAccess(),
+    // },
+    // {
+    //   label: this.translate.instant('delete'),
+    //   icon: '@tui.trash',
+    //   color: 'danger',
+    //   handler: (headquarter: Headquarter) => this.onDeleteHeadquarter(headquarter),
+    //   disabled: () => this.isProcessing(),
+    //   visible: () => this.hasTopManagementAccess(),
+    // },
   ]);
 
   searchableColumns = computed(() => ['name', 'address']);

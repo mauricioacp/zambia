@@ -33,7 +33,6 @@ export class AdministrationDashboardFacadeService {
   private _errorMessage = signal<string | null>(null);
   private _lastRefresh = signal<Date | null>(null);
 
-  // Generic entity resource loader
   createEntityResource = <T extends TableNames>(
     tableName: T,
     options: {

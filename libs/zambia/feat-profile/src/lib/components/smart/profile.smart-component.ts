@@ -112,6 +112,7 @@ type Season = Database['public']['Tables']['seasons']['Row'];
                     id="name"
                     type="text"
                     formControlName="name"
+                    readonly
                     placeholder="{{ 'profile.firstName' | translate }}"
                   />
                 </tui-textfield>
@@ -124,6 +125,7 @@ type Season = Database['public']['Tables']['seasons']['Row'];
                     id="lastName"
                     type="text"
                     formControlName="lastName"
+                    readonly
                     placeholder="{{ 'profile.lastName' | translate }}"
                   />
                 </tui-textfield>
@@ -136,6 +138,7 @@ type Season = Database['public']['Tables']['seasons']['Row'];
                     id="documentNumber"
                     type="text"
                     formControlName="documentNumber"
+                    readonly
                     placeholder="{{ 'profile.documentNumber' | translate }}"
                   />
                 </tui-textfield>
@@ -148,25 +151,26 @@ type Season = Database['public']['Tables']['seasons']['Row'];
                     id="phone"
                     type="tel"
                     formControlName="phone"
+                    readonly
                     placeholder="{{ 'profile.phone' | translate }}"
                   />
                 </tui-textfield>
 
                 <!-- Gender (Editable) -->
-                <div>
-                  <label for="gender" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {{ 'profile.gender' | translate }}
-                  </label>
-                  <select
-                    id="gender"
-                    formControlName="gender"
-                    class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500"
-                  >
-                    <option value="">{{ 'profile.selectGender' | translate }}</option>
-                    <option value="male">{{ 'profile.male' | translate }}</option>
-                    <option value="female">{{ 'profile.female' | translate }}</option>
-                  </select>
-                </div>
+                <!-- <div>
+                   <label for="gender" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                     {{ 'profile.gender' | translate }}
+                   </label>
+                   <select
+                     id="gender"
+                     formControlName="gender"
+                     class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-500"
+                   >
+                     <option value="">{{ 'profile.selectGender' | translate }}</option>
+                     <option value="male">{{ 'profile.male' | translate }}</option>
+                     <option value="female">{{ 'profile.female' | translate }}</option>
+                   </select>
+                 </div>-->
 
                 <!-- Birth Date (Editable) -->
                 <tui-textfield>
@@ -176,6 +180,7 @@ type Season = Database['public']['Tables']['seasons']['Row'];
                     id="birthDate"
                     type="date"
                     formControlName="birthDate"
+                    readonly
                     placeholder="{{ 'profile.birthDate' | translate }}"
                   />
                 </tui-textfield>
@@ -189,6 +194,9 @@ type Season = Database['public']['Tables']['seasons']['Row'];
                       id="address"
                       type="text"
                       formControlName="address"
+                      readonly
+                      [class.bg-gray-100]="true"
+                      [class.dark:bg-gray-700]="true"
                       placeholder="{{ 'profile.address' | translate }}"
                     />
                   </tui-textfield>
@@ -217,6 +225,7 @@ type Season = Database['public']['Tables']['seasons']['Row'];
                     type="text"
                     [value]="roleName()"
                     readonly
+                    [disabled]="true"
                     [class.bg-gray-100]="true"
                     [class.dark:bg-gray-700]="true"
                   />
@@ -249,6 +258,7 @@ type Season = Database['public']['Tables']['seasons']['Row'];
                     type="text"
                     [value]="season()?.name || '-'"
                     readonly
+                    [disabled]="true"
                     [class.bg-gray-100]="true"
                     [class.dark:bg-gray-700]="true"
                   />
@@ -270,7 +280,7 @@ type Season = Database['public']['Tables']['seasons']['Row'];
 
                 <!-- Activation Date (Read-only) -->
                 <tui-textfield>
-                  <label tuiLabel for="activationDate">{{ 'profile.activationDate' | translate }}</label>
+                  <label tuiLabel for="activationDate">{{ 'profile.agreementCreationDate' | translate }}</label>
                   <input
                     tuiTextfield
                     id="activationDate"
@@ -358,12 +368,13 @@ type Season = Database['public']['Tables']['seasons']['Row'];
               <button type="button" tuiButton appearance="secondary" size="m" routerLink="/dashboard">
                 {{ 'common.cancel' | translate }}
               </button>
+              <!--   todo submit is disabled until que review all post calls-->
               <button
                 type="submit"
                 tuiButton
                 appearance="primary"
                 size="m"
-                [disabled]="isSaving() || profileForm.invalid"
+                [disabled]="isSaving() || profileForm.invalid || true"
               >
                 @if (isSaving()) {
                   <tui-icon icon="@tui.loader" class="mr-2 animate-spin"></tui-icon>
@@ -416,15 +427,13 @@ export class ProfileSmartComponent implements OnInit {
   protected roleName = signal<string>('');
 
   protected profileForm: FormGroup = this.fb.group({
-    // Editable fields
-    name: ['', [Validators.required, Validators.minLength(2)]],
-    lastName: ['', [Validators.required, Validators.minLength(2)]],
-    documentNumber: [''],
-    phone: [''],
-    gender: [''],
-    birthDate: [null],
-    address: [''],
-    // Read-only fields
+    name: [{ value: '', disabled: true }, [Validators.required, Validators.minLength(2)]],
+    lastName: [{ value: '', disabled: true }, [Validators.required, Validators.minLength(2)]],
+    documentNumber: [{ value: '', disabled: true }],
+    phone: [{ value: '', disabled: true }],
+    gender: [{ value: '', disabled: true }],
+    birthDate: [{ value: '', disabled: true }],
+    address: [{ value: '', disabled: true }],
     email: [{ value: '', disabled: true }],
     status: [{ value: '', disabled: true }],
     activationDate: [{ value: '', disabled: true }],
@@ -519,9 +528,7 @@ export class ProfileSmartComponent implements OnInit {
         // Read-only fields
         email: agreementData.email || '',
         status: agreementData.status || '',
-        activationDate: agreementData.activation_date
-          ? new Date(agreementData.activation_date).toLocaleDateString()
-          : '',
+        activationDate: agreementData.created_at ? new Date(agreementData.created_at).toLocaleDateString() : '',
       });
     } catch (error) {
       console.error('Error loading profile:', error);

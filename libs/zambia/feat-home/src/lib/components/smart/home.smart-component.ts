@@ -86,14 +86,15 @@ export class HomeSmartComponent {
   userDisplayName = computed(() => this.userMetadataService.userDisplayName());
 
   welcomeHeaderData = computed(() => ({
-    title: this.translateService.instant('panel.title'),
+    title: this.translateService.instant('home.title'),
     beforeTitleText: `${this.translateService.instant('dashboard.home.welcome')}, ${this.userDisplayName()}`,
     showStatus: true,
     subtitle: `${this.translateService.instant('associated_rol')}: ${this.userRole()}`,
   }));
 
   dashboardComponent = computed(() => {
-    const roleGroup = this.userRoleGroup();
-    return this.roleComponentMap[roleGroup as keyof typeof this.roleComponentMap] || StudentDashboardSmartComponent;
+    // const roleGroup = this.userRoleGroup();
+    // todo this.roleComponentMap[roleGroup as keyof typeof this.roleComponentMap] ||
+    return StudentDashboardSmartComponent;
   });
 }

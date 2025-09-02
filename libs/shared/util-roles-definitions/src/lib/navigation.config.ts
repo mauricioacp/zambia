@@ -24,6 +24,36 @@ export const NAVIGATION_ITEMS: readonly NavigationItem[] = [
     translationKey: 'nav.homepage',
     section: 'main',
   },
+  {
+    key: 'countries',
+    route: '/dashboard/countries',
+    icon: 'globe',
+    translationKey: 'nav.countries',
+    section: 'management',
+    allowedGroups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM', 'COORDINATION_TEAM'],
+  },
+  {
+    key: 'headquarters',
+    route: '/dashboard/headquarters',
+    icon: 'building',
+    translationKey: 'nav.headquarters',
+    section: 'management',
+    allowedGroups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM', 'COORDINATION_TEAM'],
+  },
+  {
+    key: 'agreements',
+    route: '/dashboard/agreements',
+    icon: 'handshake',
+    translationKey: 'nav.agreements',
+    section: 'management',
+    allowedGroups: [
+      'ADMINISTRATION',
+      'TOP_MANAGEMENT',
+      'LEADERSHIP_TEAM',
+      'COORDINATION_TEAM',
+      'HEADQUARTERS_MANAGEMENT',
+    ],
+  },
   // {
   //   key: 'home',
   //   route: '/dashboard/home',
@@ -41,22 +71,7 @@ export const NAVIGATION_ITEMS: readonly NavigationItem[] = [
   // },
 
   // Management section - restricted access
-  {
-    key: 'countries',
-    route: '/dashboard/countries',
-    icon: 'globe',
-    translationKey: 'nav.countries',
-    section: 'management',
-    allowedGroups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'],
-  },
-  {
-    key: 'headquarters',
-    route: '/dashboard/headquarters',
-    icon: 'building',
-    translationKey: 'nav.headquarters',
-    section: 'management',
-    allowedGroups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM'],
-  },
+
   // {
   //   key: 'workshops',
   //   route: '/dashboard/workshops',
@@ -65,14 +80,6 @@ export const NAVIGATION_ITEMS: readonly NavigationItem[] = [
   //   section: 'management',
   //   allowedGroups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM', 'HEADQUARTERS_MANAGEMENT']
   // },
-  {
-    key: 'agreements',
-    route: '/dashboard/agreements',
-    icon: 'handshake',
-    translationKey: 'nav.agreements',
-    section: 'management',
-    allowedGroups: ['ADMINISTRATION', 'TOP_MANAGEMENT', 'LEADERSHIP_TEAM', 'HEADQUARTERS_MANAGEMENT'],
-  },
   // {
   //   key: 'students',
   //   route: '/dashboard/students',
