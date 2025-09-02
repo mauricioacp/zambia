@@ -13,12 +13,12 @@ import { RouterModule } from '@angular/router';
 import { AgreementDetails, AgreementsFacadeService } from '../../services/agreements-facade.service';
 import { TuiSkeleton, TuiBreadcrumbs, TuiComment } from '@taiga-ui/kit';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { TuiIcon, TuiButton, TuiLink, TuiDialogService, TuiAlertComponent } from '@taiga-ui/core';
+import { TuiIcon, TuiButton, TuiLink, TuiDialogService } from '@taiga-ui/core';
 import { TuiItem } from '@taiga-ui/cdk';
 import { ICONS } from '@zambia/util-constants';
 import { ConfirmationModalUiComponent, ConfirmationData, injectCurrentTheme } from '@zambia/ui-components';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
-import { NotificationService } from '@zambia/data-access-generic';
+import { NotificationService, AkademyEdgeFunctionsService } from '@zambia/data-access-generic';
 
 interface TableRow {
   key: string;
@@ -40,7 +40,6 @@ interface TableRow {
     TuiLink,
     TuiBreadcrumbs,
     TuiItem,
-    TuiAlertComponent,
     TuiComment,
   ],
   template: `
@@ -155,7 +154,7 @@ interface TableRow {
                   [iconStart]="getActionIcon(agreementData()?.status)"
                   [attr.tuiTheme]="currentTheme()"
                   (click)="onToggleAgreementStatus()"
-                  [disabled]="isProcessing() || true"
+                  [disabled]="isProcessing()"
                   [ngClass]="getActionButtonClasses(agreementData()?.status)"
                 >
                   {{ getActionText(agreementData()?.status) | translate }}
@@ -355,6 +354,7 @@ interface TableRow {
 })
 export class AgreementDetailSmartComponent {
   agreementsFacade = inject(AgreementsFacadeService);
+  private edgeFunctions = inject(AkademyEdgeFunctionsService);
   translate = inject(TranslateService);
   dialogs = inject(TuiDialogService);
   notificationService = inject(NotificationService);
@@ -466,10 +466,19 @@ export class AgreementDetailSmartComponent {
     if (confirmed) {
       try {
         this.isProcessing.set(true);
-        if (isCurrentlyActive) {
-          await this.agreementsFacade.deactivateAgreement(agreement.id);
+        if (!isCurrentlyActive) {
+          const response = await this.edgeFunctions.createUser({ agreement_id: agreement.id });
+
+          if (response.error) {
+            this.notificationService.showError(
+              this.translate.instant('user_creation_failed', { error: response.error })
+            );
+            return;
+          }
         } else {
-          await this.agreementsFacade.activateAgreement(agreement.id);
+          this.notificationService.showError('Próximamente');
+          this.isProcessing.set(false);
+          return;
         }
         this.agreementsFacade.agreementById.reload();
       } catch (error) {

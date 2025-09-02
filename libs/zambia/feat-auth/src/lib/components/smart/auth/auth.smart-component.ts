@@ -178,7 +178,7 @@ export class AuthSmartComponent implements OnInit {
       .subscribe();
 
     this.authForm.reset();
-    await this.router.navigate(['/dashboard/panel']);
+    await this.router.navigate(['/dashboard/home']);
   }
 
   private handleSignInError(error: unknown): void {
