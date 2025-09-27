@@ -191,14 +191,17 @@ export class RoleChangeModalSmartComponent {
     });
 
     if (data) {
-      this.notificationService.showSuccess(
-        this.translate
-          .instant('role_changed_successfully', {
+      this.notificationService
+        .showSuccess(
+          this.translate.instant('role_changed_successfully', {
             oldRole: this.modalData.currentRole.name,
             newRole: selectedRole.name,
-          })
-          .subscribe()
-      );
+          }),
+          {
+            translate: false,
+          }
+        )
+        .subscribe();
 
       this.context.completeWith(!!data?.new_role?.id);
     }
