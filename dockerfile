@@ -20,7 +20,10 @@ ENV API_PUBLIC_KEY=${API_PUBLIC_KEY}
 ENV PROD=${PROD}
 
 RUN npm run config
-RUN npx nx build zambia --configuration=production
+
+# Increase Node memory limit and add verbose output
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+RUN npx nx build zambia --configuration=production --verbose --skip-nx-cache
 
 FROM nginx:stable AS final
 WORKDIR /usr/share/nginx/html
