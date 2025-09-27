@@ -1,11 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'z-shell',
-  imports: [CommonModule, RouterOutlet],
+  imports: [RouterOutlet],
   changeDetection: ChangeDetectionStrategy.Default,
   template: `
     <main

@@ -71,8 +71,8 @@ export class WorkshopsFacadeService {
   });
 
   workshopById = resource({
-    request: () => ({ workshopId: this.workshopId() }),
-    loader: async ({ request }) => {
+    params: () => ({ workshopId: this.workshopId() }),
+    loader: async ({ params }) => {
       const { data, error } = await this.supabase
         .getClient()
         .from('scheduled_workshops')
@@ -88,11 +88,11 @@ export class WorkshopsFacadeService {
           )
         `
         )
-        .eq('id', request.workshopId)
+        .eq('id', params.workshopId)
         .single();
 
       if (error) {
-        console.error(`Error fetching workshop with ID ${request.workshopId}:`, error);
+        console.error(`Error fetching workshop with ID ${params.workshopId}:`, error);
         throw error;
       }
 

@@ -23,11 +23,25 @@ import { ThemeService, CURRENT_THEME, LanguageService } from '@zambia/ui-compone
 export class AppComponent {
   readonly config = inject(APP_CONFIG);
   readonly themeService = inject(ThemeService);
-  // language initialization
+  // early initialization is necessary todo check if we can do it in providers
   private readonly languageService = inject(LanguageService);
 
   constructor() {
     console.log(this.config.PROD ? 'PROD' : 'DEV');
+    if (this.config.PROD) {
+      console.log = function () {
+        /* empty */
+      };
+      console.warn = function () {
+        /* empty */
+      };
+      console.error = function () {
+        /* empty */
+      };
+      console.info = function () {
+        /* empty */
+      };
+    }
     /* todo Sentry.init({
       dsn: 'https://ea4ca286152e4285a573932511600fff@glitchtip-q00soko4s8gkck4sos4ww8s8.cappady.com/1',
       tracesSampleRate: 0.01,

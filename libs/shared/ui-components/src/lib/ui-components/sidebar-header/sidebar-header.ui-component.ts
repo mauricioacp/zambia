@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TuiIcon } from '@taiga-ui/core';
 
 @Component({
   selector: 'z-sidebar-header',
-  imports: [CommonModule, TuiIcon],
+  imports: [TuiIcon],
   template: `
     <div
       class="flex h-16 w-full flex-none items-center justify-between px-4 shadow-xs lg:justify-center dark:bg-gray-600/25"

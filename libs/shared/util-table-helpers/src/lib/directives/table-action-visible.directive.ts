@@ -1,4 +1,4 @@
-import { Directive, Input, TemplateRef, ViewContainerRef, OnInit, OnChanges } from '@angular/core';
+import { Directive, Input, TemplateRef, ViewContainerRef, OnInit, OnChanges, inject } from '@angular/core';
 import { TableAction } from '@zambia/ui-table-primitives';
 
 @Directive({
@@ -10,11 +10,8 @@ export class TableActionVisibleDirective<T = any> implements OnInit, OnChanges {
   @Input('zTableActionVisibleRow') row!: T;
 
   private hasView = false;
-
-  constructor(
-    private templateRef: TemplateRef<any>,
-    private viewContainer: ViewContainerRef
-  ) {}
+  private templateRef = inject(TemplateRef);
+  private viewContainer = inject(ViewContainerRef);
 
   ngOnInit(): void {
     this.updateView();

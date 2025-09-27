@@ -1,12 +1,12 @@
 import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TuiButton } from '@taiga-ui/core';
 import { TableSearchConfig } from '../types/table-primitives.types';
 
 @Component({
   selector: 'z-table-search-trigger',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, TuiButton],
+  imports: [TuiButton],
   template: `
     <button
       tuiButton

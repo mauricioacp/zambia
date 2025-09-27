@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router, RouterModule } from '@angular/router';
 import { RoleService } from '@zambia/data-access-roles-permissions';
 import { CardColumnData, CardComponent, DataBadgeUiComponent } from '@zambia/ui-components';
@@ -10,7 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'z-panel',
   standalone: true,
-  imports: [CommonModule, RouterModule, DataBadgeUiComponent, CardComponent, TuiSkeleton, TranslateModule],
+  imports: [RouterModule, DataBadgeUiComponent, CardComponent, TuiSkeleton, TranslateModule],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-slate-900">
       <!-- Header Section -->

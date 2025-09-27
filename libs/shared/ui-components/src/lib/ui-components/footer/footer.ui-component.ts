@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'z-page-footer',
-  imports: [CommonModule, RouterLink],
+  imports: [RouterLink],
   template: `
     <!-- Page Footer -->
     <footer id="page-footer" class="flex flex-none items-center bg-white dark:bg-gray-800/50">

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import {
   BrandLogoComponent,
   LayoutService,
@@ -22,7 +22,6 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'z-dashboard',
   imports: [
-    CommonModule,
     SidebarUiComponent,
     PageContainerUiComponent,
     PageHeaderUiComponent,

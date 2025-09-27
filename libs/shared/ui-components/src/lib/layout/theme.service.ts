@@ -1,5 +1,14 @@
-import { afterNextRender, computed, inject, Injectable, InjectionToken, PLATFORM_ID, signal } from '@angular/core';
-import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import {
+  afterNextRender,
+  computed,
+  inject,
+  Injectable,
+  InjectionToken,
+  PLATFORM_ID,
+  signal,
+  DOCUMENT,
+} from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { TUI_DARK_MODE } from '@taiga-ui/core';
 
 export const enum AppTheme {

@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TuiIcon } from '@taiga-ui/core';
 
 @Component({
   selector: 'z-sidebar-toggle',
   standalone: true,
-  imports: [CommonModule, TuiIcon],
+  imports: [TuiIcon],
   template: `
     <button
       type="button"

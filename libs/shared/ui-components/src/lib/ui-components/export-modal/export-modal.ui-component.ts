@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TuiButton, TuiDialogContext, TuiTitle } from '@taiga-ui/core';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -11,7 +11,7 @@ export type ExportOptions = 'csv' | 'excel';
 @Component({
   selector: 'z-export-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TuiButton, TranslatePipe, TuiRadioList, FormsModule, TuiTitle],
+  imports: [ReactiveFormsModule, TuiButton, TranslatePipe, TuiRadioList, FormsModule, TuiTitle],
   template: `
     <div class="p-6">
       <h3 class="mb-4 text-xl font-bold text-gray-800 dark:text-white">

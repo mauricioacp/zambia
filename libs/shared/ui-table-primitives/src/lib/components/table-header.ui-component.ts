@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TABLE_STYLES, tableClass } from '../constants/table-styles.constants';
 
 @Component({
   selector: 'z-table-header',
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div [class]="headerClass()">
       <div class="flex items-center justify-between">

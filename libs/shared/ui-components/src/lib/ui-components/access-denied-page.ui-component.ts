@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { logoSvg } from '../assets/logo-svg';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
@@ -7,7 +7,7 @@ import { map, Subscription, take, timer } from 'rxjs';
 
 @Component({
   selector: 'z-access-denied-page',
-  imports: [CommonModule, RouterLink],
+  imports: [RouterLink],
   template: ` <div class="flex h-full items-center justify-center p-4 align-middle">
     <div class="w-full max-w-md space-y-6 rounded-lg bg-slate-50 p-8 text-center shadow-xl">
       <div class="flex justify-center text-slate-700" [innerHTML]="safeSvg"></div>

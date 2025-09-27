@@ -9,6 +9,5 @@ import { Directive, Input, TemplateRef } from '@angular/core';
 })
 export class ColumnTemplateDirective<T = unknown> {
   @Input('zColumnTemplate') columnName!: string;
-
-  constructor(public template: TemplateRef<{ $implicit: T; item: T }>) {}
+  public template: TemplateRef<{ $implicit: T; item: T }> | undefined;
 }

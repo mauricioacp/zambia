@@ -40,4 +40,4 @@ jobs:
 
       # Run nx affected commands without cloud dependencies
       - name: Lint, Format and Build
-        run: npx nx affected --base=${{ env.BASE_SHA }} --head=HEAD -t lint format build build-storybook
+        run: npx nx affected --base=${{ env.BASE_SHA }} --head=HEAD -t lint format

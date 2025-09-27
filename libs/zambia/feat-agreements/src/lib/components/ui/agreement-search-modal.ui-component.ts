@@ -1,5 +1,5 @@
 import { Component, input, output, signal, computed, ChangeDetectionStrategy, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { TuiButton, TuiIcon, TuiTextfield, TuiLabel, TuiDialogContext } from '@taiga-ui/core';
 import { TuiRadioList } from '@taiga-ui/kit';
@@ -39,17 +39,7 @@ export interface AgreementSearchResult {
 @Component({
   selector: 'z-agreement-search-modal',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    CommonModule,
-    FormsModule,
-    TuiButton,
-    TuiIcon,
-    TuiTextfield,
-    TuiLabel,
-    TuiRadioList,
-    TuiAutoFocus,
-    TranslatePipe,
-  ],
+  imports: [FormsModule, TuiButton, TuiIcon, TuiTextfield, TuiLabel, TuiRadioList, TuiAutoFocus, TranslatePipe],
   template: `
     <div class="p-6">
       <h2 class="mb-6 text-xl font-semibold text-gray-900 dark:text-white">

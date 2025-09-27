@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { TuiIcon } from '@taiga-ui/core';
@@ -10,7 +10,7 @@ import { ActivityFeedComponent } from '../../ui/activity-feed/activity-feed.ui-c
 @Component({
   selector: 'z-field-staff-dashboard',
   standalone: true,
-  imports: [CommonModule, TranslateModule, TuiIcon, QuickActionCardComponent, ActivityFeedComponent],
+  imports: [TranslateModule, TuiIcon, QuickActionCardComponent, ActivityFeedComponent],
   template: `
     <div class="space-y-8">
       <!-- My Assignment -->

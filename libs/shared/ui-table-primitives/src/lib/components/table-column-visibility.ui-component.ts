@@ -1,5 +1,5 @@
 import { Component, input, output, signal, computed, ChangeDetectionStrategy, OnInit, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { TuiButton, TuiDataList, TuiDropdown, TuiIcon } from '@taiga-ui/core';
 import { TableColumnConfig } from '../types/table-primitives.types';
@@ -8,7 +8,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 @Component({
   selector: 'z-table-column-visibility',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, TuiButton, TuiDropdown, TuiDataList, TuiIcon, TranslatePipe],
+  imports: [FormsModule, TuiButton, TuiDropdown, TuiDataList, TuiIcon, TranslatePipe],
   template: `
     <button
       tuiButton

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal, computed } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { TuiButton, TuiIcon, TuiTextfield, TuiDialogContext } from '@taiga-ui/core';
@@ -23,7 +22,6 @@ export interface AdvancedSearchData {
   selector: 'z-agreement-advanced-search',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     FormsModule,
     TranslateModule,
@@ -92,16 +90,18 @@ export interface AdvancedSearchData {
               {{ 'filter_by_roles' | translate }}
             </h3>
             <div class="space-y-2 rounded-lg border border-gray-200 p-3 dark:border-slate-700">
-              <div *ngFor="let role of data.roles" class="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  [id]="'role-' + role.id"
-                  class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  [checked]="isRoleSelected(role.id)"
-                  (change)="toggleRole(role.id)"
-                />
-                <label [for]="'role-' + role.id" class="cursor-pointer text-sm">{{ role.name }}</label>
-              </div>
+              @for (role of data.roles; track role) {
+                <div class="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    [id]="'role-' + role.id"
+                    class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    [checked]="isRoleSelected(role.id)"
+                    (change)="toggleRole(role.id)"
+                  />
+                  <label [for]="'role-' + role.id" class="cursor-pointer text-sm">{{ role.name }}</label>
+                </div>
+              }
             </div>
           </div>
 
@@ -111,16 +111,18 @@ export interface AdvancedSearchData {
               {{ 'filter_by_countries' | translate }}
             </h3>
             <div class="space-y-2 rounded-lg border border-gray-200 p-3 dark:border-slate-700">
-              <div *ngFor="let country of data.countries" class="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  [id]="'country-' + country.id"
-                  class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  [checked]="isCountrySelected(country.id)"
-                  (change)="toggleCountry(country.id)"
-                />
-                <label [for]="'country-' + country.id" class="cursor-pointer text-sm">{{ country.name }}</label>
-              </div>
+              @for (country of data.countries; track country) {
+                <div class="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    [id]="'country-' + country.id"
+                    class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    [checked]="isCountrySelected(country.id)"
+                    (change)="toggleCountry(country.id)"
+                  />
+                  <label [for]="'country-' + country.id" class="cursor-pointer text-sm">{{ country.name }}</label>
+                </div>
+              }
             </div>
           </div>
 
@@ -130,16 +132,18 @@ export interface AdvancedSearchData {
               {{ 'filter_by_headquarters' | translate }}
             </h3>
             <div class="space-y-2 rounded-lg border border-gray-200 p-3 dark:border-slate-700">
-              <div *ngFor="let hq of data.headquarters" class="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  [id]="'hq-' + hq.id"
-                  class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  [checked]="isHeadquarterSelected(hq.id)"
-                  (change)="toggleHeadquarter(hq.id)"
-                />
-                <label [for]="'hq-' + hq.id" class="cursor-pointer text-sm">{{ hq.name }}</label>
-              </div>
+              @for (hq of data.headquarters; track hq) {
+                <div class="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    [id]="'hq-' + hq.id"
+                    class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    [checked]="isHeadquarterSelected(hq.id)"
+                    (change)="toggleHeadquarter(hq.id)"
+                  />
+                  <label [for]="'hq-' + hq.id" class="cursor-pointer text-sm">{{ hq.name }}</label>
+                </div>
+              }
             </div>
           </div>
 
@@ -155,21 +159,20 @@ export interface AdvancedSearchData {
           </div>
 
           <!-- Active Filters Summary -->
-          <div *ngIf="hasFilters()" class="space-y-2">
-            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ 'active_filters' | translate }}:</p>
-            <div class="flex flex-wrap gap-2">
-              <tui-chip
-                *ngFor="let filter of getActiveFilters()"
-                size="s"
-                class="cursor-pointer"
-                (click)="removeFilter(filter)"
-              >
-                <tui-icon [icon]="filter.icon" class="mr-1"></tui-icon>
-                {{ filter.label }}
-                <tui-icon icon="@tui.x" class="ml-1"></tui-icon>
-              </tui-chip>
+          @if (hasFilters()) {
+            <div class="space-y-2">
+              <p class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ 'active_filters' | translate }}:</p>
+              <div class="flex flex-wrap gap-2">
+                @for (filter of getActiveFilters(); track filter) {
+                  <tui-chip size="s" class="cursor-pointer" (click)="removeFilter(filter)">
+                    <tui-icon [icon]="filter.icon" class="mr-1"></tui-icon>
+                    {{ filter.label }}
+                    <tui-icon icon="@tui.x" class="ml-1"></tui-icon>
+                  </tui-chip>
+                }
+              </div>
             </div>
-          </div>
+          }
         </form>
       </div>
 

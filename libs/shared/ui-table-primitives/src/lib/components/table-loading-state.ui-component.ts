@@ -1,12 +1,12 @@
 import { Component, input, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TuiLoader } from '@taiga-ui/core';
 import { TableLoadingStateConfig } from '../types/table-primitives.types';
 
 @Component({
   selector: 'z-table-loading-state',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, TuiLoader],
+  imports: [TuiLoader],
   template: `
     <div class="flex flex-col items-center justify-center px-6 py-12">
       @if (config().showSpinner !== false) {

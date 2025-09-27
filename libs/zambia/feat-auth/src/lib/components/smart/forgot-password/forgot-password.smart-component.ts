@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -12,7 +12,7 @@ import { logoSvg, ThemeService, FormFieldComponent } from '@zambia/ui-components
 @Component({
   selector: 'z-forgot-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslateModule, TuiButton, TuiIcon, FormFieldComponent],
+  imports: [ReactiveFormsModule, RouterLink, TranslateModule, TuiButton, TuiIcon, FormFieldComponent],
   template: `
     <div class="min-h-dvh bg-gray-100 dark:bg-gray-900 dark:text-gray-100">
       <main class="flex max-w-full flex-auto flex-col">

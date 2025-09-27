@@ -15,8 +15,6 @@ npm run build
 # Build production version
 npm run build:prod
 
-# Start Storybook for component development
-npm start
 ```
 
 ## Code Quality and Linting

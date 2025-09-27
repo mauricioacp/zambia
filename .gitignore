@@ -56,3 +56,5 @@ apps/zambia/src/environments/environment.production.ts
 apps/zambia/.env.*
 /apps/zambia/src/environments/environment.production.ts
 /.claude/settings.local.json
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md

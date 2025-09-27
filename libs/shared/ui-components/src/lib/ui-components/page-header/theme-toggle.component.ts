@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ThemeService } from '../../layout/theme.service';
 import { TuiIcon } from '@taiga-ui/core';
 
 @Component({
   selector: 'z-theme-toggle',
   standalone: true,
-  imports: [CommonModule, TuiIcon],
+  imports: [TuiIcon],
   template: `
     <button (click)="toggleTheme()" [attr.aria-label]="ariaLabel">
       <tui-icon [attr.aria-label]="ariaLabel" [icon]="icon" />

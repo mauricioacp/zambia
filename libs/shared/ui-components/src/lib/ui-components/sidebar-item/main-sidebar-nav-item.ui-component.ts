@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TuiIcon } from '@taiga-ui/core';
 
 @Component({
   selector: 'z-main-sidebar-nav-item',
-  imports: [CommonModule, RouterLink, RouterLinkActive, TranslatePipe, TuiIcon],
+  imports: [RouterLink, RouterLinkActive, TranslatePipe, TuiIcon],
   template: ` <a
     routerLink="{{ route() }}"
     class="group flex items-center gap-2 rounded-lg border border-transparent px-2.5 text-sm font-medium text-gray-800 hover:bg-blue-50 hover:text-gray-900 active:border-blue-100 dark:text-gray-200 dark:hover:bg-gray-700/75 dark:hover:text-white dark:active:border-gray-600"

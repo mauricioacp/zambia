@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, inject, signal, computed, Inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TuiButton, TuiTextfield, TuiDataList, TuiLoader, TuiIcon, TuiOptGroup } from '@taiga-ui/core';
 import { TuiTextarea, TuiAvatar, TuiTextareaLimit } from '@taiga-ui/kit';
@@ -15,7 +15,6 @@ import type { UserSearchResult } from '@zambia/shared/data-access-notifications'
   selector: 'z-direct-message-dialog-v2',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     TuiButton,
     TuiTextfield,
@@ -185,6 +184,7 @@ export class DirectMessageDialogV2SmartComponent {
   private readonly userMetadataService = inject(UserMetadataService);
 
   constructor(
+    // eslint-disable-next-line @angular-eslint/prefer-inject
     @Inject(POLYMORPHEUS_CONTEXT)
     private readonly context: { data?: { recipientId?: string }; completeWith: (result: { sent: boolean }) => void }
   ) {

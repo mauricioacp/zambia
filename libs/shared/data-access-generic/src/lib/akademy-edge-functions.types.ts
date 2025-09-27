@@ -81,3 +81,26 @@ export const SendEmailResponse = z.object({
 });
 
 export type SendEmailResponse = z.infer<typeof SendEmailResponse>;
+
+export interface ChangeRoleRequest {
+  agreement_id: string;
+  new_role_id: string;
+}
+
+export interface ChangeRoleResponse {
+  message: string;
+  agreement_id: string;
+  user_id: string;
+  old_role: {
+    id: string;
+    code: string;
+    name: string;
+    level: number;
+  };
+  new_role: {
+    id: string;
+    code: string;
+    name: string;
+    level: number;
+  };
+}

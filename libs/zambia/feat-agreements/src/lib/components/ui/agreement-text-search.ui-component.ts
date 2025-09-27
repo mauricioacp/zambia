@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, resource, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TuiAutoColorPipe, TuiInitialsPipe, TuiTextfield, TuiLoader, TuiIcon } from '@taiga-ui/core';
@@ -14,7 +13,6 @@ import { Router } from '@angular/router';
   selector: 'z-agreement-text-search',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     TuiTextfield,
@@ -99,9 +97,9 @@ export class AgreementTextSearchComponent {
   searchQuery = debouncedSignal(this.searchInputValue, 500, '');
 
   private resultsResource = resource({
-    request: () => this.searchQuery(),
-    loader: async ({ request }) => {
-      const query = request;
+    params: () => this.searchQuery(),
+    loader: async ({ params }) => {
+      const query = params;
       if (!query || query.length < 2) {
         return [] as SearchAgreementResult[];
       }

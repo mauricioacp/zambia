@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, model, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TuiButton, TuiDropdown, TuiDataList } from '@taiga-ui/core';
@@ -9,7 +8,7 @@ import { ROLE_GROUPS, ROLES_NAMES, RoleCode, FILTER_ROLE_GROUP_WILL_DELETE_THIS 
 @Component({
   selector: 'z-role-filter-checkbox',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, TuiButton, TuiDropdown, TuiDataList, TuiBadge],
+  imports: [FormsModule, TranslateModule, TuiButton, TuiDropdown, TuiDataList, TuiBadge],
   template: `
     <div class="relative">
       <button

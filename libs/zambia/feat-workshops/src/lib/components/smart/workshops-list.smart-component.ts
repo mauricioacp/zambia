@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { WorkshopsFacadeService } from '../../services/workshops-facade.service';
 import { WelcomeMessageUiComponent } from '@zambia/ui-components';
@@ -10,7 +10,7 @@ import { TuiSkeleton } from '@taiga-ui/kit';
 @Component({
   selector: 'z-workshops-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, WelcomeMessageUiComponent, TranslatePipe, TuiIcon, TuiSkeleton],
+  imports: [RouterModule, WelcomeMessageUiComponent, TranslatePipe, TuiIcon, TuiSkeleton],
   template: `
     <div class="h-full w-full overflow-auto bg-gray-50 p-6 dark:bg-gray-900">
       <div class="mb-6 flex items-center justify-between">

@@ -19,6 +19,8 @@ import { ICONS } from '@zambia/util-constants';
 import { ConfirmationModalUiComponent, ConfirmationData, injectCurrentTheme } from '@zambia/ui-components';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { NotificationService, AkademyEdgeFunctionsService } from '@zambia/data-access-generic';
+import { RoleService } from '@zambia/data-access-roles-permissions';
+import { RoleChangeModalSmartComponent } from './role-change-modal.smart-component';
 
 interface TableRow {
   key: string;
@@ -133,18 +135,19 @@ interface TableRow {
 
               <div class="flex gap-3">
                 <!-- Edit Agreement -->
-                <button
-                  tuiButton
-                  [disabled]="true"
-                  appearance="secondary"
-                  size="m"
-                  iconStart="@tui.pencil"
-                  [attr.tuiTheme]="currentTheme()"
-                  (click)="onEditAgreement()"
-                  class="border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                >
-                  {{ 'edit_agreement' | translate }}
-                </button>
+                @if (canEditAgreement()) {
+                  <button
+                    tuiButton
+                    appearance="secondary"
+                    size="m"
+                    iconStart="@tui.pencil"
+                    [attr.tuiTheme]="currentTheme()"
+                    (click)="onEditAgreement()"
+                    class="border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                  >
+                    {{ 'edit_agreement' | translate }}
+                  </button>
+                }
 
                 <!-- Activate/Deactivate -->
                 <button
@@ -355,6 +358,7 @@ interface TableRow {
 export class AgreementDetailSmartComponent {
   agreementsFacade = inject(AgreementsFacadeService);
   private edgeFunctions = inject(AkademyEdgeFunctionsService);
+  private roleService = inject(RoleService);
   translate = inject(TranslateService);
   dialogs = inject(TuiDialogService);
   notificationService = inject(NotificationService);
@@ -365,6 +369,16 @@ export class AgreementDetailSmartComponent {
 
   currentTheme = injectCurrentTheme();
   ICONS = ICONS;
+
+  canEditAgreement = computed(() => {
+    const agreement = this.agreementData();
+    const userLevel = this.roleService.roleLevel();
+
+    if (!agreement || !userLevel) return false;
+
+    const agreementRoleLevel = agreement.roles?.level || 0;
+    return userLevel > agreementRoleLevel;
+  });
 
   constructor() {
     effect(() => {
@@ -449,7 +463,30 @@ export class AgreementDetailSmartComponent {
   });
 
   onEditAgreement(): void {
-    this.notificationService.showInfo(this.translate.instant('feature_coming_soon'));
+    const agreement = this.agreementData();
+    if (!agreement) return;
+
+    const dialogRef = this.dialogs.open<boolean>(new PolymorpheusComponent(RoleChangeModalSmartComponent), {
+      data: {
+        agreementId: agreement.id,
+        agreementName: `${agreement.name} ${agreement.last_name}`,
+        currentRole: {
+          id: agreement.role_id,
+          name: agreement.roles?.name || 'Unknown',
+          code: agreement.roles?.code || 'unknown',
+          level: agreement.roles?.level || 0,
+        },
+      },
+      size: 'm',
+      closeable: true,
+      dismissible: false,
+    });
+
+    dialogRef.subscribe((result) => {
+      if (result) {
+        this.agreementsFacade.agreementById.reload();
+      }
+    });
   }
 
   async onToggleAgreementStatus(): Promise<void> {

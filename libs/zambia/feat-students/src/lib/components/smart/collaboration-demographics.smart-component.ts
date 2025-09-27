@@ -297,7 +297,6 @@ export class CollaborationDemographicsSmartComponent {
   isLoadingSignal = signal(false);
 
   collaborationData = resource({
-    request: () => ({}),
     loader: async () => {
       this.isLoadingSignal.set(true);
       try {

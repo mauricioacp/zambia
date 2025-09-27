@@ -13,6 +13,8 @@ import {
   ApiResponse,
   SendEmailRequest,
   SendEmailResponse,
+  ChangeRoleRequest,
+  ChangeRoleResponse,
 } from './akademy-edge-functions.types';
 
 @Injectable({
@@ -87,6 +89,7 @@ export class AkademyEdgeFunctionsService {
 
       return { data };
     } catch (error: unknown) {
+      console.error(error);
       this.isLoading.set(false);
       const errorMessage = error instanceof Error ? error.message : 'Unexpected error occurred';
       this.lastError.set(errorMessage);
@@ -145,6 +148,13 @@ export class AkademyEdgeFunctionsService {
 
   async sendEmail(request: SendEmailRequest): Promise<ApiResponse<SendEmailResponse>> {
     return await this.invokeFunction<SendEmailResponse>('akademy-app/email', {
+      method: 'POST',
+      body: request,
+    });
+  }
+
+  async changeRole(request: ChangeRoleRequest): Promise<ApiResponse<ChangeRoleResponse>> {
+    return this.invokeFunction<ChangeRoleResponse>('akademy-app/change-role', {
       method: 'POST',
       body: request,
     });

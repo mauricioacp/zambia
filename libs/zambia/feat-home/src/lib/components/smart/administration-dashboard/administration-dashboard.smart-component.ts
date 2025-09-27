@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { TuiIcon, TuiButton } from '@taiga-ui/core';
@@ -10,15 +10,7 @@ import { AdministrationDashboardFacadeService } from '../../../services/administ
 @Component({
   selector: 'z-administration-dashboard',
   standalone: true,
-  imports: [
-    CommonModule,
-    TranslateModule,
-    SectionHeaderUiComponent,
-    KpiCardUiComponent,
-    TuiIcon,
-    TuiButtonLoading,
-    TuiButton,
-  ],
+  imports: [TranslateModule, SectionHeaderUiComponent, KpiCardUiComponent, TuiIcon, TuiButtonLoading, TuiButton],
   template: `
     <div class="space-y-8">
       <!-- Header with Refresh -->

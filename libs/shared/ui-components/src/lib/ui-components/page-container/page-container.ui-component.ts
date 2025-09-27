@@ -1,9 +1,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'z-page-container',
-  imports: [CommonModule],
+  imports: [],
   template: `
     <main id="page-content" class="flex flex-auto flex-col pt-16">
       <div class="w-full overflow-x-auto p-4 lg:p-8">

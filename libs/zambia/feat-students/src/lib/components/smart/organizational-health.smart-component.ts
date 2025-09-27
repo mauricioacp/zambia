@@ -317,7 +317,6 @@ export class OrganizationalHealthSmartComponent {
   isLoadingSignal = signal(false);
 
   healthMetrics = resource({
-    request: () => ({}),
     loader: async () => {
       this.isLoadingSignal.set(true);
       try {

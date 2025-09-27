@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { logoSvg } from '../../assets/logo-svg';
 
 @Component({
   selector: 'z-brand-logo',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `<span class="logo text-gray-300 dark:text-white" [innerHTML]="safeLogoSvg"></span> `,
   styles: `
     .logo {

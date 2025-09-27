@@ -38,7 +38,7 @@ export class NotificationService {
 
   showError(message: string, options?: NotificationOptions): Observable<unknown> {
     return this.showNotification(message, 'error', {
-      autoClose: 5000,
+      autoClose: 4000,
       ...options,
     });
   }
@@ -57,6 +57,7 @@ export class NotificationService {
     });
   }
 
+  // todo change this mess
   private showNotification(
     message: string,
     type: NotificationType,
@@ -66,33 +67,17 @@ export class NotificationService {
 
     const finalMessage = translate ? this.translateService.instant(message, translateParams) : message;
 
-    const appearance = this.mapTypeToAppearance(type);
-
     const defaultLabel = translate
       ? this.translateService.instant(this.getDefaultLabel(type))
       : this.getDefaultLabelText(type);
 
-    const alertConfig = {
-      appearance,
+    return this.alertService.open(finalMessage, {
       autoClose: autoClose ?? this.getDefaultAutoClose(type),
       label: alertOptions.label || defaultLabel,
-      data: undefined,
-      ...alertOptions,
-    } as TuiAlertOptions<unknown>;
-
-    return this.alertService.open(finalMessage, alertConfig);
-  }
-
-  showCustom(
-    content: string | TemplateRef<unknown> | object,
-    options: Partial<TuiAlertOptions<unknown>> & { translate?: boolean; translateParams?: Record<string, unknown> } = {}
-  ): Observable<unknown> {
-    const { translate = true, translateParams, ...alertOptions } = options;
-
-    const finalContent =
-      typeof content === 'string' && translate ? this.translateService.instant(content, translateParams) : content;
-
-    return this.alertService.open(finalContent, alertOptions);
+      icon: alertOptions.icon || this.getDefaultIcon(type),
+      appearance: this.mapTypeToAppearance(type),
+      closeable: alertOptions.closeable || false,
+    });
   }
 
   private mapTypeToAppearance(type: NotificationType): TuiAlertOptions<unknown>['appearance'] {
@@ -106,6 +91,21 @@ export class NotificationService {
       case 'info':
       default:
         return 'info';
+    }
+  }
+
+  private getDefaultIcon(type: string): string {
+    switch (type) {
+      case 'success':
+        return '@tui.circle-check';
+      case 'error':
+        return '@tui.circle-x';
+      case 'warning':
+        return '@tui.triangle-alert';
+      case 'info':
+        return '@tui.info';
+      default:
+        return '@tui.info';
     }
   }
 

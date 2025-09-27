@@ -1,11 +1,11 @@
 import { Component, ChangeDetectionStrategy, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TuiBadgeNotification } from '@taiga-ui/kit';
 
 @Component({
   selector: 'z-notification-badge',
   standalone: true,
-  imports: [CommonModule, TuiBadgeNotification],
+  imports: [TuiBadgeNotification],
   template: `
     @if (count() > 0) {
       <tui-badge-notification [size]="size()" class="notification-badge">

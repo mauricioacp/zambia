@@ -1,9 +1,8 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'z-sidebar',
-  imports: [CommonModule],
+  imports: [],
   template: `
     <aside
       id="page-sidebar"

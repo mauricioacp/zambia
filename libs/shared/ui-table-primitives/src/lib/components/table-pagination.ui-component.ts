@@ -1,5 +1,5 @@
 import { Component, input, output, computed, signal, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { TuiButton, TuiIcon, TuiDataList, TuiDropdown, TuiOption } from '@taiga-ui/core';
 import { TablePaginationConfig } from '../types/table-primitives.types';
@@ -7,7 +7,7 @@ import { TablePaginationConfig } from '../types/table-primitives.types';
 @Component({
   selector: 'z-table-pagination',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, TuiButton, TuiIcon, TuiDropdown, TuiDataList, TuiOption],
+  imports: [FormsModule, TuiButton, TuiIcon, TuiDropdown, TuiDataList, TuiOption],
   template: `
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <!-- Page info -->
