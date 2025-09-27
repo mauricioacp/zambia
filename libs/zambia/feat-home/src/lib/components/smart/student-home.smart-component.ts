@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule } from '@ngx-translate/core';
 import { SectionHeaderUiComponent } from '@zambia/ui-components';
 import { RouterLink } from '@angular/router';
@@ -10,7 +10,7 @@ import { TuiIcon } from '@taiga-ui/core';
 @Component({
   selector: 'z-student-dashboard',
   standalone: true,
-  imports: [CommonModule, TranslateModule, SectionHeaderUiComponent, RouterLink, HasRoleDirective, TuiIcon],
+  imports: [TranslateModule, SectionHeaderUiComponent, RouterLink, HasRoleDirective, TuiIcon],
   template: `
     <!-- Organization Overview -->
     <div>

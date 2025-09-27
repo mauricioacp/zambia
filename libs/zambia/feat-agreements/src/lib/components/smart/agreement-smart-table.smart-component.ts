@@ -1,5 +1,5 @@
 import { Component, input, output, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { TuiDialogService } from '@taiga-ui/core';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
@@ -22,7 +22,7 @@ import { CountriesFacadeService } from '@zambia/feat-countries';
 @Component({
   selector: 'z-agreement-smart-table',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterModule, EnhancedTableComponent],
+  imports: [RouterModule, EnhancedTableComponent],
   template: `
     <z-enhanced-table
       [items]="agreements()"

@@ -1,12 +1,12 @@
 import { Component, input, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TuiLoader } from '@taiga-ui/core';
 import { HeadquarterMetrics } from '../../../services/home-facade.service';
 
 @Component({
   selector: 'z-headquarter-metrics-widget',
   standalone: true,
-  imports: [CommonModule, TuiLoader],
+  imports: [TuiLoader],
   template: `
     <div
       class="rounded-2xl border border-gray-200/50 bg-white/90 shadow-lg shadow-gray-900/5 backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20"

@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, input, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TuiIcon } from '@taiga-ui/core';
 
 export type SectionHeaderVariant = 'default' | 'gradient' | 'minimal';
@@ -8,7 +8,7 @@ export type SectionHeaderIconColor = 'indigo' | 'sky' | 'emerald' | 'purple' | '
 @Component({
   selector: 'z-section-header',
   standalone: true,
-  imports: [CommonModule, TuiIcon],
+  imports: [TuiIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section [class]="sectionClasses()">

@@ -1,5 +1,5 @@
 import { Component, input, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { KpiCardComponent, KpiCardData } from '../kpi-card/kpi-card.ui-component';
 
 export interface KpiWidgetData {
@@ -10,7 +10,7 @@ export interface KpiWidgetData {
 @Component({
   selector: 'z-kpi-widget',
   standalone: true,
-  imports: [CommonModule, KpiCardComponent],
+  imports: [KpiCardComponent],
   template: `
     <div class="space-y-4">
       <h2 class="text-xl font-semibold text-gray-900 dark:text-white">

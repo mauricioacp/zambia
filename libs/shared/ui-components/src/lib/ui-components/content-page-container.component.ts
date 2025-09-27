@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'z-content-page-container,[z-content-page-container]',
-  imports: [CommonModule],
+  imports: [],
   template: `<ng-content />`,
   styles: ``,
   host: {

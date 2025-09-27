@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, inject, signal, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TuiDropdown, TuiButton, TuiDataList, TuiLink, TuiScrollbar, TuiHint, TuiIcon } from '@taiga-ui/core';
 import { TuiBadgeNotification } from '@taiga-ui/kit';
 import { NotificationFacadeService, NotificationRealtimeService } from '@zambia/shared/data-access-notifications';
@@ -10,7 +10,6 @@ import { NotificationListUiComponent } from '../ui/notification-list.ui-componen
   selector: 'z-notification-dropdown',
   standalone: true,
   imports: [
-    CommonModule,
     TuiDropdown,
     TuiButton,
     TuiDataList,

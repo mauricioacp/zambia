@@ -37,7 +37,6 @@ interface CountryStudentSummary {
     TuiBreadcrumbs,
     TuiSkeleton,
     RouterModule,
-    EnhancedTableUiComponent,
     KpiCardUiComponent,
     TuiLink,
     TuiItem,
@@ -229,7 +228,7 @@ interface CountryStudentSummary {
         }
 
         <!-- Headquarter View Table -->
-        @if (viewMode() === 'headquarter') {
+        <!--@if (viewMode() === 'headquarter') {
           <z-enhanced-table
             [items]="headquarterData()"
             [columns]="tableColumns"
@@ -243,7 +242,7 @@ interface CountryStudentSummary {
             [pageSize]="25"
             [searchableColumns]="['name', 'country', 'city']"
           />
-        }
+        }-->
       </section>
     </div>
   `,
@@ -258,7 +257,6 @@ export class StudentProgressSmartComponent {
   isLoadingSignal = signal(false);
 
   studentData = resource({
-    request: () => ({}),
     loader: async () => {
       this.isLoadingSignal.set(true);
       try {

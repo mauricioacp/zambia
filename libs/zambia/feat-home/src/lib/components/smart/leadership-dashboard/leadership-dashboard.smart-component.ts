@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DashboardData } from '../../../types/dashboard-data.interface';
@@ -12,7 +12,6 @@ import { ActivityFeedComponent } from '../../ui/activity-feed/activity-feed.ui-c
   selector: 'z-leadership-dashboard',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     KpiWidgetComponent,
     QuickActionCardComponent,

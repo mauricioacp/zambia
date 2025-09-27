@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TuiDataList } from '@taiga-ui/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { NotificationItemUiComponent } from './notification-item.ui-component';
@@ -8,7 +8,7 @@ import type { Notification } from '@zambia/shared/data-access-notifications';
 @Component({
   selector: 'z-notification-list',
   standalone: true,
-  imports: [CommonModule, TuiDataList, TranslateModule, NotificationItemUiComponent],
+  imports: [TuiDataList, TranslateModule, NotificationItemUiComponent],
   template: `
     <div class="notification-list">
       @for (section of sections; track section.key) {

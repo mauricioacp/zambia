@@ -75,7 +75,7 @@ export class AgreementsFacadeService {
   agreementByIdResource = linkedSignal(() => this.agreementById.value() ?? null);
 
   currentPage = signal(1);
-  pageSize = signal(1000);
+  pageSize = signal(50);
   totalItems = signal(0);
   isLoading = signal(false);
   status = signal<string | null>(null);
@@ -128,12 +128,12 @@ export class AgreementsFacadeService {
   });
 
   agreements = resource<PaginatedAgreements, SearchAgreementsParams>({
-    request: () => this.agreementsParams(),
-    loader: async ({ request }: ResourceLoaderParams<SearchAgreementsParams>): Promise<PaginatedAgreements> => {
+    params: () => this.agreementsParams(),
+    loader: async ({ params }: ResourceLoaderParams<SearchAgreementsParams>): Promise<PaginatedAgreements> => {
       this.isLoading.set(true);
       try {
-        console.log(request);
-        const { data, error } = await this.supabase.getClient().rpc('search_agreements', request);
+        console.log(params);
+        const { data, error } = await this.supabase.getClient().rpc('search_agreements', params);
 
         if (error) {
           console.error('Error fetching agreements:', error);
@@ -148,9 +148,9 @@ export class AgreementsFacadeService {
             data: [],
             pagination: {
               total: 0,
-              limit: request.p_limit || 10,
-              offset: request.p_offset || 0,
-              page: Math.floor((request.p_offset || 0) / (request.p_limit || 10)) + 1,
+              limit: params.p_limit || 10,
+              offset: params.p_offset || 0,
+              page: Math.floor((params.p_offset || 0) / (params.p_limit || 10)) + 1,
               pages: 0,
             },
           };
@@ -168,9 +168,9 @@ export class AgreementsFacadeService {
   });
 
   agreementById = resource({
-    request: () => ({ agreementId: this.agreementId() }),
-    loader: async ({ request }) => {
-      if (!request.agreementId) {
+    params: () => ({ agreementId: this.agreementId() }),
+    loader: async ({ params }) => {
+      if (!params.agreementId) {
         return null;
       }
 
@@ -188,11 +188,11 @@ export class AgreementsFacadeService {
           seasons(id, name, start_date, end_date)
         `
         )
-        .eq('id', request.agreementId)
+        .eq('id', params.agreementId)
         .single();
 
       if (error) {
-        console.error(`Error fetching agreement with ID ${request.agreementId}:`, error);
+        console.error(`Error fetching agreement with ID ${params.agreementId}:`, error);
         throw error;
       }
       return data as AgreementDetails;

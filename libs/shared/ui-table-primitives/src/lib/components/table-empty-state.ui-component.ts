@@ -1,12 +1,12 @@
 import { Component, input, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TuiButton, TuiIcon } from '@taiga-ui/core';
 import { TableEmptyStateConfig } from '../types/table-primitives.types';
 
 @Component({
   selector: 'z-table-empty-state',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, TuiButton, TuiIcon],
+  imports: [TuiButton, TuiIcon],
   template: `
     <div class="flex flex-col items-center justify-center px-6 py-12 text-center">
       @if (config().icon) {

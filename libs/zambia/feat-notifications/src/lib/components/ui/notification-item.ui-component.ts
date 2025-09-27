@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TuiButton, TuiDataList, TuiIcon, TuiHint } from '@taiga-ui/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Notification } from '@zambia/shared/data-access-notifications';
@@ -7,7 +7,7 @@ import type { Notification } from '@zambia/shared/data-access-notifications';
 @Component({
   selector: 'z-notification-item',
   standalone: true,
-  imports: [CommonModule, TuiButton, TuiDataList, TuiIcon, TuiHint, TranslateModule],
+  imports: [TuiButton, TuiDataList, TuiIcon, TuiHint, TranslateModule],
   template: `
     <button tuiOption class="notification-item group relative" [class.unread]="!isRead()" (click)="handleClick()">
       <div class="flex w-full gap-3 p-3 pr-10">

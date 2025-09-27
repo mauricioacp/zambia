@@ -50,7 +50,6 @@ export class DashboardFacadeService {
   };
 
   private rawStats = resource({
-    request: () => ({}),
     loader: async () => {
       const { data, error } = await this.supabase.getClient().rpc('get_dashboard_statistics');
       console.log(data);
@@ -65,7 +64,6 @@ export class DashboardFacadeService {
   });
 
   private rawAgreementsReviewStatistics = resource({
-    request: () => ({}),
     loader: async () => {
       const { data, error } = await this.supabase.getClient().rpc('get_dashboard_agreement_review_statistics');
       console.log(data);

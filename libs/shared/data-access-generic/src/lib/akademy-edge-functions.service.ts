@@ -31,7 +31,6 @@ export class AkademyEdgeFunctionsService {
   private userCreationData = signal<UserCreationResponse | null>(null);
   private passwordResetData = signal<PasswordResetResponse | null>(null);
   private userDeactivationData = signal<DeactivateUserResponse | null>(null);
-  private roleChangeData = signal<ChangeRoleResponse | null>(null);
 
   readonly loading = this.isLoading.asReadonly();
   readonly error = this.lastError.asReadonly();
@@ -39,7 +38,6 @@ export class AkademyEdgeFunctionsService {
   readonly userCreation = this.userCreationData.asReadonly();
   readonly passwordReset = this.passwordResetData.asReadonly();
   readonly userDeactivation = this.userDeactivationData.asReadonly();
-  readonly roleChange = this.roleChangeData.asReadonly();
 
   private async invokeFunction<T>(
     functionName: string,
@@ -91,6 +89,7 @@ export class AkademyEdgeFunctionsService {
 
       return { data };
     } catch (error: unknown) {
+      console.error(error);
       this.isLoading.set(false);
       const errorMessage = error instanceof Error ? error.message : 'Unexpected error occurred';
       this.lastError.set(errorMessage);
@@ -155,14 +154,10 @@ export class AkademyEdgeFunctionsService {
   }
 
   async changeRole(request: ChangeRoleRequest): Promise<ApiResponse<ChangeRoleResponse>> {
-    const response = await this.invokeFunction<ChangeRoleResponse>('akademy-app/change-role', {
+    return this.invokeFunction<ChangeRoleResponse>('akademy-app/change-role', {
       method: 'POST',
       body: request,
     });
-    if (response.data) {
-      this.roleChangeData.set(response.data);
-    }
-    return response;
   }
 
   clearError(): void {

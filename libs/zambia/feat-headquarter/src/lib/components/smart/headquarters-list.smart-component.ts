@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router, RouterModule } from '@angular/router';
 import {
   HeadquartersFacadeService,
@@ -38,7 +38,6 @@ import { RoleService } from '@zambia/data-access-roles-permissions';
   selector: 'z-headquarters-list',
   standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     TranslatePipe,
     EnhancedTableUiComponent,

@@ -9,7 +9,7 @@ import {
   computed,
   DestroyRef,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import {
@@ -44,7 +44,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   selector: 'z-headquarter-detail',
   standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     ReactiveFormsModule,
     TuiIcon,

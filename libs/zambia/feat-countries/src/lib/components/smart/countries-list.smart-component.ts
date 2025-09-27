@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router, RouterModule } from '@angular/router';
 import { CountriesFacadeService, Country, CountryFormData } from '../../services/countries-facade.service';
 import { SupabaseService } from '@zambia/data-access-supabase';
@@ -29,7 +29,6 @@ import { RoleService } from '@zambia/data-access-roles-permissions';
   selector: 'z-countries-list',
   standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     TranslatePipe,
     EnhancedTableUiComponent,

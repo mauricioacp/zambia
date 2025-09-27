@@ -312,11 +312,10 @@ export interface TableColumn {
                               </span>
                             }
                             @case ('custom') {
-                              @if (getColumnTemplate(column.key); as template) {
+                              <!-- @if (getColumnTemplate(column.key); as template) {
                                 <ng-container *ngTemplateOutlet="template; context: { $implicit: item, item: item }" />
-                              } @else {
-                                <span>{{ getDisplayValue(item, column.key) }}</span>
-                              }
+                              } @else -->
+                              <span>{{ getDisplayValue(item, column.key) }}</span>
                             }
                             @default {
                               <span
@@ -624,14 +623,14 @@ export class EnhancedTableUiComponent<T extends Record<string, unknown>> {
     return JSON.stringify(item);
   }
 
-  getColumnTemplate(columnKey: string): TemplateRef<unknown> | null {
+  /*  getColumnTemplate(columnKey: string): TemplateRef<unknown> | null {
     if (!this.columnTemplates) {
       return null;
     }
 
     const templateDir = this.columnTemplates.find((dir) => dir.columnName === columnKey);
     return templateDir ? templateDir.template : null;
-  }
+  }*/
 
   getDisplayValue(item: T, key: string): string {
     const keys = key.split('.');

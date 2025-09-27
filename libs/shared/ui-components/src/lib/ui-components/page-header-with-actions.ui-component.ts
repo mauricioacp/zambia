@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, input, computed, output, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TuiIcon, TuiButton } from '@taiga-ui/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { HasRoleDirective } from '@zambia/util-roles-permissions';
@@ -31,7 +31,7 @@ export interface PageHeaderConfig {
 @Component({
   selector: 'z-page-header-with-actions',
   standalone: true,
-  imports: [CommonModule, TuiIcon, TuiButton, TranslateModule, HasRoleDirective, TuiSkeleton],
+  imports: [TuiIcon, TuiButton, TranslateModule, HasRoleDirective, TuiSkeleton],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div

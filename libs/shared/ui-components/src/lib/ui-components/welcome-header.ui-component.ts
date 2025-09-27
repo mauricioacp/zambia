@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 export interface WelcomeHeaderData {
   title: string;
@@ -11,7 +10,7 @@ export interface WelcomeHeaderData {
 
 @Component({
   selector: 'z-welcome-header',
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="glow relative overflow-hidden rounded-3xl">
       <!-- Background Glow -->

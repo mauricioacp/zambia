@@ -8,7 +8,7 @@ import {
   signal,
   DestroyRef,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router, RouterLink } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
@@ -67,7 +67,6 @@ interface StatCard {
 @Component({
   selector: 'z-agreements-list',
   imports: [
-    CommonModule,
     TranslateModule,
     ReactiveFormsModule,
     AgreementSmartTableComponent,

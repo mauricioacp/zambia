@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject, signal, output } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -16,7 +15,7 @@ import { SearchAgreementResult } from '../../types/search-agreements.types';
 @Component({
   selector: 'z-agreement-simple-search',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, TuiButton],
+  imports: [ReactiveFormsModule, TranslateModule, TuiButton],
   template: `
     <button tuiButton appearance="secondary" size="m" iconStart="@tui.search" (click)="openSearchDialog()">
       {{ 'advanced_search' | translate }}
@@ -51,16 +50,7 @@ export class AgreementSimpleSearchComponent {
 @Component({
   selector: 'z-agreement-search-dialog-content',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    TranslateModule,
-    TuiTextfield,
-    TuiIcon,
-    TuiAvatar,
-    TuiAutoColorPipe,
-    TuiInitialsPipe,
-  ],
+  imports: [ReactiveFormsModule, TranslateModule, TuiTextfield, TuiIcon, TuiAvatar, TuiAutoColorPipe, TuiInitialsPipe],
   template: `
     <div class="search-dialog">
       <div class="mb-4">

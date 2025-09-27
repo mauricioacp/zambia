@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -15,7 +14,6 @@ import { SearchAgreementResult } from '../../types/search-agreements.types';
   selector: 'z-agreement-search-sheet',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     TranslateModule,
     TuiSheetDialog,

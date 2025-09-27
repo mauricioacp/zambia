@@ -305,7 +305,7 @@
   "change_role": "Change Role",
   "change_role_for": "Change role for",
   "current_role": "Current Role",
-  "select_new_role": "Select New Role",
+  "new_role": "New Role",
   "level": "Level",
   "loading_roles": "Loading roles...",
   "select_role_placeholder": "Select a role",

@@ -75,9 +75,9 @@ export class HeadquartersFacadeService {
   });
 
   headquarterById = resource({
-    request: () => (this.headquarterId() ? { headquarterId: this.headquarterId() } : undefined),
-    loader: async ({ request }) => {
-      if (!request) return null;
+    params: () => (this.headquarterId() ? { headquarterId: this.headquarterId() } : undefined),
+    loader: async ({ params }) => {
+      if (!params) return null;
 
       const { data: rawSupabaseData, error } = await this.supabase
         .getClient()
@@ -90,11 +90,11 @@ export class HeadquartersFacadeService {
           seasons:seasons!seasons_headquarter_id_fkey(*)
         `
         )
-        .eq('id', request.headquarterId)
+        .eq('id', params.headquarterId)
         .single();
 
       if (error) {
-        console.error(`Error fetching headquarter with ID ${request.headquarterId}:`, error);
+        console.error(`Error fetching headquarter with ID ${params.headquarterId}:`, error);
         throw error;
       }
 

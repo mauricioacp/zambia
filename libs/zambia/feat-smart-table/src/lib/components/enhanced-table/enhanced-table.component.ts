@@ -3,7 +3,6 @@ import {
   Component,
   ContentChildren,
   QueryList,
-  TemplateRef,
   computed,
   inject,
   input,
@@ -582,22 +581,13 @@ export class EnhancedTableComponent<T extends Record<string, unknown>> {
     action.handler(item);
   }
 
-  getColumnTemplate(columnKey: string): TemplateRef<unknown> | null {
-    if (!this.columnTemplates) {
-      return null;
-    }
-
-    const templateDir = this.columnTemplates.find((dir) => dir.columnName === columnKey);
-    return templateDir ? templateDir.template : null;
-  }
-
   getCellValue(item: T, column: TableColumnWithTemplate<T>): string {
     if (column.valueGetter) {
       return getDisplayValue(column.valueGetter(item));
     }
 
     const key = column.key as string;
-    if (key.includes('.')) {
+    if (key?.includes('.')) {
       return getDisplayValue(getNestedValue(item as Record<string, unknown>, key));
     }
 

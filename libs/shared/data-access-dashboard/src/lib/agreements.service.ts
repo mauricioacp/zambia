@@ -70,8 +70,8 @@ export class AgreementsService {
   });
 
   agreementsResource = resource<PaginatedAgreements, AgreementsRpcParams>({
-    request: () => this.agreementsParams(),
-    loader: async ({ request: rpcParams }: ResourceLoaderParams<AgreementsRpcParams>): Promise<PaginatedAgreements> => {
+    params: () => this.agreementsParams(),
+    loader: async ({ params: rpcParams }: ResourceLoaderParams<AgreementsRpcParams>): Promise<PaginatedAgreements> => {
       const { data, error } = await this.supabase.getClient().rpc('search_agreements', {
         p_limit: rpcParams.p_limit,
         p_offset: rpcParams.p_offset,

@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterLink } from '@angular/router';
 import { TuiIcon } from '@taiga-ui/core';
 import { TuiTooltip } from '@taiga-ui/kit';
 
 @Component({
   selector: 'z-sidebar-nav-item',
-  imports: [CommonModule, RouterLink, TuiIcon, TuiTooltip],
+  imports: [RouterLink, TuiIcon, TuiTooltip],
   template: `
     <a
       [attr.href]="route() === voidRoute ? voidRoute : null"

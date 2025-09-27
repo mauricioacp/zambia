@@ -44,9 +44,9 @@ export class CountriesFacadeService {
   });
 
   countryById = resource({
-    request: () => (this.countryId() ? { countryId: this.countryId() } : undefined),
-    loader: async ({ request }) => {
-      if (!request) return null;
+    params: () => (this.countryId() ? { countryId: this.countryId() } : undefined),
+    loader: async ({ params }) => {
+      if (!params) return null;
 
       const { data, error } = await this.supabase
         .getClient()
@@ -57,11 +57,11 @@ export class CountriesFacadeService {
           headquarters(*)
         `
         )
-        .eq('id', request.countryId)
+        .eq('id', params.countryId)
         .single();
 
       if (error) {
-        console.error(`Error fetching country with ID ${request.countryId}:`, error);
+        console.error(`Error fetching country with ID ${params.countryId}:`, error);
         throw error;
       }
 

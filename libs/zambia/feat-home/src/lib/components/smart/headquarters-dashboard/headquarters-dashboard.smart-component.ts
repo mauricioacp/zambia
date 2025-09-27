@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DashboardData } from '../../../types/dashboard-data.interface';
@@ -10,13 +10,7 @@ import { ActivityFeedComponent } from '../../ui/activity-feed/activity-feed.ui-c
 @Component({
   selector: 'z-headquarters-dashboard',
   standalone: true,
-  imports: [
-    CommonModule,
-    TranslateModule,
-    HeadquarterMetricsWidgetComponent,
-    QuickActionCardComponent,
-    ActivityFeedComponent,
-  ],
+  imports: [TranslateModule, HeadquarterMetricsWidgetComponent, QuickActionCardComponent, ActivityFeedComponent],
   template: `
     <div class="space-y-8">
       <!-- Headquarter Metrics -->

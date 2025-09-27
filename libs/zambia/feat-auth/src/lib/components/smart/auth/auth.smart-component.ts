@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormFieldComponent, logoSvg, ThemeService } from '@zambia/ui-components';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -18,15 +18,7 @@ interface AuthFormData {
 @Component({
   selector: 'z-auth',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule,
-    TranslatePipe,
-    FormFieldComponent,
-    TuiButton,
-    TuiButtonLoading,
-  ],
+  imports: [ReactiveFormsModule, FormsModule, TranslatePipe, FormFieldComponent, TuiButton, TuiButtonLoading],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
     `

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, model, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TuiButton } from '@taiga-ui/core';
@@ -15,7 +14,7 @@ export interface HeadquarterOption {
 @Component({
   selector: 'z-headquarter-filter-selector',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, TuiButton],
+  imports: [FormsModule, TranslateModule, TuiButton],
   template: `
     <div class="headquarter-filter-selector">
       <label for="headquarter-select" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">

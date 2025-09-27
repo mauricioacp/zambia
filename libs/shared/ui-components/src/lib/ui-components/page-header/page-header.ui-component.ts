@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, input, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ThemeToggleComponent } from './theme-toggle.component';
 import { SidebarToggleComponent } from './sidebar-toggle.component';
 import { LanguageToggleComponent } from './language-toggle.component';
 
 @Component({
   selector: 'z-page-header',
-  imports: [CommonModule, ThemeToggleComponent, SidebarToggleComponent, LanguageToggleComponent],
+  imports: [ThemeToggleComponent, SidebarToggleComponent, LanguageToggleComponent],
   template: `
     <header
       id="page-header"

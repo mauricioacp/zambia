@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, model, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TuiButton } from '@taiga-ui/core';
@@ -14,7 +13,7 @@ export interface RoleOption {
 @Component({
   selector: 'z-role-filter-selector',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, TuiButton],
+  imports: [FormsModule, TranslateModule, TuiButton],
   template: `
     <div class="role-filter-selector">
       <label for="role-select" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">

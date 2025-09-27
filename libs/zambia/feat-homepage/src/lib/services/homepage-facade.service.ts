@@ -65,7 +65,6 @@ export class HomepageFacadeService {
   private readonly isLoadingSignal = signal(false);
 
   private homePageStats = resource({
-    request: () => ({}),
     loader: async () => {
       this.isLoadingSignal.set(true);
       try {

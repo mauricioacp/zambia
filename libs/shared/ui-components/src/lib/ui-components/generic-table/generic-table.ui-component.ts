@@ -77,12 +77,13 @@ import { ColumnTemplateDirective } from '../../directives/column-template.direct
               <tr class="even:bg-gray-100 hover:bg-gray-200 dark:even:bg-slate-700 dark:hover:bg-slate-600">
                 @for (header of displayHeaders(); track header) {
                   <td class="px-4 py-4 text-sm whitespace-nowrap text-gray-700 sm:px-6 dark:text-gray-300">
-                    @if (getColumnTemplate(header)) {
+                    <!--  @if (getColumnTemplate(header)) {
                       <ng-container
                         [ngTemplateOutlet]="getColumnTemplate(header)"
                         [ngTemplateOutletContext]="{ $implicit: item, item: item }"
                       ></ng-container>
-                    } @else if (header === 'status') {
+                    } @else-->
+                    @if (header === 'status') {
                       <span
                         class="inline-flex rounded-full px-2 text-xs leading-5 font-semibold"
                         [class.bg-green-100]="item[header] === 'active'"
@@ -151,15 +152,6 @@ export class GenericTableUiComponent<T extends Record<string, unknown>> {
   });
 
   displayLabels = computed(() => this.headerLabels() || {});
-
-  getColumnTemplate(columnName: string): TemplateRef<any> | null {
-    if (!this.columnTemplates) {
-      return null;
-    }
-
-    const templateDir = this.columnTemplates.find((dir) => dir.columnName === columnName);
-    return templateDir ? templateDir.template : null;
-  }
 
   protected get checked(): boolean | null {
     const every = this.items().every(({ selected }) => selected);
