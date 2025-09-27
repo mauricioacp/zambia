@@ -1,4 +1,4 @@
-import { computed, inject, Injectable } from '@angular/core';
+import { computed, inject, Injectable, resource } from '@angular/core';
 import { UserMetadataService } from '@zambia/data-access-auth';
 import {
   ROLE,
@@ -10,6 +10,10 @@ import {
   NavigationSection,
 } from '@zambia/util-roles-definitions';
 import { TranslateService } from '@ngx-translate/core';
+import { Database } from '@zambia/types-supabase';
+import { SupabaseService } from '@zambia/data-access-supabase';
+
+export type AkRole = Database['public']['Tables']['roles']['Row'];
 
 @Injectable({
   providedIn: 'root',
@@ -17,9 +21,29 @@ import { TranslateService } from '@ngx-translate/core';
 export class RoleService {
   private userMetadataService = inject(UserMetadataService);
   private translate = inject(TranslateService);
+  private supabaseService = inject(SupabaseService);
 
   userRole = computed(() => this.userMetadataService.userMetadata().role as RoleCode | null);
   roleLevel = computed(() => this.userMetadataService.userMetadata().roleLevel);
+
+  rolesResource = resource({
+    params: () => this.roleLevel() ?? 0,
+    loader: async () => {
+      const userLevel = this.roleLevel() ?? 0;
+
+      const { data, error } = await this.supabaseService
+        .getClient()
+        .from('roles')
+        .select('id, name, code, level, status')
+        .eq('status', 'active')
+        .lt('level', userLevel)
+        .order('level', { ascending: true });
+
+      if (error) throw error;
+      return (data ?? []) as AkRole[];
+    },
+    defaultValue: [],
+  });
 
   hasRole(role: RoleCode): boolean {
     return this.userRole() === role;
