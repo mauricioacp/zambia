@@ -21,9 +21,11 @@ ENV PROD=${PROD}
 
 RUN npm run config
 
-# Increase Node memory limit and add verbose output
 ENV NODE_OPTIONS="--max-old-space-size=4096"
-RUN npx nx build zambia --configuration=production --verbose --skip-nx-cache
+
+# Clear any existing cache and build fresh
+RUN npx nx reset && \
+    npx nx build zambia --configuration=production --skip-nx-cache
 
 FROM nginx:stable AS final
 WORKDIR /usr/share/nginx/html
