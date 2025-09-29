@@ -148,6 +148,18 @@ interface TableRow {
                     {{ 'edit_agreement' | translate }}
                   </button>
                 }
+                <!-- Resend credentials -->
+                <button
+                  tuiButton
+                  appearance="outline"
+                  size="m"
+                  iconStart="@tui.mail"
+                  [attr.tuiTheme]="currentTheme()"
+                  (click)="onResendCredentials()"
+                  class="border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800/40"
+                >
+                  {{ 'resend_credentials' | translate }}
+                </button>
 
                 <!-- Activate/Deactivate -->
                 <button
@@ -390,6 +402,8 @@ export class AgreementDetailSmartComponent {
     });
   }
 
+  maskDni = (dni: string): string => (dni.length < 4 ? dni : `****${dni.slice(4)}`);
+
   personalInformation = computed<TableRow[]>(() => {
     const data = this.agreementData();
     if (!data) return [];
@@ -397,7 +411,7 @@ export class AgreementDetailSmartComponent {
     return [
       { key: 'email', value: data.email, translationKey: 'email' },
       { key: 'phone', value: data.phone, translationKey: 'phone' },
-      { key: 'document_number', value: data.document_number, translationKey: 'document.number' },
+      { key: 'document_number', value: this.maskDni(data.document_number || ''), translationKey: 'document.number' },
       { key: 'birth_date', value: data.birth_date, translationKey: 'birth.date' },
       { key: 'gender', value: data.gender, translationKey: 'gender' },
       { key: 'address', value: data.address, translationKey: 'address' },
@@ -489,6 +503,39 @@ export class AgreementDetailSmartComponent {
     });
   }
 
+  async onResendCredentials(): Promise<void> {
+    const agreement = this.agreementData();
+    if (!agreement) return;
+
+    const confirmed = await this.showConfirmationModal('resend_credentials_confirmation', {
+      name: `${agreement.name} ${agreement.last_name}`,
+      email: agreement.email,
+    });
+
+    if (confirmed) {
+      try {
+        this.isProcessing.set(true);
+
+        const response = await this.edgeFunctions.resendCredentials(agreement.id);
+
+        if (response.error) {
+          this.notificationService
+            .showError(this.translate.instant('resend_credentials_failed', { error: response.error }))
+            .subscribe();
+        } else {
+          this.notificationService.showSuccess(this.translate.instant('resend_credentials_success')).subscribe();
+        }
+      } catch (error) {
+        console.error('Failed to resend credentials:', error);
+        this.notificationService
+          .showError(this.translate.instant('resend_credentials_failed', { error: 'Unexpected error occurred' }))
+          .subscribe();
+      } finally {
+        this.isProcessing.set(false);
+      }
+    }
+  }
+
   async onToggleAgreementStatus(): Promise<void> {
     const agreement = this.agreementData();
     if (!agreement) return;
@@ -507,13 +554,12 @@ export class AgreementDetailSmartComponent {
           const response = await this.edgeFunctions.createUser({ agreement_id: agreement.id });
 
           if (response.error) {
-            this.notificationService.showError(
-              this.translate.instant('user_creation_failed', { error: response.error })
-            );
-            return;
+            this.notificationService
+              .showError(this.translate.instant('user_creation_failed', { error: response.error }))
+              .subscribe();
           }
         } else {
-          this.notificationService.showError('Próximamente');
+          this.notificationService.showError('Próximamente').subscribe();
           this.isProcessing.set(false);
           return;
         }

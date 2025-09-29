@@ -163,4 +163,13 @@ export class AkademyEdgeFunctionsService {
   clearError(): void {
     this.lastError.set(null);
   }
+
+  async resendCredentials(agreementId: string) {
+    return this.invokeFunction<ChangeRoleResponse>('akademy-app/resend-credentials', {
+      method: 'POST',
+      body: {
+        agreement_id: agreementId,
+      },
+    });
+  }
 }
