@@ -671,5 +671,9 @@
   "Headquarters": "Sede",
   "Status": "Estado",
   "Created": "Creado en",
-  "Actions": "Acciones"
+  "Actions": "Acciones",
+  "resend_credentials": "Reenviar credenciales",
+  "resend_credentials_confirmation": "¿Estás seguro de que deseas reenviar las credenciales para {{name}} ({{email}})?",
+  "resend_credentials_success": "Las credenciales han sido reenviadas exitosamente",
+  "resend_credentials_failed": "Error al reenviar las credenciales: {{error}}"
 }
