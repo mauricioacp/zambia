@@ -450,6 +450,13 @@
   "profile.loadError": "Error al cargar los datos del perfil",
   "profile.saveError": "Error al guardar los cambios del perfil",
   "profile.saveSuccess": "Perfil actualizado exitosamente",
+  "profile.bio": "Biografía",
+  "profile.cancel": "Cancelar",
+  "profile.retry": "Reintentar",
+  "profile.validation.firstNameRequired": "El nombre es obligatorio.",
+  "profile.validation.lastNameRequired": "El apellido es obligatorio.",
+  "profile.validation.phoneInvalid": "Ingresa un número de teléfono internacional válido (por ejemplo, +541234567890).",
+  "profile.validation.formInvalid": "Corrige los campos resaltados antes de guardar.",
 
   "student_progress.title": "Progreso Estudiantil",
   "student_progress.subtitle": "Distribución global de estudiantes por sede y país",
