@@ -133,7 +133,7 @@ interface TableRow {
 
               <!-- Action Buttons -->
 
-              <div class="flex gap-3">
+              <div class="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
                 <!-- Edit Agreement -->
                 @if (canEditAgreement()) {
                   <button
@@ -143,7 +143,7 @@ interface TableRow {
                     iconStart="@tui.pencil"
                     [attr.tuiTheme]="currentTheme()"
                     (click)="onEditAgreement()"
-                    class="border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                    class="w-full sm:w-auto border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                   >
                     {{ 'edit_agreement' | translate }}
                   </button>
@@ -156,7 +156,7 @@ interface TableRow {
                   iconStart="@tui.mail"
                   [attr.tuiTheme]="currentTheme()"
                   (click)="onResendCredentials()"
-                  class="border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800/40"
+                  class="w-full sm:w-auto border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800/40"
                 >
                   {{ 'resend_credentials' | translate }}
                 </button>
@@ -171,6 +171,7 @@ interface TableRow {
                   (click)="onToggleAgreementStatus()"
                   [disabled]="isProcessing()"
                   [ngClass]="getActionButtonClasses(agreementData()?.status)"
+                  class="w-full sm:w-auto"
                 >
                   {{ getActionText(agreementData()?.status) | translate }}
                 </button>
