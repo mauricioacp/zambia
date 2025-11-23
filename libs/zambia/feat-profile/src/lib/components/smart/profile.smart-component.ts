@@ -363,8 +363,15 @@ type Season = Database['public']['Tables']['seasons']['Row'];
             </div>
 
             <!-- Actions -->
-            <div class="flex justify-end gap-4">
-              <button type="button" tuiButton appearance="secondary" size="m" routerLink="/dashboard">
+            <div class="flex flex-col justify-end gap-4 sm:flex-row">
+              <button
+                type="button"
+                tuiButton
+                appearance="secondary"
+                size="m"
+                routerLink="/dashboard"
+                class="w-full sm:w-auto"
+              >
                 {{ 'common.cancel' | translate }}
               </button>
               <!--   todo submit is disabled until que review all post calls-->
@@ -374,6 +381,7 @@ type Season = Database['public']['Tables']['seasons']['Row'];
                 appearance="primary"
                 size="m"
                 [disabled]="isSaving() || profileForm.invalid || true"
+                class="w-full sm:w-auto"
               >
                 @if (isSaving()) {
                   <tui-icon icon="@tui.loader" class="mr-2 animate-spin"></tui-icon>
