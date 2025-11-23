@@ -48,7 +48,7 @@ interface TableRow {
     <div class="min-h-screen bg-gray-50 dark:bg-slate-800">
       @if (agreementsFacade.isDetailLoading()) {
         <!-- Loading State -->
-        <div class="container mx-auto px-6 py-8">
+        <div class="container mx-auto px-4 py-6 sm:px-6 sm:py-8">
           <div
             class="rounded-2xl border border-gray-200/50 bg-white/90 p-8 shadow-lg shadow-gray-900/5 backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20"
           >
@@ -65,7 +65,7 @@ interface TableRow {
       } @else if (agreementData()) {
         <!-- Breadcrumb Navigation -->
         <div class="border-b border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <div class="container mx-auto px-6 py-4">
+          <div class="container mx-auto px-4 py-3 sm:px-6 sm:py-4">
             <tui-breadcrumbs>
               <a *tuiItem routerLink="/dashboard" tuiLink iconStart="@tui.house">
                 {{ 'dashboard' | translate }}
@@ -80,16 +80,18 @@ interface TableRow {
 
         <!-- Enhanced Header with Status Indicators -->
 
-        <div class="container mx-auto px-6 py-8">
+        <div class="container mx-auto px-4 py-6 sm:px-6 sm:py-8">
           <div tuiComment="bottom" style="background: var(--tui-background-base-alt)">
             Próximamente podrás cambiar datos de acuerdos y "desactivar" aquellos que ya no son parte de la sede
           </div>
           <div
-            class="mb-8 rounded-2xl border border-gray-200/50 bg-white/90 p-8 shadow-lg shadow-gray-900/5 backdrop-blur-sm dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20"
+            class="mb-8 rounded-2xl border border-gray-200/50 bg-white/90 p-4 shadow-lg shadow-gray-900/5 backdrop-blur-sm sm:p-6 lg:p-8 dark:border-slate-700/50 dark:bg-slate-800/90 dark:shadow-slate-900/20"
           >
             <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
               <!-- User Identity & Primary Info -->
-              <div class="flex items-center gap-6">
+              <div
+                class="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-center sm:gap-6 sm:text-left"
+              >
                 <!-- Avatar/Initial Circle -->
                 <div
                   class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-2xl font-bold text-white shadow-lg shadow-emerald-500/25"
@@ -133,7 +135,7 @@ interface TableRow {
 
               <!-- Action Buttons -->
 
-              <div class="flex gap-3">
+              <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
                 <!-- Edit Agreement -->
                 @if (canEditAgreement()) {
                   <button
@@ -143,7 +145,7 @@ interface TableRow {
                     iconStart="@tui.pencil"
                     [attr.tuiTheme]="currentTheme()"
                     (click)="onEditAgreement()"
-                    class="border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                    class="w-full border-blue-500 text-blue-600 hover:bg-blue-50 sm:w-auto dark:hover:bg-blue-900/20"
                   >
                     {{ 'edit_agreement' | translate }}
                   </button>
@@ -156,7 +158,7 @@ interface TableRow {
                   iconStart="@tui.mail"
                   [attr.tuiTheme]="currentTheme()"
                   (click)="onResendCredentials()"
-                  class="border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800/40"
+                  class="w-full border-gray-300 text-gray-700 hover:bg-gray-50 sm:w-auto dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800/40"
                 >
                   {{ 'resend_credentials' | translate }}
                 </button>
@@ -171,6 +173,7 @@ interface TableRow {
                   (click)="onToggleAgreementStatus()"
                   [disabled]="isProcessing()"
                   [ngClass]="getActionButtonClasses(agreementData()?.status)"
+                  class="w-full sm:w-auto"
                 >
                   {{ getActionText(agreementData()?.status) | translate }}
                 </button>
@@ -279,7 +282,7 @@ interface TableRow {
               {{ 'location_context' | translate }}
             </h2>
 
-            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               <!-- Headquarter Info -->
               <div class="rounded-xl bg-cyan-50 p-4 dark:bg-cyan-900/20">
                 <div class="flex items-center gap-3">
@@ -329,7 +332,7 @@ interface TableRow {
           </div>
         </div>
       } @else if (agreementsFacade.detailLoadingError()) {
-        <div class="container mx-auto px-6 py-8">
+        <div class="container mx-auto px-4 py-6 sm:px-6 sm:py-8">
           <div class="rounded-xl border border-red-200/50 bg-red-50 p-6 dark:border-red-800/50 dark:bg-red-900/20">
             <div class="flex items-center gap-3">
               <tui-icon icon="@tui.alert-circle" class="text-xl text-red-600 dark:text-red-400"></tui-icon>
@@ -343,7 +346,7 @@ interface TableRow {
           </div>
         </div>
       } @else {
-        <div class="container mx-auto px-6 py-8">
+        <div class="container mx-auto px-4 py-6 sm:px-6 sm:py-8">
           <div class="rounded-xl border border-red-200/50 bg-red-50 p-6 dark:border-red-800/50 dark:bg-red-900/20">
             <div class="flex items-center gap-3">
               <tui-icon icon="@tui.alert-circle" class="text-xl text-red-600 dark:text-red-400"></tui-icon>
