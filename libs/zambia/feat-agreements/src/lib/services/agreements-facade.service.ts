@@ -20,6 +20,8 @@ import {
   SearchAgreementResult,
   SearchAgreementsPagination,
 } from '../types/search-agreements.types';
+import { AgreementsCacheService } from './agreements-cache.service';
+import { AgreementsRealtimeService } from './agreements-realtime.service';
 
 export type Agreement = Database['public']['Tables']['agreements']['Row'];
 export type Headquarter = Database['public']['Tables']['headquarters']['Row'];
@@ -60,6 +62,17 @@ export interface PaginatedAgreements {
   pagination: SearchAgreementsPagination;
 }
 
+export interface AgreementStats {
+  total: number;
+  active: number;
+  pending: number;
+  inactive: number;
+  by_role: Record<string, number>;
+  by_headquarter: Record<string, number>;
+  by_season?: Record<string, number>;
+  last_updated: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -69,6 +82,8 @@ export class AgreementsFacadeService {
   private akademyEdgeFunctionsService = inject(AkademyEdgeFunctionsService);
   private notificationService = inject(NotificationService);
   private agreementSearchService = inject(AgreementSearchService);
+  private cacheService = inject(AgreementsCacheService);
+  private realtimeService = inject(AgreementsRealtimeService);
 
   agreementId: WritableSignal<string> = signal('');
   agreementsResource = linkedSignal(() => this.agreements.value() ?? []);
@@ -94,6 +109,27 @@ export class AgreementsFacadeService {
   formData = signal<AgreementFormData | null>(null);
   saveError = signal<string | null>(null);
   saveSuccess = signal<boolean>(false);
+
+  // Prefetch timeout for next page
+  private prefetchTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  // Stats cache management
+  private statsCacheTTL = 5 * 60 * 1000; // 5 minutes
+  private lastStatsUpdate = signal<Date | null>(null);
+
+  constructor() {
+    // Subscribe to realtime updates for automatic cache invalidation
+    this.realtimeService.subscribe(
+      () => {
+        console.log('[AgreementsFacade] Realtime change detected, invalidating cache');
+        this.invalidateCache();
+      },
+      {
+        showNotifications: true,
+        autoInvalidate: true,
+      }
+    );
+  }
 
   private agreementsParams = computed<SearchAgreementsParams>(() => {
     const params: SearchAgreementsParams = {
@@ -130,40 +166,43 @@ export class AgreementsFacadeService {
   agreements = resource<PaginatedAgreements, SearchAgreementsParams>({
     params: () => this.agreementsParams(),
     loader: async ({ params }: ResourceLoaderParams<SearchAgreementsParams>): Promise<PaginatedAgreements> => {
-      this.isLoading.set(true);
-      try {
-        console.log(params);
-        const { data, error } = await this.supabase.getClient().rpc('search_agreements', params);
+      // Stale-while-revalidate pattern
+      const staleData = this.cacheService.getStale(params);
+      const isStale = this.cacheService.isStale(params);
 
-        if (error) {
-          console.error('Error fetching agreements:', error);
-          throw error;
-        }
+      // If we have stale data, return it immediately and refetch in background
+      if (staleData && isStale) {
+        console.log('[AgreementsFacade] Returning stale data, refetching in background');
+        // Refetch in background without blocking
+        setTimeout(() => {
+          this.fetchAndCache(params).catch((err) => {
+            console.error('[AgreementsFacade] Background refetch failed:', err);
+          });
+        }, 0);
 
-        const response = data as unknown as SearchAgreementsResponse;
-
-        if (!response || !response.data || !response.pagination) {
-          console.warn('Received unexpected data structure from search_agreements RPC.');
-          return {
-            data: [],
-            pagination: {
-              total: 0,
-              limit: params.p_limit || 10,
-              offset: params.p_offset || 0,
-              page: Math.floor((params.p_offset || 0) / (params.p_limit || 10)) + 1,
-              pages: 0,
-            },
-          };
-        }
-
-        this.totalItems.set(response.pagination.total);
-        return {
-          data: response.data,
-          pagination: response.pagination,
-        };
-      } finally {
-        this.isLoading.set(false);
+        return staleData;
       }
+
+      // Check for fresh cache
+      const cached = this.cacheService.get(params);
+      if (cached) {
+        console.log('[AgreementsFacade] Cache hit (fresh)');
+        this.totalItems.set(cached.pagination.total);
+
+        // Prefetch next page
+        this.prefetchNextPage();
+
+        return cached;
+      }
+
+      // Fetch fresh data
+      console.log('[AgreementsFacade] Cache miss, fetching fresh data');
+      const result = await this.fetchAndCache(params);
+
+      // Prefetch next page
+      this.prefetchNextPage();
+
+      return result;
     },
   });
 
@@ -250,6 +289,130 @@ export class AgreementsFacadeService {
     },
   });
 
+  // Statistics resource with caching
+  stats = resource<AgreementStats, { headquarterId?: string | null; seasonId?: string | null }>({
+    params: () => ({
+      headquarterId: this.headquarterId(),
+      seasonId: this.seasonId(),
+    }),
+    loader: async ({ params }) => {
+      console.log('[AgreementsFacade] Fetching statistics');
+      const { data, error } = await this.supabase.getClient().rpc('get_agreements_stats', {
+        p_headquarter_id: params.headquarterId || null,
+        p_season_id: params.seasonId || null,
+      });
+
+      if (error) {
+        console.error('Error fetching stats:', error);
+        // Fallback to calculating from current data
+        return this.calculateStatsFromData();
+      }
+
+      this.lastStatsUpdate.set(new Date());
+      return data as AgreementStats;
+    },
+  });
+
+  /**
+   * Fetch agreements and update cache
+   */
+  private async fetchAndCache(params: SearchAgreementsParams): Promise<PaginatedAgreements> {
+    this.isLoading.set(true);
+    try {
+      const { data, error } = await this.supabase.getClient().rpc('search_agreements', params);
+
+      if (error) {
+        console.error('[AgreementsFacade] Error fetching agreements:', error);
+        throw error;
+      }
+
+      const response = data as unknown as SearchAgreementsResponse;
+
+      if (!response || !response.data || !response.pagination) {
+        console.warn('[AgreementsFacade] Received unexpected data structure from search_agreements RPC.');
+        return {
+          data: [],
+          pagination: {
+            total: 0,
+            limit: params.p_limit || 10,
+            offset: params.p_offset || 0,
+            page: Math.floor((params.p_offset || 0) / (params.p_limit || 10)) + 1,
+            pages: 0,
+          },
+        };
+      }
+
+      const result: PaginatedAgreements = {
+        data: response.data,
+        pagination: response.pagination,
+      };
+
+      // Update cache
+      this.cacheService.set(params, result);
+      this.totalItems.set(result.pagination.total);
+
+      return result;
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  /**
+   * Prefetch next page in background
+   */
+  private prefetchNextPage(): void {
+    if (!this.hasNextPage()) return;
+
+    // Clear existing timeout
+    if (this.prefetchTimeout) {
+      clearTimeout(this.prefetchTimeout);
+    }
+
+    // Prefetch after 1 second of inactivity
+    this.prefetchTimeout = setTimeout(() => {
+      const nextPageParams: SearchAgreementsParams = {
+        ...this.agreementsParams(),
+        p_offset: this.currentPage() * this.pageSize(),
+      };
+
+      // Check if already cached
+      if (!this.cacheService.isFresh(nextPageParams)) {
+        console.log('[AgreementsFacade] Prefetching next page...');
+        this.fetchAndCache(nextPageParams).catch((err) => {
+          console.warn('[AgreementsFacade] Prefetch failed:', err);
+        });
+      }
+    }, 1000);
+  }
+
+  /**
+   * Invalidate all caches and reload
+   */
+  private invalidateCache(): void {
+    console.log('[AgreementsFacade] Invalidating cache');
+    this.cacheService.invalidate();
+    this.stats.reload();
+    this.agreements.reload();
+  }
+
+  /**
+   * Calculate statistics from current agreement data (fallback)
+   */
+  private calculateStatsFromData(): AgreementStats {
+    const data = this.agreements.value()?.data || [];
+    const total = this.totalItems() || data.length;
+
+    return {
+      total,
+      active: data.filter((item) => item.status === 'active').length,
+      pending: data.filter((item) => item.status === 'prospect').length,
+      inactive: data.filter((item) => item.status === 'inactive').length,
+      by_role: {},
+      by_headquarter: {},
+      last_updated: new Date().toISOString(),
+    };
+  }
+
   async activateAgreement(agreementId: string): Promise<void> {
     try {
       this.isLoading.set(true);
@@ -265,7 +428,9 @@ export class AgreementsFacadeService {
       if (result.success) {
         this.notificationService.showSuccess('Agreement activated successfully');
 
-        this.agreements.reload();
+        // Invalidate cache
+        this.invalidateCache();
+
         if (this.agreementId() === agreementId) {
           this.agreementById.reload();
         }
@@ -295,7 +460,9 @@ export class AgreementsFacadeService {
       if (result.success) {
         this.notificationService.showSuccess('Agreement deactivated successfully');
 
-        this.agreements.reload();
+        // Invalidate cache
+        this.invalidateCache();
+
         if (this.agreementId() === agreementId) {
           this.agreementById.reload();
         }
@@ -346,7 +513,8 @@ export class AgreementsFacadeService {
         return null;
       }
 
-      this.agreements.reload();
+      // Invalidate cache
+      this.invalidateCache();
       this.saveSuccess.set(true);
       return data;
     } catch (error) {
@@ -396,8 +564,9 @@ export class AgreementsFacadeService {
         return null;
       }
 
+      // Invalidate cache
+      this.invalidateCache();
       this.agreementById.reload();
-      this.agreements.reload();
       this.saveSuccess.set(true);
       return data;
     } catch (error) {
@@ -483,10 +652,25 @@ export class AgreementsFacadeService {
   isHeadquartersLoading = computed(() => this.headquarters.isLoading());
   isRolesLoading = computed(() => this.roles.isLoading());
   isSeasonsLoading = computed(() => this.seasons.isLoading());
+  isStatsLoading = computed(() => this.stats.isLoading());
 
   headquartersResource = linkedSignal(() => this.headquarters.value() ?? []);
   rolesResource = linkedSignal(() => this.roles.value() ?? []);
   seasonsResource = linkedSignal(() => this.seasons.value() ?? []);
+  statsData = linkedSignal(() => this.stats.value() ?? null);
+
+  // Check if stats cache is stale
+  isStatsCacheStale = computed(() => {
+    const lastUpdate = this.lastStatsUpdate();
+    if (!lastUpdate) return true;
+    return Date.now() - lastUpdate.getTime() > this.statsCacheTTL;
+  });
+
+  // Get cache statistics for monitoring
+  getCacheStats = () => this.cacheService.getStats();
+
+  // Get realtime subscription stats
+  getRealtimeStats = () => this.realtimeService.getStats();
 
   searchAgreements(criteria: AgreementSearchCriteria): Promise<AgreementSearchServiceResult> {
     return this.agreementSearchService

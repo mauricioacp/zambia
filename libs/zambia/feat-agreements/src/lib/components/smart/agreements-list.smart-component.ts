@@ -327,11 +327,15 @@ export class AgreementsListSmartComponent implements OnInit, OnDestroy {
   };
 
   private getStatsCards(): StatCard[] {
+    // Use optimized statistics from facade (real counts, not just current page)
+    const stats = this.agreementsFacade.statsData();
+
+    // Fallback to current page data if stats not loaded yet
     const data = this.agreementsData();
-    const total = this.totalItems() || data.length;
-    const active = data.filter((item) => item.status === 'active').length;
-    const pending = data.filter((item) => item.status === 'prospect').length;
-    const inactive = data.filter((item) => item.status === 'inactive').length;
+    const total = stats?.total ?? this.totalItems() ?? data.length;
+    const active = stats?.active ?? data.filter((item) => item.status === 'active').length;
+    const pending = stats?.pending ?? data.filter((item) => item.status === 'prospect').length;
+    const inactive = stats?.inactive ?? data.filter((item) => item.status === 'inactive').length;
 
     return [
       {
