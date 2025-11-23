@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
 import { ThemeToggleComponent } from './theme-toggle.component';
 import { SidebarToggleComponent } from './sidebar-toggle.component';
@@ -52,5 +52,5 @@ import { LanguageToggleComponent } from './language-toggle.component';
 export class PageHeaderUiComponent {
   icon = 'menu';
   sidebarOpenState = input.required<boolean>();
-  @Output() toggleSidebar = new EventEmitter<void>();
+  toggleSidebar = output<void>();
 }

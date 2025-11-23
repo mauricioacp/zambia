@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, inject, input, Output, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -234,8 +234,8 @@ export class WorkshopFormSmartComponent {
   isSubmitting = input<boolean>(false);
 
   // Outputs
-  @Output() formSubmit = new EventEmitter<WorkshopFormData>();
-  @Output() cancelForm = new EventEmitter<void>();
+  formSubmit = output<WorkshopFormData>();
+  cancelForm = output<void>();
 
   // Form
   workshopForm: FormGroup = this.formBuilder.group({
@@ -253,7 +253,7 @@ export class WorkshopFormSmartComponent {
 
   constructor() {
     // Initialize form with workshop data if in edit mode
-    computed(() => {
+    effect(() => {
       const workshopData = this.workshop();
       if (workshopData) {
         this.updateFormWithWorkshopData(workshopData);

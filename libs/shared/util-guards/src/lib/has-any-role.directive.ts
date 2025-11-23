@@ -1,4 +1,4 @@
-import { computed, Directive, effect, inject, Input, signal, TemplateRef, ViewContainerRef } from '@angular/core';
+import { computed, Directive, effect, inject, input, signal, TemplateRef, ViewContainerRef } from '@angular/core';
 import { RoleService } from '@zambia/data-access-roles-permissions';
 import { getRolesAtLeast, ROLE_GROUP, RoleCode } from '@zambia/util-roles-definitions';
 
@@ -11,6 +11,11 @@ export class HasRoleDirective {
   private templateRef = inject(TemplateRef);
   private viewContainer = inject(ViewContainerRef);
 
+  // Input signals
+  zHasRole = input<RoleCode | RoleCode[] | ROLE_GROUP | ROLE_GROUP[]>();
+  zHasRoleMin = input<RoleCode>();
+
+  // Internal state signals
   private roles = signal<RoleCode[]>([]);
   private groups = signal<ROLE_GROUP[]>([]);
   private minRole = signal<RoleCode | null>(null);
@@ -33,6 +38,34 @@ export class HasRoleDirective {
   });
 
   constructor() {
+    // Effect to handle zHasRole changes
+    effect(() => {
+      const value = this.zHasRole();
+      if (value) {
+        const valueArray = Array.isArray(value) ? value : [value];
+        const isRoleGroup = valueArray.every((v) => v === v.toUpperCase());
+
+        if (isRoleGroup) {
+          this.groups.set(valueArray as ROLE_GROUP[]);
+          this.roles.set([]);
+        } else {
+          this.roles.set(valueArray as RoleCode[]);
+          this.groups.set([]);
+        }
+      }
+    });
+
+    // Effect to handle zHasRoleMin changes
+    effect(() => {
+      const value = this.zHasRoleMin();
+      if (value) {
+        this.minRole.set(value);
+        this.roles.set([]);
+        this.groups.set([]);
+      }
+    });
+
+    // Effect to handle view rendering
     effect(() => {
       if (this.hasAccess()) {
         this.viewContainer.createEmbeddedView(this.templateRef);
@@ -40,27 +73,5 @@ export class HasRoleDirective {
         this.viewContainer.clear();
       }
     });
-  }
-
-  @Input() set zHasRole(value: RoleCode | RoleCode[] | ROLE_GROUP | ROLE_GROUP[]) {
-    const valueArray = Array.isArray(value) ? value : [value];
-
-    const isRoleGroup = valueArray.every((v) => v === v.toUpperCase());
-
-    if (isRoleGroup) {
-      this.groups.set(valueArray as ROLE_GROUP[]);
-      this.roles.set([]);
-    } else {
-      this.roles.set(valueArray as RoleCode[]);
-      this.groups.set([]);
-    }
-  }
-
-  @Input() set zHasRoleMin(value: RoleCode) {
-    this.minRole.set(value);
-    if (value) {
-      this.roles.set([]);
-      this.groups.set([]);
-    }
   }
 }
