@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
   selector: 'z-content-page-container,[z-content-page-container]',
   imports: [],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<ng-content />`,
   styles: ``,
   host: {

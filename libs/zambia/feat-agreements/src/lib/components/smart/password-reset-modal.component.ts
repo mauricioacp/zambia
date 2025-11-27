@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TuiDialogContext } from '@taiga-ui/core';
 import { POLYMORPHEUS_CONTEXT } from '@taiga-ui/polymorpheus';
 import { TranslateModule } from '@ngx-translate/core';
@@ -126,14 +127,18 @@ export class PasswordResetModalComponent {
   protected passwordStrength = signal<'weak' | 'medium' | 'strong' | null>(null);
 
   constructor() {
-    this.form.controls.newPassword.valueChanges.subscribe((value) => {
-      this.calculatePasswordStrength(value || '');
-      this.validatePasswordMatch();
-    });
+    this.form.controls.newPassword.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((value) => {
+        this.calculatePasswordStrength(value || '');
+        this.validatePasswordMatch();
+      });
 
-    this.form.controls.confirmPassword.valueChanges.subscribe(() => {
-      this.validatePasswordMatch();
-    });
+    this.form.controls.confirmPassword.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        this.validatePasswordMatch();
+      });
   }
 
   get userData(): PasswordResetData {

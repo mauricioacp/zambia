@@ -1,17 +1,17 @@
-import { Directive, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { Directive, HostListener, input, output } from '@angular/core';
 
 @Directive({
   selector: '[zTableRowClick]',
   standalone: true,
 })
 export class TableRowClickDirective<T = any> {
-  @Input('zTableRowClick') rowData!: T;
-  @Input() clickable = true;
-  @Output() rowClick = new EventEmitter<T>();
+  rowData = input.required<T>({ alias: 'zTableRowClick' });
+  clickable = input(true);
+  rowClick = output<T>();
 
   @HostListener('click', ['$event'])
   onClick(event: MouseEvent): void {
-    if (!this.clickable) return;
+    if (!this.clickable()) return;
 
     // Prevent click if it's from an action button or interactive element
     const target = event.target as HTMLElement;
@@ -19,14 +19,14 @@ export class TableRowClickDirective<T = any> {
 
     if (!isInteractive) {
       event.stopPropagation();
-      this.rowClick.emit(this.rowData);
+      this.rowClick.emit(this.rowData());
     }
   }
 
   @HostListener('keydown.enter', ['$event'])
   @HostListener('keydown.space', ['$event'])
   onKeydown(event: KeyboardEvent): void {
-    if (!this.clickable) return;
+    if (!this.clickable()) return;
 
     // Prevent if it's from an interactive element
     const target = event.target as HTMLElement;
@@ -34,7 +34,7 @@ export class TableRowClickDirective<T = any> {
 
     if (!isInteractive) {
       event.preventDefault();
-      this.rowClick.emit(this.rowData);
+      this.rowClick.emit(this.rowData());
     }
   }
 }
