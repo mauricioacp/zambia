@@ -509,5 +509,12 @@
     "days": "days",
     "save": "Save",
     "cancel": "Cancel"
+  },
+  "realtime": {
+    "new_agreement_added": "New agreement added: {{name}}",
+    "agreement_updated": "Agreement updated: {{name}}",
+    "agreement_removed": "Agreement removed: {{name}}",
+    "agreement_list_updated": "Agreement list updated",
+    "agreement": "Agreement"
   }
 }

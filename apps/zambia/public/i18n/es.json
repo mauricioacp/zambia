@@ -675,5 +675,12 @@
   "resend_credentials": "Reenviar credenciales",
   "resend_credentials_confirmation": "¿Estás seguro de que deseas reenviar las credenciales para {{name}} ({{email}})?",
   "resend_credentials_success": "Las credenciales han sido reenviadas exitosamente",
-  "resend_credentials_failed": "Error al reenviar las credenciales: {{error}}"
+  "resend_credentials_failed": "Error al reenviar las credenciales: {{error}}",
+  "realtime": {
+    "new_agreement_added": "Nuevo acuerdo agregado: {{name}}",
+    "agreement_updated": "Acuerdo actualizado: {{name}}",
+    "agreement_removed": "Acuerdo eliminado: {{name}}",
+    "agreement_list_updated": "Lista de acuerdos actualizada",
+    "agreement": "Acuerdo"
+  }
 }
